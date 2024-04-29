@@ -17,4 +17,4 @@ linux:
     - AppImage
     - deb
   icon: icons
-electronVersion: 8.2.0
+electronVersion: 30.0.1
