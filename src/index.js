@@ -71,7 +71,7 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 // Define the path to the DiabolicalLauncher directory
-const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'DiabolicalLauncher');
+const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -81,8 +81,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 // Handle download-game event
 ipcMain.on('download-game', async (event, gameId) => {
   const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
-  const gameFilePath = path.join(diabolicalLauncherPath, `${gameId}.zip`);
-
+  
   download(BrowserWindow.getFocusedWindow(), gameUrl, {
     directory: diabolicalLauncherPath
   }).then(dl => {

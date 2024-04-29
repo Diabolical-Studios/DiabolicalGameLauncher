@@ -464,7 +464,7 @@
             onclick="scrollToCard(this)">
             <button class="download-button" data-gameid="projectwhy"
               onclick="promptDownload(this.getAttribute('data-gameid'))">Download</button>
-            <div class="path-container" id="path-container-gameId"></div>
+            <div class="path-container" id="path-container-projectwhy"></div>
           </div>
           <div class="GameBanner"
             style="background-image: url('https://diabolical.studio/min/artworks/potato/image_lowres.jpg');"
@@ -489,18 +489,12 @@
   </div>
 
   <script>
-
     // This should be inside a script tag or an external renderer.js file
     const { ipcRenderer } = require('electron');
 
     function closeWindow() {
       ipcRenderer.send('close-window');
     }
-
-  </script>
-
-  <script>
-    const { ipcRenderer } = require('electron');
 
     // Call this function when the download button is clicked
     function promptDownload(gameId) {
@@ -510,9 +504,16 @@
     // When the download is complete, update the UI accordingly
     ipcRenderer.on('download-complete', (event, gameId, installPath) => {
       const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
-      downloadButton.textContent = 'Play';
-      downloadButton.onclick = () => openGame(installPath);
-      showDownloadPath(gameId, installPath);
+      const pathDisplay = document.getElementById(`path-container-${gameId}`);
+
+      if (downloadButton && pathDisplay) {
+        downloadButton.textContent = 'Play';
+        downloadButton.onclick = () => openGame(installPath);
+        pathDisplay.textContent = `Installed at: ${installPath}`;
+        pathDisplay.style.display = 'block';
+      } else {
+        console.error('Element not found in the DOM:', `path-container-${gameId}`);
+      }
     });
 
     function showDownloadPath(gameId, path) {
