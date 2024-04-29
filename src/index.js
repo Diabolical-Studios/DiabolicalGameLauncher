@@ -1,9 +1,10 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { download } = require('electron-dl');
+const extract = require('extract-zip');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
-}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -18,7 +19,8 @@ const createWindow = () => {
     icon: 'path/to/your/icon.ico', // Set the window icon
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enableRemoteModule: true
     }
   });
 
@@ -39,6 +41,18 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
+ipcMain.on('close-window', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
@@ -58,3 +72,52 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// Define the path to the DiabolicalLauncher directory
+const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'DiabolicalLauncher');
+
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+  app.quit();
+}
+
+// Handle download-game event
+ipcMain.on('download-game', async (event, gameId) => {
+  const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
+  const gameFilePath = path.join(diabolicalLauncherPath, `${gameId}.zip`);
+
+  download(BrowserWindow.getFocusedWindow(), gameUrl, {
+    directory: diabolicalLauncherPath
+  }).then(dl => {
+    extractZip(dl.getSavePath(), gameId)
+      .then(installPath => {
+        event.sender.send('download-complete', gameId, installPath);
+      })
+      .catch(error => {
+        console.error('Extraction error:', error);
+      });
+  }).catch(error => {
+    console.error('Download error:', error);
+  });
+});
+
+
+async function extractZip(zipPath, gameId) {
+  const extractPath = path.join(diabolicalLauncherPath, gameId);
+  await extract(zipPath, { dir: extractPath });
+  fs.unlinkSync(zipPath); // Delete the zip file after extraction
+  // Assuming the main executable is always named gameId.exe
+  const executablePath = path.join(extractPath, `${gameId}.exe`);
+  return executablePath;
+}
+
+// Handle open-game event
+ipcMain.on('open-game', (event, gameExecutablePath) => {
+  const { exec } = require('child_process');
+  exec(`"${gameExecutablePath}"`, (error) => {
+    if (error) {
+      // Handle errors here
+      console.error('Failed to open game:', error);
+    }
+  });
+});

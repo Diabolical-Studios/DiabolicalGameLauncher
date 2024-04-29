@@ -17,8 +17,8 @@ x64:
     - src/**/*
 nsis:
   script: |-
-    !include "C:\Users\info\OneDrive\Documents\GitHub\DiabolicalLauncher\DiabolicalLauncher\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
-    !addincludedir "C:\Users\info\OneDrive\Documents\GitHub\DiabolicalLauncher\DiabolicalLauncher\node_modules\app-builder-lib\templates\nsis\include"
+    !include "C:\Users\info\OneDrive\Documents\GitHub\DiabolicalLauncher\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
+    !addincludedir "C:\Users\info\OneDrive\Documents\GitHub\DiabolicalLauncher\node_modules\app-builder-lib\templates\nsis\include"
     !macro _isUpdated _a _b _t _f
       ${StdUtils.TestParameter} $R9 "updated"
       StrCmp "$R9" "true" `${_t}` `${_f}`
@@ -90,8 +90,8 @@ nsis:
       !insertmacro MUI_LANGUAGE "Vietnamese"
     !macroend
 
+    !include "C:\Users\info\AppData\Local\Temp\t-UmSNVS\0-messages.nsh"
     !addplugindir /x86-unicode "C:\Users\info\AppData\Local\electron-builder\Cache\nsis\nsis-resources-3.4.1\plugins\x86-unicode"
-    !include "C:\Users\info\AppData\Local\Temp\t-Az6WQS\0-messages.nsh"
 
     Var newStartMenuLink
     Var oldStartMenuLink

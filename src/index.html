@@ -43,6 +43,8 @@
       width: -webkit-fill-available;
       top: 0;
       left: 0;
+
+      z-index: 999;
     }
 
     .window-controls {
@@ -55,9 +57,9 @@
       border: none;
       width: 20px;
       height: 20px;
-      border-radius: 8px;
+      border-radius: 4px;
       /* Circular buttons */
-      background-color: #0F0F0F;
+      background-color: #272727;
       color: #fff;
       display: flex;
       align-items: center;
@@ -67,11 +69,11 @@
     }
 
     .window-control-btn:hover {
-      background-color: #777;
+      background-color: #aa0606;
     }
 
     .window-control-btn:active {
-      background-color: #999;
+      background-color: #aa0606;
     }
 
     .window-control-btn:focus {
@@ -188,14 +190,16 @@
       background-position: center;
       background-repeat: no-repeat;
       margin-right: 24px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.5s ease, box-shadow 0.3s ease;
       cursor: pointer;
+      display: flex;
+      flex-direction: column-reverse;
       /* Makes the cursor a pointer when hovering over the cards */
     }
 
     /* Add a subtle shadow and transform effect on hover to indicate interactivity */
     .GameBanner:hover {
-      transform: scale(1.05);
+      transform: scale(1.01);
       /* Slightly increase size */
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
       /* Adds shadow for depth */
@@ -260,20 +264,18 @@
       display: flex;
       flex-wrap: nowrap;
       overflow-x: auto;
+      overflow-y: hidden;
       transition: transform 0.5s ease-in-out, width 0.5s ease;
     }
 
-/* Adjust the grid layout to 3x2 as requested */
-.game-cards-container.grid-view {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 20px;
-  overflow: visible; /* Allow overflow to show all elements */
-}
-
-    .GameBanner {
-      transition: all 0.5s ease;
+    /* Adjust the grid layout to 3x2 as requested */
+    .game-cards-container.grid-view {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 20px;
+      overflow: visible;
+      /* Allow overflow to show all elements */
     }
 
     .game-cards-container.grid-view .GameBanner {
@@ -283,13 +285,64 @@
       /* For grid view */
       background-position: inherit;
     }
+
+    .download-button {
+      padding: 12px 24px;
+      margin: 20px;
+      width: -webkit-fill-available;
+      border: none;
+      bottom: 0;
+      background-color: #0078D7;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .download-button:hover {
+      background-color: #005EA6;
+    }
+
+    .download-button:active {
+      background-color: #003D79;
+    }
+
+    .download-path {
+      display: block;
+      margin-top: 5px;
+      color: #aaa;
+      font-size: 0.8em;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .path-container {
+      display: none;
+      /* Hidden by default */
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f2f2f2;
+      color: #333;
+      border-radius: 5px;
+      font-size: 0.8em;
+      max-width: calc(100% - 20px);
+      /* Accounting for padding */
+      word-wrap: break-word;
+    }
+
+    .path-container.visible {
+      display: block;
+      /* Will show the container */
+    }
   </style>
 </head>
 
 <body>
   <div class="title-bar">
     <div class="window-controls">
-      <button class="window-control-btn" onclick="close()">
+      <button class="window-control-btn" onclick="closeWindow()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd"
             d="M0.928925 0.928941C1.31945 0.538416 1.95261 0.538416 2.34314 0.928941L8 6.5858L13.6569 0.928941C14.0474 0.538416 14.6806 0.538416 15.0711 0.928941C15.4616 1.31947 15.4616 1.95263 15.0711 2.34315L9.41421 8.00001L15.0711 13.6569C15.4616 14.0474 15.4616 14.6806 15.0711 15.0711C14.6805 15.4616 14.0474 15.4616 13.6568 15.0711L8 9.41423L2.34315 15.0711C1.95263 15.4616 1.31946 15.4616 0.928938 15.0711C0.538414 14.6806 0.538414 14.0474 0.928938 13.6569L6.58579 8.00001L0.928925 2.34315C0.538401 1.95263 0.538401 1.31946 0.928925 0.928941Z"
@@ -408,7 +461,11 @@
         <div class="game-cards-container">
           <div class="GameBanner"
             style="background-image: url('https://diabolical.studio/min/artworks/bozo_brawl/image_lowres.jpg');"
-            onclick="scrollToCard(this)"></div>
+            onclick="scrollToCard(this)">
+            <button class="download-button" data-gameid="projectwhy"
+              onclick="promptDownload(this.getAttribute('data-gameid'))">Download</button>
+            <div class="path-container" id="path-container-gameId"></div>
+          </div>
           <div class="GameBanner"
             style="background-image: url('https://diabolical.studio/min/artworks/potato/image_lowres.jpg');"
             onclick="scrollToCard(this)"></div>
@@ -432,14 +489,44 @@
   </div>
 
   <script>
-    const { remote } = require('electron');
-    function minimize() {
-      remote.getCurrentWindow().minimize();
+
+    // This should be inside a script tag or an external renderer.js file
+    const { ipcRenderer } = require('electron');
+
+    function closeWindow() {
+      ipcRenderer.send('close-window');
     }
-    function close() {
-      remote.getCurrentWindow().close();
+
+  </script>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // Call this function when the download button is clicked
+    function promptDownload(gameId) {
+      ipcRenderer.send('download-game', gameId);
+    }
+
+    // When the download is complete, update the UI accordingly
+    ipcRenderer.on('download-complete', (event, gameId, installPath) => {
+      const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
+      downloadButton.textContent = 'Play';
+      downloadButton.onclick = () => openGame(installPath);
+      showDownloadPath(gameId, installPath);
+    });
+
+    function showDownloadPath(gameId, path) {
+      const pathDisplay = document.getElementById(`path-container-${gameId}`);
+      pathDisplay.textContent = `Installed at: ${path}`;
+      pathDisplay.style.display = 'block';
+    }
+
+    function openGame(path) {
+      ipcRenderer.send('open-game', path);
     }
   </script>
+
+
 
   <script>
     // Function to scroll to the selected card
