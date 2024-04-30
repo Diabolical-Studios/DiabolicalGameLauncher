@@ -102,7 +102,7 @@ async function extractZip(zipPath, gameId) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
   await extract(zipPath, { dir: extractPath });
   fs.unlinkSync(zipPath); // Delete the zip file after extraction
-  // Assuming the main executable is always named gameId.exe
+  // Assuming the main executable is always named gameId.exe 1232
   const executablePath = path.join(extractPath, `${gameId}.exe`);
   return executablePath;
 }
