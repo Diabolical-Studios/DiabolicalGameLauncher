@@ -1,9 +1,13 @@
+//index.js
+
 const { app, BrowserWindow, ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { download } = require('electron-dl');
 const extract = require('extract-zip');
+const { fetchGames } = require('./js/database');
+const oracledb = require('oracledb');
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -18,9 +22,9 @@ const createWindow = () => {
     frame: false,  // This makes the window frameless
     icon: 'path/to/your/icon.ico', // Set the window icon
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js'),
     }
   });
 
@@ -67,6 +71,8 @@ app.on('activate', () => {
   }
 });
 
+
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
@@ -81,7 +87,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 // Handle download-game event
 ipcMain.on('download-game', async (event, gameId) => {
   const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
-  
+
   download(BrowserWindow.getFocusedWindow(), gameUrl, {
     directory: diabolicalLauncherPath
   }).then(dl => {
@@ -102,7 +108,7 @@ async function extractZip(zipPath, gameId) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
   await extract(zipPath, { dir: extractPath });
   fs.unlinkSync(zipPath); // Delete the zip file after extraction
-  // Assuming the main executable is always named gameId.exe 1232
+  // Assuming the main executable is always named gameId.exe
   const executablePath = path.join(extractPath, `${gameId}.exe`);
   return executablePath;
 }
@@ -116,4 +122,13 @@ ipcMain.on('open-game', (event, gameExecutablePath) => {
       console.error('Failed to open game:', error);
     }
   });
+});
+
+ipcMain.handle('load-games', async () => {
+  try {
+    return await fetchGames();
+  } catch (error) {
+    console.error("Failed to fetch games:", error);
+    return [];
+  }
 });

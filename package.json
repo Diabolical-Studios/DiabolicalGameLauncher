@@ -38,9 +38,12 @@
   "author": "info",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "electron-dl": "^3.5.2",
     "electron-squirrel-startup": "^1.0.0",
-    "extract-zip": "^2.0.1"
+    "extract-zip": "^2.0.1",
+    "node-fetch": "^3.3.2",
+    "oracledb": "^6.4.0"
   },
   "devDependencies": {
     "electron": "^30.0.1",
