@@ -126,12 +126,6 @@ function openGame(gameId) {
 }
 
 
-window.electronAPI.onDownloadError((event, gameId, error) => {
-    console.error(`Download failed for ${gameId}:`, error);
-    // Optionally reset the button or show an error message
-});
-
-
 function setupScrollHandler() {
     const container = document.getElementById('game-cards-container');
     if (!container) {
@@ -143,7 +137,7 @@ function setupScrollHandler() {
         const direction = event.deltaY > 0 ? 1 : -1;
         changeCardIndex(direction);
         scrollToCurrentIndex(container);
-    }, 300, true);
+    }, 100, true);
 
     container.addEventListener('wheel', (event) => {
         event.preventDefault(); // Prevent the default scroll behavior
