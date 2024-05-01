@@ -23,9 +23,11 @@ const createWindow = () => {
     icon: 'path/to/your/icon.ico', // Set the window icon
     webPreferences: {
       contextIsolation: true,
+      nodeIntegration: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js'),
-    }
+    },
+    resizable: false  // This prevents the window from being resizable
   });
 
   // and load the index.html of the app.
@@ -131,4 +133,9 @@ ipcMain.handle('load-games', async () => {
     console.error("Failed to fetch games:", error);
     return [];
   }
+});
+
+ipcMain.handle('load-html', async (event, filePath) => {
+  const fullPath = path.join(app.getAppPath(), filePath);
+  return fs.promises.readFile(fullPath, 'utf8').catch(error => console.error(error));
 });
