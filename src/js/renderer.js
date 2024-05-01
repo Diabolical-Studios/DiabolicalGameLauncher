@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    setupScrollHandler();
+    setupKeyboardHandler();
+    
     window.api.loadGames().then(games => {
         createGameCards(games);
     }).catch(err => {
@@ -17,56 +21,116 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(error => console.error(error));
     });
 
-    setupScrollHandler();
-    setupKeyboardHandler();
+    document.querySelectorAll('.game-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const gameId = this.getAttribute('data-gameid');
+            window.electronAPI.downloadGame(gameId);
+        });
+    });
+
+    window.electronAPI.onDownloadComplete((event, gameId, installPath) => {
+        const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
+        if (downloadButton) {
+            downloadButton.innerHTML = `<img src="Resources/MenuIcons/play.png" alt="Play">`;
+            downloadButton.onclick = () => window.electronAPI.openGame(installPath);
+            // Optionally update or show a path display element
+            const pathDisplay = document.getElementById(`path-container-${gameId}`);
+            if (pathDisplay) {
+                pathDisplay.textContent = `Installed at: ${installPath}`;
+                pathDisplay.style.display = 'block';
+            }
+        }
+    });
+
+    window.electronAPI.onDownloadProgress((event, { gameId, percentage }) => {
+        const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
+        if (downloadButton) {
+            // Format the percentage to a more readable form, e.g., "Downloading 50%"
+            downloadButton.innerHTML = `${Math.round(percentage * 100)}%`;
+        }
+    });
+
+    window.electronAPI.onDownloadError((event, gameId, error) => {
+        console.error(`Download failed for ${gameId}:`, error);
+    });
+
+    window.electronAPI.getInstalledGames().then(installedGames => {
+        console.log('Installed games:', installedGames);
+        updateGameButtons(installedGames);
+    }).catch(error => {
+        console.error("Error getting installed games:", error);
+    });
 });
+
+let currentIndex = 0; // Keeps track of the current card index
+
 
 function closeWindow() {
     window.electronAPI.closeWindow();
 }
 
-
-function createGameCards(games) {
+async function createGameCards(games) {
     const container = document.getElementById('game-cards-container');
-    container.innerHTML = '';  // Clear existing content
+    container.innerHTML = '';
+
+    const installedGames = await window.electronAPI.getInstalledGames(); // Get installed games once and use throughout
 
     games.forEach(game => {
         const card = document.createElement('div');
         card.className = 'game-banner';
         card.style.backgroundImage = `url('${game.background_image_url}')`;
+        let buttonIconUrl = "Resources/MenuIcons/download.png";  // Default to download icon
+        let buttonAction = `startDownload('${game.game_id}')`;
+
+        // Check if the game is installed
+        if (installedGames.includes(game.game_id)) {
+            buttonIconUrl = "Resources/MenuIcons/play.png";  // Change to play icon
+            buttonAction = `openGame('${game.game_id}')`;  // Change to open game function
+        }
+
         card.innerHTML = `
             <div class="game-details">
                 <h3>${game.game_name}</h3>
                 <p>${game.description}</p>
             </div>
-            <button class="game-button" onclick="handleButtonClick('${game.game_name}')" class="shimmer-button">
-    <img src="Resources/MenuIcons/download.png" alt="">
-    <svg width="79" height="46" viewBox="0 0 79 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g filter="url(#filter0_f_618_1123)">
-            <path d="M42.9 2H76.5L34.5 44H2L42.9 2Z" fill="url(#paint0_linear_618_1123)"/>
-        </g>
-        <defs>
-            <filter id="filter0_f_618_1123" x="0" y="0" width="78.5" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                <feGaussianBlur stdDeviation="1" result="effect1_foregroundBlur_618_1123"/>
-            </filter>
-            <linearGradient id="paint0_linear_618_1123" x1="76.5" y1="2.00002" x2="34.5" y2="44" gradientUnits="userSpaceOnUse">
-                <stop stop-color="white" stop-opacity="0.8"/> <!-- Increased opacity for a lighter appearance -->
-                <stop offset="1" stop-color="white" stop-opacity="0.1"/> <!-- Increased opacity for a lighter appearance -->
-            </linearGradient>
-        </defs>
-    </svg>
-</button>
-
+            <button class="game-button shimmer-button" data-gameid="${game.game_id}" onclick="${buttonAction}">
+                <img src="${buttonIconUrl}" alt="Download">
+                <svg width="79" height="46" viewBox="0 0 79 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_f_618_1123)">
+                <path d="M42.9 2H76.5L34.5 44H2L42.9 2Z" fill="url(#paint0_linear_618_1123)"/>
+            </g>
+            <defs>
+                <filter id="filter0_f_618_1123" x="0" y="0" width="78.5" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                    <feGaussianBlur stdDeviation="1" result="effect1_foregroundBlur_618_1123"/>
+                </filter>
+                <linearGradient id="paint0_linear_618_1123" x1="76.5" y1="2.00002" x2="34.5" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="white" stop-opacity="0.8"/>
+                    <stop offset="1" stop-color="white" stop-opacity="0.1"/>
+                </linearGradient>
+            </defs>
+                </svg>
+            </button>
         `;
         container.appendChild(card);
     });
 }
 
+function startDownload(gameId) {
+    window.electronAPI.downloadGame(gameId);
+}
+
+function openGame(gameId) {
+    window.electronAPI.openGame(gameId);
+}
 
 
-let currentIndex = 0; // Keeps track of the current card index
+window.electronAPI.onDownloadError((event, gameId, error) => {
+    console.error(`Download failed for ${gameId}:`, error);
+    // Optionally reset the button or show an error message
+});
+
 
 function setupScrollHandler() {
     const container = document.getElementById('game-cards-container');
@@ -79,7 +143,7 @@ function setupScrollHandler() {
         const direction = event.deltaY > 0 ? 1 : -1;
         changeCardIndex(direction);
         scrollToCurrentIndex(container);
-    }, 100, true);
+    }, 300, true);
 
     container.addEventListener('wheel', (event) => {
         event.preventDefault(); // Prevent the default scroll behavior
