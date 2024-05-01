@@ -9,7 +9,6 @@ const extract = require('extract-zip');
 const { fetchGames } = require('./js/database');
 const oracledb = require('oracledb');
 
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -78,53 +77,11 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-// Define the path to the DiabolicalLauncher directory
-const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
-
-// Handle download-game event
-ipcMain.on('download-game', async (event, gameId) => {
-  const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
-
-  download(BrowserWindow.getFocusedWindow(), gameUrl, {
-    directory: diabolicalLauncherPath
-  }).then(dl => {
-    extractZip(dl.getSavePath(), gameId)
-      .then(installPath => {
-        event.sender.send('download-complete', gameId, installPath);
-      })
-      .catch(error => {
-        console.error('Extraction error:', error);
-      });
-  }).catch(error => {
-    console.error('Download error:', error);
-  });
-});
-
-
-async function extractZip(zipPath, gameId) {
-  const extractPath = path.join(diabolicalLauncherPath, gameId);
-  await extract(zipPath, { dir: extractPath });
-  fs.unlinkSync(zipPath); // Delete the zip file after extraction
-  // Assuming the main executable is always named gameId.exe
-  const executablePath = path.join(extractPath, `${gameId}.exe`);
-  return executablePath;
-}
-
-// Handle open-game event
-ipcMain.on('open-game', (event, gameExecutablePath) => {
-  const { exec } = require('child_process');
-  exec(`"${gameExecutablePath}"`, (error) => {
-    if (error) {
-      // Handle errors here
-      console.error('Failed to open game:', error);
-    }
-  });
-});
 
 ipcMain.handle('load-games', async () => {
   try {
@@ -138,4 +95,84 @@ ipcMain.handle('load-games', async () => {
 ipcMain.handle('load-html', async (event, filePath) => {
   const fullPath = path.join(app.getAppPath(), filePath);
   return fs.promises.readFile(fullPath, 'utf8').catch(error => console.error(error));
+});
+
+
+//DownloadManager
+// Define the path to the DiabolicalLauncher directory
+const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
+
+
+// Extracts the downloaded zip file
+async function extractZip(zipPath, gameId, event) {
+  const extractPath = path.join(diabolicalLauncherPath, gameId);
+  try {
+    await extract(zipPath, { dir: extractPath });
+    fs.unlinkSync(zipPath); // Delete the zip file after extraction
+    const executablePath = path.join(extractPath, `${gameId}.exe`);
+    event.sender.send('download-complete', gameId, executablePath);
+    return executablePath;
+  } catch (error) {
+    console.error('Extraction error:', error);
+    event.sender.send('download-error', gameId, 'Extraction failed');
+  }
+}
+
+// Handle download-game event
+ipcMain.on('download-game', async (event, gameId) => {
+  const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
+
+  try {
+    const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
+      directory: diabolicalLauncherPath,
+      onProgress: (progress) => {
+        const progressData = {
+          gameId: gameId,
+          percentage: progress.percent
+        };
+        console.log("Sending download progress:", progressData);
+        event.sender.send('download-progress', progressData);
+      }
+    });
+    await extractZip(dl.getSavePath(), gameId, event);
+  } catch (error) {
+    console.error('Download or Extraction error:', error);
+    event.sender.send('download-error', gameId, error.message);
+  }
+});
+
+
+// Handle open-game event
+ipcMain.on('open-game', (event, gameExecutablePath) => {
+  const { exec } = require('child_process');
+  exec(`"${gameExecutablePath}"`, (error) => {
+    if (error) {
+      // Handle errors here
+      console.error('Failed to open game:', error);
+    }
+  });
+});
+
+function getInstalledGames() {
+  try {
+    // Ensure the directory exists
+    if (!fs.existsSync(diabolicalLauncherPath)) {
+      fs.mkdirSync(diabolicalLauncherPath, { recursive: true });
+      return [];
+    }
+
+    // Read the directory contents
+    const files = fs.readdirSync(diabolicalLauncherPath, { withFileTypes: true });
+    // Filter directories and return their names
+    const installedGames = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+    return installedGames;
+  } catch (error) {
+    console.error("Failed to list installed games:", error);
+    return [];
+  }
+}
+
+// Expose this function to the renderer process via IPC
+ipcMain.handle('get-installed-games', async (event) => {
+  return getInstalledGames();
 });
