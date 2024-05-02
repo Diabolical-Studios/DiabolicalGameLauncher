@@ -1,8 +1,8 @@
 {
   "name": "diabolicallauncher",
   "productName": "Diabolical Launcher",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "version": "1.0.1",
+  "description": "Launcher for the Diabolical Studios games",
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
@@ -35,7 +35,7 @@
     }
   },
   "keywords": [],
-  "author": "info",
+  "author": "doruksasmaz",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.5",
