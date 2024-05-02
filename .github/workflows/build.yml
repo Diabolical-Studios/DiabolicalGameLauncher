@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # Assuming you're building a Windows app
+    runs-on: windows-latest  # Adjust if you also need to build for other OSes
 
     steps:
     - name: Check out code
@@ -16,19 +16,21 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'  # Adjust to your project's Node.js version
+        node-version: '14'  # Ensure this matches your project's requirement
 
     - name: Install dependencies
       run: npm install
 
     - name: Build and package
-      run: npm run dist  # Make sure this script is correctly set in your package.json
+      run: npm run dist
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Pass GH_TOKEN to environment
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure to use GitHub's provided GITHUB_TOKEN for release creation
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
