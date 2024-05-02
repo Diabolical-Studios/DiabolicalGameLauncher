@@ -2,6 +2,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
     loadGames: () => ipcRenderer.invoke('load-games'),
+    onDbStatusChange: (callback) => {
+        ipcRenderer.on('db-status', (event, status) => {
+            callback(status);
+        });
+    }
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {

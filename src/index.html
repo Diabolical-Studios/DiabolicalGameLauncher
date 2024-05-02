@@ -203,7 +203,6 @@
       background-position: center;
       background-repeat: no-repeat;
       transition: all 0.5s ease, box-shadow 0.3s ease;
-      cursor: pointer;
       scroll-snap-align: start;
     }
 
@@ -235,6 +234,7 @@
 
     .game-details {
       z-index: 4;
+      width: -webkit-fill-available;
     }
 
     .game-details p,
@@ -319,12 +319,11 @@
       line-height: 24px;
       white-space: nowrap;
       overflow: hidden;
-      padding: 12px 48px;
       position: relative;
       text-decoration: none;
       transition: 0.2s;
-      width: fit-content;
-      height: fit-content;
+      width: 40%;
+      height: 10%;
 
       font-family: 'Consolas', sans-serif;
 
@@ -509,9 +508,10 @@
       width: 12px;
       height: 12px;
       border-radius: 12px;
-      background-color: rgb(72, 216, 24);
+
+      background-color: rgb(97, 97, 97);
       animation: blink 2s infinite;
-      box-shadow: 0 0 12px rgb(9, 255, 0);
+      box-shadow: 0 0 12px rgb(128, 128, 128);
     }
 
     @keyframes blink {

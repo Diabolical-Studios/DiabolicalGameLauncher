@@ -11,7 +11,7 @@ function fetchGames() {
             path: '/.netlify/functions/fetchGames',
             method: 'GET',
             headers: {
-                'x-api-key': apiKey,
+                'x-api-key': '87554970-9709-4d09-9624-048e805dd45d',
                 'Content-Type': 'application/json'
             }
         };
