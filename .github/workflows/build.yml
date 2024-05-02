@@ -30,7 +30,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure to use GitHub's provided GITHUB_TOKEN for release creation
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Ensure to use GitHub's provided GITHUB_TOKEN for release creation
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
@@ -40,9 +40,9 @@ jobs:
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Diabolical Launcher Setup 1.0.4.exe
-        asset_name: Diabolical Launcher Setup 1.0.4.exe
+        asset_path: ./dist/Diabolical Launcher Setup 1.0.5.exe
+        asset_name: Diabolical Launcher Setup 1.0.5.exe
         asset_content_type: application/octet-stream
