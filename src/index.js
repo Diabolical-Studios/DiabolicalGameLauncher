@@ -8,6 +8,8 @@ const { download } = require('electron-dl');
 const extract = require('extract-zip');
 const { fetchGames } = require('./js/database');
 const oracledb = require('oracledb');
+const { exec } = require('child_process');
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -36,7 +38,28 @@ const createWindow = () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // Ping database server every 10 seconds to check status
+  setInterval(() => {
+    pingDatabase('89.168.71.146');
+  }, 10000); // Adjust the interval as needed
 };
+
+function pingDatabase(ip) {
+  exec(`ping -n 1 ${ip}`, { env: process.env }, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Exec error: ${error}`);
+      mainWindow.webContents.send('db-status', 'red');
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    if (stdout.includes("Received = 1")) {
+      mainWindow.webContents.send('db-status', 'rgb(72, 216, 24)');
+    } else {
+      mainWindow.webContents.send('db-status', 'red');
+    }
+  });
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -120,7 +143,7 @@ async function extractZip(zipPath, gameId, event) {
 
 // Handle download-game event
 ipcMain.on('download-game', async (event, gameId) => {
-  const gameUrl = `https://api.diabolical.studio/${gameId}.zip`;
+  const gameUrl = `https://api.diabolical.studio/${gameId}/${gameId}.zip`;
 
   try {
     const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {

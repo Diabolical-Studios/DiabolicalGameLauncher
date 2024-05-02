@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    window.api.onDbStatusChange((status) => {
+        const statusDiv = document.getElementById('launcher-version-status');
+        statusDiv.style.backgroundColor = status; // Set the color based on the status
+    });
+
     window.electronAPI.onDownloadComplete((event, gameId, installPath) => {
         const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
         if (downloadButton) {
