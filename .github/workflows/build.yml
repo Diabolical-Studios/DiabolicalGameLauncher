@@ -24,6 +24,7 @@ jobs:
       run: npm install
 
     - name: Calculate new version and create tag
+      id: calculate_new_version
       run: |
         echo "Reading current version..."
         VERSION_PREFIX="v"
@@ -35,7 +36,7 @@ jobs:
         git add version.txt
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
-        echo "New version $NEW_VERSION created and tagged."
+        echo "::set-output name=new_version::$NEW_VERSION"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -62,6 +63,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
+        asset_path: ./dist/Diabolical Launcher Setup ${GITHUB_REF_NAME}.exe
         asset_name: Diabolical Launcher Setup ${GITHUB_REF_NAME}.exe
         asset_content_type: application/octet-stream
