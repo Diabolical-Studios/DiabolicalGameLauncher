@@ -1,7 +1,7 @@
 //index.js
 
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const { autoUpdater, AppUpdater } = require('electron-updater');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -15,6 +15,9 @@ const { exec } = require('child_process');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
 
 const createWindow = () => {
   // Create the browser window.
@@ -65,11 +68,6 @@ function pingDatabase(ip) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-  createWindow();
-  autoUpdater.checkForUpdatesAndNotify();
-});
-
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');
 });
@@ -82,6 +80,10 @@ ipcMain.on('restart_app', () => {
   autoUpdater.quitAndInstall();
 });
 
+app.on('ready', function() {
+  createWindow();
+  autoUpdater.checkForUpdatesAndNotify();
+});
 
 ipcMain.on('close-window', () => {
   if (mainWindow) {

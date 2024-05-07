@@ -72,15 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     ipcRenderer.on('update_available', () => {
-        alert('A new update is available. Downloading now...');
+        console.log('A new update is available. Downloading now...');
+        // You can also prompt the user or show progress
     });
 
     ipcRenderer.on('update_downloaded', () => {
-        alert('Update Downloaded. It will be installed on restart. Restart now?');
-        // Prompt user to restart the application to install the update
-        ipcRenderer.send('restart_app');
+        console.log('Update downloaded. It will be installed on restart. Restart now?');
+        // Prompt the user to restart the app
     });
-
+    
     const closeButton = document.getElementById('close-btn');
     closeButton.addEventListener('click', closeWindow);
 });
