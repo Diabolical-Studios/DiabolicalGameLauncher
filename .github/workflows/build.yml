@@ -81,8 +81,8 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: |
-          ./dist/Diabolical Launcher Setup.exe
-          ./dist/latest.yml
+          dist/Diabolical Launcher Setup.exe
+          dist/latest.yml
         asset_name: |
           DiabolicalLauncherSetup.exe
           latest.yml
