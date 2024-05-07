@@ -25,6 +25,7 @@ jobs:
       run: npm install
 
     - name: Calculate new version and create tag
+      id: calculate_new_version  # Add an ID here to reference this step later
       run: |
         echo "Reading current version..."
         VERSION_PREFIX="v"
@@ -36,6 +37,7 @@ jobs:
         git add version.txt
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
+        echo "::set-output name=new_version::$NEW_VERSION"  # This line sets the new_version output
         echo "New version $NEW_VERSION created and tagged."
       shell: bash
       env:
@@ -44,15 +46,14 @@ jobs:
     - name: Build and package
       run: npm run dist
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Pass GH_TOKEN to environment
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
-      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
+        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}  # Reference the output variable
         release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
         draft: false
         prerelease: false
