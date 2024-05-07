@@ -13,7 +13,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Fetch all history for all branches and tags
+        fetch-depth: 0  # Fetch all history for all branches and tags 
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
