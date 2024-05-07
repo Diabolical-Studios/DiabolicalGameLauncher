@@ -1,6 +1,7 @@
 //index.js
 
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -9,8 +10,6 @@ const extract = require('extract-zip');
 const { fetchGames } = require('./js/database');
 const oracledb = require('oracledb');
 const { exec } = require('child_process');
-const versionChecker = require('./js/versionChecker');
-
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -68,9 +67,19 @@ function pingDatabase(ip) {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-  // Assuming your current version is stored in package.json
-  const currentVersion = require('../package.json').version;
-  versionChecker.checkForUpdates(currentVersion);
+  autoUpdater.checkForUpdatesAndNotify();
+});
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update_available');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update_downloaded');
+});
+
+ipcMain.on('restart_app', () => {
+  autoUpdater.quitAndInstall();
 });
 
 

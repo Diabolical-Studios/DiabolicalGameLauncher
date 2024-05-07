@@ -1,4 +1,8 @@
+//preload.js
+
 const { contextBridge, ipcRenderer } = require('electron');
+const packageJson = require('../package.json'); // Adjust path as necessary
+
 
 contextBridge.exposeInMainWorld('api', {
     loadGames: () => ipcRenderer.invoke('load-games'),
@@ -7,6 +11,10 @@ contextBridge.exposeInMainWorld('api', {
             callback(status);
         });
     }
+});
+
+contextBridge.exposeInMainWorld('versions', {
+    appVersion: packageJson.version
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {

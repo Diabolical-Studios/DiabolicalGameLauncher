@@ -20,18 +20,26 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "icons/icon.ico"
+      "icon": "icons/icon.ico",
+      "artifactName": "${productName} Setup.${ext}"
     },
     "mac": {
       "target": "dmg",
-      "icon": "icons/icon.icns"
+      "icon": "icons/icon.icns",
+      "artifactName": "${productName}.${ext}"
     },
     "linux": {
       "target": [
         "AppImage",
         "deb"
       ],
-      "icon": "icons"
+      "icon": "icons",
+      "artifactName": "${productName}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "repo": "DiabolicalLauncher",
+      "owner": "Diabolical-Studios"
     }
   },
   "keywords": [],
@@ -41,6 +49,7 @@
     "dotenv": "^16.4.5",
     "electron-dl": "^3.5.2",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^6.1.8",
     "extract-zip": "^2.0.1",
     "node-fetch": "^3.3.2",
     "oracledb": "^6.4.0"
@@ -48,7 +57,7 @@
   "devDependencies": {
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
-    "eslint": "^9.1.1",
+    "eslint": "^4.19.1",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^5.1.1",

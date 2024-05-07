@@ -2,12 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupScrollHandler();
     setupKeyboardHandler();
-    
+
     window.api.loadGames().then(games => {
         createGameCards(games);
     }).catch(err => {
         console.error("Error loading games:", err);
     });
+
+    const versionElement = document.getElementById('launcher-version-number');
+    if (versionElement) {
+        versionElement.textContent = `v${window.versions.appVersion}`;  // Update version number dynamically
+    }
 
     const contentArea = document.getElementById('contentArea');
 
@@ -65,6 +70,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch(error => {
         console.error("Error getting installed games:", error);
     });
+
+    ipcRenderer.on('update_available', () => {
+        alert('A new update is available. Downloading now...');
+    });
+
+    ipcRenderer.on('update_downloaded', () => {
+        alert('Update Downloaded. It will be installed on restart. Restart now?');
+        // Prompt user to restart the application to install the update
+        ipcRenderer.send('restart_app');
+    });
+
+    const closeButton = document.getElementById('close-btn');
+    closeButton.addEventListener('click', closeWindow);
 });
 
 let currentIndex = 0; // Keeps track of the current card index
