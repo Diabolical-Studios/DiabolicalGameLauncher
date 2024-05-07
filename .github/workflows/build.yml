@@ -3,7 +3,7 @@ name: Build and Release with Auto Versioning
 on:
   push:
     branches:
-      - master
+      - master  # Set to your default development branch
 
 jobs:
   build_and_release:
@@ -13,12 +13,12 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # Important to fetch all history for version calculation
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'  # Consider updating this if possible
+        node-version: '14'
         cache: 'npm'
 
     - name: Install dependencies
@@ -31,26 +31,29 @@ jobs:
         CURRENT_VERSION=$(cat version.txt)
         NEW_VERSION="$VERSION_PREFIX$((CURRENT_VERSION + 1))"
         echo $NEW_VERSION > version.txt
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add version.txt
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
+        echo "New version $NEW_VERSION created and tagged."
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Build and package
       run: npm run dist
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Pass GH_TOKEN to environment
 
     - name: Create Release
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ env.NEW_VERSION }}
-        release_name: Release ${{ env.NEW_VERSION }}
+        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
+        release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
         draft: false
         prerelease: false
 
