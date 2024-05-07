@@ -70,5 +70,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
-        asset_name: Diabolical Launcher Setup.exe
+        asset_name: DiabolicalLauncherSetup.exe
         asset_content_type: application/octet-stream
