@@ -5,7 +5,7 @@
   "description": "Launcher for the Diabolical Studios games",
   "main": "src/index.js",
   "scripts": {
-    "start": "electron .",
+    "start": "set ELECTRON_IS_DEV=0 && electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
@@ -48,6 +48,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "electron-dl": "^3.5.2",
+    "electron-is-dev": "^3.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-updater": "^6.1.8",
     "extract-zip": "^2.0.1",

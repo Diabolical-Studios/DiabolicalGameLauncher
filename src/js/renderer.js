@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Error loading games:", err);
     });
 
+    window.bridge.updateMessage(updateMessage);
+
     const versionElement = document.getElementById('launcher-version-number');
     if (versionElement) {
         versionElement.textContent = `v${window.versions.appVersion}`;  // Update version number dynamically
@@ -71,19 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Error getting installed games:", error);
     });
 
-    ipcRenderer.on('update_available', () => {
-        console.log('A new update is available. Downloading now...');
-        // You can also prompt the user or show progress
-    });
-
-    ipcRenderer.on('update_downloaded', () => {
-        console.log('Update downloaded. It will be installed on restart. Restart now?');
-        // Prompt the user to restart the app
-    });
-    
     const closeButton = document.getElementById('close-btn');
     closeButton.addEventListener('click', closeWindow);
 });
+
+function updateMessage(event, message) {
+    console.log("message logged in view");
+    let elemE = document.getElementById("message");
+    if (elemE) {
+        elemE.textContent = message;
+    }
+}
 
 let currentIndex = 0; // Keeps track of the current card index
 

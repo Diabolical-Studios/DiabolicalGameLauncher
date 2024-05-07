@@ -26,3 +26,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onDownloadComplete: (game_id, installPath) => ipcRenderer.on('download-complete', game_id, installPath),
     onDownloadProgress: (game_id, percentage) => ipcRenderer.on('download-progress', game_id, percentage)
 });
+
+let bridge = {
+    updateMessage: (callback) => ipcRenderer.on("updateMessage", callback),
+  };
+  
+  contextBridge.exposeInMainWorld("bridge", bridge);

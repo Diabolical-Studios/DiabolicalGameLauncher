@@ -1,7 +1,7 @@
 //index.js
 
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { autoUpdater, AppUpdater } = require('electron-updater');
+const { autoUpdater } = require('electron-updater');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -12,11 +12,12 @@ const oracledb = require('oracledb');
 const { exec } = require('child_process');
 
 
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-autoUpdater.autoDownload = true;
+autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
 const createWindow = () => {
@@ -65,24 +66,42 @@ function pingDatabase(ip) {
   });
 }
 
+// A function to handle showing messages and sending them to the renderer
+function showMessage(message) {
+  console.log("showMessage trapped");
+  console.log(message);
+  if (mainWindow) {
+    mainWindow.webContents.send("updateMessage", message);
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('update_available');
+/*New Update Available*/
+autoUpdater.on("update-available", (info) => {
+  showMessage(`Update available. Current version ${app.getVersion()}`);
+  let pth = autoUpdater.downloadUpdate();
+  showMessage(pth);
 });
 
-autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update_downloaded');
+autoUpdater.on("update-not-available", (info) => {
+  showMessage(`No update available. Current version ${app.getVersion()}`);
 });
 
-ipcMain.on('restart_app', () => {
-  autoUpdater.quitAndInstall();
+/*Download Completion Message*/
+autoUpdater.on("update-downloaded", (info) => {
+  showMessage(`Update downloaded. Current version ${app.getVersion()}`);
+});
+
+autoUpdater.on("error", (info) => {
+  showMessage(info);
 });
 
 app.on('ready', function() {
   createWindow();
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates();
+  showMessage(`Checking for updates. Current version ${app.getVersion()}`);
 });
 
 ipcMain.on('close-window', () => {
