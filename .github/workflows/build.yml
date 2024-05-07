@@ -13,7 +13,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Fetch all history for all branches and tags 
+        fetch-depth: 0  # Fetch all history for all branches and tags
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -34,7 +34,7 @@ jobs:
       id: calculate_new_version
       run: |
         echo "Fetching tags..."
-        git fetch --tags
+        git fetch --tags --force
         TAG_PREFIX="v"
         LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
         LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
@@ -50,10 +50,14 @@ jobs:
         semver.inc(lastVersion, increment)
         ")
         echo "New version: $NEW_VERSION"
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git tag $NEW_VERSION
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+        if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "Tag $NEW_VERSION already exists!"
+        else
+            git tag $NEW_VERSION
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+        fi
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
