@@ -50,10 +50,10 @@ jobs:
 
     - name: Update package.json version
       run: |
-        jq '.version = "${{ steps.calculate_new_version.outputs.new_version }}"' package.json > temp.json
-        mv temp.json package.json
+        jq --arg ver "${{ steps.calculate_new_version.outputs.new_version }}" '.version = $ver' package.json | Out-File -Encoding utf8 package.json
         git add package.json
         git commit -m "Update package.json to version ${{ steps.calculate_new_version.outputs.new_version }}"
+      
     
     - name: Build and package
       run: npm run dist
