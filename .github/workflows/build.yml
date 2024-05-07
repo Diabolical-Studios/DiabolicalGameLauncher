@@ -59,14 +59,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     
-
     - name: Update package.json version
       run: |
-        jq --arg ver "${{ env.NEW_VERSION }}" '.version = $ver' package.json > package.json.tmp
-        mv package.json.tmp package.json
+        (jq --arg ver "${{ steps.calculate_new_version.outputs.new_version }}" '.version = $ver' package.json) | Set-Content -Path package.json -Encoding UTF8
         git add package.json
-        git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
-        git push --follow-tags
+        git commit -m "Update package.json to version ${{ steps.calculate_new_version.outputs.new_version }}"
+      
 
     - name: Build and package
       run: npm run dist
