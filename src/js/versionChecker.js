@@ -1,43 +1,39 @@
-const { dialog, shell, app } = require('electron');
+const { dialog, shell, app, BrowserWindow } = require('electron');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { download } = require('electron-dl');
-const { BrowserWindow } = require('electron');
 
-
-// Download the update file
-function downloadUpdate(url, assetName) {
+function downloadUpdate(url, assetName, callback) {
     const savePath = path.join(app.getPath('temp'), assetName);
-    const win = BrowserWindow.getFocusedWindow();
+    const win = BrowserWindow.getFocusedWindow(); // Ensure this exists or manage differently if null
 
-    return download(win, url, {
+    download(win, url, {
         saveAs: false,
-        directory: path.dirname(savePath)
-    }).then(dl => dl.getSavePath());
+        directory: path.dirname(savePath),
+        onProgress: progress => console.log(`Download progress: ${progress.percent * 100}%`)
+    }).then(dl => {
+        // Here dl is the DownloadItem from Electron's session module, which provides getSavePath()
+        callback(null, dl.getSavePath());
+    }).catch(err => {
+        callback(err);
+    });
 }
 
-// Check and download update if available
 function checkForUpdates(currentVersion) {
     fetchLatestRelease().then(release => {
         const latestVersion = release.tag_name;
         if (latestVersion !== currentVersion) {
-            console.log('Update available:', latestVersion);
-            const asset = release.assets.find(asset => asset.name.endsWith('.exe')); // Change this depending on your asset names
+            const asset = release.assets.find(asset => asset.name.endsWith('.exe')); // Adjust as needed
             if (asset) {
                 promptForUpgrade(latestVersion, asset.browser_download_url, asset.name);
             } else {
                 console.error('No valid assets found for download.');
             }
-        } else {
-            console.log('No updates available.');
         }
-    }).catch(error => {
-        console.error('Error checking for updates:', error);
-    });
+    }).catch(console.error);
 }
 
-// Fetch the latest release information from GitHub
 function fetchLatestRelease() {
     return new Promise((resolve, reject) => {
         const options = {
@@ -48,22 +44,12 @@ function fetchLatestRelease() {
         };
 
         const req = https.request(options, res => {
-            if (res.statusCode !== 200) {
-                reject(new Error(`Failed to fetch data, status code: ${res.statusCode}`));
-            }
             let rawData = '';
             res.on('data', chunk => rawData += chunk);
-            res.on('end', () => {
-                try {
-                    const parsedData = JSON.parse(rawData);
-                    resolve(parsedData);
-                } catch (e) {
-                    reject(e);
-                }
-            });
+            res.on('end', () => resolve(JSON.parse(rawData)));
         });
 
-        req.on('error', (e) => reject(e));
+        req.on('error', reject);
         req.end();
     });
 }
@@ -72,29 +58,42 @@ function promptForUpgrade(version, url, assetName) {
     let message = `Version ${version} is available. Do you want to download and install it now?`;
     dialog.showMessageBox({
         type: 'info',
-        title: 'Update Available',
-        message: 'A new version of Diabolical Launcher is available.',
+        message: 'Update Available',
         detail: message,
         buttons: ['Yes', 'No']
     }).then(result => {
-        if (result.response === 0) { // The user clicked 'Yes'
-            downloadUpdate(url, assetName).then(installerPath => {
+        if (result.response === 0) { // User chose 'Yes'
+            downloadUpdate(url, assetName, (err, installerPath) => {
+                if (err) {
+                    dialog.showErrorBox('Update Error', `Failed to download the update: ${err.message}`);
+                    return;
+                }
                 runInstaller(installerPath);
-            }).catch(err => {
-                console.error('Failed to download the update:', err);
-                dialog.showErrorBox('Update Error', 'Failed to download the update. Please try again later.');
             });
         }
     });
 }
 
-
-// Run the downloaded installer
 function runInstaller(installerPath) {
     const { exec } = require('child_process');
-    exec(installerPath, (error) => {
+    const updateScriptPath = path.join(app.getPath('temp'), 'update.bat');
+
+    fs.writeFileSync(updateScriptPath, `
+        @echo off
+        :loop
+        tasklist | find "${path.basename(process.execPath)}" > nul 2>&1
+        if errorlevel 1 (
+            start "" "${installerPath}"
+            exit
+        ) else (
+            timeout /t 1
+            goto loop
+        )
+    `, 'utf8');
+
+    exec(`start cmd /c "${updateScriptPath}"`, (error) => {
         if (error) {
-            console.error(`Failed to execute installer: ${error}`);
+            console.error(`Failed to execute update script: ${error}`);
             return;
         }
         app.quit();
