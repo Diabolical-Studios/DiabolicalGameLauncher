@@ -74,18 +74,13 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
+    - name: Upload Release Assets
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: |
-          dist/Diabolical Launcher Setup.exe
-          dist/latest.yml
-        asset_name: |
-          DiabolicalLauncherSetup.exe
-          latest.yml
-        asset_content_type: |
-          application/octet-stream
-          text/yaml
+        asset_path: ./dist/*
+        asset_name: .
+        asset_content_type: application/octet-stream
+      
