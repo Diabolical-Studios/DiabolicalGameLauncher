@@ -37,25 +37,22 @@ jobs:
         LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
         if [[ $LAST_VERSION == "" ]]; then LAST_VERSION=0; fi
         NEW_VERSION="$TAG_PREFIX$((LAST_VERSION + 1))"
-        SEMANTIC_VERSION="$((LAST_VERSION + 1)).0.0"  # Here we create a semantic version
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         echo "New version: $NEW_VERSION"
-        echo "Semantic Version: $SEMANTIC_VERSION"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git tag $NEW_VERSION
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-        echo "SEMANTIC_VERSION=$SEMANTIC_VERSION" >> $GITHUB_ENV
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-    
+
     - name: Update package.json version
       run: |
-        (Get-Content package.json -Raw) | jq --arg ver "${{ env.SEMANTIC_VERSION }}" '.version = $ver' | Set-Content -Path package.json -Encoding UTF8
+        jq --arg ver "${NEW_VERSION:1}" '.version = $ver' package.json | Set-Content -Path package.json -Encoding UTF8
         git add package.json
-        git commit -m "Update package.json to version ${{ env.SEMANTIC_VERSION }}"
-    
-      
+        git commit -m "Update package.json to version ${NEW_VERSION:1}"
+        git push --follow-tags
+
     - name: Build and package
       run: npm run dist
       env:
@@ -67,8 +64,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
-        release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
         draft: false
         prerelease: false
 
