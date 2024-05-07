@@ -19,10 +19,17 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '14'
-        cache: 'npm'
 
+    - name: Cache node modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
     - name: Install dependencies
-      run: npm install
+      run: npm ci  # Using npm ci to install dependencies from the lock file
 
     - name: Calculate new version and create tag
       id: calculate_new_version
