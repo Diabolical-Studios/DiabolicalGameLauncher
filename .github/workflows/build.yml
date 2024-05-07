@@ -13,7 +13,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Important to fetch all history for version calculation
+        fetch-depth: 0  # Fetch all history for all branches and tags
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -27,17 +27,22 @@ jobs:
     - name: Calculate new version and create tag
       id: calculate_new_version
       run: |
-        echo "Reading current version..."
-        VERSION_PREFIX="v"
-        CURRENT_VERSION=$(cat version.txt)
-        NEW_VERSION="$VERSION_PREFIX$((CURRENT_VERSION + 1))"
+        echo "Fetching tags..."
+        git fetch --tags
+        TAG_PREFIX="v"
+        LAST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
+        if [[ $LAST_VERSION == "" ]]; then LAST_VERSION=0; fi
+        NEW_VERSION="$TAG_PREFIX$((LAST_VERSION + 1))"
+        echo "New version: $NEW_VERSION"
+        echo "Creating new tag and updating version..."
         echo $NEW_VERSION > version.txt
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add version.txt
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
-        echo "::set-output name=new_version::$NEW_VERSION"  # This line sets the new_version output
+        echo "::set-output name=new_version::$NEW_VERSION"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -48,7 +53,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
-      id: create_release  # Ensure this ID is set for referencing
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -63,7 +68,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Check this reference 
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
         asset_name: Diabolical Launcher Setup.exe
         asset_content_type: application/octet-stream
