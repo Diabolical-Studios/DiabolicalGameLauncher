@@ -30,23 +30,21 @@ jobs:
         echo "Fetching tags..."
         git fetch --tags
         TAG_PREFIX="v"
-        LAST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        # Sort tags numerically to get the last one, assuming they are all numeric after 'v'
+        LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
         LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
         if [[ $LAST_VERSION == "" ]]; then LAST_VERSION=0; fi
         NEW_VERSION="$TAG_PREFIX$((LAST_VERSION + 1))"
         echo "New version: $NEW_VERSION"
         echo "Creating new tag and updating version..."
-        echo $NEW_VERSION > version.txt
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add version.txt
-        git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
         echo "::set-output name=new_version::$NEW_VERSION"
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
+    
     - name: Build and package
       run: npm run dist
       env:
