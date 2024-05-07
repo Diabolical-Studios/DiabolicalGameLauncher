@@ -36,6 +36,7 @@ jobs:
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
         echo "New version $NEW_VERSION created and tagged."
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
