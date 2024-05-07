@@ -28,33 +28,27 @@ jobs:
       run: choco install jq
 
     - name: Calculate new version and create tag
-      id: calculate_new_version
       run: |
         echo "Fetching tags..."
         git fetch --tags
         TAG_PREFIX="v"
-        # Sort tags numerically to get the last one, assuming they are all numeric after 'v'
         LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
         LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
         if [[ $LAST_VERSION == "" ]]; then LAST_VERSION=0; fi
-        NEW_VERSION="$TAG_PREFIX$((LAST_VERSION + 1))"
-        echo "New version: $NEW_VERSION"
+        NEW_VERSION=$((LAST_VERSION + 1))
+        NEW_SEMVER_VERSION="$NEW_VERSION.0.0"
+        echo "New version: $NEW_SEMVER_VERSION"
         echo "Creating new tag and updating version..."
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git tag $NEW_VERSION
-        echo "::set-output name=new_version::$NEW_VERSION"
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
+        git tag "$TAG_PREFIX$NEW_VERSION"
+        echo "VERSION=$NEW_SEMVER_VERSION" >> $GITHUB_ENV
+    
     - name: Update package.json version
       run: |
-        $newVersion = "${{ steps.calculate_new_version.outputs.new_version }}"
-        (Get-Content package.json -Raw) | jq --arg ver "$newVersion" '.version = $ver' | Set-Content -Path package.json -Encoding UTF8
+        jq --arg ver "$VERSION" '.version = $ver' package.json | Set-Content -Path package.json -Encoding UTF8
         git add package.json
-        git commit -m "Update package.json to version $newVersion"
-      
+        git commit -m "Update package.json to version $VERSION"   
     
     - name: Build and package
       run: npm run dist
