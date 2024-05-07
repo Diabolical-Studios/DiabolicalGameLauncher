@@ -3,7 +3,7 @@ name: Build and Release with Auto Versioning
 on:
   push:
     branches:
-      - master  # Set to your default development branch
+      - master
 
 jobs:
   build_and_release:
@@ -13,56 +13,50 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Important to fetch all history for version calculation
+        fetch-depth: 0
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '14'  # Consider updating this if possible
 
     - name: Install dependencies
       run: npm install
 
     - name: Calculate new version and create tag
-      id: calculate_new_version
       run: |
         echo "Reading current version..."
         VERSION_PREFIX="v"
         CURRENT_VERSION=$(cat version.txt)
         NEW_VERSION="$VERSION_PREFIX$((CURRENT_VERSION + 1))"
         echo $NEW_VERSION > version.txt
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add version.txt
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
-        echo "::set-output name=new_version::$NEW_VERSION"
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Build and package
       run: npm run dist
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Pass GH_TOKEN to environment
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
-      id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
-        release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
         draft: false
         prerelease: false
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
-        asset_name: Diabolical Launcher Setup ${GITHUB_REF_NAME}.exe
+        asset_name: Diabolical Launcher Setup.exe
         asset_content_type: application/octet-stream
