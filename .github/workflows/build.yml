@@ -25,7 +25,7 @@ jobs:
       run: npm install
 
     - name: Calculate new version and create tag
-      id: calculate_new_version  # Add an ID here to reference this step later
+      id: calculate_new_version
       run: |
         echo "Reading current version..."
         VERSION_PREFIX="v"
@@ -38,7 +38,6 @@ jobs:
         git commit -m "Increment version to $NEW_VERSION"
         git tag $NEW_VERSION
         echo "::set-output name=new_version::$NEW_VERSION"  # This line sets the new_version output
-        echo "New version $NEW_VERSION created and tagged."
       shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -49,11 +48,12 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
+      id: create_release  # Ensure this ID is set for referencing
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}  # Reference the output variable
+        tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
         release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
         draft: false
         prerelease: false
@@ -63,7 +63,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Check this reference
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
         asset_name: Diabolical Launcher Setup.exe
         asset_content_type: application/octet-stream
