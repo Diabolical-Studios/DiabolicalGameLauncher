@@ -63,7 +63,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Check this reference
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Check this reference 
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
         asset_name: Diabolical Launcher Setup.exe
         asset_content_type: application/octet-stream
