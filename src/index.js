@@ -9,6 +9,8 @@ const extract = require('extract-zip');
 const { fetchGames } = require('./js/database');
 const oracledb = require('oracledb');
 const { exec } = require('child_process');
+const versionChecker = require('./js/versionChecker');
+
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -64,7 +66,13 @@ function pingDatabase(ip) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  // Assuming your current version is stored in package.json
+  const currentVersion = require('../package.json').version;
+  versionChecker.checkForUpdates(currentVersion);
+});
+
 
 ipcMain.on('close-window', () => {
   if (mainWindow) {
