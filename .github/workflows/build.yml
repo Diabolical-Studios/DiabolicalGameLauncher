@@ -13,7 +13,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Fetch all history for all branches and tags 
+        fetch-depth: 0  # Fetch all history for all branches and tags
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -46,7 +46,7 @@ jobs:
         const commitMessages = \`$(git log ${LAST_TAG}..HEAD --pretty=format:%s)\`;
         let increment = 'patch'; // default to patch
         if (/BREAKING CHANGE|feat!/.test(commitMessages)) increment = 'major';
-        elif (/feat|feature/.test(commitMessages)) increment = 'minor';
+        else if (/feat|feature/.test(commitMessages)) increment = 'minor';
         semver.inc(lastVersion, increment)
         ")")
         echo "New version: $NEW_VERSION"
@@ -54,9 +54,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git tag $NEW_VERSION
         echo "NEW_VERSION=$NEW_VERSION" | Out-File -Append -FilePath $env:GITHUB_ENV
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      shell: powershell
 
     - name: Update package.json version
       run: |
@@ -64,18 +62,14 @@ jobs:
         (Get-Content package.json -Raw) | ConvertFrom-Json | ForEach-Object { $_.version = $ver } | ConvertTo-Json | Set-Content -Path package.json -Encoding UTF8
         git add package.json
         git commit -m "Update package.json to version $ver"
+      shell: powershell
 
-      
     - name: Build and package
       run: npm run dist
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         tag_name: ${{ env.NEW_VERSION }}
         release_name: Release ${{ env.NEW_VERSION }}
@@ -84,8 +78,6 @@ jobs:
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup.exe
