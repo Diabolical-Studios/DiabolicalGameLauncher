@@ -32,13 +32,11 @@ jobs:
       run: |
         echo "Fetching tags..."
         git fetch --tags
-        TAG_PREFIX="v"
         # Find the last version tag and increment its patch version
-        LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
-        LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
+        LAST_TAG=$(git tag | sort -V | tail -n1)
+        LAST_VERSION=$LAST_TAG
         if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
         NEW_VERSION=$(echo $LAST_VERSION | awk -F. '{$NF = $NF + 1;}1' OFS='.')
-        NEW_VERSION="${TAG_PREFIX}${NEW_VERSION}"
         echo "New version: $NEW_VERSION"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
