@@ -108,6 +108,7 @@ autoUpdater.on("update-not-available", (info) => {
 /*Download Completion Message*/
 autoUpdater.on("update-downloaded", (info) => {
   showMessage(`Update downloaded. Restart launcher to apply...`);
+  autoUpdater.quitAndInstall();
 });
 
 autoUpdater.on("error", (info) => {

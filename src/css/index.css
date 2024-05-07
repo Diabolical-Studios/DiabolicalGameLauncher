@@ -527,7 +527,7 @@ h2 {
 }
 
 .MenuItems li svg {
-    fill: #bbbbbb;
+    fill: #4b4b4b;
     /* Default light grey color */
     transition: fill 0.3s ease, filter 0.3s ease;
     /* Smooth transition for color and filter */
