@@ -1,4 +1,4 @@
-name: Build and Release with Semantic Versioning
+name: Build and Release with Auto Versioning
 
 on:
   push:
@@ -27,49 +27,43 @@ jobs:
     - name: Install jq
       run: choco install jq
 
-    - name: Install semver
-      run: npm install semver
-
     - name: Calculate new version and create tag
       id: calculate_new_version
       run: |
         echo "Fetching tags..."
         git fetch --tags
-        $TAG_PREFIX="v"
-        $LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | Sort-Object -Version | Select-Object -Last 1)
-        $LAST_VERSION=$LAST_TAG.TrimStart($TAG_PREFIX)
-        if ($LAST_VERSION -eq "") { $LAST_VERSION="0.0.0" }
-        echo "Last version: $LAST_VERSION"
-        $NEW_VERSION=[System.Environment]::ExpandEnvironmentVariables("$(node -pe "
-        const semver = require('semver');
-        const lastVersion = '${LAST_VERSION}';
-        const commitMessages = \`$(git log ${LAST_TAG}..HEAD --pretty=format:%s)\`;
-        let increment = 'patch'; // default to patch
-        if (/BREAKING CHANGE|feat!/.test(commitMessages)) increment = 'major';
-        else if (/feat|feature/.test(commitMessages)) increment = 'minor';
-        semver.inc(lastVersion, increment)
-        ")")
+        TAG_PREFIX="v"
+        # Find the last version tag and increment its patch version
+        LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
+        LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
+        if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
+        NEW_VERSION=$(echo $LAST_VERSION | awk -F. '{$NF = $NF + 1;}1' OFS='.')
+        NEW_VERSION="${TAG_PREFIX}${NEW_VERSION}"
         echo "New version: $NEW_VERSION"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git tag $NEW_VERSION
-        echo "NEW_VERSION=$NEW_VERSION" | Out-File -Append -FilePath $env:GITHUB_ENV
-      shell: powershell
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Update package.json version
       run: |
-        $ver = "${{ env.NEW_VERSION }}"
-        (Get-Content package.json -Raw) | ConvertFrom-Json | ForEach-Object { $_.version = $ver } | ConvertTo-Json | Set-Content -Path package.json -Encoding UTF8
+        npm version ${{ env.NEW_VERSION }} --no-git-tag-version
         git add package.json
-        git commit -m "Update package.json to version $ver"
-      shell: powershell
+        git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
 
     - name: Build and package
       run: npm run dist
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         tag_name: ${{ env.NEW_VERSION }}
         release_name: Release ${{ env.NEW_VERSION }}
@@ -78,6 +72,8 @@ jobs:
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup.exe
