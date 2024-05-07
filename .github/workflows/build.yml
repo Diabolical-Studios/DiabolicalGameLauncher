@@ -38,16 +38,18 @@ jobs:
         echo "New version $NEW_VERSION created and tagged."
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Build and package
       run: npm run dist
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Pass GH_TOKEN to environment
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
         release_name: Release ${{ steps.calculate_new_version.outputs.new_version }}
@@ -57,7 +59,7 @@ jobs:
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./dist/Diabolical Launcher Setup 1.0.0.exe
