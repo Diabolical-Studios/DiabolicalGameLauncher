@@ -50,9 +50,10 @@ jobs:
 
     - name: Update package.json version
       run: |
-        jq --arg ver "${{ steps.calculate_new_version.outputs.new_version }}" '.version = $ver' package.json | Out-File -Encoding utf8 package.json
+        $newVersion = "${{ steps.calculate_new_version.outputs.new_version }}"
+        (Get-Content package.json -Raw) | jq --arg ver "$newVersion" '.version = $ver' | Set-Content -Path package.json -Encoding UTF8
         git add package.json
-        git commit -m "Update package.json to version ${{ steps.calculate_new_version.outputs.new_version }}"
+        git commit -m "Update package.json to version $newVersion"
       
     
     - name: Build and package
