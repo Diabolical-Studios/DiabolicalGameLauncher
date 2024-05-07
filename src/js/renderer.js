@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('settingsButton').addEventListener('click', function () {
         window.electronAPI.loadHtml('src/html/settings.html').then(html => {
             contentArea.innerHTML = html;
+            setupEventListeners();  // Set up event listeners after the HTML is inserted
         }).catch(error => console.error(error));
     });
 
@@ -210,16 +211,17 @@ function debounce(func, wait, immediate) {
     };
 }
 
-function loadHtmlFile(fileName) {
-    const path = require('path');
-    const fs = require('fs');
-    const filePath = path.join(__dirname, fileName);
-
-    fs.readFile(filePath, 'utf8', (err, html) => {
-        if (err) {
-            console.error('Error reading file:', err);
-            return;
-        }
-        document.getElementById('contentArea').innerHTML = html;
-    });
+function setupEventListeners() {
+    const applyButton = document.getElementById('applyButton');
+    console.log("apply button found!");
+    if (applyButton) {
+        applyButton.addEventListener('click', function () {
+            const resolution = document.getElementById('resolution').value;
+            const [width, height] = resolution.split('x').map(Number);
+            console.log(`Requesting window size change to: ${width}x${height}`);
+            window.electronAPI.setWindowSize(width, height);
+        });
+    } else {
+        console.log("Apply button not found after HTML insertion.");
+    }
 }

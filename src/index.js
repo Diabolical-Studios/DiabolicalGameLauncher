@@ -16,6 +16,7 @@ const { exec } = require('child_process');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let allowResize = false;
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
@@ -23,7 +24,7 @@ autoUpdater.autoInstallOnAppQuit = true;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1280,
     height: 720,
     frame: false,  // This makes the window frameless
     icon: 'path/to/your/icon.ico', // Set the window icon
@@ -33,7 +34,7 @@ const createWindow = () => {
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js'),
     },
-    resizable: false  // This prevents the window from being resizable
+    resizable: true  // This prevents the window from being resizable
   });
 
   // and load the index.html of the app.
@@ -42,6 +43,14 @@ const createWindow = () => {
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.center();
+
+  mainWindow.on('will-resize', (e) => {
+    if (!allowResize) {
+      e.preventDefault();
+    }
   });
 
   // Ping database server every 10 seconds to check status
@@ -236,4 +245,17 @@ function getInstalledGames() {
 // Expose this function to the renderer process via IPC
 ipcMain.handle('get-installed-games', async (event) => {
   return getInstalledGames();
+});
+
+ipcMain.on('set-window-size-and-center', (event, width, height) => {
+  if (mainWindow) {
+    allowResize = true;  // Temporarily enable resizing
+    mainWindow.setSize(width, height);
+    mainWindow.center();
+    console.log(`Window size set to: ${width}x${height} and centered`);
+    allowResize = false;  // Temporarily enable resizing
+
+  } else {
+    console.log("Main window is not accessible.");
+  }
 });

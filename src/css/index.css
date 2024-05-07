@@ -1,0 +1,520 @@
+body {
+    background-color: #000;
+    color: white;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Consolas', sans-serif;
+    margin: 0;
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+      radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 20px 20px;
+    animation: moveBackground 3s linear infinite;
+  }
+
+  @keyframes moveBackground {
+    0% {
+      background-position: 0 0, 0 0;
+    }
+
+    100% {
+      background-position: 20px 20px, 20px 20px;
+    }
+  }
+
+  .title-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    background: #00000000;
+    color: #fff;
+    padding: 10px 10px;
+    -webkit-app-region: drag;
+    position: fixed;
+    width: -webkit-fill-available;
+    top: 0;
+    left: 0;
+
+    z-index: 999;
+  }
+
+  .window-controls {
+    -webkit-app-region: no-drag;
+    display: flex;
+    gap: 10px;
+  }
+
+  .window-control-btn {
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: #272727;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 4px;
+  }
+
+  .window-control-btn:hover {
+    background-color: #aa0606;
+  }
+
+  .window-control-btn:active {
+    background-color: #aa0606;
+  }
+
+  .window-control-btn:focus {
+    outline: none;
+  }
+
+  .svg-icon {
+    width: 100%;
+    height: 100%;
+    fill: white;
+  }
+
+  .LauncherContainer {
+    display: flex;
+    flex-direction: row;
+    padding: 48px 48px 48px 24px;
+    gap: 24px;
+    position: relative;
+    height: -webkit-fill-available;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: space-between;
+  }
+
+  .ActionBar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 60px;
+    min-width: 60px;
+    height: -webkit-fill-available;
+
+    justify-content: space-between;
+  }
+
+  .ActionBar img {
+    width: 100%;
+  }
+
+  .ActionBar svg {
+    height: auto;
+  }
+
+  .RightPanel {
+    display: flex;
+    gap: 24px;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  .LauncherInfo {
+    border-radius: 8px;
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+
+    background-color: rgba(5, 5, 5, 0.416);
+    border: 1px solid #242424;
+    backdrop-filter: blur(2px);
+    justify-content: space-between;
+    padding: 10px;
+  }
+
+  #contentArea {
+    position: relative;
+    border-radius: 8px;
+    flex-grow: 1;
+    overflow: hidden;
+    background-color: rgba(5, 5, 5, 0.416);
+    border: 1px solid #242424;
+    backdrop-filter: blur(2px);
+    padding: 20px;
+
+    height: 100%;
+  }
+
+  #game-cards-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+    /* Hide horizontal overflow */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 20px;
+    height: 100%;
+    border-radius: 8px;
+
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+
+    scroll-snap-type: x mandatory;
+    /* Enable scroll snap */
+
+  }
+
+  #game-cards-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    transition: transform 0.5s ease-in-out, width 0.5s ease;
+  }
+
+  #game-cards-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .game-banner {
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 28vw;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 24px;
+    gap: 24px;
+    background-color: #121212;
+    border-radius: 8px;
+    height: -webkit-fill-available;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: all 0.5s ease, box-shadow 0.3s ease;
+    scroll-snap-align: start;
+  }
+
+  .game-banner:hover {
+    transform: scale(1.05);
+  }
+
+  .game-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0) 100%, rgba(0, 0, 0, 1) 0%);
+    transition: all 0.5s ease;
+    z-index: 1;
+    opacity: 0;
+  }
+
+  .game-banner:hover::before {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+
+  .game-banner button {
+    z-index: 4;
+  }
+
+  .game-details {
+    z-index: 4;
+    width: -webkit-fill-available;
+  }
+
+  .game-details p,
+  h3 {
+    margin: 0;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transform: translate(-24px, 24px);
+    display: flex;
+    /* justify-content: center; */
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+
+  }
+
+  .content h1,
+  h2 {
+    margin: 0;
+    height: 40px;
+    width: -webkit-fill-available;
+  }
+
+  .card .image {
+    height: -webkit-fill-available;
+  }
+
+  .card .image img {
+    display: block;
+    width: 100%;
+    height: inherit;
+    object-fit: cover;
+  }
+
+  .card .content {
+    padding: 16px;
+  }
+
+  .card.loading .image,
+  .card.loading .content * {
+    background-image: linear-gradient(90deg, #212121 0%, #303030 50%, #212121 100%);
+    background-size: 200% 100%;
+    animation: Shine 1.6s ease-in-out infinite;
+  }
+
+  .card.loading .content h1,
+  .card.loading .content h2 {
+    min-height: 32px;
+    border-radius: 4px;
+    animation-delay: 0.05s;
+  }
+
+  @keyframes Shine {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+
+
+
+  .game-button {
+    animation: 1.5s ease infinite alternate running shimmer;
+    background-size: 200% 100%;
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 670;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    transition: 0.2s;
+    width: 40%;
+    height: 10%;
+
+    font-family: 'Consolas', sans-serif;
+
+
+    background-color: #000;
+
+    outline: 1px solid #444444;
+
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+      radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 20px 20px;
+    animation: moveBackground 3s linear infinite;
+  }
+
+  .game-button svg {
+    left: -70px;
+    opacity: 0.5;
+    position: absolute;
+    top: -6px;
+    transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+  }
+
+  .game-button:hover svg {
+    opacity: 0.8;
+    transform: translateX(210px) scale(2);
+  }
+
+  .game-button:hover {
+    transform: rotate(-3deg) !important;
+  }
+
+  .game-button:active {
+    transform: scale(0.9) rotate(-3deg) !important;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-size: 100% 100%;
+      box-shadow: -2px -2px 6px rgba(255, 87, 51, 0.5), 2px 2px 6px rgb(144, 12, 63);
+    }
+  }
+
+  .game-banner .game-details,
+  .game-banner button {
+    transition: opacity 0.5s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    z-index: 2;
+  }
+
+  .game-banner:hover .game-details,
+  .game-banner:hover button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .GameDetails {
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: left;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .game-details h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+  }
+
+  .game-details p {
+    font-size: 14px;
+    margin: 8px 0 0;
+  }
+
+
+  .MenuItems {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .MenuItems button {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .MenuItems li {
+    padding: 10px;
+    background-color: rgba(5, 5, 5, 0.416);
+    border: 1px solid #242424;
+    backdrop-filter: blur(2px);
+    border-radius: 8px;
+  }
+
+  .grabbing {
+    cursor: grabbing;
+  }
+
+  .GridButton {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    background-color: rgba(5, 5, 5, 0.416);
+    border: 1px solid #242424;
+    backdrop-filter: blur(2px);
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 4px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .download-button {
+    padding: 12px 24px;
+    margin: 20px;
+    width: -webkit-fill-available;
+    border: none;
+    bottom: 0;
+    background-color: #0078D7;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .download-button:hover {
+    background-color: #005EA6;
+  }
+
+  .download-button:active {
+    background-color: #003D79;
+  }
+
+  .download-path {
+    display: block;
+    margin-top: 5px;
+    color: #aaa;
+    font-size: 0.8em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .path-container {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    color: #333;
+    border-radius: 5px;
+    font-size: 0.8em;
+    max-width: calc(100% - 20px);
+    word-wrap: break-word;
+  }
+
+  .path-container.visible {
+    display: block;
+  }
+
+  #launcher-version-status-and-number {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+  }
+
+  #launcher-version-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+
+    background-color: rgb(97, 97, 97);
+    animation: blink 2s infinite;
+    box-shadow: 0 0 12px rgb(128, 128, 128);
+  }
+
+  @keyframes blink {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }

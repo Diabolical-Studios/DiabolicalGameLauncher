@@ -1,0 +1,112 @@
+.settingsButton {
+    animation: 1.5s ease infinite alternate running shimmer;
+    background-size: 200% 100%;
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 670;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    transition: 0.2s;
+    width: 60px;
+    height: 40px;
+
+    font-family: 'Consolas', sans-serif;
+
+
+    background-color: #000;
+
+    outline: 1px solid #444444;
+
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 20px 20px;
+    animation: moveBackground 3s linear infinite;
+}
+
+.settingsButton svg {
+    left: -70px;
+    opacity: 0.5;
+    position: absolute;
+    top: -6px;
+    transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+}
+
+.settingsButton:hover svg {
+    opacity: 0.8;
+    transform: translateX(210px) scale(2);
+}
+
+.settingsButton:hover {
+    transform: rotate(-3deg) !important;
+}
+
+.settingsButton:active {
+    transform: scale(0.9) rotate(-3deg) !important;
+}
+
+
+.settingsSelect,
+.settingsSelect option {
+    animation: 1.5s ease infinite alternate running shimmer;
+    background-size: 200% 100%;
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 670;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    transition: 0.2s;
+    padding: 0 10px;
+    width: fit-content;
+    height: 40px;
+
+    font-family: 'Consolas', sans-serif;
+
+
+    background-color: #000;
+
+    outline: 1px solid #444444;
+
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 20px 20px;
+    animation: moveBackground 3s linear infinite;
+}
+
+.settingsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.grid-item {
+    background-color: #f8f9fa;
+    /* Light gray background */
+    border: 1px solid #dee2e6;
+    /* Light gray border */
+    padding: 20px;
+    /* Padding inside each grid item */
+    text-align: center;
+    /* Center-align text inside grid items */
+    font-family: 'Arial', sans-serif;
+    /* Font style for the text */
+    font-size: 16px;
+    /* Font size for the text */
+}
+
+.resolutionSetting {
+    width: max-content;
+}

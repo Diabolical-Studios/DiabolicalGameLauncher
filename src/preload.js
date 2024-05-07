@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld('versions', {
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    setWindowSize: (width, height) => {
+        ipcRenderer.send('set-window-size-and-center', width, height);
+    },
     downloadGame: (gameId) => ipcRenderer.send('download-game', gameId),
     openGame: (path) => ipcRenderer.send('open-game', path),
     loadHtml: (path) => ipcRenderer.invoke('load-html', path),
