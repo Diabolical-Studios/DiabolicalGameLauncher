@@ -35,37 +35,36 @@ jobs:
       run: |
         echo "Fetching tags..."
         git fetch --tags
-        TAG_PREFIX="v"
-        LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | sort -V | tail -n1)
-        LAST_VERSION=${LAST_TAG#$TAG_PREFIX}
-        if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
+        $TAG_PREFIX="v"
+        $LAST_TAG=$(git tag -l "${TAG_PREFIX}*" | Sort-Object -Version | Select-Object -Last 1)
+        $LAST_VERSION=$LAST_TAG.TrimStart($TAG_PREFIX)
+        if ($LAST_VERSION -eq "") { $LAST_VERSION="0.0.0" }
         echo "Last version: $LAST_VERSION"
-        NEW_VERSION=$(node -pe "
+        $NEW_VERSION=[System.Environment]::ExpandEnvironmentVariables("$(node -pe "
         const semver = require('semver');
-        const lastVersion = '$LAST_VERSION';
+        const lastVersion = '${LAST_VERSION}';
         const commitMessages = \`$(git log ${LAST_TAG}..HEAD --pretty=format:%s)\`;
         let increment = 'patch'; // default to patch
         if (/BREAKING CHANGE|feat!/.test(commitMessages)) increment = 'major';
-        else if (/feat|feature/.test(commitMessages)) increment = 'minor';
+        elif (/feat|feature/.test(commitMessages)) increment = 'minor';
         semver.inc(lastVersion, increment)
-        ")
+        ")")
         echo "New version: $NEW_VERSION"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git tag $NEW_VERSION
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-    - name: Set Git user info
-      run: |
-        git config user.name "GitHub Action"
-        git config user.email "action@github.com"
+        echo "NEW_VERSION=$NEW_VERSION" | Out-File -Append -FilePath $env:GITHUB_ENV
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Update package.json version
       run: |
-        jq --arg ver "${{ env.NEW_VERSION }}" '.version = $ver' package.json > package.tmp.json
-        Move-Item -Force package.tmp.json package.json
+        $ver = "${{ env.NEW_VERSION }}"
+        (Get-Content package.json -Raw) | ConvertFrom-Json | ForEach-Object { $_.version = $ver } | ConvertTo-Json | Set-Content -Path package.json -Encoding UTF8
         git add package.json
-        git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
+        git commit -m "Update package.json to version $ver"
+
       
     - name: Build and package
       run: npm run dist
