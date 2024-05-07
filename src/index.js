@@ -53,6 +53,13 @@ const createWindow = () => {
     }
   });
 
+  // This event is emitted when the navigation is done.
+  mainWindow.webContents.on('did-finish-load', () => {
+    autoUpdater.checkForUpdates();
+    pingDatabase('89.168.71.146');
+    showMessage(`Checking for updates...`);
+  });
+
   // Ping database server every 10 seconds to check status
   setInterval(() => {
     pingDatabase('89.168.71.146');
@@ -89,28 +96,26 @@ function showMessage(message) {
 // Some APIs can only be used after this event occurs.
 /*New Update Available*/
 autoUpdater.on("update-available", (info) => {
-  showMessage(`Update available. Current version ${app.getVersion()}`);
+  showMessage(`Update available. Download Started...`);
   let pth = autoUpdater.downloadUpdate();
   showMessage(pth);
 });
 
 autoUpdater.on("update-not-available", (info) => {
-  showMessage(`No update available. Current version ${app.getVersion()}`);
+  showMessage(`No updates`);
 });
 
 /*Download Completion Message*/
 autoUpdater.on("update-downloaded", (info) => {
-  showMessage(`Update downloaded. Current version ${app.getVersion()}`);
+  showMessage(`Update downloaded. Restart launcher to apply...`);
 });
 
 autoUpdater.on("error", (info) => {
   showMessage(info);
 });
 
-app.on('ready', function() {
+app.on('ready', function () {
   createWindow();
-  autoUpdater.checkForUpdates();
-  showMessage(`Checking for updates. Current version ${app.getVersion()}`);
 });
 
 ipcMain.on('close-window', () => {
