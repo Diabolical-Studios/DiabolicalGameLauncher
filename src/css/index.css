@@ -11,6 +11,14 @@ body {
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
     animation: moveBackground 3s linear infinite;
+
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE/Edge */
+    user-select: none;
 }
 
 @keyframes moveBackground {
@@ -151,32 +159,51 @@ body {
 #game-cards-container {
     display: flex;
     flex-wrap: nowrap;
-    overflow-x: hidden;
+    overflow-x: auto;
     /* Hide horizontal overflow */
+    overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
     gap: 20px;
     height: 100%;
     border-radius: 8px;
 
-    scroll-behavior: smooth;
     overscroll-behavior: contain;
 
     scroll-snap-type: x mandatory;
+    scroll-snap-align: start;
     /* Enable scroll snap */
 
-}
-
-#game-cards-container {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
     transition: transform 0.5s ease-in-out, width 0.5s ease;
+    scrollbar-width: thin;
+    scrollbar-color: #1f1e1e transparent;
+
 }
 
+/* Style adjustments for #game-cards-container */
+#game-cards-container {
+    overflow-x: auto;
+    /* Enables horizontal scrolling */
+    overflow-y: hidden;
+    /* Hides vertical scrollbar */
+    padding-bottom: 10px;
+    /* Adds space between the scrollbar and the content */
+}
+
+/* Custom scrollbar track */
 #game-cards-container::-webkit-scrollbar {
-    display: none;
+    height: 1px;
+    /* Sets the scrollbar height to 1px */
+    background: transparent;
+    /* Makes the track transparent */
+}
+
+/* Custom scrollbar thumb */
+#game-cards-container::-webkit-scrollbar-thumb {
+    background-color: white;
+    /* Sets the scrollbar color to white */
+    border-radius: 0px;
+    /* Optional: Removes rounding if you prefer square ends */
 }
 
 .game-banner {
@@ -190,13 +217,12 @@ body {
     padding: 24px;
     gap: 24px;
     background-color: #121212;
-    border-radius: 8px;
+    border-radius: 2px;
     height: -webkit-fill-available;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     transition: all 0.5s ease, box-shadow 0.3s ease;
-    scroll-snap-align: start;
 }
 
 .game-banner:hover {
@@ -393,10 +419,6 @@ h2 {
     margin: 8px 0 0;
 }
 
-.grabbing {
-    cursor: grabbing;
-}
-
 .GridButton {
     cursor: pointer;
     position: absolute;
@@ -545,4 +567,19 @@ h2 {
     /* White for the active state */
     filter: drop-shadow(0 0 3px #ffffff87);
     /* Distinctive green glow effect for active items */
+}
+
+
+/* Normal state, showing a grab cursor indicating you can drag */
+.grabbable {
+    cursor: grab;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+
+/* Active state, when dragging */
+.grabbing {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
 }
