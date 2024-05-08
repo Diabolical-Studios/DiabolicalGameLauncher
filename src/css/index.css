@@ -209,7 +209,7 @@ body {
 .game-banner {
     position: relative;
     overflow: hidden;
-    flex: 0 0 28vw;
+    flex: 0 0 26vw;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
