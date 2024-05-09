@@ -166,7 +166,7 @@ body {
     -ms-overflow-style: none;
     gap: 20px;
     height: 100%;
-    border-radius: 8px;
+    border-radius: 2px;
 
     overscroll-behavior: contain;
 
