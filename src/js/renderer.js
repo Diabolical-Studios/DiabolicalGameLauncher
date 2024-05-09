@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeButton = document.getElementById('close-btn');
     closeButton.addEventListener('click', closeWindow);
+
+    const checkUpdateButton = document.getElementById('check-for-update');
+    checkUpdateButton.addEventListener('click', () => {
+        ipcRenderer.send('check-for-updates');
+    });
 });
 
 function updateMessage(event, message) {

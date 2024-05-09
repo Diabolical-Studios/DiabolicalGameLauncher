@@ -110,3 +110,10 @@
 .resolutionSetting {
     width: max-content;
 }
+
+.checkUpdateText {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    color: #fff;
+}

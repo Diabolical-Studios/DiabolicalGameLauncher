@@ -111,6 +111,11 @@ autoUpdater.on("update-downloaded", (info) => {
   autoUpdater.quitAndInstall();
 });
 
+// Listen for an 'check-for-updates' message from the renderer
+ipcMain.on('check-for-updates', () => {
+  autoUpdater.checkForUpdates();
+});
+
 autoUpdater.on("error", (info) => {
   showMessage(info);
 });
