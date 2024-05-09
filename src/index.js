@@ -102,12 +102,12 @@ autoUpdater.on("update-available", (info) => {
 });
 
 autoUpdater.on("update-not-available", (info) => {
-  showMessage(`No updates`);
+  showMessage(`Launcher version:`);
 });
 
 /*Download Completion Message*/
 autoUpdater.on("update-downloaded", (info) => {
-  showMessage(`Update downloaded. Restart launcher to apply...`);
+  showMessage(`Update downloaded. Restarting...`);
   autoUpdater.quitAndInstall();
 });
 
