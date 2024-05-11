@@ -10,8 +10,7 @@ const extract = require('extract-zip');
 const { fetchGames } = require('./js/database');
 const oracledb = require('oracledb');
 const { exec } = require('child_process');
-
-
+const axios = require('axios');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -53,33 +52,35 @@ const createWindow = () => {
     }
   });
 
-  // This event is emitted when the navigation is done.
+  // Adjusted usage
   mainWindow.webContents.on('did-finish-load', () => {
     autoUpdater.checkForUpdates();
-    pingDatabase('89.168.71.146');
+    pingDatabase('https://diabolical.studio'); // Use your site's URL here
     showMessage(`Checking for updates...`);
   });
 
-  // Ping database server every 10 seconds to check status
+  // Ping the site every 10 seconds to check status
   setInterval(() => {
-    pingDatabase('89.168.71.146');
-  }, 10000); // Adjust the interval as needed
+    pingDatabase('https://diabolical.studio'); // Use your site's URL here
+  }, 60000); // Adjust the interval as needed
 };
 
-function pingDatabase(ip) {
-  exec(`ping -n 1 ${ip}`, { env: process.env }, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Exec error: ${error}`);
-      mainWindow.webContents.send('db-status', 'red');
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    if (stdout.includes("Received = 1")) {
-      mainWindow.webContents.send('db-status', 'rgb(72, 216, 24)');
-    } else {
-      mainWindow.webContents.send('db-status', 'red');
-    }
-  });
+function pingDatabase(url) {
+  axios.get(url)
+    .then(response => {
+      // Check for a successful response status code (200-299)
+      if (response.status >= 200 && response.status < 300) {
+        console.log(`Website ${url} is up! Status Code: ${response.status}`);
+        mainWindow.webContents.send('db-status', 'rgb(72, 216, 24)'); // Green, site is up
+      } else {
+        console.log(`Website ${url} returned status code ${response.status}`);
+        mainWindow.webContents.send('db-status', 'red'); // Red, site has issues
+      }
+    })
+    .catch(error => {
+      console.error(`Error checking ${url}: ${error}`);
+      mainWindow.webContents.send('db-status', 'red'); // Red, site is down or unreachable
+    });
 }
 
 // A function to handle showing messages and sending them to the renderer

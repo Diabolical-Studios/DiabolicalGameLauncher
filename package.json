@@ -46,6 +46,7 @@
   "author": "doruksasmaz",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "electron-dl": "^3.5.2",
     "electron-is-dev": "^3.0.1",

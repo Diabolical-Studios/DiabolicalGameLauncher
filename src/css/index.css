@@ -1,23 +1,22 @@
 body {
-    background-color: #000;
-    color: white;
-    height: 100vh;
+    /*Box model stuff*/
     width: 100vw;
-    overflow: hidden;
-    font-family: 'Consolas', sans-serif;
+    height: 100vh;
     margin: 0;
-    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
-        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-color: #000;
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
+    /*Typography stuff*/
+    font-family: 'Consolas', sans-serif;
+    color: white;
+    /*Manipulations stuff*/
     animation: moveBackground 3s linear infinite;
-
+    /*Miscellaneous*/
+    overflow: hidden;
     -webkit-user-select: none;
-    /* Safari */
     -moz-user-select: none;
-    /* Firefox */
     -ms-user-select: none;
-    /* IE/Edge */
     user-select: none;
 }
 
@@ -32,288 +31,339 @@ body {
 }
 
 .title-bar {
+    /*Display stuff*/
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
     justify-content: space-between;
-    background: #00000000;
-    color: #fff;
-    padding: 10px 10px;
-    -webkit-app-region: drag;
+    /*Positioning stuff*/
     position: fixed;
-    width: -webkit-fill-available;
-    top: 0;
     left: 0;
-
+    top: 0;
     z-index: 999;
+    /*Box model stuff*/
+    width: -webkit-fill-available;
+    padding: 10px 10px;
+    background: #00000000;
+    /*Typography stuff*/
+    color: #fff;
+    /*Miscellaneous*/
+    -webkit-app-region: drag;
 }
 
 .window-controls {
-    -webkit-app-region: no-drag;
+    /*Display stuff*/
     display: flex;
+    /*Miscellaneous*/
+    -webkit-app-region: no-drag;
     gap: 10px;
 }
 
 .window-control-btn {
-    border: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    background-color: #272727;
-    color: #fff;
+    /*Display stuff*/
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    /*Box model stuff*/
+    width: 20px;
+    height: 20px;
     margin-left: 4px;
+    border: none;
+    border-radius: 4px;
+    background-color: #272727;
+    /*Typography stuff*/
+    color: #fff;
+    /*Miscellaneous*/
+    cursor: pointer;
 }
 
 .window-control-btn:hover {
+    /*Box model stuff*/
     background-color: #aa0606;
 }
 
 .window-control-btn:active {
+    /*Box model stuff*/
     background-color: #aa0606;
 }
 
 .window-control-btn:focus {
+    /*Box model stuff*/
     outline: none;
 }
 
 .svg-icon {
+    /*Box model stuff*/
     width: 100%;
     height: 100%;
+    /*Miscellaneous*/
     fill: white;
 }
 
 .LauncherContainer {
+    /*Display stuff*/
     display: flex;
     flex-direction: row;
-    padding: 48px 48px 48px 24px;
-    gap: 24px;
+    justify-content: space-between;
+    /*Positioning stuff*/
     position: relative;
-    height: -webkit-fill-available;
-    top: 0;
     left: 0;
     right: 0;
+    top: 0;
     bottom: 0;
-    justify-content: space-between;
+    /*Box model stuff*/
+    height: -webkit-fill-available;
+    padding: 48px 48px 48px 24px;
+    /*Miscellaneous*/
+    gap: 24px;
 }
 
 .ActionBar {
-    position: relative;
+    /*Display stuff*/
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    /*Positioning stuff*/
+    position: relative;
+    /*Box model stuff*/
     width: 60px;
     min-width: 60px;
     height: -webkit-fill-available;
-
-    justify-content: space-between;
 }
 
 .ActionBar img {
+    /*Box model stuff*/
     width: 100%;
 }
 
 .ActionBar svg {
+    /*Box model stuff*/
     height: auto;
 }
 
 .RightPanel {
+    /*Display stuff*/
     display: flex;
-    gap: 24px;
-    flex-direction: column;
     flex-grow: 1;
+    flex-direction: column;
+    /*Miscellaneous*/
+    gap: 24px;
     overflow: hidden;
 }
 
 .LauncherInfo {
-    border-radius: 8px;
-    position: relative;
-
+    /*Display stuff*/
     display: flex;
     flex-direction: row;
     align-items: center;
-
-
-    background-color: rgba(5, 5, 5, 0.416);
-    border: 1px solid #242424;
-    backdrop-filter: blur(2px);
     justify-content: space-between;
+    /*Positioning stuff*/
+    position: relative;
+    /*Box model stuff*/
     padding: 10px;
+    border: 1px solid #242424;
+    border-radius: 8px;
+    background-color: rgba(5, 5, 5, 0.416);
+    /*Miscellaneous*/
+    backdrop-filter: blur(2px);
 }
 
 #contentArea {
-    position: relative;
-    border-radius: 8px;
+    /*Display stuff*/
     flex-grow: 1;
-    overflow: hidden;
-    background-color: rgba(5, 5, 5, 0.416);
-    border: 1px solid #242424;
-    backdrop-filter: blur(2px);
-    padding: 20px;
-
+    /*Positioning stuff*/
+    position: relative;
+    /*Box model stuff*/
     height: 100%;
+    padding: 20px;
+    border: 1px solid #242424;
+    border-radius: 8px;
+    background-color: rgba(5, 5, 5, 0.416);
+    /*Miscellaneous*/
+    overflow: hidden;
+    backdrop-filter: blur(2px);
 }
 
 #game-cards-container {
+    /*Display stuff*/
     display: flex;
     flex-wrap: nowrap;
+    /*Box model stuff*/
+    height: 100%;
+    border-radius: 2px;
+    /*Manipulations stuff*/
+    transition: transform 0.5s ease-in-out, width 0.5s ease;
+    /*Miscellaneous*/
     overflow-x: auto;
-    /* Hide horizontal overflow */
     overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
     gap: 20px;
-    height: 100%;
-    border-radius: 2px;
-
     overscroll-behavior: contain;
-
     scroll-snap-type: x mandatory;
     scroll-snap-align: start;
-    /* Enable scroll snap */
-
-    transition: transform 0.5s ease-in-out, width 0.5s ease;
     scrollbar-width: thin;
     scrollbar-color: #1f1e1e transparent;
-
 }
 
-/* Style adjustments for #game-cards-container */
 #game-cards-container {
-    overflow-x: auto;
-    /* Enables horizontal scrolling */
-    overflow-y: hidden;
-    /* Hides vertical scrollbar */
+    /*Box model stuff*/
     padding-bottom: 10px;
-    /* Adds space between the scrollbar and the content */
+    /*Miscellaneous*/
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-/* Custom scrollbar track */
 #game-cards-container::-webkit-scrollbar {
+    /*Box model stuff*/
     height: 1px;
-    /* Sets the scrollbar height to 1px */
     background: transparent;
-    /* Makes the track transparent */
 }
 
-/* Custom scrollbar thumb */
 #game-cards-container::-webkit-scrollbar-thumb {
-    background-color: white;
-    /* Sets the scrollbar color to white */
+    /*Box model stuff*/
     border-radius: 0px;
-    /* Optional: Removes rounding if you prefer square ends */
+    background-color: white;
 }
 
 .game-banner {
-    position: relative;
-    overflow: hidden;
-    flex: 0 0 26vw;
+    /*Display stuff*/
     display: flex;
+    flex: 0 0 26vw;
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 24px;
-    gap: 24px;
-    background-color: #121212;
-    border-radius: 2px;
+    /*Positioning stuff*/
+    position: relative;
+    /*Box model stuff*/
     height: -webkit-fill-available;
-    background-size: cover;
+    padding: 24px;
+    border-radius: 2px;
+    background-color: #121212;
     background-position: center;
     background-repeat: no-repeat;
+    background-size: cover;
+    /*Manipulations stuff*/
     transition: all 0.5s ease, box-shadow 0.3s ease;
+    /*Miscellaneous*/
+    overflow: hidden;
+    gap: 24px;
 }
 
 .game-banner:hover {
+    /*Manipulations stuff*/
     transform: scale(1.05);
 }
 
 .game-banner::before {
+    /*Display stuff*/
     content: '';
+    /*Positioning stuff*/
     position: absolute;
-    top: 0;
     left: 0;
     right: 0;
+    top: 0;
     bottom: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0) 100%, rgba(0, 0, 0, 1) 0%);
-    transition: all 0.5s ease;
     z-index: 1;
+    /*Box model stuff*/
+    background: linear-gradient(to top, rgba(0, 0, 0, 0) 100%, rgba(0, 0, 0, 1) 0%);
+    /*Manipulations stuff*/
+    transition: all 0.5s ease;
     opacity: 0;
 }
 
 .game-banner:hover::before {
-    opacity: 1;
+    /*Box model stuff*/
     background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+    /*Manipulations stuff*/
+    opacity: 1;
 }
 
 .game-banner button {
+    /*Positioning stuff*/
     z-index: 4;
 }
 
 .game-details {
+    /*Positioning stuff*/
     z-index: 4;
+    /*Box model stuff*/
     width: -webkit-fill-available;
 }
 
 .game-details p,
 h3 {
+    /*Box model stuff*/
     margin: 0;
 }
 
 .card {
+    /*Display stuff*/
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    /*Positioning stuff*/
+    position: absolute;
+    /*Box model stuff*/
     width: 100%;
     height: 100%;
-    position: absolute;
+    /*Manipulations stuff*/
     transform: translate(-24px, 24px);
-    display: flex;
-    /* justify-content: center; */
-    align-items: stretch;
-    flex-direction: column;
 }
 
 .content {
+    /*Display stuff*/
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    gap: 12px;
     align-items: center;
-
+    justify-content: space-between;
+    /*Miscellaneous*/
+    gap: 12px;
 }
 
 .content h1,
 h2 {
-    margin: 0;
-    height: 40px;
+    /*Box model stuff*/
     width: -webkit-fill-available;
+    height: 40px;
+    margin: 0;
 }
 
 .card .image {
+    /*Box model stuff*/
     height: -webkit-fill-available;
 }
 
 .card .image img {
+    /*Display stuff*/
     display: block;
+    /*Box model stuff*/
     width: 100%;
     height: inherit;
+    /*Miscellaneous*/
     object-fit: cover;
 }
 
 .card .content {
+    /*Box model stuff*/
     padding: 16px;
 }
 
 .card.loading .image,
 .card.loading .content * {
+    /*Box model stuff*/
     background-image: linear-gradient(90deg, #212121 0%, #303030 50%, #212121 100%);
     background-size: 200% 100%;
+    /*Manipulations stuff*/
     animation: Shine 1.6s ease-in-out infinite;
 }
 
 .card.loading .content h1,
 .card.loading .content h2 {
+    /*Box model stuff*/
     min-height: 32px;
     border-radius: 4px;
+    /*Manipulations stuff*/
     animation-delay: 0.05s;
 }
 
@@ -323,59 +373,60 @@ h2 {
     }
 }
 
-
-
-
 .game-button {
-    animation: 1.5s ease infinite alternate running shimmer;
-    background-size: 200% 100%;
+    /*Positioning stuff*/
+    position: relative;
+    /*Box model stuff*/
+    width: 40%;
+    height: 10%;
     border: none;
     border-radius: 6px;
-    color: #ffffff;
-    cursor: pointer;
+    outline: 1px solid #444444;
+    background-color: #000;
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 200% 100%;
+    background-size: 20px 20px;
+    /*Typography stuff*/
+    font-family: 'Consolas', sans-serif;
     font-size: 16px;
     font-weight: 670;
+    text-decoration: none;
+    color: #ffffff;
+    /*Manipulations stuff*/
+    transition: 0.2s;
+    animation: 1.5s ease infinite alternate running shimmer;
+    animation: moveBackground 3s linear infinite;
+    /*Miscellaneous*/
+    cursor: pointer;
     line-height: 24px;
     white-space: nowrap;
     overflow: hidden;
-    position: relative;
-    text-decoration: none;
-    transition: 0.2s;
-    width: 40%;
-    height: 10%;
-
-    font-family: 'Consolas', sans-serif;
-
-
-    background-color: #000;
-
-    outline: 1px solid #444444;
-
-    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
-        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-    background-position: 0 0, 0 0;
-    background-size: 20px 20px;
-    animation: moveBackground 3s linear infinite;
 }
 
 .game-button svg {
-    left: -70px;
-    opacity: 0.5;
+    /*Positioning stuff*/
     position: absolute;
+    left: -70px;
     top: -6px;
+    /*Manipulations stuff*/
     transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+    opacity: 0.5;
 }
 
 .game-button:hover svg {
-    opacity: 0.8;
+    /*Manipulations stuff*/
     transform: translateX(210px) scale(2);
+    opacity: 0.8;
 }
 
 .game-button:hover {
+    /*Manipulations stuff*/
     transform: rotate(-3deg) !important;
 }
 
 .game-button:active {
+    /*Manipulations stuff*/
     transform: scale(0.9) rotate(-3deg) !important;
 }
 
@@ -388,119 +439,149 @@ h2 {
 
 .game-banner .game-details,
 .game-banner button {
+    /*Positioning stuff*/
+    z-index: 2;
+    /*Manipulations stuff*/
+    transform: translateY(20px);
     transition: opacity 0.5s ease, transform 0.3s ease;
     opacity: 0;
-    transform: translateY(20px);
-    z-index: 2;
 }
 
 .game-banner:hover .game-details,
 .game-banner:hover button {
-    opacity: 1;
+    /*Manipulations stuff*/
     transform: translateY(0);
+    opacity: 1;
 }
 
 .GameDetails {
+    /*Box model stuff*/
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    text-align: left;
     border-radius: 0 0 8px 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    /*Typography stuff*/
+    text-align: left;
+    color: white;
 }
 
 .game-details h3 {
+    /*Box model stuff*/
     margin: 0;
     padding: 0;
+    /*Typography stuff*/
     font-size: 18px;
 }
 
 .game-details p {
-    font-size: 14px;
+    /*Box model stuff*/
     margin: 8px 0 0;
+    /*Typography stuff*/
+    font-size: 14px;
 }
 
 .GridButton {
-    cursor: pointer;
+    /*Display stuff*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*Positioning stuff*/
     position: absolute;
-    top: 10px;
     right: 10px;
+    top: 10px;
     z-index: 100;
-    background-color: rgba(5, 5, 5, 0.416);
-    border: 1px solid #242424;
-    backdrop-filter: blur(2px);
-
+    /*Box model stuff*/
     width: 30px;
     height: 30px;
-
+    border: 1px solid #242424;
     border-radius: 4px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: rgba(5, 5, 5, 0.416);
+    /*Miscellaneous*/
+    cursor: pointer;
+    backdrop-filter: blur(2px);
 }
 
 .download-button {
-    padding: 12px 24px;
-    margin: 20px;
-    width: -webkit-fill-available;
-    border: none;
+    /*Positioning stuff*/
     bottom: 0;
-    background-color: #0078D7;
-    color: #fff;
+    /*Box model stuff*/
+    width: -webkit-fill-available;
+    margin: 20px;
+    padding: 12px 24px;
+    border: none;
     border-radius: 5px;
-    cursor: pointer;
+    background-color: #0078D7;
+    /*Typography stuff*/
+    color: #fff;
+    /*Manipulations stuff*/
     transition: background-color 0.3s;
+    /*Miscellaneous*/
+    cursor: pointer;
 }
 
 .download-button:hover {
+    /*Box model stuff*/
     background-color: #005EA6;
 }
 
 .download-button:active {
+    /*Box model stuff*/
     background-color: #003D79;
 }
 
 .download-path {
+    /*Display stuff*/
     display: block;
-    margin-top: 5px;
-    color: #aaa;
-    font-size: 0.8em;
+    /*Box model stuff*/
     max-width: 100%;
-    overflow: hidden;
+    margin-top: 5px;
+    /*Typography stuff*/
+    font-size: 0.8em;
     text-overflow: ellipsis;
+    color: #aaa;
+    /*Miscellaneous*/
+    overflow: hidden;
     white-space: nowrap;
 }
 
 .path-container {
+    /*Display stuff*/
     display: none;
+    /*Box model stuff*/
+    max-width: calc(100% - 20px);
     margin-top: 10px;
     padding: 10px;
-    background-color: #f2f2f2;
-    color: #333;
     border-radius: 5px;
+    background-color: #f2f2f2;
+    /*Typography stuff*/
     font-size: 0.8em;
-    max-width: calc(100% - 20px);
+    color: #333;
+    /*Miscellaneous*/
     word-wrap: break-word;
 }
 
 .path-container.visible {
+    /*Display stuff*/
     display: block;
 }
 
 #launcher-version-status-and-number {
+    /*Display stuff*/
     display: flex;
     flex-direction: row;
-    gap: 12px;
     align-items: center;
+    /*Miscellaneous*/
+    gap: 12px;
 }
 
 #launcher-version-status {
+    /*Box model stuff*/
     width: 12px;
     height: 12px;
     border-radius: 12px;
-
     background-color: rgb(97, 97, 97);
+    /*Manipulations stuff*/
     animation: blink 2s infinite;
+    /*Miscellaneous*/
     box-shadow: 0 0 12px rgb(128, 128, 128);
 }
 
@@ -517,68 +598,74 @@ h2 {
 }
 
 .MenuItems {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+    /*Display stuff*/
     display: flex;
-    gap: 8px;
     flex-direction: column;
     align-items: center;
+    /*Box model stuff*/
+    margin: 0;
+    padding: 0;
+    /*Miscellaneous*/
+    list-style-type: none;
+    gap: 8px;
 }
 
 .MenuItems li {
-    background: none;
+    /*Box model stuff*/
     border: none;
+    background: none;
 }
 
 .MenuItems button {
+    /*Box model stuff*/
     padding: 10px;
-    background-color: rgb(22 22 22 / 0%);
     border: 1px solid #303030;
-    backdrop-filter: blur(2px);
     border-radius: 8px;
-    cursor: pointer;
+    background-color: rgb(22 22 22 / 0%);
+    /*Manipulations stuff*/
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    /*Miscellaneous*/
+    backdrop-filter: blur(2px);
+    cursor: pointer;
 }
 
 .MenuItems button:hover {
+    /*Box model stuff*/
     background-color: rgba(60, 60, 60, 0.31);
-    /* Slightly lighter on hover */
+    /*Miscellaneous*/
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-    /* Soft shadow for depth */
 }
 
 .MenuItems li svg {
-    fill: #4b4b4b;
-    /* Default light grey color */
+    /*Manipulations stuff*/
     transition: fill 0.3s ease, filter 0.3s ease;
-    /* Smooth transition for color and filter */
+    /*Miscellaneous*/
+    fill: #4b4b4b;
 }
 
 .MenuItems li:hover svg {
-    fill: #ffffff;
-    /* White on hover */
+    /*Manipulations stuff*/
     filter: drop-shadow(0 0 2px #ffffff87);
-    /* White glow effect */
+    /*Miscellaneous*/
+    fill: #ffffff;
 }
 
 .MenuItems li.active svg {
-    fill: #ffffff;
-    /* White for the active state */
+    /*Manipulations stuff*/
     filter: drop-shadow(0 0 3px #ffffff87);
-    /* Distinctive green glow effect for active items */
+    /*Miscellaneous*/
+    fill: #ffffff;
 }
 
-
-/* Normal state, showing a grab cursor indicating you can drag */
 .grabbable {
+    /*Miscellaneous*/
     cursor: grab;
     cursor: -webkit-grab;
     cursor: -moz-grab;
 }
 
-/* Active state, when dragging */
 .grabbing {
+    /*Miscellaneous*/
     cursor: grabbing;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
