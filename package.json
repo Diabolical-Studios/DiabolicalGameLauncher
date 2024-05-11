@@ -9,7 +9,7 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
-  "repository": "https://github.com/Diabolical-Studios/DiabolicalLauncher",
+  "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
   "publish": {
     "provider": "github",
     "releaseType": "release"
