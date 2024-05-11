@@ -27,4 +27,4 @@ Provide detailed step-by-step installation instructions.
 
 ```bash
 # Example command to clone the repo
-git clone https://github.com/Diabolical-Studio/diabolicalgamelauncher.git
+git clone https://github.com/Diabolical-Studios/DiabolicalGameLauncher.git
