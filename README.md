@@ -28,3 +28,9 @@ Provide detailed step-by-step installation instructions.
 ```bash
 # Example command to clone the repo
 git clone https://github.com/Diabolical-Studios/DiabolicalGameLauncher.git
+
+# Installing dependencies
+npm install
+
+# Running the application
+npm start
