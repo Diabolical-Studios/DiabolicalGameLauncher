@@ -185,13 +185,14 @@ ipcMain.handle('load-html', async (event, filePath) => {
 const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 
 
-// Extracts the downloaded zip file
 async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
   try {
     await extract(zipPath, { dir: extractPath });
     fs.unlinkSync(zipPath); // Delete the zip file after extraction
-    const executablePath = path.join(extractPath, `${gameId}.exe`);
+
+    // Construct the new executable path
+    const executablePath = path.join(extractPath, 'StandaloneWindows64.exe');
     event.sender.send('download-complete', gameId, executablePath);
     return executablePath;
   } catch (error) {
@@ -200,9 +201,9 @@ async function extractZip(zipPath, gameId, event) {
   }
 }
 
+
 // Handle download-game event
 ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows64', gameVersion = '0.0.1') => {
-  // Construct the URL dynamically based on the gameId, platform, and game version
   const gameUrl = `https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-${platform}-${gameVersion}.zip`;
 
   try {
@@ -217,13 +218,13 @@ ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows6
         event.sender.send('download-progress', progressData);
       }
     });
-    // Once download completes, extract the zip file
     await extractZip(dl.getSavePath(), gameId, event);
   } catch (error) {
     console.error('Download or Extraction error:', error);
     event.sender.send('download-error', gameId, error.message);
   }
 });
+
 
 // Handle open-game event
 ipcMain.on('open-game', (event, gameExecutablePath) => {
@@ -235,6 +236,7 @@ ipcMain.on('open-game', (event, gameExecutablePath) => {
     }
   });
 });
+
 
 function getInstalledGames() {
   try {
