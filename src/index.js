@@ -1,4 +1,4 @@
-//index.js
+// index.js
 
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
@@ -19,6 +19,10 @@ let allowResize = false;
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
+
+// Define the path to the DiabolicalLauncher directory
+const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
+const versionFilePath = gameId => path.join(diabolicalLauncherPath, `${gameId}-version.json`);
 
 const createWindow = () => {
   // Create the browser window.
@@ -53,10 +57,16 @@ const createWindow = () => {
   });
 
   // Adjusted usage
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow.webContents.on('did-finish-load', async () => {
     autoUpdater.checkForUpdates();
     pingDatabase('https://diabolical.studio'); // Use your site's URL here
     showMessage(`Checking for updates...`);
+
+    // Check for game updates on load
+    const installedGames = getInstalledGames();
+    for (const gameId of installedGames) {
+      await checkForGameUpdates(gameId);
+    }
   });
 
   // Ping the site every 10 seconds to check status
@@ -154,8 +164,6 @@ app.on('activate', () => {
   }
 });
 
-
-
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
@@ -179,11 +187,53 @@ ipcMain.handle('load-html', async (event, filePath) => {
   return fs.promises.readFile(fullPath, 'utf8').catch(error => console.error(error));
 });
 
+// Define the getLatestGameVersion function
+async function getLatestGameVersion(gameId) {
+  const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
 
-//DownloadManager
-// Define the path to the DiabolicalLauncher directory
-const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
 
+    const versions = data.objects
+      .map(obj => obj.name)
+      .filter(name => name.startsWith(`${gameId}/Versions/Build-StandaloneWindows64-`))
+      .map(name => {
+        const versionMatch = name.match(/Build-StandaloneWindows64-(\d+\.\d+\.\d+)\.zip$/);
+        return versionMatch ? versionMatch[1] : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+
+    const latestVersion = versions[0];
+    const latestVersionUrl = `https://frks8kdvmjog.objectstorage.eu-frankfurt-1.oci.customer-oci.com/p/suRf4hOSm9II9YuoH_LuoZYletMaP59e2cIR1UXo84Pa6Hi26oo5VlWAT_XDt5R5/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+
+    return { latestVersion, latestVersionUrl };
+  } catch (error) {
+    console.error('Failed to fetch the latest game version:', error);
+    throw error;
+  }
+}
+
+async function checkForGameUpdates(gameId) {
+  try {
+    const { latestVersion } = await getLatestGameVersion(gameId);
+
+    let installedVersion = '0.0.0';
+    if (fs.existsSync(versionFilePath(gameId))) {
+      const versionData = JSON.parse(fs.readFileSync(versionFilePath(gameId), 'utf8'));
+      installedVersion = versionData.version || '0.0.0';
+    }
+
+    if (latestVersion !== installedVersion) {
+      mainWindow.webContents.send('update-available', { gameId, updateAvailable: true });
+    } else {
+      mainWindow.webContents.send('update-available', { gameId, updateAvailable: false });
+    }
+  } catch (error) {
+    console.error('Error checking for game updates:', error);
+  }
+}
 
 async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
@@ -201,12 +251,13 @@ async function extractZip(zipPath, gameId, event) {
   }
 }
 
-
 // Handle download-game event
-ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows64', gameVersion = '0.0.1') => {
-  const gameUrl = `https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-${platform}-${gameVersion}.zip`;
-
+ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows64') => {
   try {
+    const { latestVersion, latestVersionUrl } = await getLatestGameVersion(gameId);
+
+    const gameUrl = latestVersionUrl; // Use the latest version URL
+
     const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
       directory: diabolicalLauncherPath,
       onProgress: (progress) => {
@@ -218,13 +269,19 @@ ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows6
         event.sender.send('download-progress', progressData);
       }
     });
+
     await extractZip(dl.getSavePath(), gameId, event);
+
+    // Save the latest version to version.json
+    fs.writeFileSync(versionFilePath(gameId), JSON.stringify({ version: latestVersion }));
+
+    // Send update available status to renderer
+    mainWindow.webContents.send('update-available', { gameId, updateAvailable: false });
   } catch (error) {
     console.error('Download or Extraction error:', error);
     event.sender.send('download-error', gameId, error.message);
   }
 });
-
 
 // Handle open-game event
 ipcMain.on('open-game', (event, gameExecutablePath) => {
@@ -236,7 +293,6 @@ ipcMain.on('open-game', (event, gameExecutablePath) => {
     }
   });
 });
-
 
 function getInstalledGames() {
   try {
@@ -269,7 +325,6 @@ ipcMain.on('set-window-size-and-center', (event, width, height) => {
     mainWindow.center();
     console.log(`Window size set to: ${width}x${height} and centered`);
     allowResize = false;  // Temporarily enable resizing
-
   } else {
     console.log("Main window is not accessible.");
   }
