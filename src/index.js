@@ -284,12 +284,29 @@ ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows6
 });
 
 // Handle open-game event
-ipcMain.on('open-game', (event, gameExecutablePath) => {
-  const { exec } = require('child_process');
-  exec(`"${gameExecutablePath}"`, (error) => {
+ipcMain.on('open-game', (event, gameId) => {
+  const gamePath = path.join(diabolicalLauncherPath, gameId);
+  const executablePath = path.join(gamePath, 'StandaloneWindows64.exe');
+
+  // Check if the executable exists
+  if (!fs.existsSync(executablePath)) {
+    console.error(`Executable not found at path: ${executablePath}`);
+    event.sender.send('game-launch-error', `Executable not found at path: ${executablePath}`);
+    return;
+  }
+
+  // Log the executable path
+  console.log(`Launching game from path: ${executablePath}`);
+
+  // Execute the game
+  exec(`"${executablePath}"`, (error, stdout, stderr) => {
     if (error) {
-      // Handle errors here
-      console.error('Failed to open game:', error);
+      console.error(`Failed to open game: ${error.message}`);
+      console.error(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      event.sender.send('game-launch-error', `Failed to open game: ${error.message}`);
+    } else {
+      console.log('Game launched successfully');
     }
   });
 });
