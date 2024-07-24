@@ -23,14 +23,26 @@ autoUpdater.autoInstallOnAppQuit = true;
 // Define the path to the DiabolicalLauncher directory
 const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 const versionFilePath = gameId => path.join(diabolicalLauncherPath, `${gameId}-version.json`);
+const settingsFilePath = path.join(diabolicalLauncherPath, 'settings.json');
 
 const createWindow = () => {
   // Create the browser window.
+  let windowSize = { width: 1280, height: 720 };
+
+  if (fs.existsSync(settingsFilePath)) {
+    try {
+      const data = fs.readFileSync(settingsFilePath);
+      windowSize = JSON.parse(data);
+    } catch (error) {
+      console.error('Error reading window size:', error);
+    }
+  }
+
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 720,
-    frame: false,  // This makes the window frameless
-    icon: 'path/to/your/icon.ico', // Set the window icon
+    width: windowSize.width,
+    height: windowSize.height,
+    frame: false,
+    icon: 'path/to/your/icon.ico',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: true,
@@ -74,6 +86,27 @@ const createWindow = () => {
     pingDatabase('https://diabolical.studio'); // Use your site's URL here
   }, 60000); // Adjust the interval as needed
 };
+
+
+ipcMain.handle('get-window-size', () => {
+  if (mainWindow) {
+    const { width, height } = mainWindow.getBounds();
+    return { width, height };
+  }
+  return { width: 1280, height: 720 };
+});
+
+ipcMain.on('set-window-size-and-center', (event, width, height) => {
+  if (mainWindow) {
+    allowResize = true;
+    mainWindow.setSize(width, height);
+    mainWindow.center();
+    fs.writeFileSync(settingsFilePath, JSON.stringify({ width, height }));
+    allowResize = false;
+  } else {
+    console.log("Main window is not accessible.");
+  }
+});
 
 function pingDatabase(url) {
   axios.get(url)
@@ -157,19 +190,12 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
@@ -187,7 +213,6 @@ ipcMain.handle('load-html', async (event, filePath) => {
   return fs.promises.readFile(fullPath, 'utf8').catch(error => console.error(error));
 });
 
-// Define the getLatestGameVersion function
 async function getLatestGameVersion(gameId) {
   const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
 
@@ -239,9 +264,8 @@ async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
   try {
     await extract(zipPath, { dir: extractPath });
-    fs.unlinkSync(zipPath); // Delete the zip file after extraction
+    fs.unlinkSync(zipPath);
 
-    // Construct the new executable path
     const executablePath = path.join(extractPath, 'StandaloneWindows64.exe');
     event.sender.send('download-complete', gameId, executablePath);
     return executablePath;
@@ -251,12 +275,11 @@ async function extractZip(zipPath, gameId, event) {
   }
 }
 
-// Handle download-game event
 ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows64') => {
   try {
     const { latestVersion, latestVersionUrl } = await getLatestGameVersion(gameId);
 
-    const gameUrl = latestVersionUrl; // Use the latest version URL
+    const gameUrl = latestVersionUrl;
 
     const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
       directory: diabolicalLauncherPath,
@@ -272,10 +295,8 @@ ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows6
 
     await extractZip(dl.getSavePath(), gameId, event);
 
-    // Save the latest version to version.json
     fs.writeFileSync(versionFilePath(gameId), JSON.stringify({ version: latestVersion }));
 
-    // Send update available status to renderer
     mainWindow.webContents.send('update-available', { gameId, updateAvailable: false });
   } catch (error) {
     console.error('Download or Extraction error:', error);
@@ -283,22 +304,18 @@ ipcMain.on('download-game', async (event, gameId, platform = 'StandaloneWindows6
   }
 });
 
-// Handle open-game event
 ipcMain.on('open-game', (event, gameId) => {
   const gamePath = path.join(diabolicalLauncherPath, gameId);
   const executablePath = path.join(gamePath, 'StandaloneWindows64.exe');
 
-  // Check if the executable exists
   if (!fs.existsSync(executablePath)) {
     console.error(`Executable not found at path: ${executablePath}`);
     event.sender.send('game-launch-error', `Executable not found at path: ${executablePath}`);
     return;
   }
 
-  // Log the executable path
   console.log(`Launching game from path: ${executablePath}`);
 
-  // Execute the game
   exec(`"${executablePath}"`, (error, stdout, stderr) => {
     if (error) {
       console.error(`Failed to open game: ${error.message}`);
@@ -313,15 +330,12 @@ ipcMain.on('open-game', (event, gameId) => {
 
 function getInstalledGames() {
   try {
-    // Ensure the directory exists
     if (!fs.existsSync(diabolicalLauncherPath)) {
       fs.mkdirSync(diabolicalLauncherPath, { recursive: true });
       return [];
     }
 
-    // Read the directory contents
     const files = fs.readdirSync(diabolicalLauncherPath, { withFileTypes: true });
-    // Filter directories and return their names
     const installedGames = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
     return installedGames;
   } catch (error) {
@@ -330,19 +344,6 @@ function getInstalledGames() {
   }
 }
 
-// Expose this function to the renderer process via IPC
 ipcMain.handle('get-installed-games', async (event) => {
   return getInstalledGames();
-});
-
-ipcMain.on('set-window-size-and-center', (event, width, height) => {
-  if (mainWindow) {
-    allowResize = true;  // Temporarily enable resizing
-    mainWindow.setSize(width, height);
-    mainWindow.center();
-    console.log(`Window size set to: ${width}x${height} and centered`);
-    allowResize = false;  // Temporarily enable resizing
-  } else {
-    console.log("Main window is not accessible.");
-  }
 });
