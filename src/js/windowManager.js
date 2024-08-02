@@ -12,17 +12,17 @@ function createWindow() {
     width: settings.windowSize.width,
     height: settings.windowSize.height,
     frame: false,
-    icon: "path/to/your/icon.ico",
+    icon: path.join(__dirname, "../Resources/icon.ico"), // Update this path as necessary
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload.js"),
     },
     resizable: true,
   });
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  mainWindow.loadURL(`file://${path.join(__dirname, "../index.html")}`);
 
   mainWindow.on("closed", () => {
     mainWindow = null;
