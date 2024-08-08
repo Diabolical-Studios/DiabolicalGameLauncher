@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
       if (downloadButton) {
         downloadButton.innerHTML = `<img src="Resources/MenuIcons/play.png" alt="Play">`;
-        downloadButton.onclick = () => window.electronAPI.openGame(installPath);
+        downloadButton.onclick = () => window.electronAPI.openGame(gameId);
         const pathDisplay = document.getElementById(`path-container-${gameId}`);
         if (pathDisplay) {
           pathDisplay.textContent = `Installed at: ${installPath}`;

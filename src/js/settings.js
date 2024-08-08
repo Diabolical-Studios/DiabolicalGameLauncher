@@ -8,6 +8,9 @@ const diabolicalLauncherPath = path.join(
   "Local",
   "Diabolical Launcher"
 );
+
+const versionFilePath = (gameId) => path.join(diabolicalLauncherPath, `${gameId}-version.json`);
+
 const settingsFilePath = path.join(diabolicalLauncherPath, "settings.json");
 
 const defaultSettings = {
@@ -50,6 +53,7 @@ module.exports = {
   initSettings,
   loadSettings,
   saveSettings,
+  versionFilePath,
   diabolicalLauncherPath,
   settingsFilePath,
 };

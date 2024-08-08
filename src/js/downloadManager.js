@@ -14,6 +14,10 @@ async function extractZip(zipPath, gameId, event) {
     fs.unlinkSync(zipPath);
 
     const executablePath = path.join(extractPath, "StandaloneWindows64.exe");
+
+    // Debugging: log the executable path to the console
+    console.log(`Executable path after extraction: ${executablePath}`);
+
     event.sender.send("download-complete", gameId, executablePath);
     return executablePath;
   } catch (error) {
