@@ -5,8 +5,14 @@ const { exec } = require("child_process");
 const { loadSettings, saveSettings, diabolicalLauncherPath } = require("./settings");
 const { downloadGame } = require("./downloadManager");
 const { getInstalledGames } = require("./gameManager");
+const { showContextMenu } = require("./gameManager");
+
 
 function initIPCHandlers() {
+  ipcMain.on("show-context-menu", (event, gameId, position) => {
+    showContextMenu(event, gameId, position);
+  });
+
   ipcMain.handle("get-settings", () => {
     return loadSettings();
   });
