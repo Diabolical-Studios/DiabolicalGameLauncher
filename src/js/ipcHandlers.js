@@ -13,6 +13,10 @@ function initIPCHandlers() {
     showContextMenu(event, gameId, position);
   });
 
+  ipcMain.on("uninstall-game", (event, gameId) => {
+    uninstallGame(gameId); // This will handle the uninstallation and emit the event
+});
+
   ipcMain.handle("get-settings", () => {
     return loadSettings();
   });

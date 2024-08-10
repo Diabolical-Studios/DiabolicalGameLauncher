@@ -27,6 +27,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   loadHtml: (path) => ipcRenderer.invoke("load-html", path),
   closeWindow: () => ipcRenderer.send("close-window"),
   getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
+
+  // Listen for the 'game-uninstalled' event
+  onGameUninstalled: (callback) => {
+    ipcRenderer.on("game-uninstalled", (event, gameId) => {
+      callback(gameId);
+    });
+  },
+
   onDownloadComplete: (game_id, installPath) =>
     ipcRenderer.on("download-complete", game_id, installPath),
   onDownloadProgress: (game_id, percentage) =>

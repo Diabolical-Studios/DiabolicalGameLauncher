@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { Menu, shell, BrowserWindow } = require("electron");
+const { downloadGame } = require("./downloadManager");
 
 const diabolicalLauncherPath = path.join(
   os.homedir(),
@@ -31,25 +32,40 @@ function getInstalledGames() {
 }
 
 function showContextMenu(event, gameId, position) {
-  const template = [
-    {
-      label: "Open Game Location",
-      click: () => {
-        const executablePath = path.join(diabolicalLauncherPath, gameId, "StandaloneWindows64.exe");
-        shell.showItemInFolder(executablePath);
+  const gamePath = path.join(diabolicalLauncherPath, gameId);
+  const isGameInstalled = fs.existsSync(gamePath);
+
+  const template = [];
+
+  if (isGameInstalled) {
+    template.push(
+      {
+        label: "Open Game Location",
+        click: () => {
+          const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
+          shell.showItemInFolder(executablePath);
+        },
       },
-    },
-    {
-      label: "Uninstall Game",
+      {
+        label: "Uninstall Game",
+        click: () => {
+          uninstallGame(gameId);
+        },
+      }
+    );
+  } else {
+    template.push({
+      label: "Download Game",
       click: () => {
-        uninstallGame(gameId);
+        downloadGame(event, gameId);
       },
-    },
-    {
-      label: "Cancel",
-      role: "cancel",
-    },
-  ];
+    });
+  }
+
+  template.push({
+    label: "Cancel",
+    role: "cancel",
+  });
 
   const menu = Menu.buildFromTemplate(template);
   const win = BrowserWindow.fromWebContents(event.sender);
@@ -59,16 +75,24 @@ function showContextMenu(event, gameId, position) {
 function uninstallGame(gameId) {
   const gamePath = path.join(diabolicalLauncherPath, gameId);
   if (fs.existsSync(gamePath)) {
-    fs.rmdirSync(gamePath, { recursive: true });
+    fs.rmSync(gamePath, { recursive: true });
     console.log(`Uninstalled game with ID: ${gameId}`);
-    // Notify the renderer process if needed
-    BrowserWindow.getFocusedWindow().webContents.send('game-uninstalled', gameId);
+
+    // Get the main window
+    const mainWindow = BrowserWindow.getAllWindows()[0];
+    if (mainWindow) {
+      console.log(`Reloading app after uninstalling game with ID: ${gameId}`);
+      mainWindow.webContents.reload(); // Reload the app (equivalent to Ctrl+R)
+    } else {
+      console.error("Main window not found.");
+    }
   } else {
     console.error(`Game with ID: ${gameId} not found.`);
   }
 }
 
 module.exports = {
+  uninstallGame,
   getInstalledGames,
-  showContextMenu,  // Export the function to show the context menu
+  showContextMenu
 };

@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((games) => {
         createGameCards(games);
         enableHorizontalDragging("game-cards-container");
-        attachContextMenu(); // Attach context menu listeners to the newly created cards
+        attachContextMenu(); // Attach context menu listeners after the cards are created
       })
       .catch((err) => {
         console.error("Error reloading games:", err);
@@ -73,13 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateResolutionDropdown();
       })
       .catch((error) => console.error(error));
-  });
-
-  document.querySelectorAll(".game-button").forEach((button) => {
-    button.addEventListener("click", function () {
-      const gameId = this.getAttribute("data-gameid");
-      window.electronAPI.downloadGame(gameId);
-    });
   });
 
   window.api.onDbStatusChange((status) => {
@@ -128,6 +121,13 @@ document.addEventListener("DOMContentLoaded", () => {
   checkUpdateButton.addEventListener("click", () => {
     ipcRenderer.send("check-for-updates");
   });
+
+  // Correctly listening for the 'game-uninstalled' event
+  window.electronAPI.onGameUninstalled((gameId) => {
+    console.log(`Received 'game-uninstalled' event for game ID: ${gameId}`);
+    // Add logic to update the UI, e.g., update the button to a download button
+  });
+
 });
 
 function updateMessage(event, message) {
@@ -153,6 +153,7 @@ async function createGameCards(games) {
     const card = document.createElement("div");
     card.className = "game-banner";
     card.style.backgroundImage = `url('${game.background_image_url}')`;
+
     let buttonIconUrl = "Resources/MenuIcons/download.png";
     let buttonAction = `startDownload('${game.game_id}')`;
 
@@ -189,7 +190,6 @@ async function createGameCards(games) {
     container.appendChild(card);
   });
   attachContextMenu(); // Attach context menu listeners to the newly created cards
-
 }
 
 function startDownload(gameId) {
@@ -307,10 +307,19 @@ function attachContextMenu() {
   document.querySelectorAll(".game-banner").forEach((card) => {
     card.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      const gameId = card.getAttribute("data-gameid");
+
+      // Find the button within the card to get the game ID
+      const button = card.querySelector(".game-button");
+      const gameId = button.getAttribute("data-gameid");
+
+      if (!gameId) {
+        console.error("No gameId found on this card.");
+        return;
+      }
+
       const position = { x: e.pageX, y: e.pageY };
 
-      // Debugging: Check if the event is firing
+      // Debugging: Check if the event is firing correctly
       console.log(`Right-click detected on game with ID: ${gameId}`);
       console.log(`Position: ${position.x}, ${position.y}`);
 
