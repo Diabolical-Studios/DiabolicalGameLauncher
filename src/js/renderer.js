@@ -75,6 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => console.error(error));
   });
 
+  document.getElementById("changelogButton").addEventListener("click", function () {
+    window.electronAPI
+      .loadHtml("src/html/changelog.html")
+      .then((html) => {
+        contentArea.innerHTML = html;
+        setupEventListeners();
+        updateResolutionDropdown();
+      })
+      .catch((error) => console.error(error));
+  });
+
   window.api.onDbStatusChange((status) => {
     const statusDiv = document.getElementById("launcher-version-status");
     statusDiv.style.backgroundColor = status;
