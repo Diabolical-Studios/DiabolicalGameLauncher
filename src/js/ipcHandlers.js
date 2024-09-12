@@ -2,11 +2,14 @@ const path = require("path");
 const fs = require("fs");
 const { app, ipcMain } = require("electron");
 const { exec } = require("child_process");
-const { loadSettings, saveSettings, diabolicalLauncherPath } = require("./settings");
+const {
+  loadSettings,
+  saveSettings,
+  diabolicalLauncherPath,
+} = require("./settings");
 const { downloadGame } = require("./downloadManager");
 const { getInstalledGames } = require("./gameManager");
 const { showContextMenu } = require("./gameManager");
-
 
 function initIPCHandlers() {
   ipcMain.on("show-context-menu", (event, gameId, position) => {
@@ -15,7 +18,7 @@ function initIPCHandlers() {
 
   ipcMain.on("uninstall-game", (event, gameId) => {
     uninstallGame(gameId); // This will handle the uninstallation and emit the event
-});
+  });
 
   ipcMain.handle("get-settings", () => {
     return loadSettings();
@@ -96,19 +99,24 @@ function initIPCHandlers() {
 
     console.log(`Launching game from path: ${executablePath}`);
 
-    exec(`"${executablePath}"`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Failed to open game: ${error.message}`);
-        console.error(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-        event.sender.send(
-          "game-launch-error",
-          `Failed to open game: ${error.message}`
-        );
-      } else {
-        console.log("Game launched successfully");
+    // Set working directory and environment variables
+    exec(
+      `"${executablePath}"`,
+      { cwd: gamePath, env: process.env },
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Failed to open game: ${error.message}`);
+          console.error(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+          event.sender.send(
+            "game-launch-error",
+            `Failed to open game: ${error.message}`
+          );
+        } else {
+          console.log("Game launched successfully");
+        }
       }
-    });
+    );
   });
 
   ipcMain.handle("get-installed-games", async () => {
