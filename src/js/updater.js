@@ -86,7 +86,7 @@ function getCurrentGameVersion(gameId) {
 }
 
 // Function to periodically check all game versions and notify if there are updates
-function periodicallyCheckGameVersions(gameIds, interval = 60000) {
+function periodicallyCheckGameVersions(gameIds, interval = 600000) {
   gameIds.forEach((gameId) => {
     const currentVersion = getCurrentGameVersion(gameId);
     if (currentVersion) {
