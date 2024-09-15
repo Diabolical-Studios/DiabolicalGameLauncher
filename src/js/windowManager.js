@@ -37,15 +37,22 @@ function createWindow() {
   });
 
   mainWindow.webContents.on("did-finish-load", async () => {
-    require("./updater").checkForUpdates();
-    require("./database").pingDatabase("https://diabolical.studio");
+    // Initialize the updater and pass the mainWindow
+    const { initUpdater, startPeriodicChecks } = require("./updater");
+    
+    initUpdater(mainWindow);
+    startPeriodicChecks(mainWindow); // Check game updates periodically
+  
+    // Send a message to the renderer (index.html) that we're checking for updates
     showMessage(`Checking for updates...`);
-
+  
+    // Check for installed games and update them
     const installedGames = require("./gameManager").getInstalledGames();
     for (const gameId of installedGames) {
       await require("./downloadManager").checkForGameUpdates(gameId);
     }
   });
+  
 
   setInterval(() => {
     require("./database").pingDatabase("https://diabolical.studio");

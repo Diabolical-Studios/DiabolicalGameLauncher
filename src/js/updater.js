@@ -1,43 +1,33 @@
 const { autoUpdater } = require("electron-updater");
 const { showMessage } = require("./windowManager");
+const { BrowserWindow } = require('electron');
+const os = require("os");
+const fs = require('fs');
+const path = require('path');
+const { downloadGame } = require('./downloadManager'); // Import the download manager
+const { showCustomNotification } = require('./customNotifier'); // Import the custom notifier
+const { getLatestGameVersion } = require('./versionChecker'); // Correct import
 
-async function getLatestGameVersion(gameId) {
-  const fetch = (await import('node-fetch')).default;
-  const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
 
-  try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.statusText}`);
-    }
-    const data = await response.json();
 
-    const versions = data.objects
-      .map(obj => obj.name)
-      .filter(name => name.startsWith(`${gameId}/Versions/Build-StandaloneWindows64-`))
-      .map(name => {
-        const versionMatch = name.match(/Build-StandaloneWindows64-(\d+\.\d+\.\d+)\.zip$/);
-        return versionMatch ? versionMatch[1] : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+let mainWindow = null; // To store the reference to the main window
 
-    const latestVersion = versions[0];
-    const latestVersionUrl = `https://frks8kdvmjog.objectstorage.eu-frankfurt-1.oci.customer-oci.com/p/suRf4hOSm9II9YuoH_LuoZYletMaP59e2cIR1UXo84Pa6Hi26oo5VlWAT_XDt5R5/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+const versionDirectory = path.join(
+  os.homedir(),
+  "AppData",
+  "Local",
+  "Diabolical Launcher"
+);
 
-    return { latestVersion, latestVersionUrl };
-  } catch (error) {
-    console.error('Failed to fetch the latest game version:', error);
-    throw error;
-  }
-}
-
-function initUpdater() {
+// Function to initialize the updater with the main window instance
+function initUpdater(window) {
+  mainWindow = window; // Store the reference to the main window
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on("update-available", (info) => {
-    showMessage(`Update available. Download Started...`);
+    showMessage(`Launcher update available. Download Started...`);
+    showCustomNotification(mainWindow, "Launcher Update Available", "A new update is available for the launcher.", "launcher");
     autoUpdater.downloadUpdate();
   });
 
@@ -46,21 +36,78 @@ function initUpdater() {
   });
 
   autoUpdater.on("update-downloaded", (info) => {
-    showMessage(`Update downloaded. Restarting...`);
+    showMessage(`Launcher update downloaded. Restarting...`);
+    showCustomNotification(mainWindow, "Launcher Update Downloaded", "The launcher update has been downloaded. Restarting now...", "launcher");
     autoUpdater.quitAndInstall();
   });
 
   autoUpdater.on("error", (info) => {
     showMessage(info);
+    showCustomNotification(mainWindow, "Launcher Update Error", "There was an error while updating the launcher.", "launcher");
   });
 }
 
-function checkForUpdates() {
-  autoUpdater.checkForUpdates();
+// Function to check for game updates
+async function checkGameUpdates(gameId, currentVersion) {
+  try {
+    const { latestVersion } = await getLatestGameVersion(gameId);
+
+    if (latestVersion && latestVersion !== currentVersion) {
+      console.log(`New game update available for ${gameId}: Version ${latestVersion}`);
+      showCustomNotification(mainWindow, `${gameId} Update Available`, `Version ${latestVersion} is available for download.`, gameId);
+    } else {
+      console.log(`${gameId} is up-to-date. Current version: ${currentVersion}`);
+    }
+  } catch (error) {
+    console.error(`Error checking game updates for ${gameId}:`, error);
+  }
+}
+
+// Function to get the current version of the game from local storage
+function getCurrentGameVersion(gameId) {
+  const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
+  try {
+    const versionData = fs.readFileSync(versionFile);
+    const parsedData = JSON.parse(versionData);
+    return parsedData.version;
+  } catch (error) {
+    console.error(`Failed to read version file for ${gameId}:`, error);
+    return null;
+  }
+}
+
+// Function to periodically check all game versions and notify if there are updates
+function periodicallyCheckGameVersions(gameIds, interval = 60000) {
+  gameIds.forEach(gameId => {
+    const currentVersion = getCurrentGameVersion(gameId);
+    if (currentVersion) {
+      checkGameUpdates(gameId, currentVersion);
+    } else {
+      showMessage(`No version file found for ${gameId}`);
+    }
+  });
+
+  setInterval(() => {
+    gameIds.forEach(gameId => {
+      const currentVersion = getCurrentGameVersion(gameId);
+      if (currentVersion) {
+        checkGameUpdates(gameId, currentVersion);
+      } else {
+        showMessage(`No version file found for ${gameId}`);
+      }
+    });
+  }, interval);
+}
+
+function startPeriodicChecks(window) {
+  mainWindow = window;
+  const gameIds = ['TheUnnamed', 'GFOS1992', 'DieStylish'];
+  periodicallyCheckGameVersions(gameIds); 
 }
 
 module.exports = {
   initUpdater,
-  checkForUpdates,
-  getLatestGameVersion,
+  checkGameUpdates,
+  startPeriodicChecks,
+  getLatestGameVersion // Ensure this is exported
 };

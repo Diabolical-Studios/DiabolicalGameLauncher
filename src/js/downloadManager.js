@@ -3,9 +3,10 @@ const path = require("path");
 const { BrowserWindow } = require("electron");
 const { download } = require("electron-dl");
 const extract = require("extract-zip");
-const { getLatestGameVersion } = require("./updater");
 const { diabolicalLauncherPath, versionFilePath } = require("./settings");
 const { getMainWindow } = require("./windowManager");
+const { getLatestGameVersion } = require('./versionChecker'); // Correct import
+
 
 async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
