@@ -706,3 +706,117 @@ h2 {
   cursor: -webkit-grabbing;
   cursor: -moz-grabbing;
 }
+
+
+#toaster-notification {
+  position: absolute;
+  bottom: 20px;
+  right: -350px; /* Initially off the screen */
+  width: 320px;
+  padding: 20px;
+  outline: solid 1px #444444;
+  background-color: #000;
+  background-image: radial-gradient(
+      rgba(87, 87, 87, 0.3) 1px,
+      transparent 1px
+    ),
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 20px 20px;
+  animation: moveBackground 3s linear infinite;
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: "Consolas", sans-serif;
+  transition: right 0.5s ease-in-out;
+  z-index: 1000;
+  opacity: 0; /* Start hidden */
+  visibility: hidden; /* Start invisible */
+}
+
+#toaster-notification.show {
+  right: 20px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.toaster-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toaster-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+#toaster-notification button {
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toaster-button {
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  width: 40%;
+  height: 10%;
+  border: none;
+  border-radius: 6px;
+  outline: 1px solid #444444;
+  background-color: #000;
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 200% 100%;
+  background-size: 20px 20px;
+  /*Typography stuff*/
+  font-family: "Consolas", sans-serif;
+  font-size: 16px;
+  font-weight: 670;
+  text-decoration: none;
+  color: #ffffff;
+  /*Manipulations stuff*/
+  transition: 0.2s;
+  animation: 1.5s ease infinite alternate running shimmer;
+  animation: moveBackground 3s linear infinite;
+  /*Miscellaneous*/
+  cursor: pointer;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.toaster-button svg {
+  /*Positioning stuff*/
+  position: absolute;
+  left: -70px;
+  top: -6px;
+  /*Manipulations stuff*/
+  transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+  opacity: 0.5;
+}
+
+.toaster-button:hover svg {
+  /*Manipulations stuff*/
+  transform: translateX(210px) scale(2);
+  opacity: 0.8;
+}
+
+.toaster-button:hover {
+  /*Manipulations stuff*/
+  transform: rotate(-3deg) !important;
+}
+
+.toaster-button:active {
+  /*Manipulations stuff*/
+  transform: scale(0.9) rotate(-3deg) !important;
+}
+
+#toaster-body{
+  margin: 10px 0;
+}

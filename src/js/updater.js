@@ -1,14 +1,11 @@
 const { autoUpdater } = require("electron-updater");
 const { showMessage } = require("./windowManager");
-const { BrowserWindow } = require('electron');
+const { BrowserWindow } = require("electron");
 const os = require("os");
-const fs = require('fs');
-const path = require('path');
-const { downloadGame } = require('./downloadManager'); // Import the download manager
-const { showCustomNotification } = require('./customNotifier'); // Import the custom notifier
-const { getLatestGameVersion } = require('./versionChecker'); // Correct import
-
-
+const fs = require("fs");
+const path = require("path");
+const { downloadGame } = require("./downloadManager");
+const { getLatestGameVersion } = require("./versionChecker"); // Correct import
 
 let mainWindow = null; // To store the reference to the main window
 
@@ -32,7 +29,7 @@ function initUpdater(window) {
   });
 
   autoUpdater.on("update-not-available", (info) => {
-    showMessage(`Launcher version:`);
+    showMessage(`Launcher version is up to date.`);
   });
 
   autoUpdater.on("update-downloaded", (info) => {
@@ -42,9 +39,19 @@ function initUpdater(window) {
   });
 
   autoUpdater.on("error", (info) => {
-    showMessage(info);
+    showMessage(`Launcher update error: ${info}`);
     showCustomNotification(mainWindow, "Launcher Update Error", "There was an error while updating the launcher.", "launcher");
   });
+}
+
+// Function to send a custom notification to the renderer
+function showCustomNotification(mainWindow, title, body, gameId) {
+  console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`); // Debugging
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('show-notification', { title, body, gameId });
+  } else {
+    console.log('mainWindow or webContents is not available.');
+  }
 }
 
 // Function to check for game updates
@@ -54,7 +61,9 @@ async function checkGameUpdates(gameId, currentVersion) {
 
     if (latestVersion && latestVersion !== currentVersion) {
       console.log(`New game update available for ${gameId}: Version ${latestVersion}`);
-      showCustomNotification(mainWindow, `${gameId} Update Available`, `Version ${latestVersion} is available for download.`, gameId);
+
+      // Send notification to frontend
+      showCustomNotification(mainWindow, `Update for ${gameId} Available!`, `Version ${latestVersion} is available for download.`, gameId);
     } else {
       console.log(`${gameId} is up-to-date. Current version: ${currentVersion}`);
     }
@@ -78,7 +87,7 @@ function getCurrentGameVersion(gameId) {
 
 // Function to periodically check all game versions and notify if there are updates
 function periodicallyCheckGameVersions(gameIds, interval = 60000) {
-  gameIds.forEach(gameId => {
+  gameIds.forEach((gameId) => {
     const currentVersion = getCurrentGameVersion(gameId);
     if (currentVersion) {
       checkGameUpdates(gameId, currentVersion);
@@ -88,7 +97,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 60000) {
   });
 
   setInterval(() => {
-    gameIds.forEach(gameId => {
+    gameIds.forEach((gameId) => {
       const currentVersion = getCurrentGameVersion(gameId);
       if (currentVersion) {
         checkGameUpdates(gameId, currentVersion);
@@ -101,13 +110,13 @@ function periodicallyCheckGameVersions(gameIds, interval = 60000) {
 
 function startPeriodicChecks(window) {
   mainWindow = window;
-  const gameIds = ['TheUnnamed', 'GFOS1992', 'DieStylish'];
-  periodicallyCheckGameVersions(gameIds); 
+  const gameIds = ["TheUnnamed", "GFOS1992", "DieStylish"];
+  periodicallyCheckGameVersions(gameIds);
 }
 
 module.exports = {
   initUpdater,
   checkGameUpdates,
   startPeriodicChecks,
-  getLatestGameVersion // Ensure this is exported
+  getLatestGameVersion, // Ensure this is exported
 };
