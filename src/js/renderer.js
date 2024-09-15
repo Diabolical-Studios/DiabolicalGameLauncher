@@ -64,27 +64,31 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  document.getElementById("settingsButton").addEventListener("click", function () {
-    window.electronAPI
-      .loadHtml("src/html/settings.html")
-      .then((html) => {
-        contentArea.innerHTML = html;
-        setupEventListeners();
-        updateResolutionDropdown();
-      })
-      .catch((error) => console.error(error));
-  });
+  document
+    .getElementById("settingsButton")
+    .addEventListener("click", function () {
+      window.electronAPI
+        .loadHtml("src/html/settings.html")
+        .then((html) => {
+          contentArea.innerHTML = html;
+          setupEventListeners();
+          updateResolutionDropdown();
+        })
+        .catch((error) => console.error(error));
+    });
 
-  document.getElementById("changelogButton").addEventListener("click", function () {
-    window.electronAPI
-      .loadHtml("src/html/changelog.html")
-      .then((html) => {
-        contentArea.innerHTML = html;
-        setupEventListeners();
-        updateResolutionDropdown();
-      })
-      .catch((error) => console.error(error));
-  });
+  document
+    .getElementById("changelogButton")
+    .addEventListener("click", function () {
+      window.electronAPI
+        .loadHtml("src/html/changelog.html")
+        .then((html) => {
+          contentArea.innerHTML = html;
+          setupEventListeners();
+          updateResolutionDropdown();
+        })
+        .catch((error) => console.error(error));
+    });
 
   window.api.onDbStatusChange((status) => {
     const statusDiv = document.getElementById("launcher-version-status");
@@ -128,6 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeButton = document.getElementById("close-btn");
   closeButton.addEventListener("click", closeWindow);
 
+  const reloadButton = document.getElementById("reload-btn");
+  closeButton.addEventListener("click", reloadWindow);
+
   const checkUpdateButton = document.getElementById("check-for-update");
   checkUpdateButton.addEventListener("click", () => {
     ipcRenderer.send("check-for-updates");
@@ -138,7 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(`Received 'game-uninstalled' event for game ID: ${gameId}`);
     // Add logic to update the UI, e.g., update the button to a download button
   });
-
 });
 
 function updateMessage(event, message) {
@@ -151,6 +157,10 @@ function updateMessage(event, message) {
 
 function closeWindow() {
   window.electronAPI.closeWindow();
+}
+
+function reloadWindow() {
+  window.electronAPI.reloadWindow();
 }
 
 async function createGameCards(games) {
@@ -229,7 +239,11 @@ async function updateResolutionDropdown() {
   const currentResolution = `${width}x${height}`;
   resolutionDropdown.value = currentResolution;
 
-  if (![...resolutionDropdown.options].some(option => option.value === currentResolution)) {
+  if (
+    ![...resolutionDropdown.options].some(
+      (option) => option.value === currentResolution
+    )
+  ) {
     const option = document.createElement("option");
     option.value = currentResolution;
     option.textContent = currentResolution;
@@ -241,14 +255,18 @@ async function updateResolutionDropdown() {
 // Function to update CSS classes based on window size
 function updateCSSClasses(width, height) {
   const body = document.body;
-  body.classList.remove('small-resolution', 'medium-resolution', 'large-resolution');
+  body.classList.remove(
+    "small-resolution",
+    "medium-resolution",
+    "large-resolution"
+  );
 
   if (width <= 800) {
-    body.classList.add('small-resolution');
+    body.classList.add("small-resolution");
   } else if (width <= 1200) {
-    body.classList.add('medium-resolution');
+    body.classList.add("medium-resolution");
   } else {
-    body.classList.add('large-resolution');
+    body.classList.add("large-resolution");
   }
 }
 

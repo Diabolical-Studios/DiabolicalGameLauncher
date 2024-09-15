@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openGame: (path) => ipcRenderer.send("open-game", path),
   loadHtml: (path) => ipcRenderer.invoke("load-html", path),
   closeWindow: () => ipcRenderer.send("close-window"),
+  reloadWindow: () => ipcRenderer.send("reload-window"),
   getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
 
   // Listen for the 'game-uninstalled' event

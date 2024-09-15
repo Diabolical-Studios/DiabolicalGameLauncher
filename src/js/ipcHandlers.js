@@ -129,6 +129,13 @@ function initIPCHandlers() {
       mainWindow.close();
     }
   });
+
+  ipcMain.on("reload-window", () => {
+    const mainWindow = require("./windowManager").getMainWindow();
+    if (mainWindow) {
+      mainWindow.reload();
+    }
+  });
 }
 
 module.exports = {
