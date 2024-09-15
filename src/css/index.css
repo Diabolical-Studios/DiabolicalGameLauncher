@@ -707,25 +707,30 @@ h2 {
   cursor: -moz-grabbing;
 }
 
-
-#toaster-notification {
-  position: absolute;
+#toaster-container {
+  position: fixed;
   bottom: 20px;
+  right: 20px;
+  width: auto;
+  z-index: 1000;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.toaster-notification {
+  position: absolute;
+  bottom: 0;
   right: -350px; /* Initially off the screen */
-  width: 320px;
-  padding: 20px;
-  outline: solid 1px #444444;
+  width: auto;
   background-color: #000;
-  background-image: radial-gradient(
-      rgba(87, 87, 87, 0.3) 1px,
-      transparent 1px
-    ),
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
   background-position: 0 0, 0 0;
   background-size: 20px 20px;
   animation: moveBackground 3s linear infinite;
   color: white;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   font-family: "Consolas", sans-serif;
   transition: right 0.5s ease-in-out;
@@ -734,16 +739,24 @@ h2 {
   visibility: hidden; /* Start invisible */
 }
 
-#toaster-notification.show {
-  right: 20px;
+.toaster-notification.show {
+  right: 20px; /* Slide in */
   opacity: 1;
   visibility: visible;
+  width: 400px;
+  outline: solid 1px #444444;
 }
 
 .toaster-content {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.toaster-content p {
+  margin: 0;
+  color: #4b4b4b;
 }
 
 .toaster-buttons {
@@ -751,72 +764,55 @@ h2 {
   justify-content: space-between;
 }
 
-#toaster-notification button {
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .toaster-button {
-  /*Positioning stuff*/
   position: relative;
-  /*Box model stuff*/
-  width: 40%;
-  height: 10%;
   border: none;
-  border-radius: 6px;
-  outline: 1px solid #444444;
+  border-radius: 0 8px 8px 0;
+  height: 60px;
+  width: 100px;
   background-color: #000;
   background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
   background-position: 0 0, 0 0;
-  background-size: 200% 100%;
   background-size: 20px 20px;
-  /*Typography stuff*/
   font-family: "Consolas", sans-serif;
   font-size: 16px;
   font-weight: 670;
-  text-decoration: none;
   color: #ffffff;
-  /*Manipulations stuff*/
   transition: 0.2s;
-  animation: 1.5s ease infinite alternate running shimmer;
   animation: moveBackground 3s linear infinite;
-  /*Miscellaneous*/
   cursor: pointer;
-  line-height: 24px;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .toaster-button svg {
-  /*Positioning stuff*/
   position: absolute;
-  left: -70px;
-  top: -6px;
-  /*Manipulations stuff*/
+  left: -77px;
+  top: -10px;
   transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
   opacity: 0.5;
 }
 
 .toaster-button:hover svg {
-  /*Manipulations stuff*/
-  transform: translateX(210px) scale(2);
+  transform: translateX(260px) scale(4);
   opacity: 0.8;
 }
 
 .toaster-button:hover {
-  /*Manipulations stuff*/
-  transform: rotate(-3deg) !important;
+  background-color: #fff;
+  color: #000;
 }
 
 .toaster-button:active {
-  /*Manipulations stuff*/
   transform: scale(0.9) rotate(-3deg) !important;
 }
 
-#toaster-body{
-  margin: 10px 0;
+@keyframes moveBackground {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 20px 20px, 20px 20px;
+  }
 }

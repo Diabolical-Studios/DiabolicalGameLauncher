@@ -240,124 +240,7 @@
     </div>
 
     <!-- Toaster Notification -->
-    <div id="toaster-notification" class="hidden">
-      <div class="toaster-content">
-        <h3 id="toaster-title">Game Update Available</h3>
-        <p id="toaster-body">A new version is available. Click to download.</p>
-        <div class="toaster-buttons">
-          <!-- Button 1 -->
-          <button id="toaster-download" class="toaster-button shimmer-button">
-            DOWNLOAD
-            <svg
-              width="79"
-              height="46"
-              viewBox="0 0 79 46"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g filter="url(#filter0_f_618_1123)">
-                <path
-                  d="M42.9 2H76.5L34.5 44H2L42.9 2Z"
-                  fill="url(#paint0_linear_618_1123)"
-                ></path>
-              </g>
-              <defs>
-                <filter
-                  id="filter0_f_618_1123"
-                  x="0"
-                  y="0"
-                  width="78.5"
-                  height="46"
-                  filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
-                >
-                  <feFlood
-                    flood-opacity="0"
-                    result="BackgroundImageFix"
-                  ></feFlood>
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  ></feBlend>
-                  <feGaussianBlur
-                    stdDeviation="1"
-                    result="effect1_foregroundBlur_618_1123"
-                  ></feGaussianBlur>
-                </filter>
-                <linearGradient
-                  id="paint0_linear_618_1123"
-                  x1="76.5"
-                  y1="2.00002"
-                  x2="34.5"
-                  y2="44"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0.8"></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0.1"></stop>
-                </linearGradient>
-              </defs>
-            </svg>
-          </button>
-          <!-- Button 2 -->
-          <button id="toaster-dismiss" class="toaster-button shimmer-button">
-            DISMISS
-            <svg
-              width="79"
-              height="46"
-              viewBox="0 0 79 46"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g filter="url(#filter0_f_618_1123)">
-                <path
-                  d="M42.9 2H76.5L34.5 44H2L42.9 2Z"
-                  fill="url(#paint0_linear_618_1123)"
-                ></path>
-              </g>
-              <defs>
-                <filter
-                  id="filter0_f_618_1123"
-                  x="0"
-                  y="0"
-                  width="78.5"
-                  height="46"
-                  filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
-                >
-                  <feFlood
-                    flood-opacity="0"
-                    result="BackgroundImageFix"
-                  ></feFlood>
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="BackgroundImageFix"
-                    result="shape"
-                  ></feBlend>
-                  <feGaussianBlur
-                    stdDeviation="1"
-                    result="effect1_foregroundBlur_618_1123"
-                  ></feGaussianBlur>
-                </filter>
-                <linearGradient
-                  id="paint0_linear_618_1123"
-                  x1="76.5"
-                  y1="2.00002"
-                  x2="34.5"
-                  y2="44"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0.8"></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0.1"></stop>
-                </linearGradient>
-              </defs>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
+    <div id="toaster-container"></div>
 
     <script src="./js/renderer.js"></script>
     <script src="./js/settings.js"></script>
@@ -365,48 +248,73 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // Ensure the preload is correctly exposing this
         window.electronAPI.onNotification((data) => {
           console.log("Notification received in renderer:", data);
-          showToaster(data.title, data.body, data.gameId); // Pass gameId for the download
+          createToaster(data.title, data.body, data.gameId); // Create a new toaster for each notification
         });
-
-        // Event listener for the "Dismiss" button
-        document
-          .getElementById("toaster-dismiss")
-          .addEventListener("click", () => {
-            hideToaster(); // Call the function to hide the toaster
-          });
-
-        // Event listener for the "Download" button
-        document
-          .getElementById("toaster-download")
-          .addEventListener("click", () => {
-            const gameId =
-              document.getElementById("toaster-title").dataset.gameId; // Get the gameId from the toaster
-            window.electronAPI.downloadGame(gameId); // Trigger the download
-            hideToaster(); // Optionally hide the toaster after the download starts
-          });
       });
 
-      function showToaster(title, body, gameId) {
-        document.getElementById("toaster-title").textContent = title;
-        document.getElementById("toaster-body").textContent = body;
+      let toasterCount = 0;
 
-        // Store the gameId in a data attribute to use it when "Download" is clicked
-        document.getElementById("toaster-title").dataset.gameId = gameId;
+      function createToaster(title, body, gameId) {
+        toasterCount += 1;
+        const toasterId = `toaster-${toasterCount}`;
 
-        const toaster = document.getElementById("toaster-notification");
-        toaster.classList.add("show"); // Show toaster
+        // Create toaster element
+        const toaster = document.createElement("div");
+        toaster.classList.add("toaster-notification", "show");
+        toaster.setAttribute("id", toasterId);
 
+        const content = `
+          <div class="toaster-content">
+            <div style="margin: 12px 0 12px 16px;">
+              <strong>${title}</strong><br />
+              <p>${body}</p>
+            </div>
+            <button class="toaster-button" id="toaster-download-${toasterCount}" data-game-id="${gameId}">UPDATE</button>
+          </div>`;
+
+        toaster.innerHTML = content;
+
+        // Append toaster to the container
+        document.getElementById("toaster-container").appendChild(toaster);
+
+        // Automatically hide toaster after 10 seconds
         setTimeout(() => {
-          hideToaster(); // Automatically hide toaster after 10 seconds
-        }, 1000000);
+          hideToaster(toasterId);
+        }, 10000);
+
+        // Add event listener to download button
+        document
+          .getElementById(`toaster-download-${toasterCount}`)
+          .addEventListener("click", (event) => {
+            const gameId = event.target.dataset.gameId;
+            window.electronAPI.downloadGame(gameId);
+            hideToaster(toasterId);
+          });
+
+        updateToasterPositions();
+      }
+      function hideToaster(toasterId) {
+        const toaster = document.getElementById(toasterId);
+        if (toaster) {
+          // Move the toaster to the right (off-screen)
+          toaster.style.right = "-600px"; // Adjust this value if needed for smooth sliding
+
+          // Wait for the transition to complete before removing the element
+          setTimeout(() => {
+            toaster.remove();
+            updateToasterPositions(); // Update positions after a toaster is removed
+          }, 1000); // Match the CSS transition duration
+        }
       }
 
-      function hideToaster() {
-        const toaster = document.getElementById("toaster-notification");
-        toaster.classList.remove("show"); // Hide toaster
+      function updateToasterPositions() {
+        const toasters = document.querySelectorAll(".toaster-notification");
+        toasters.forEach((toaster, index) => {
+          const bottomOffset = 20 + index * 75; // Adjust bottom position for stacking
+          toaster.style.bottom = `${bottomOffset}px`;
+        });
       }
     </script>
 

@@ -63,7 +63,7 @@ async function checkGameUpdates(gameId, currentVersion) {
       console.log(`New game update available for ${gameId}: Version ${latestVersion}`);
 
       // Send notification to frontend
-      showCustomNotification(mainWindow, `Update for ${gameId} Available!`, `Version ${latestVersion} is available for download.`, gameId);
+      showCustomNotification(mainWindow, `Update for ${gameId}`, `v${latestVersion}`, gameId);
     } else {
       console.log(`${gameId} is up-to-date. Current version: ${currentVersion}`);
     }
