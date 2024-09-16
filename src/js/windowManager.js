@@ -39,12 +39,13 @@ function createWindow() {
   mainWindow.webContents.on("did-finish-load", async () => {
     // Initialize the updater and pass the mainWindow
     const { initUpdater, startPeriodicChecks } = require("./updater");
-    
+    require("./database").pingDatabase("https://frks8kdvmjog.objectstorage.eu-frankfurt-1.oci.customer-oci.com/p/suRf4hOSm9II9YuoH_LuoZYletMaP59e2cIR1UXo84Pa6Hi26oo5VlWAT_XDt5R5/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
+
     initUpdater(mainWindow);
     startPeriodicChecks(mainWindow); // Check game updates periodically
   
     // Send a message to the renderer (index.html) that we're checking for updates
-    showMessage(`Checking for updates...`);
+    showMessage(`Diabolical Launcher Version: `);
   
     // Check for installed games and update them
     const installedGames = require("./gameManager").getInstalledGames();
@@ -55,7 +56,7 @@ function createWindow() {
   
 
   setInterval(() => {
-    require("./database").pingDatabase("https://diabolical.studio");
+    require("./database").pingDatabase("https://frks8kdvmjog.objectstorage.eu-frankfurt-1.oci.customer-oci.com/p/suRf4hOSm9II9YuoH_LuoZYletMaP59e2cIR1UXo84Pa6Hi26oo5VlWAT_XDt5R5/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
   }, 60000);
 
   mainWindow.on("close", () => {
