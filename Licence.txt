@@ -1,0 +1,16 @@
+Doruk Sasmaz Non-Commercial License (DSNC 1.0)
+Copyright (c) 2024 Doruk Sasmaz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, copy, modify, and merge the Software, but not to distribute, sublicense, or sell copies of the Software, or to use the Software for any commercial purposes, subject to the following conditions:
+
+Non-Commercial Use Only:
+The Software may be used for personal, academic, or non-commercial purposes only. Commercial use, which includes but is not limited to selling, distributing for profit, or using the Software as part of a paid service, is strictly prohibited.
+
+Attribution:
+Any copies or substantial portions of the Software must include the above copyright notice and this license in all copies or derivative works.
+
+Modifications and Derivative Works:
+Modifications and derivative works are allowed, provided that they are also distributed under this same non-commercial license. They may not be sold or used for commercial purposes.
+
+No Warranty:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
