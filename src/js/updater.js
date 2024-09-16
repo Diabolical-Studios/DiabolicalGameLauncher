@@ -71,6 +71,10 @@ async function checkGameUpdates(gameId, currentVersion) {
   }
 }
 
+function checkForUpdates() {
+  autoUpdater.checkForUpdates();
+}
+
 // Function to get the current version of the game from local storage
 function getCurrentGameVersion(gameId) {
   const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
@@ -117,5 +121,6 @@ module.exports = {
   initUpdater,
   checkGameUpdates,
   startPeriodicChecks,
-  getLatestGameVersion, // Ensure this is exported
+  checkForUpdates,
+  getLatestGameVersion
 };
