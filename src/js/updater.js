@@ -19,7 +19,7 @@ const versionDirectory = path.join(
 // Function to initialize the updater with the main window instance
 function initUpdater(window) {
   mainWindow = window; // Store the reference to the main window
-  autoUpdater.autoDownload = false;
+  autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on("update-available", (info) => {
