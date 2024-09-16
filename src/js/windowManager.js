@@ -46,7 +46,7 @@ function createWindow() {
     startPeriodicChecks(mainWindow); // Check game updates periodically
   
     // Send a message to the renderer (index.html) that we're checking for updates
-    showMessage(`Diabolical Launcher Version: `);
+    showMessage(`Checking For Updates... `);
   
     // Check for installed games and update them
     const installedGames = require("./gameManager").getInstalledGames();
