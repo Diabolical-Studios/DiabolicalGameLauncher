@@ -2,7 +2,7 @@ const fetch = import('node-fetch');
 
 async function getLatestGameVersion(gameId) {
     const fetch = (await import('node-fetch')).default; // Dynamic import of node-fetch
-    const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
+    const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
   
     try {
       console.log(`Checking for new version of game: ${gameId}`);
@@ -23,7 +23,7 @@ async function getLatestGameVersion(gameId) {
         .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
   
       const latestVersion = versions[0];
-      const latestVersionUrl = `https://frks8kdvmjog.objectstorage.eu-frankfurt-1.oci.customer-oci.com/p/suRf4hOSm9II9YuoH_LuoZYletMaP59e2cIR1UXo84Pa6Hi26oo5VlWAT_XDt5R5/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+      const latestVersionUrl = `https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
   
       return { latestVersion, latestVersionUrl };
     } catch (error) {
