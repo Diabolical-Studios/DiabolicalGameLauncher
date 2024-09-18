@@ -23,7 +23,7 @@ function initUpdater() {
 
   autoUpdater.on("update-available", (info) => {
     showMessage(`Launcher update available. Download Started...`);
-    showCustomNotification(mainWindow, "Launcher Update Available", "A new update is available for the launcher.", "launcher");
+    showCustomNotification(mainWindow, "Launcher Update", "A new update is available for the launcher.", "launcher");
     autoUpdater.downloadUpdate();
   });
 
@@ -33,13 +33,11 @@ function initUpdater() {
 
   autoUpdater.on("update-downloaded", (info) => {
     showMessage(`Launcher update downloaded. Restarting...`);
-    showCustomNotification(mainWindow, "Launcher Update Downloaded", "The launcher update has been downloaded. Restarting now...", "launcher");
     autoUpdater.quitAndInstall();
   });
 
   autoUpdater.on("error", (info) => {
     showMessage(`Launcher update error: ${info}`);
-    showCustomNotification(mainWindow, "Launcher Update Error", "There was an error while updating the launcher.", "launcher");
   });
 }
 
@@ -94,8 +92,6 @@ function periodicallyCheckGameVersions(gameIds, interval = 600000) {
     const currentVersion = getCurrentGameVersion(gameId);
     if (currentVersion) {
       checkGameUpdates(gameId, currentVersion);
-    } else {
-      showMessage(`No version file found for ${gameId}`);
     }
   });
 
@@ -104,8 +100,6 @@ function periodicallyCheckGameVersions(gameIds, interval = 600000) {
       const currentVersion = getCurrentGameVersion(gameId);
       if (currentVersion) {
         checkGameUpdates(gameId, currentVersion);
-      } else {
-        showMessage(`No version file found for ${gameId}`);
       }
     });
   }, interval);

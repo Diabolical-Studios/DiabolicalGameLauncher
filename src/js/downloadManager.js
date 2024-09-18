@@ -90,6 +90,7 @@ async function downloadGame(event, gameId, platform = "StandaloneWindows64") {
       gameId,
       updateAvailable: false,
     });
+    
   } catch (error) {
     console.error("Download or Extraction error:", error);
     event.sender.send("download-error", gameId, error.message);
