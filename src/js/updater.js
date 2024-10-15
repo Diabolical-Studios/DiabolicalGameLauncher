@@ -23,7 +23,7 @@ function initUpdater() {
 
   autoUpdater.on("update-available", (info) => {
     showMessage(`Launcher update available. Download Started...`);
-    showCustomNotification(mainWindow, "Launcher Update", "A new update is available for the launcher.", "launcher");
+    showCustomNotification(mainWindow, "Launcher Update", "Update available for the launcher.", "launcher");
     autoUpdater.downloadUpdate();
   });
 
