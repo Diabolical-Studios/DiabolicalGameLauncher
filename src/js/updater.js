@@ -107,7 +107,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 600000) {
 
 function startPeriodicChecks(window) {
   mainWindow = window;
-  const gameIds = ["TheUnnamed", "GFOS1992", "DieStylish", "Potato"];
+  const gameIds = ["Forgekeepers", "GFOS1992", "DieStylish"];
   periodicallyCheckGameVersions(gameIds);
 }
 
