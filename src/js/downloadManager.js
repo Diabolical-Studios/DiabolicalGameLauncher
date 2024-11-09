@@ -27,6 +27,34 @@ async function extractZip(zipPath, gameId, event) {
   }
 }
 
+async function checkForGameUpdates(gameId) {
+  try {
+    const { latestVersion } = await getLatestGameVersion(gameId);
+
+    let installedVersion = "0.0.0";
+    if (fs.existsSync(versionFilePath(gameId))) {
+      const versionData = JSON.parse(
+        fs.readFileSync(versionFilePath(gameId), "utf8")
+      );
+      installedVersion = versionData.version || "0.0.0";
+    }
+
+    if (latestVersion !== installedVersion) {
+      getMainWindow().webContents.send("update-available", {
+        gameId,
+        updateAvailable: true,
+      });
+    } else {
+      getMainWindow().webContents.send("update-available", {
+        gameId,
+        updateAvailable: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error checking for game updates:", error);
+  }
+}
+
 async function downloadGame(event, gameId, platform = "StandaloneWindows64") {
   try {
     const { latestVersion, latestVersionUrl } = await getLatestGameVersion(
@@ -70,5 +98,6 @@ async function downloadGame(event, gameId, platform = "StandaloneWindows64") {
 }
 
 module.exports = {
-  downloadGame
+  checkForGameUpdates,
+  downloadGame,
 };

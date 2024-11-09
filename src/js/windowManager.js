@@ -1,9 +1,6 @@
 const { BrowserWindow } = require("electron");
 const path = require("path");
 const { loadSettings, saveSettings } = require("./settings");
-const { initUpdater, startPeriodicChecks, checkForUpdates } = require("./updater");
-
-
 
 let mainWindow;
 let allowResize = false;
@@ -40,14 +37,22 @@ function createWindow() {
   });
 
   mainWindow.webContents.on("did-finish-load", async () => {
+    // Initialize the updater and pass the mainWindow
+    const { initUpdater, startPeriodicChecks } = require("./updater");
+    require("./updater").checkForUpdates();
+    require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
+
+    initUpdater();
+    startPeriodicChecks(mainWindow); // Check game updates periodically
+  
     // Send a message to the renderer (index.html) that we're checking for updates
     showMessage(`Checking For Updates... `);
-
-    // Initialize the updater and pass the mainWindow
-    checkForUpdates();
-    startPeriodicChecks(mainWindow); // Check game updates periodically
-
-    require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
+  
+    // Check for installed games and update them
+    const installedGames = require("./gameManager").getInstalledGames();
+    for (const gameId of installedGames) {
+      await require("./downloadManager").checkForGameUpdates(gameId);
+    }
   });
   
 
