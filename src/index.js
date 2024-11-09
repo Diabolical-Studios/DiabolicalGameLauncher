@@ -7,7 +7,6 @@ const { initIPCHandlers } = require("./js/ipcHandlers");
 app.on("ready", () => {
   initSettings();
   createWindow();
-  initUpdater();
   initIPCHandlers();
 });
 
