@@ -48,11 +48,11 @@ function createWindow() {
     // Send a message to the renderer (index.html) that we're checking for updates
     showMessage(`Checking For Updates... `);
   
-    // Check for installed games and update them
+/*     // Check for installed games and update them
     const installedGames = require("./gameManager").getInstalledGames();
     for (const gameId of installedGames) {
       await require("./downloadManager").checkForGameUpdates(gameId);
-    }
+    } */
   });
   
 
