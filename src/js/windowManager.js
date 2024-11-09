@@ -47,14 +47,9 @@ function createWindow() {
   
     // Send a message to the renderer (index.html) that we're checking for updates
     showMessage(`Checking For Updates... `);
-  
-/*     // Check for installed games and update them
-    const installedGames = require("./gameManager").getInstalledGames();
-    for (const gameId of installedGames) {
-      await require("./downloadManager").checkForGameUpdates(gameId);
-    } */
+    
   });
-  
+
 
   setInterval(() => {
     require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
