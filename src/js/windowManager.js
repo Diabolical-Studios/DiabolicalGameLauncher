@@ -45,7 +45,6 @@ function createWindow() {
 
     // Initialize the updater and pass the mainWindow
     checkForUpdates();
-    initUpdater();
     startPeriodicChecks(mainWindow); // Check game updates periodically
 
     require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
