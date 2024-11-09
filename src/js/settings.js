@@ -15,9 +15,10 @@ const settingsFilePath = path.join(diabolicalLauncherPath, "settings.json");
 
 const defaultSettings = {
   windowSize: { width: 1280, height: 720 },
-  theme: "light",
+  theme: "dark",
   language: "en",
 };
+
 
 function initSettings() {
   if (!fs.existsSync(diabolicalLauncherPath)) {
