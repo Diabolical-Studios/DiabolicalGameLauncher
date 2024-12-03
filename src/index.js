@@ -2,7 +2,17 @@ const { app } = require("electron");
 const { createWindow } = require("./js/windowManager");
 const { initSettings } = require("./js/settings");
 const { initIPCHandlers } = require("./js/ipcHandlers");
-const { diabolicalLauncherPath } = require("./js/settings");
+const path = require("path");
+const os = require("os");
+
+// Update launcherExecutablePath to point directly to the executable
+const launcherExecutablePath = path.join(
+  os.homedir(),
+  "AppData",
+  "Local",
+  "Diabolical Launcher",
+  "Diabolical Launcher.exe" // Add the executable name
+);
 
 app.on("ready", () => {
   initSettings();
@@ -13,7 +23,7 @@ app.on("ready", () => {
   const executablePath =
     process.defaultApp && process.argv.includes("--no-sandbox")
       ? process.execPath // Path to Electron binary (development mode)
-      : diabolicalLauncherPath; // Path to the installed app executable
+      : launcherExecutablePath; // Path to the installed app executable
 
   app.setAsDefaultProtocolClient("diabolicallauncher", executablePath);
 });
