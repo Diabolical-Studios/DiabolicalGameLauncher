@@ -55,8 +55,8 @@
   "author": "doruksasmaz",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.7.4",
-    "dotenv": "^16.4.5",
+    "axios": "^1.7.8",
+    "dotenv": "^16.4.7",
     "electron-dl": "^3.5.2",
     "electron-is-dev": "^3.0.1",
     "electron-squirrel-startup": "^1.0.0",
@@ -67,7 +67,7 @@
     "update-electron-app": "^3.0.0"
   },
   "devDependencies": {
-    "electron": "^30.0.2",
+    "electron": "^33.2.1",
     "electron-builder": "^24.13.3",
     "jest": "^29.7.0"
   }

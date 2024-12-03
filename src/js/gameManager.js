@@ -3,13 +3,7 @@ const path = require("path");
 const os = require("os");
 const { Menu, shell, BrowserWindow } = require("electron");
 const { downloadGame } = require("./downloadManager");
-
-const diabolicalLauncherPath = path.join(
-  os.homedir(),
-  "AppData",
-  "Local",
-  "Diabolical Launcher"
-);
+const { diabolicalLauncherPath } = require("./settings");
 
 function getInstalledGames() {
   try {
