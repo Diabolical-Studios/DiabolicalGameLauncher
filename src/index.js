@@ -10,7 +10,8 @@ const launcherExecutablePath = path.join(
   os.homedir(),
   "AppData",
   "Local",
-  "Diabolical Launcher",
+  "Programs",
+  "diabolicallauncher",
   "Diabolical Launcher.exe" // Add the executable name
 );
 
