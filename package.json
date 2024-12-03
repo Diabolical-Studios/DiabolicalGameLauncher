@@ -16,13 +16,21 @@
     "releaseType": "release"
   },
   "build": {
-    "appId": "com.yourdomain.diabolicallauncher",
+    "appId": "studio.diabolical.diabolicallauncher",
     "productName": "Diabolical Launcher",
     "directories": {
       "output": "dist"
     },
     "files": [
       "src/**/*"
+    ],
+    "protocols": [
+      {
+        "name": "Diabolical Launcher Protocol",
+        "schemes": [
+          "diabolicallauncher"
+        ]
+      }
     ],
     "win": {
       "target": "nsis",
