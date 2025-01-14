@@ -6,14 +6,20 @@ const { getMainWindow } = require("./windowManager");
 require('dotenv').config();
 
 function fetchGames() {
+    const agent = new https.Agent({
+        rejectUnauthorized: false // Disable SSL validation
+    });
+
     return new Promise((resolve, reject) => {
         const options = {
-            hostname: 'diabolical.studio',
-            path: '/.netlify/functions/fetchGames',
+            hostname: 'api.diabolical.studio',
+            path: '/api/games',
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'x-api-key': 'testapikey'
+            },
+            agent // Use the custom agent
         };
 
         const req = https.request(options, res => {
@@ -43,6 +49,7 @@ function fetchGames() {
         req.end();
     });
 }
+
 
 function pingDatabase(url) {
     axios
