@@ -13,7 +13,7 @@ function fetchGames() {
     return new Promise((resolve, reject) => {
         const options = {
             hostname: 'api.diabolical.studio',
-            path: '/api/games',
+            path: '/games',
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
