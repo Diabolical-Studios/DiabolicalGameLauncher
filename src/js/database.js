@@ -6,9 +6,6 @@ const { getMainWindow } = require("./windowManager");
 require('dotenv').config();
 
 function fetchGames() {
-    const agent = new https.Agent({
-        rejectUnauthorized: false // Disable SSL validation
-    });
 
     return new Promise((resolve, reject) => {
         const options = {
@@ -17,9 +14,7 @@ function fetchGames() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': 'testapikey'
             },
-            agent // Use the custom agent
         };
 
         const req = https.request(options, res => {
