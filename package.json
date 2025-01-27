@@ -65,7 +65,8 @@
     "extract-zip": "^2.0.1",
     "node-fetch": "^3.3.2",
     "oracledb": "^6.4.0",
-    "update-electron-app": "^3.0.0"
+    "update-electron-app": "^3.0.0",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "electron": "^33.2.1",
