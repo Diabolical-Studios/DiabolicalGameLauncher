@@ -124,3 +124,6 @@ desktop.ini
 
 # IDE - VSCode
 .vscode
+
+# Local Netlify folder
+.netlify

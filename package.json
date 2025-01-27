@@ -8,7 +8,8 @@
     "start": "set ELECTRON_IS_DEV=0 && electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "test": "jest"
+    "test": "jest",
+    "generate": "prisma generate"
   },
   "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
   "publish": {
