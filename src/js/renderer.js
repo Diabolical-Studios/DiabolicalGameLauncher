@@ -89,6 +89,18 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((error) => console.error(error));
     });
+  document
+    .getElementById("libraryButton")
+    .addEventListener("click", function () {
+      window.electronAPI
+        .loadHtml("src/html/library.html")
+        .then((html) => {
+          contentArea.innerHTML = html;
+          setupEventListeners();
+          updateResolutionDropdown();
+        })
+        .catch((error) => console.error(error));
+    });
 
   window.api.onDbStatusChange((status) => {
     const statusDiv = document.getElementById("launcher-version-status");
