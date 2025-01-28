@@ -15,6 +15,7 @@
     >
       <span>Login With Github</span>
     </button>
+    
     <script>
       window.onload = function () {
         checkLoginAndUpdateButton();
@@ -38,7 +39,7 @@
       }
 
       function startGitHubAuth() {
-        const client_id = "f64b9bcd2b2d41051d93";
+        const client_id = "Ov23ligdn0N1TMqWtNTV";
         const redirect_uri = encodeURIComponent(
           window.location.origin + "/.netlify/functions/github-auth"
         );
