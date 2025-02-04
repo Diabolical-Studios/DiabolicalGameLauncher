@@ -22,7 +22,7 @@ function createWindow() {
     resizable: true,
   });
 
-  mainWindow.loadURL(`file://${path.join(__dirname, "../index.html")}`);
+  mainWindow.loadURL("http://localhost:3000"); // Load React in development
 
   mainWindow.on("closed", () => {
     mainWindow = null;
