@@ -246,6 +246,23 @@ body {
     scroll-snap-align: start;
     scrollbar-width: thin;
     scrollbar-color: #1f1e1e transparent;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    height: -webkit-fill-available;
+    padding: 0 12px 0 0;
+}
+
+@media screen and (max-width: 1024px) {
+
+    #game-cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .game-banner {
+        height: 240px !important;
+    }
 }
 
 #game-cards-container {
@@ -288,22 +305,6 @@ body {
     overflow: hidden;
 }
 
-@media only screen and (max-width: 1000px) {
-    .game-banner {
-        flex-direction: column;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-
-    .game-button {
-        width: 100% !important;
-        height: 15% !important;
-    }
-
-    .card {
-        transform: translate(24px, 24px) !important;
-    }
-}
 
 .game-banner:hover {
     /*Manipulations stuff*/

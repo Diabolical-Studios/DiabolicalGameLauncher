@@ -28,7 +28,7 @@ function initUpdater() {
   });
 
   autoUpdater.on("update-not-available", (info) => {
-    showMessage(`Diabolical Launcher Version:`);
+    showMessage(`Diabolical Launcher`);
   });
 
   autoUpdater.on("update-downloaded", (info) => {

@@ -62,7 +62,7 @@ const StatusBar = () => {
                 backgroundColor: "rgba(60, 60, 60, 0.3)",
                 gap: "12px",
                 height: "50px",
-                maxWidth: "400px",
+                maxWidth: "700px",
                 cursor: "pointer",
             }}>
                 <span id="launcher-version-number">{appVersion}</span>

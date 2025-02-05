@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer, shell } = require("electron");
+const {contextBridge, ipcRenderer, shell} = require("electron");
 const packageJson = require("../package.json");
 
 contextBridge.exposeInMainWorld("api", {
