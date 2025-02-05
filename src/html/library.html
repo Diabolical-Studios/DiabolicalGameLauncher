@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library</title>
+  </head>
+
+  <body>
+    <button
+      class="shiny-cta"
+      onclick="startGitHubAuth()"
+      id="loginButton"
+      data-clone="mint-btn"
+    >
+      <span>Login With Github</span>
+    </button>
+    
+    <script>
+      window.onload = function () {
+        checkLoginAndUpdateButton();
+      };
+
+      function checkLoginAndUpdateButton() {
+        // Example check for a cookie named 'loggedIn', replace with your actual logic
+        if (
+          document.cookie
+            .split(";")
+            .some((item) => item.trim().startsWith("sessionID="))
+        ) {
+          // User is logged in, update the button
+          const loginButton = document.getElementById("loginButton");
+          const buttonText = loginButton.querySelector(".header__btn-text");
+          const githubIcon = document.getElementById("githubIcon");
+
+          buttonText.textContent = "Upload"; // Change the text to 'Upload'
+          githubIcon.style.display = "none"; // Hide the GitHub icon
+        }
+      }
+
+      function startGitHubAuth() {
+        const client_id = "Ov23ligdn0N1TMqWtNTV";
+        const redirect_uri = encodeURIComponent(
+          window.location.origin + "/.netlify/functions/github-auth"
+        );
+        const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}`;
+        window.location.href = githubAuthUrl;
+      }
+    </script>
+  </body>
+</html>
