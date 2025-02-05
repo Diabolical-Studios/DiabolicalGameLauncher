@@ -4,6 +4,7 @@ import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import ActionBar from "./components/ActionBar";
 import ContentPanel from "./components/ContentPanel";
 import StatusBar from "./components/StatusBar";
+import GameList from "./components/GameList"; // Import the GameList component
 
 function App() {
     return (
@@ -26,11 +27,12 @@ function App() {
                         flexDirection: "row",
                         gap: "12px"
                     }}>
-                        <ContentPanel/>
+                        <ContentPanel>
+                            <GameList /> {/* Add the GameList inside the content panel */}
+                        </ContentPanel>
                     </div>
                 </div>
             </div>
-
         </>
     );
 }

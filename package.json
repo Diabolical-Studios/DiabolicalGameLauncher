@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "concurrently \"npm start --prefix src/launcher-ui\" \"electron .\"",
-    "build": "npm run build --prefix launcher-ui && electron-builder",
+    "build": "npm run build --prefix src/launcher-ui && electron-builder",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "jest"

@@ -166,8 +166,6 @@ function reloadWindow() {
 async function createGameCards(games) {
   const container = document.getElementById("game-cards-container");
 
-  const installedGames = await window.electronAPI.getInstalledGames();
-
   container.innerHTML = "";
 
   games.forEach((game) => {
@@ -175,43 +173,20 @@ async function createGameCards(games) {
     card.className = "game-banner";
     card.style.backgroundImage = `url('${game.background_image_url}')`;
 
-    let buttonIconUrl = "Resources/MenuIcons/download.png";
-    let buttonAction = `startDownload('${game.game_id}')`;
-
-    if (installedGames.includes(game.game_id)) {
-      buttonIconUrl = "Resources/MenuIcons/play.png";
-      buttonAction = `openGame('${game.game_id}')`;
-    }
-
     card.innerHTML = `
-              <div class="game-details">
-                  <h3>${game.game_name}</h3>
-                  <p>${game.description}</p>
-              </div>
-              <button class="game-button shimmer-button" data-gameid="${game.game_id}" onclick="${buttonAction}">
-                  <img src="${buttonIconUrl}" alt="Download">
-                  <svg width="79" height="46" viewBox="0 0 79 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <g filter="url(#filter0_f_618_1123)">
-                          <path d="M42.9 2H76.5L34.5 44H2L42.9 2Z" fill="url(#paint0_linear_618_1123)"/>
-                      </g>
-                      <defs>
-                          <filter id="filter0_f_618_1123" x="0" y="0" width="78.5" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                              <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                              <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                              <feGaussianBlur stdDeviation="1" result="effect1_foregroundBlur_618_1123"/>
-                          </filter>
-                          <linearGradient id="paint0_linear_618_1123" x1="76.5" y1="2.00002" x2="34.5" y2="44" gradientUnits="userSpaceOnUse">
-                              <stop stop-color="white" stop-opacity="0.8"/>
-                              <stop offset="1" stop-color="white" stop-opacity="0.1"/>
-                          </linearGradient>
-                      </defs>
-                  </svg>
-              </button>
-          `;
+      <div class="game-details">
+          <h3>${game.game_name}</h3>
+          <p>${game.description}</p>
+      </div>
+      <button class="game-button shimmer-button">
+          <img src="Resources/MenuIcons/download.png" alt="Download">
+      </button>
+    `;
+
     container.appendChild(card);
   });
-  attachContextMenu(); // Attach context menu listeners to the newly created cards
 }
+
 
 function startDownload(gameId) {
   window.electronAPI.downloadGame(gameId);

@@ -11,3 +11,863 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+body {
+  /*Box model stuff*/
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background-color: #000;
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 20px 20px;
+  /*Typography stuff*/
+  font-family: "Consolas", sans-serif;
+  color: white;
+  /*Manipulations stuff*/
+  animation: moveBackground 3s linear infinite;
+  /*Miscellaneous*/
+  overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@keyframes moveBackground {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 20px 20px, 20px 20px;
+  }
+}
+
+.title-bar {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  /*Positioning stuff*/
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  /*Box model stuff*/
+  width: -webkit-fill-available;
+  padding: 10px 10px;
+  background: #00000000;
+  /*Typography stuff*/
+  color: #fff;
+  /*Miscellaneous*/
+  -webkit-app-region: drag;
+}
+
+.window-controls {
+  /*Display stuff*/
+  display: flex;
+  /*Miscellaneous*/
+  -webkit-app-region: no-drag;
+}
+
+.window-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  border: none;
+  border-radius: 4px;
+  background-color: #272727;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.window-close-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.window-close-btn:hover {
+  /*Box model stuff*/
+  background-color: #aa0606;
+}
+
+.window-close-btn:active {
+  /*Box model stuff*/
+  background-color: #aa0606;
+}
+
+.window-close-btn:focus {
+  /*Box model stuff*/
+  outline: none;
+}
+
+
+.window-reload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  border: none;
+  border-radius: 4px;
+  background-color: #272727;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.window-reload-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+.window-reload-btn:hover {
+  /*Box model stuff*/
+  background-color: #0616aa;
+}
+
+.window-reload-btn:active {
+  /*Box model stuff*/
+  background-color: #0616aa;
+}
+
+.window-reload-btn:focus {
+  /*Box model stuff*/
+  outline: none;
+}
+
+
+
+.svg-icon {
+  /*Box model stuff*/
+  width: 100%;
+  height: 100%;
+  /*Miscellaneous*/
+  fill: white;
+}
+
+.LauncherContainer {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /*Positioning stuff*/
+  position: relative;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  /*Box model stuff*/
+  height: -webkit-fill-available;
+  padding: 48px 48px 48px 24px;
+  /*Miscellaneous*/
+  gap: 24px;
+}
+
+.ActionBar {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  width: 60px;
+  min-width: 60px;
+  height: -webkit-fill-available;
+}
+
+.ActionBar img {
+  /*Box model stuff*/
+  width: 100%;
+}
+
+.ActionBar svg {
+  /*Box model stuff*/
+  height: auto;
+}
+
+.RightPanel {
+  /*Display stuff*/
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  /*Miscellaneous*/
+  gap: 24px;
+  overflow: hidden;
+}
+
+.LauncherInfo {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  padding: 10px;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  background-color: rgba(5, 5, 5, 0.416);
+  /*Miscellaneous*/
+  backdrop-filter: blur(2px);
+}
+
+#contentArea {
+  /*Display stuff*/
+  flex-grow: 1;
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  background-color: rgba(5, 5, 5, 0.416);
+  /*Miscellaneous*/
+  overflow: hidden;
+  backdrop-filter: blur(2px);
+}
+
+#game-cards-container {
+  /*Display stuff*/
+  display: flex;
+  flex-wrap: nowrap;
+  /*Box model stuff*/
+  height: 100%;
+  border-radius: 2px;
+  /*Manipulations stuff*/
+  transition: transform 0.5s ease-in-out, width 0.5s ease;
+  /*Miscellaneous*/
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 20px;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  scroll-snap-align: start;
+  scrollbar-width: thin;
+  scrollbar-color: #1f1e1e transparent;
+}
+
+#game-cards-container {
+  /*Box model stuff*/
+  padding-bottom: 10px;
+  /*Miscellaneous*/
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#game-cards-container::-webkit-scrollbar {
+  /*Box model stuff*/
+  height: 1px;
+  background: transparent;
+}
+
+#game-cards-container::-webkit-scrollbar-thumb {
+  /*Box model stuff*/
+  border-radius: 0px;
+  background-color: white;
+}
+
+.game-banner {
+  /*Display stuff*/
+  display: flex;
+  flex: 0 0 26vw;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  height: -webkit-fill-available;
+  padding: 24px;
+  border-radius: 2px;
+  background-color: #121212;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  /*Manipulations stuff*/
+  transition: all 0.5s ease, box-shadow 0.3s ease;
+  /*Miscellaneous*/
+  gap: 24px;
+}
+
+@media only screen and (max-width: 1000px) {
+  .game-banner {
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .game-button {
+    width: 100% !important;
+    height: 15% !important;
+  }
+
+  .card {
+    transform: translate(24px, 24px) !important;
+  }
+}
+
+.game-banner:hover {
+  /*Manipulations stuff*/
+  transform: scale(1.05);
+}
+
+.game-banner::before {
+  /*Display stuff*/
+  content: "";
+  /*Positioning stuff*/
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  top: -5px;
+  bottom: -5px;
+  z-index: 1;
+  /*Box model stuff*/
+  background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0) 100%,
+          rgba(0, 0, 0, 1) 0%
+  );
+  /*Manipulations stuff*/
+  transition: all 0.1s ease-in-out;
+  opacity: 0;
+}
+
+.game-banner:hover::before {
+  /*Box model stuff*/
+  background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 1) 0%,
+          rgba(0, 0, 0, 0) 100%
+  );
+  /*Manipulations stuff*/
+  opacity: 1;
+}
+
+.game-banner button {
+  /*Positioning stuff*/
+  z-index: 4;
+}
+
+.game-details {
+  /*Positioning stuff*/
+  z-index: 4;
+  /*Box model stuff*/
+  width: -webkit-fill-available;
+}
+
+.game-details p,
+h3 {
+  /*Box model stuff*/
+  margin: 0;
+}
+
+.card {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /*Positioning stuff*/
+  position: absolute;
+  /*Box model stuff*/
+  width: 100%;
+  height: 100%;
+  /*Manipulations stuff*/
+  transform: translate(-24px, 24px);
+}
+
+.content {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /*Miscellaneous*/
+  gap: 12px;
+}
+
+.content h1,
+h2 {
+  /*Box model stuff*/
+  width: -webkit-fill-available;
+  height: 40px;
+  margin: 0;
+}
+
+.card .image {
+  /*Box model stuff*/
+  height: -webkit-fill-available;
+}
+
+.card .image img {
+  /*Display stuff*/
+  display: block;
+  /*Box model stuff*/
+  width: 100%;
+  height: inherit;
+  /*Miscellaneous*/
+  object-fit: cover;
+}
+
+.card .content {
+  /*Box model stuff*/
+  padding: 16px;
+}
+
+.card.loading .image,
+.card.loading .content * {
+  /*Box model stuff*/
+  background-image: linear-gradient(
+          90deg,
+          #212121 0%,
+          #303030 50%,
+          #212121 100%
+  );
+  background-size: 200% 100%;
+  /*Manipulations stuff*/
+  animation: Shine 1.6s ease-in-out infinite;
+}
+
+.card.loading .content h1,
+.card.loading .content h2 {
+  /*Box model stuff*/
+  min-height: 32px;
+  border-radius: 4px;
+  /*Manipulations stuff*/
+  animation-delay: 0.05s;
+}
+
+@keyframes Shine {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.game-button {
+  /*Positioning stuff*/
+  position: relative;
+  /*Box model stuff*/
+  width: 40%;
+  height: 10%;
+  border: none;
+  border-radius: 6px;
+  outline: 1px solid #444444;
+  background-color: #000;
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 200% 100%;
+  background-size: 20px 20px;
+  /*Typography stuff*/
+  font-family: "Consolas", sans-serif;
+  font-size: 16px;
+  font-weight: 670;
+  text-decoration: none;
+  color: #ffffff;
+  /*Manipulations stuff*/
+  transition: 0.2s;
+  animation: 1.5s ease infinite alternate running shimmer;
+  animation: moveBackground 3s linear infinite;
+  /*Miscellaneous*/
+  cursor: pointer;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.game-button svg {
+  /*Positioning stuff*/
+  position: absolute;
+  left: -70px;
+  top: -6px;
+  /*Manipulations stuff*/
+  transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+  opacity: 0.5;
+}
+
+.game-button:hover svg {
+  /*Manipulations stuff*/
+  transform: translateX(210px) scale(2);
+  opacity: 0.8;
+}
+
+.game-button:hover {
+  /*Manipulations stuff*/
+  transform: rotate(-3deg) !important;
+}
+
+.game-button:active {
+  /*Manipulations stuff*/
+  transform: scale(0.9) rotate(-3deg) !important;
+}
+
+@keyframes shimmer {
+  to {
+    background-size: 100% 100%;
+    box-shadow: -2px -2px 6px rgba(255, 87, 51, 0.5),
+    2px 2px 6px rgb(144, 12, 63);
+  }
+}
+
+.game-banner .game-details,
+.game-banner button {
+  /*Positioning stuff*/
+  z-index: 2;
+  /*Manipulations stuff*/
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.3s ease;
+  opacity: 0;
+}
+
+.game-banner:hover .game-details,
+.game-banner:hover button {
+  /*Manipulations stuff*/
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.GameDetails {
+  /*Box model stuff*/
+  padding: 10px;
+  border-radius: 0 0 8px 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  /*Typography stuff*/
+  text-align: left;
+  color: white;
+}
+
+.game-details h3 {
+  /*Box model stuff*/
+  margin: 0;
+  padding: 0;
+  /*Typography stuff*/
+  font-size: 18px;
+}
+
+.game-details p {
+  /*Box model stuff*/
+  margin: 8px 0 0;
+  /*Typography stuff*/
+  font-size: 14px;
+}
+
+.GridButton {
+  /*Display stuff*/
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*Positioning stuff*/
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 100;
+  /*Box model stuff*/
+  width: 30px;
+  height: 30px;
+  border: 1px solid #242424;
+  border-radius: 4px;
+  background-color: rgba(5, 5, 5, 0.416);
+  /*Miscellaneous*/
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+
+.download-button {
+  /*Positioning stuff*/
+  bottom: 0;
+  /*Box model stuff*/
+  width: -webkit-fill-available;
+  margin: 20px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  background-color: #0078d7;
+  /*Typography stuff*/
+  color: #fff;
+  /*Manipulations stuff*/
+  transition: background-color 0.3s;
+  /*Miscellaneous*/
+  cursor: pointer;
+}
+
+.download-button:hover {
+  /*Box model stuff*/
+  background-color: #005ea6;
+}
+
+.download-button:active {
+  /*Box model stuff*/
+  background-color: #003d79;
+}
+
+.download-path {
+  /*Display stuff*/
+  display: block;
+  /*Box model stuff*/
+  max-width: 100%;
+  margin-top: 5px;
+  /*Typography stuff*/
+  font-size: 0.8em;
+  text-overflow: ellipsis;
+  color: #aaa;
+  /*Miscellaneous*/
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.path-container {
+  /*Display stuff*/
+  display: none;
+  /*Box model stuff*/
+  max-width: calc(100% - 20px);
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  /*Typography stuff*/
+  font-size: 0.8em;
+  color: #333;
+  /*Miscellaneous*/
+  word-wrap: break-word;
+}
+
+.path-container.visible {
+  /*Display stuff*/
+  display: block;
+}
+
+#launcher-version-status-and-number {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /*Miscellaneous*/
+}
+
+#launcher-version-status {
+  /*Box model stuff*/
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  background-color: rgb(97, 97, 97);
+  /*Manipulations stuff*/
+  animation: blink 2s infinite;
+  /*Miscellaneous*/
+  box-shadow: 0 0 12px rgb(128, 128, 128);
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.MenuItems {
+  /*Display stuff*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /*Box model stuff*/
+  margin: 0;
+  padding: 0;
+  /*Miscellaneous*/
+  list-style-type: none;
+  gap: 8px;
+}
+
+.MenuItems li {
+  /*Box model stuff*/
+  border: none;
+  background: none;
+}
+
+.MenuItems button {
+  /*Box model stuff*/
+  padding: 0;
+  border: 1px solid #303030;
+  border-radius: 8px;
+  background-color: rgb(22 22 22 / 0%);
+  /*Manipulations stuff*/
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  width: 50px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*Miscellaneous*/
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.MenuItems button:hover {
+  /*Box model stuff*/
+  background-color: rgba(60, 60, 60, 0.31);
+  /*Miscellaneous*/
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.MenuItems li svg {
+  /*Manipulations stuff*/
+  transition: fill 0.3s ease, filter 0.3s ease;
+  /*Miscellaneous*/
+  fill: #4b4b4b;
+}
+
+.MenuItems li:hover svg {
+  /*Manipulations stuff*/
+  filter: drop-shadow(0 0 2px #ffffff87);
+  /*Miscellaneous*/
+  fill: #ffffff;
+}
+
+.MenuItems li.active svg {
+  /*Manipulations stuff*/
+  filter: drop-shadow(0 0 3px #ffffff87);
+  /*Miscellaneous*/
+  fill: #ffffff;
+}
+
+.grabbable {
+  /*Miscellaneous*/
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+
+.grabbing {
+  /*Miscellaneous*/
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+
+#toaster-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: auto;
+  z-index: 1000;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.toaster-notification {
+  position: absolute;
+  bottom: 0;
+  right: -350px; /* Initially off the screen */
+  width: auto;
+  background-color: #000;
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 20px 20px;
+  animation: moveBackground 3s linear infinite;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: "Consolas", sans-serif;
+  transition: right 0.5s ease-in-out;
+  z-index: 1000;
+  opacity: 0; /* Start hidden */
+  visibility: hidden; /* Start invisible */
+}
+
+.toaster-notification.show {
+  right: 20px; /* Slide in */
+  opacity: 1;
+  visibility: visible;
+  width: 400px;
+  outline: solid 1px #444444;
+}
+
+.toaster-content {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.toaster-content p {
+  margin: 0;
+  color: #4b4b4b;
+}
+
+.toaster-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.toaster-button {
+  position: relative;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  height: 60px;
+  width: 100px;
+  background-color: #000;
+  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+  background-position: 0 0, 0 0;
+  background-size: 20px 20px;
+  font-family: "Consolas", sans-serif;
+  font-size: 16px;
+  font-weight: 670;
+  color: #ffffff;
+  transition: 0.2s;
+  animation: moveBackground 3s linear infinite;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.toaster-button svg {
+  position: absolute;
+  left: -77px;
+  top: -10px;
+  transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+  opacity: 0.5;
+}
+
+.toaster-button:hover svg {
+  transform: translateX(260px) scale(4);
+  opacity: 0.8;
+}
+
+.toaster-button:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+.toaster-button:active {
+  transform: scale(0.9) rotate(-3deg) !important;
+}
+
+@keyframes moveBackground {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 20px 20px, 20px 20px;
+  }
+}
