@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { HomeIcon, SettingsIcon, ChangelogIcon } from "./icons"; // Import icons
+import React, {useState} from "react";
+import {HomeIcon, SettingsIcon, ChangelogIcon} from "./icons"; // Import icons
 
 const ActionBar = () => {
     const [activeButton, setActiveButton] = useState("home");
 
     // Menu items
     const menuItems = [
-        { id: "home", icon: HomeIcon, alt: "Home" },
-        { id: "settings", icon: SettingsIcon, alt: "Settings" },
-        { id: "changelog", icon: ChangelogIcon, alt: "Changelog" },
+        {id: "home", icon: HomeIcon, alt: "Home"},
+        {id: "settings", icon: SettingsIcon, alt: "Settings"},
+        {id: "changelog", icon: ChangelogIcon, alt: "Changelog"},
     ];
 
     return (
@@ -17,25 +17,21 @@ const ActionBar = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                position: "absolute",
+                position: "relative",
                 left: 0,
                 top: 0,
-                width: "60px",
-                minWidth: "60px",
-                height: "-webkit-fill-available",
-                padding: "12px 0",
+                height: "100%",
+                width: "min-content",
                 zIndex: 9998, // Below title bar
             }}
         >
             {/* Main Icon */}
-            <div style={{ textAlign: "center", padding: "12px 0" }}>
-                <img
-                    src="android-chrome-192x192.png"
-                    alt="Icon"
-                    draggable="false"
-                    style={{ width: "48px", height: "48px" }}
-                />
-            </div>
+            <img
+                src="android-chrome-192x192.png"
+                alt="Icon"
+                draggable="false"
+                style={{width: "100%", aspectRatio: "1/1"}}
+            />
 
             {/* Menu Items */}
             <ul
@@ -47,6 +43,7 @@ const ActionBar = () => {
                     padding: 0,
                     listStyleType: "none",
                     gap: "12px",
+                    width: "fit-content",
                 }}
             >
                 {menuItems.map((item) => (
@@ -56,7 +53,7 @@ const ActionBar = () => {
                             style={{
                                 padding: 0,
                                 border: "1px solid #303030",
-                                borderRadius: "8px",
+                                borderRadius: "2px",
                                 backgroundColor: activeButton === item.id ? "rgba(60, 60, 60, 0.3)" : "transparent",
                                 width: "50px",
                                 height: "50px",
@@ -67,7 +64,7 @@ const ActionBar = () => {
                                 transition: "background-color 0.3s ease",
                             }}
                         >
-                            <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"} />
+                            <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"}/>
                         </button>
                     </li>
                 ))}

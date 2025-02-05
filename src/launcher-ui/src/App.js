@@ -1,26 +1,36 @@
 import React from "react";
 import Background from "./components/Background";
-import TitleBar from "./components/TitleBar";
+import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import ActionBar from "./components/ActionBar";
+import ContentPanel from "./components/ContentPanel";
+import StatusBar from "./components/StatusBar";
 
 function App() {
     return (
         <>
-            <Background />
-            <TitleBar />
-            <ActionBar />
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
-                    textAlign: "center",
-                    color: "white",
-                }}
-            >
-                <h1>Launcher UI</h1>
+            <Background/>
+            <div style={{display: "flex", flexDirection: "row", width: "-webkit-fill-available", height: "-webkit-fill-available", padding: "12px", gap: "12px",}}>
+                <ActionBar/>
+                <div style={{width:'-webkit-fill-available', display: "flex", flexDirection: "column", gap: "12px",}}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                    }}>
+                        <StatusBar/>
+                        <AppCloseRefreshButtons/>
+                    </div>
+                    <div style={{
+                        height: "-webkit-fill-available",
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "12px"
+                    }}>
+                        <ContentPanel/>
+                    </div>
+                </div>
             </div>
+
         </>
     );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-const TitleBar = () => {
+const AppCloseRefreshButtons = () => {
     const handleClose = () => {
         window.electronAPI.closeWindow(); // Call Electron API to close the window
     };
@@ -14,13 +14,13 @@ const TitleBar = () => {
             style={{
                 display: "flex",
                 flexDirection: "row-reverse",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
-                position: "fixed",
+                position: "relative",
                 left: 0,
                 top: 0,
                 width: "-webkit-fill-available",
-                padding: "10px 10px",
+                height: "100%",
                 color: "#fff",
                 zIndex: 999,
                 WebkitAppRegion: "drag", // Makes title bar draggable in Electron
@@ -102,4 +102,4 @@ const TitleBar = () => {
     );
 };
 
-export default TitleBar;
+export default AppCloseRefreshButtons;
