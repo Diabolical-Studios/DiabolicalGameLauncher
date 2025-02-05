@@ -8,8 +8,7 @@ const {
   diabolicalLauncherPath,
 } = require("./settings");
 const { downloadGame } = require("./downloadManager");
-const { getInstalledGames } = require("./gameManager");
-const { showContextMenu } = require("./gameManager");
+const { getInstalledGames, showContextMenu, uninstallGame } = require("./gameManager");
 
 function initIPCHandlers() {
   ipcMain.on("show-context-menu", (event, gameId, position) => {

@@ -5,7 +5,8 @@
   "description": "Launcher for the Diabolical Studios games",
   "main": "src/index.js",
   "scripts": {
-    "start": "set ELECTRON_IS_DEV=0 && electron .",
+    "start": "concurrently \"npm start --prefix src/launcher-ui\" \"electron .\"",
+    "build": "npm run build --prefix src/launcher-ui && electron-builder",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "jest",
@@ -23,7 +24,8 @@
       "output": "dist"
     },
     "files": [
-      "src/**/*"
+      "src/**/*",
+      "src/launcher-ui/build/**/*"
     ],
     "protocols": [
       {
