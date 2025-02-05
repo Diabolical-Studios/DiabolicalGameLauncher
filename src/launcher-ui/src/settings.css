@@ -2,7 +2,7 @@
     animation: 1.5s ease infinite alternate running shimmer;
     background-size: 200% 100%;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     color: #ffffff;
     cursor: pointer;
     font-size: 16px;
@@ -57,7 +57,7 @@
     animation: 1.5s ease infinite alternate running shimmer;
     background-size: 200% 100%;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     color: #ffffff;
     cursor: pointer;
     font-size: 16px;
@@ -109,11 +109,17 @@
 
 .resolutionSetting {
     width: max-content;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 12px;
+    background-color: rgba(60, 60, 60, 0.3);
+    border: 1px solid rgb(48, 48, 48);
 }
 
 .checkUpdateText {
     position: absolute;
     bottom: 24px;
-    left: 24px;
     color: #fff;
 }

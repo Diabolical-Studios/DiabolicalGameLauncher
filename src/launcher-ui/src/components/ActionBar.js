@@ -1,14 +1,13 @@
-import React, {useState} from "react";
-import {HomeIcon, SettingsIcon, ChangelogIcon} from "./icons"; // Import icons
+import React, { useState } from "react";
+import { HomeIcon, SettingsIcon, ChangelogIcon } from "./icons";
 
-const ActionBar = () => {
+const ActionBar = ({ onPageChange }) => {
     const [activeButton, setActiveButton] = useState("home");
 
-    // Menu items
     const menuItems = [
-        {id: "home", icon: HomeIcon, alt: "Home"},
-        {id: "settings", icon: SettingsIcon, alt: "Settings"},
-        {id: "changelog", icon: ChangelogIcon, alt: "Changelog"},
+        { id: "home", icon: HomeIcon, alt: "Home" },
+        { id: "settings", icon: SettingsIcon, alt: "Settings" },
+        { id: "changelog", icon: ChangelogIcon, alt: "Changelog" },
     ];
 
     return (
@@ -22,18 +21,26 @@ const ActionBar = () => {
                 top: 0,
                 height: "100%",
                 width: "min-content",
-                zIndex: 9998, // Below title bar
+                zIndex: 9998,
+                alignItems: "center",
             }}
         >
-            {/* Main Icon */}
-            <img
-                src="android-chrome-192x192.png"
-                alt="Icon"
-                draggable="false"
-                style={{width: "100%", aspectRatio: "1/1"}}
-            />
+            <a
+                href="https://diabolical.studio"
+                onClick={(e) => {
+                    e.preventDefault();
+                    window.electronAPI.openExternal("https://diabolical.studio");
+                }}
+                style={{ display: "block", width: "100%" }}
+            >
+                <img
+                    src="android-chrome-192x192.png"
+                    alt="Icon"
+                    draggable="false"
+                    style={{ width: "100%", aspectRatio: "1/1", cursor: "pointer" }}
+                />
+            </a>
 
-            {/* Menu Items */}
             <ul
                 style={{
                     display: "flex",
@@ -49,7 +56,10 @@ const ActionBar = () => {
                 {menuItems.map((item) => (
                     <li key={item.id}>
                         <button
-                            onClick={() => setActiveButton(item.id)}
+                            onClick={() => {
+                                setActiveButton(item.id);
+                                onPageChange(item.id);
+                            }}
                             style={{
                                 padding: 0,
                                 border: "1px solid #303030",
@@ -64,7 +74,7 @@ const ActionBar = () => {
                                 transition: "background-color 0.3s ease",
                             }}
                         >
-                            <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"}/>
+                            <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"} />
                         </button>
                     </li>
                 ))}

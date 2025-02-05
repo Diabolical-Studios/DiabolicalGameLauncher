@@ -12,7 +12,7 @@ const ContentPanel = ({ children }) => {
             overflow: "auto",
             border: "1px solid rgb(48, 48, 48)",
             borderRadius: "2px",
-            backgroundColor: "rgba(60, 60, 60, 0.3)",
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
         }}>
             {children}
         </div>

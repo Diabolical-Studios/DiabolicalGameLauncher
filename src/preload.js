@@ -1,4 +1,4 @@
-const {contextBridge, ipcRenderer} = require("electron");
+const { contextBridge, ipcRenderer, shell } = require("electron");
 const packageJson = require("../package.json");
 
 contextBridge.exposeInMainWorld("api", {
@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     setWindowSize: (width, height) => {
         ipcRenderer.send("set-window-size-and-center", width, height);
     },
+
+    openExternal: (url) => shell.openExternal(url),
 
     onNotification: (callback) => {
         ipcRenderer.on("show-notification", (event, data) => {

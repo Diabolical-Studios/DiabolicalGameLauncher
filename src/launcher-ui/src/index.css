@@ -856,3 +856,27 @@ h2 {
         background-position: 20px 20px, 20px 20px;
     }
 }
+
+.window-button{
+    padding: 4px;
+    border: 1px solid #303030;
+    border-radius: 2px;
+    background-color: rgba(60, 60, 60, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.window-button:hover {
+    background-color: rgba(100, 100, 100, 0.8);
+}
+
+.reload-button:hover {
+    background-color: #b67005;
+}
+
+.close-button:hover {
+    background-color: #aa0606;
+}
