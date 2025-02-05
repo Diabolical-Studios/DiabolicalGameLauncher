@@ -45,9 +45,7 @@ const BackgroundAnimation = () => {
                 }
             };
             module.seed(0);
-
-            var F2 = 0.5 * (Math.sqrt(3) - 1);
-            var G2 = (3 - Math.sqrt(3)) / 6;
+            
             var F3 = 1 / 3;
             var G3 = 1 / 6;
 
