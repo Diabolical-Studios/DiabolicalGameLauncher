@@ -8,6 +8,7 @@ import GameList from "./components/GameList";
 import Toaster from "./components/Toaster";
 import SettingsPage from "./pages/SettingsPage"; // Import SettingsPage component
 import ChangelogPage from "./pages/ChangelogPage"; // Import ChangelogPage component
+import AccountPage from "./pages/AccountPage"; // Import ChangelogPage component
 import "./settings.css"; // Import the styles properly
 import "./changelog.css"; // Import the styles properly
 
@@ -67,6 +68,7 @@ function App() {
                             {selectedPage === "home" && <GameList />}
                             {selectedPage === "settings" && <SettingsPage />}
                             {selectedPage === "changelog" && <ChangelogPage />}
+                            {selectedPage === "account" && <AccountPage />}
                         </ContentPanel>
                     </div>
                 </div>
