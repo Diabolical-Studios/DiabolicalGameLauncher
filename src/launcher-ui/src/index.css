@@ -261,7 +261,7 @@ body {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
     .game-banner {
-        height: 240px !important;
+        height: 260px !important;
     }
 }
 
@@ -291,16 +291,16 @@ body {
     flex-direction: column;
     align-items: stretch;
     position: relative;
-    height: 320px;
+    height: 350px;
     width: -webkit-fill-available;
-    padding: 24px;
+    padding: 12px;
     border-radius: 2px;
     background-color: #121212;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     transition: all 0.5s ease, box-shadow 0.3s ease;
-    gap: 24px;
+    gap: 12px;
     justify-content: flex-end;
     overflow: hidden;
 }
