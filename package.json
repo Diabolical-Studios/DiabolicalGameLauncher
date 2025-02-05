@@ -23,7 +23,8 @@
       "output": "dist"
     },
     "files": [
-      "src/**/*"
+      "src/**/*",
+      "src/launcher-ui/build/**/*"
     ],
     "protocols": [
       {

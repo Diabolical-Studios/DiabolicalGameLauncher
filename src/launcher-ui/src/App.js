@@ -25,7 +25,8 @@ function App() {
                         height: "-webkit-fill-available",
                         display: "flex",
                         flexDirection: "row",
-                        gap: "12px"
+                        gap: "12px",
+                        overflow: "hidden",
                     }}>
                         <ContentPanel>
                             <GameList /> {/* Add the GameList inside the content panel */}

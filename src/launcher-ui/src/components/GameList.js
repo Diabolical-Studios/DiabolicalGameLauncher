@@ -22,9 +22,21 @@ const GameList = () => {
     };
 
     return (
-        <div id="game-cards-container">
+        <div id="game-cards-container" style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", // Creates responsive columns
+            gap: "12px",
+            overflowY: "auto", // Enables vertical scrolling
+            height: "-webkit-fill-available", // Ensures it doesn't overflow outside the viewport
+            padding: "0 12px 0 0",
+        }}>
             {games.map((game) => (
-                <GameCard key={game.game_id} game={game} isInstalled={installedGames.includes(game.game_id)} onAction={handleAction} />
+                <GameCard
+                    key={game.game_id}
+                    game={game}
+                    isInstalled={installedGames.includes(game.game_id)}
+                    onAction={handleAction}
+                />
             ))}
         </div>
     );
