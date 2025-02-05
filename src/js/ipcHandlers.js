@@ -135,6 +135,10 @@ function initIPCHandlers() {
       mainWindow.reload();
     }
   });
+  
+  ipcMain.handle("get-app-version", () => {
+    return app.getVersion();
+  });
 }
 
 module.exports = {

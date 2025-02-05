@@ -2,13 +2,11 @@ const {contextBridge, ipcRenderer} = require("electron");
 const packageJson = require("../package.json");
 
 contextBridge.exposeInMainWorld("api", {
-    loadGames: () => ipcRenderer.invoke("load-games"),
-    onDbStatusChange: (callback) => {
+    loadGames: () => ipcRenderer.invoke("load-games"), onDbStatusChange: (callback) => {
         ipcRenderer.on("db-status", (event, status) => {
             callback(status);
         });
-    },
-    onUpdateMessage: (callback) => {
+    }, onUpdateMessage: (callback) => {
         ipcRenderer.on("updateMessage", (event, message) => {
             callback(message);
         });
@@ -16,7 +14,7 @@ contextBridge.exposeInMainWorld("api", {
 });
 
 contextBridge.exposeInMainWorld("versions", {
-    appVersion: packageJson.version,
+    getAppVersion: () => ipcRenderer.invoke("get-app-version")
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -38,15 +36,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
     // ✅ Fixed: Now properly listens for download progress
     onDownloadProgress: (callback) => {
-        ipcRenderer.on("download-progress", (event, { gameId, percentage }) => {
-            callback({ gameId, percentage });
+        ipcRenderer.on("download-progress", (event, {gameId, percentage}) => {
+            callback({gameId, percentage});
         });
     },
 
     // ✅ Fixed: Now properly listens for download completion
     onDownloadComplete: (callback) => {
         ipcRenderer.on("download-complete", (event, gameId, installPath) => {
-            callback({ gameId, installPath });
+            callback({gameId, installPath});
         });
     },
 

@@ -10,84 +10,107 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0  # Fetch all history for all branches and tags
+      - name: 🛠 Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-        cache: 'npm'
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Use Node 16 for better compatibility
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm install
+      - name: 📦 Install dependencies (Main Project)
+        run: npm install
 
-    - name: Calculate new version and create tag
-      id: calculate_new_version
-      run: |
-        echo "Fetching tags..."
-        git fetch --tags
-        # Find the last version tag and increment its patch version
-        LAST_TAG=$(git tag | sort -V | tail -n1)
-        LAST_VERSION=$LAST_TAG
-        if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
-        NEW_VERSION=$(echo $LAST_VERSION | awk -F. '{$NF = $NF + 1;}1' OFS='.')
-        echo "New version: $NEW_VERSION"
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git tag $NEW_VERSION
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: 📦 Install dependencies (React UI)
+        run: npm install
+        working-directory: src/launcher-ui
 
-    - name: Update package.json version
-      run: |
-        npm version ${{ env.NEW_VERSION }} --no-git-tag-version
-        git add package.json
-        git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
+      - name: 🔢 Calculate new version and create tag
+        id: calculate_new_version
+        run: |
+          echo "Fetching tags..."
+          git fetch --tags
+          # Find the last version tag and increment its patch version
+          LAST_TAG=$(git tag | sort -V | tail -n1)
+          LAST_VERSION=$LAST_TAG
+          if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
+          NEW_VERSION=$(echo $LAST_VERSION | awk -F. '{$NF = $NF + 1;}1' OFS='.')
+          echo "New version: $NEW_VERSION"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag $NEW_VERSION
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Build and package
-      run: npm run dist
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: 📝 Update package.json version
+        run: |
+          npm version ${{ env.NEW_VERSION }} --no-git-tag-version
+          git add package.json
+          git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
+          git push origin master --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Create latest.yml
-      run: |
-        echo "version: ${{ env.NEW_VERSION }}" > latest.yml
-      env:
-        NEW_VERSION: ${{ env.NEW_VERSION }}
+      - name: 🏗 Build React App
+        run: npm run build
+        working-directory: src/launcher-ui
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        tag_name: ${{ env.NEW_VERSION }}
-        release_name: ${{ env.NEW_VERSION }}
-        draft: false
-        prerelease: false
+      - name: 🛑 Delete old `latest.yml` (Fix auto-updater issues)
+        run: rm -f dist/latest.yml
 
-    - name: Upload Release Asset - Setup Executable
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/Diabolical Launcher Setup.exe
-        asset_name: Diabolical-Launcher-Setup.exe
-        asset_content_type: application/octet-stream
-  
-    - name: Upload Release Asset - Latest YML
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/latest.yml
-        asset_name: latest.yml
-        asset_content_type: text/yaml
-  
+      - name: 🔨 Build and Package Electron App
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: 📄 Create latest.yml
+        run: |
+          echo "version: ${{ env.NEW_VERSION }}" > latest.yml
+        env:
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+
+      - name: 🚀 Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          release_name: ${{ env.NEW_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: 📤 Upload Release Asset - Setup Executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/Diabolical Launcher Setup.exe
+          asset_name: Diabolical-Launcher-Setup.exe
+          asset_content_type: application/octet-stream
+
+      - name: 📤 Upload Release Asset - Latest YML
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/latest.yml
+          asset_name: latest.yml
+          asset_content_type: text/yaml
+
+      - name: 📤 Upload Release Asset - Blockmap (Fix auto-updater)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/Diabolical Launcher Setup.exe.blockmap
+          asset_name: Diabolical-Launcher-Setup.exe.blockmap
+          asset_content_type: application/octet-stream

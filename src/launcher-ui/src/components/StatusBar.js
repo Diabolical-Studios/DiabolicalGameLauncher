@@ -1,10 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
 const StatusBar = () => {
     const [statusColor, setStatusColor] = useState("rgb(97, 97, 97)"); // Default gray
     const [message, setMessage] = useState("Status message..."); // Default message
+    const [appVersion, setAppVersion] = useState(""); // Store the version number
 
     useEffect(() => {
+        // Fetch app version from Electron preload
+        if (window.versions) {
+            window.versions.getAppVersion().then((version) => {
+                setAppVersion(`v${version}`);
+            });
+        }
+
         // Listen for db-status event from Electron
         window.api.onDbStatusChange((color) => {
             console.log(`Received new status color: ${color}`);
@@ -19,8 +27,10 @@ const StatusBar = () => {
 
         return () => {
             // Cleanup event listeners when component unmounts
-            window.api.onDbStatusChange(() => {});
-            window.api.onUpdateMessage(() => {});
+            window.api.onDbStatusChange(() => {
+            });
+            window.api.onUpdateMessage(() => {
+            });
         };
     }, []);
 
@@ -37,12 +47,13 @@ const StatusBar = () => {
             gap: "12px",
             height: "50px",
         }}>
+            <span id="launcher-version-number">{appVersion}</span>
+
             <div id="launcher-version-status-and-number" style={{
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
             }}>
-                <span id="launcher-version-number"></span>
                 <div style={{
                     width: "12px",
                     height: "12px",
