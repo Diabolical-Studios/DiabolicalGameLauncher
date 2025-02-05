@@ -22,6 +22,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
         ipcRenderer.send("set-window-size-and-center", width, height);
     },
 
+    onNotification: (callback) => {
+        ipcRenderer.on("show-notification", (event, data) => {
+            callback(data);
+        });
+    },
+
     showContextMenu: (gameId, position) => {
         ipcRenderer.send("show-context-menu", gameId, position);
     },

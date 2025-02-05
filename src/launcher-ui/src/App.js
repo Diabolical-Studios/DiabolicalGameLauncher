@@ -5,6 +5,7 @@ import ActionBar from "./components/ActionBar";
 import ContentPanel from "./components/ContentPanel";
 import StatusBar from "./components/StatusBar";
 import GameList from "./components/GameList"; // Import the GameList component
+import Toaster from "./components/Toaster";
 
 function App() {
     return (
@@ -34,6 +35,7 @@ function App() {
                     </div>
                 </div>
             </div>
+            <Toaster/>
         </>
     );
 }
