@@ -14,9 +14,6 @@ const SettingsPage = () => {
                         Apply
                     </button>
                 </div>
-                <a className="checkUpdateText" id="check-for-update" href="">
-                    Check For Update
-                </a>
             </div>
         </div>
     );
