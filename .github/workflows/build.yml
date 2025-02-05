@@ -52,9 +52,6 @@ jobs:
           npm version ${{ env.NEW_VERSION }} --no-git-tag-version
           git add package.json
           git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
-          git push origin master --tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: 🏗 Build React App
         run: npm run build
