@@ -73,6 +73,7 @@ const ActionBar = ({ onPageChange }) => {
                                 justifyContent: "center",
                                 cursor: "pointer",
                                 transition: "background-color 0.3s ease",
+                                backdropFilter: "blur(10px)",
                             }}
                         >
                             <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"} />

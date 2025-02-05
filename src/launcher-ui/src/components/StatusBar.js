@@ -59,11 +59,11 @@ const StatusBar = () => {
                 padding: "0 12px",
                 border: "1px solid rgb(48, 48, 48)",
                 borderRadius: "2px",
-                backgroundColor: "rgba(60, 60, 60, 0.3)",
                 gap: "12px",
                 height: "50px",
                 maxWidth: "700px",
                 cursor: "pointer",
+                backdropFilter: "blur(10px)",
             }}>
                 <span id="launcher-version-number">{appVersion}</span>
 

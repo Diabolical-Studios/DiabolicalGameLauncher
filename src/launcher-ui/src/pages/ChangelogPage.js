@@ -42,7 +42,7 @@ const ChangelogPage = () => {
                             style={{
                                 padding: "12px",
                                 gap: "12px",
-                                backgroundColor: "rgba(60, 60, 60, 0.3)",
+                                backgroundColor: "rgba(0, 0, 0, 0.6)",
                                 border: "1px solid rgb(48, 48, 48)",
                                 display: "flex", flexDirection: "row", justifyContent: "space-between",
                             }}>

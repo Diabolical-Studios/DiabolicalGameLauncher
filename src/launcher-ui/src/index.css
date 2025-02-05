@@ -12,21 +12,38 @@ code {
     monospace;
 }
 
+/*body {*/
+/*    !*Box model stuff*!*/
+/*    width: 100vw;*/
+/*    height: 100vh;*/
+/*    margin: 0;*/
+/*    background-color: #000;*/
+/*    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),*/
+/*    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);*/
+/*    background-position: 0 0, 0 0;*/
+/*    background-size: 20px 20px;*/
+/*    !*Typography stuff*!*/
+/*    font-family: "Consolas", sans-serif;*/
+/*    color: white;*/
+/*    !*Manipulations stuff*!*/
+/*    animation: moveBackground 3s linear infinite;*/
+/*    !*Miscellaneous*!*/
+/*    overflow: hidden;*/
+/*    -webkit-user-select: none;*/
+/*    -moz-user-select: none;*/
+/*    -ms-user-select: none;*/
+/*    user-select: none;*/
+/*}*/
+
 body {
     /*Box model stuff*/
     width: 100vw;
     height: 100vh;
     margin: 0;
     background-color: #000;
-    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
-    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-    background-position: 0 0, 0 0;
-    background-size: 20px 20px;
     /*Typography stuff*/
     font-family: "Consolas", sans-serif;
     color: white;
-    /*Manipulations stuff*/
-    animation: moveBackground 3s linear infinite;
     /*Miscellaneous*/
     overflow: hidden;
     -webkit-user-select: none;
@@ -772,7 +789,7 @@ h2 {
     animation: moveBackground 3s linear infinite;
     color: white;
     border-radius: 2px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     font-family: "Consolas", sans-serif;
     transition: right 0.5s ease-in-out;
     z-index: 1000;
@@ -862,12 +879,15 @@ h2 {
     padding: 4px;
     border: 1px solid #303030;
     border-radius: 2px;
-    background-color: rgba(60, 60, 60, 0.3);
+    background-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
+
+    backdrop-filter: blur(10px);
+
 }
 
 .window-button:hover {

@@ -1,29 +1,27 @@
 import React, { useState } from "react";
-import Background from "./components/Background";
+import BackgroundAnimation from "./components/BackgroundAnimation";
 import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import ActionBar from "./components/ActionBar";
 import ContentPanel from "./components/ContentPanel";
 import StatusBar from "./components/StatusBar";
 import GameList from "./components/GameList";
 import Toaster from "./components/Toaster";
-import SettingsPage from "./pages/SettingsPage"; // Import SettingsPage component
-import ChangelogPage from "./pages/ChangelogPage"; // Import ChangelogPage component
-import AccountPage from "./pages/AccountPage"; // Import ChangelogPage component
-import "./settings.css"; // Import the styles properly
-import "./changelog.css"; // Import the styles properly
-
+import SettingsPage from "./pages/SettingsPage";
+import ChangelogPage from "./pages/ChangelogPage";
+import AccountPage from "./pages/AccountPage";
+import "./settings.css";
+import "./changelog.css";
 
 function App() {
     const [selectedPage, setSelectedPage] = useState("home");
 
-    // Function to change the selected page
     const handlePageChange = (page) => {
         setSelectedPage(page);
     };
 
     return (
         <>
-            <Background />
+            <BackgroundAnimation />
             <div
                 style={{
                     display: "flex",
@@ -34,7 +32,6 @@ function App() {
                     gap: "12px",
                 }}
             >
-                {/* Pass the page change function to ActionBar */}
                 <ActionBar onPageChange={handlePageChange} />
                 <div
                     style={{
@@ -63,7 +60,6 @@ function App() {
                             overflow: "hidden",
                         }}
                     >
-                        {/* Render selected content */}
                         <ContentPanel>
                             {selectedPage === "home" && <GameList />}
                             {selectedPage === "settings" && <SettingsPage />}

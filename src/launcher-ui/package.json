@@ -4,9 +4,12 @@
   "private": true,
   "dependencies": {
     "cra-template": "1.2.0",
+    "gsap": "^3.12.7",
+    "perlin-noise": "^0.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "5.0.1",
+    "simplex-noise": "^4.0.3",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
