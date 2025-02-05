@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { HomeIcon, SettingsIcon, ChangelogIcon } from "./icons";
+import { HomeIcon, SettingsIcon, ChangelogIcon, AccountIcon } from "./icons";
 
 const ActionBar = ({ onPageChange }) => {
     const [activeButton, setActiveButton] = useState("home");
 
     const menuItems = [
+        { id: "account", icon: AccountIcon, alt: "Account" },
         { id: "home", icon: HomeIcon, alt: "Home" },
         { id: "settings", icon: SettingsIcon, alt: "Settings" },
         { id: "changelog", icon: ChangelogIcon, alt: "Changelog" },

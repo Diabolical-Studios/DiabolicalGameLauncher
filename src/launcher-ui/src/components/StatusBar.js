@@ -19,10 +19,6 @@ const StatusBar = () => {
         window.electronAPI.openExternal(url);
     };
 
-    const handleStatusButtonClick = () => {
-        window.open("https://github.com/Diabolical-Studios/DiabolicalGameLauncher/", "_blank"); // Opens in a new tab
-    };
-
     useEffect(() => {
         // Fetch app version from Electron preload
         if (window.versions) {
