@@ -57,9 +57,6 @@ jobs:
         run: npm run build
         working-directory: src/launcher-ui
 
-      - name: 🛑 Delete old `latest.yml` (Fix auto-updater issues)
-        run: rm -f dist/latest.yml
-
       - name: 🔨 Build and Package Electron App
         run: npm run dist
         env:
