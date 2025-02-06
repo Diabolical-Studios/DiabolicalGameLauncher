@@ -17,7 +17,7 @@ const Teams = () => {
             }
 
             try {
-                const response = await fetch("/.netlify/functions/getUserTeams", {
+                const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/getUserTeams", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
