@@ -1,95 +1,47 @@
 import React, { useEffect, useState } from "react";
+import Layout from "../components/Layout";  // Wraps UI for consistency
+import AccountDashboard from "../components/account/AccountDashboard";
+import LoginScreen from "../components/account/LoginScreen";
 
 const AccountPage = () => {
-    const [username, setUsername] = useState(null);
+    const [username, setUsername] = useState(localStorage.getItem("username"));
 
     useEffect(() => {
-        // Check if username is stored in localStorage on component mount
-        const storedUsername = localStorage.getItem("username");
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
+        // Function to handle messages from login popup
+        const handleAuthMessage = (event) => {
+            if (event.origin !== "https://launcher.diabolical.studio") return;
 
-        // Listen for authentication message from popup
-        const handleMessage = (event) => {
             if (event.data && event.data.username) {
-                console.log("Received auth data from popup:", event.data);
+                console.log("Auth success! Updating username:", event.data.username);
 
                 // Store user data
                 localStorage.setItem("sessionID", event.data.sessionID);
                 localStorage.setItem("username", event.data.username);
 
-                // Update state to show username
+                // Update state dynamically
                 setUsername(event.data.username);
             }
         };
 
-        window.addEventListener("message", handleMessage);
+        // Function to handle storage changes (e.g., logout)
+        const handleStorageChange = () => {
+            setUsername(localStorage.getItem("username"));
+        };
 
-        // Cleanup event listener on component unmount
+        window.addEventListener("message", handleAuthMessage);
+        window.addEventListener("storage", handleStorageChange);
+
         return () => {
-            window.removeEventListener("message", handleMessage);
+            window.removeEventListener("message", handleAuthMessage);
+            window.removeEventListener("storage", handleStorageChange);
         };
     }, []);
 
-    const handleGitHubLogin = () => {
-        const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
-        const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
-
-        // Open GitHub login in a popup window
-        const popup = window.open(
-            `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`,
-            "GitHubAuth",
-            "width=500,height=700"
-        );
-
-        // Poll the popup window to check if it's closed
-        const interval = setInterval(() => {
-            if (popup.closed) {
-                clearInterval(interval);
-                console.log("Popup closed. Checking authentication status...");
-            }
-        }, 1000);
-    };
-
     return (
-        <div style={{ textAlign: "center", padding: "20px" }}>
-            <h1>Account</h1>
-
-            {/* Display the username if logged in */}
-            {username ? (
-                <p>Welcome, <strong>{username}</strong>!</p>
-            ) : (
-                <p>Login to sync your data</p>
-            )}
-
-            {/* GitHub Login Button */}
-            {!username && (
-                <button
-                    onClick={handleGitHubLogin}
-                    style={{
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        backgroundColor: "#24292e",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px"
-                    }}
-                >
-                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                         alt="GitHub"
-                         width="20px"
-                         height="20px"
-                         style={{ backgroundColor: "white", borderRadius: "50%" }}
-                    />
-                    Login with GitHub
-                </button>
-            )}
-        </div>
+        <Layout>
+            <h1 style={{ margin: 0 }}>Account</h1>
+            {username ? <AccountDashboard username={username} /> : <LoginScreen />}
+        </Layout>
     );
 };
 
