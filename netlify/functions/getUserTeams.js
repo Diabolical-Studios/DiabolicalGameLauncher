@@ -3,45 +3,38 @@ const axios = require("axios");
 exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered ===");
     console.log("Received Headers:", event.headers);
-    console.log("Cookies:", event.headers.cookie);
 
-    if (event.httpMethod !== "GET") {
-        return {
-            statusCode: 405, body: JSON.stringify({error: "Method not allowed"}),
-        };
-    }
+    // Read sessionID from headers instead of cookies
+    const sessionID = event.headers.sessionid || event.headers["sessionid"] || event.headers["SessionID"];
 
-    const API_BASE_URL = process.env.API_BASE_URL;
-    const API_KEY = process.env.API_KEY;
-
-    const cookies = event.headers.cookie || "";
-    const sessionID = cookies
-        .split("; ")
-        .find((row) => row.startsWith("sessionID="))
-        ?.split("=")[1];
+    console.log("Extracted sessionID:", sessionID);
 
     if (!sessionID) {
-        console.error("❌ No sessionID found in cookies.");
+        console.error("❌ No sessionID found in headers.");
         return {
-            statusCode: 401, body: JSON.stringify({error: "Unauthorized: No valid session ID"}),
+            statusCode: 401,
+            body: JSON.stringify({ error: "Unauthorized: No valid session ID" }),
         };
     }
 
     try {
         console.log("✅ Fetching teams from API...");
-        const response = await axios.get(`${API_BASE_URL}/teams/session/${sessionID}`, {
-            headers: {"x-api-key": API_KEY},
+        const response = await axios.get(`${process.env.API_BASE_URL}/teams/session/${sessionID}`, {
+            headers: { "x-api-key": process.env.API_KEY },
         });
 
         console.log("✅ API Response:", response.data);
 
         return {
-            statusCode: 200, body: JSON.stringify(response.data),
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response.data),
         };
     } catch (error) {
         console.error("❌ API Fetch Error:", error.response?.data || error.message);
         return {
-            statusCode: 500, body: JSON.stringify({error: error.response?.data || error.message}),
+            statusCode: 500,
+            body: JSON.stringify({ error: error.response?.data || error.message }),
         };
     }
 };

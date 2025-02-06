@@ -7,10 +7,22 @@ const Teams = () => {
 
     useEffect(() => {
         const fetchTeams = async () => {
+            const sessionID = localStorage.getItem("sessionID"); // Retrieve sessionID manually
+
+            if (!sessionID) {
+                console.error("❌ No session ID found in localStorage.");
+                setError("No session ID found.");
+                setLoading(false);
+                return;
+            }
+
             try {
                 const response = await fetch("/.netlify/functions/getUserTeams", {
                     method: "GET",
-                    credentials: "include", // Ensures cookies are sentD
+                    headers: {
+                        "Content-Type": "application/json",
+                        "sessionID": sessionID, // Send sessionID manually
+                    },
                 });
 
                 console.log("Raw Response:", response);
@@ -22,7 +34,7 @@ const Teams = () => {
                 const data = await response.json();
                 console.log("Fetched Teams Data:", data);
 
-                setTeams(data.teams); // Assuming Netlify function returns { teams: [...] }
+                setTeams(data);
             } catch (err) {
                 console.error("Error fetching teams:", err);
                 setError("Failed to load teams.");
