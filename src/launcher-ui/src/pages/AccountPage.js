@@ -2,7 +2,9 @@ import React from "react";
 
 const AccountPage = () => {
     const handleGitHubLogin = () => {
-        window.location.href = "/.netlify/functions/github-auth"; // Redirect to Netlify function
+        const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
+        const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
+        window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
     };
 
     return (

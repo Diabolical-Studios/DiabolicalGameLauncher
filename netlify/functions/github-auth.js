@@ -59,7 +59,7 @@ exports.handler = async function (event) {
     const expiryTime = new Date();
     expiryTime.setHours(expiryTime.getHours() + 24);
 
-    const redirectUrl = `https://hub.diabolical.studio/dashboard?username=${username}`;
+    const redirectUrl = `https://launcher.diabolical.studio/?username=${username}`;
     return {
       statusCode: 303,
       headers: {
