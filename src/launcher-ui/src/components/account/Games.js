@@ -6,12 +6,20 @@ const Games = ({ teams }) => {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentTeams, setCurrentTeams] = useState([]);
+
+    // ✅ Update `currentTeams` state when `teams` change
+    useEffect(() => {
+        if (teams && teams.length > 0) {
+            setCurrentTeams(teams);
+        }
+    }, [teams]);
 
     useEffect(() => {
-        console.log("🔄 Checking teams state:", teams);
+        console.log("🔄 Checking teams state:", currentTeams);
 
         // ✅ Ensure teams is properly loaded before fetching games
-        if (!teams || teams.length === 0) {
+        if (!currentTeams || currentTeams.length === 0) {
             console.log("⏳ Waiting for teams to load...");
             return;
         }
@@ -20,8 +28,7 @@ const Games = ({ teams }) => {
             try {
                 let allGames = [];
 
-                // ✅ Fetch games for each team the user is part of
-                for (const team of teams) {
+                for (const team of currentTeams) {
                     if (!team.team_name) continue; // Safety check
 
                     console.log(`🎯 Fetching games for team: ${team.team_name}`);
@@ -54,7 +61,7 @@ const Games = ({ teams }) => {
         };
 
         fetchGames();
-    }, [JSON.stringify(teams)]); // ✅ Fixes stale state issue
+    }, [currentTeams]); // ✅ Use the stateful `currentTeams` instead of JSON.stringify(teams)
 
     if (!teams || teams.length === 0) return <p>⏳ Waiting for teams to load...</p>;
     if (loading) return <p>Loading games...</p>;
