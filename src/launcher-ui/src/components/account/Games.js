@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import GameCard from "../GameCard";
-import Grid from "../Grid";
 
 const Games = ({ teams }) => {
     const [games, setGames] = useState([]);
