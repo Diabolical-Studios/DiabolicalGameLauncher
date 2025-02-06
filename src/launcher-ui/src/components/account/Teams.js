@@ -10,15 +10,19 @@ const Teams = () => {
             try {
                 const response = await fetch("/.netlify/functions/getUserTeams", {
                     method: "GET",
-                    credentials: "include", // Ensures cookies are sent
+                    credentials: "include", // Ensures cookies are sentD
                 });
+
+                console.log("Raw Response:", response);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch teams.");
                 }
 
                 const data = await response.json();
-                setTeams(data.teams); // Assuming the Netlify function returns { teams: [...] }
+                console.log("Fetched Teams Data:", data);
+
+                setTeams(data.teams); // Assuming Netlify function returns { teams: [...] }
             } catch (err) {
                 console.error("Error fetching teams:", err);
                 setError("Failed to load teams.");

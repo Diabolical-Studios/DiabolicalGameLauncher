@@ -1,52 +1,47 @@
-const axios = require('axios');
+const axios = require("axios");
 
 exports.handler = async (event) => {
-    if (event.httpMethod !== 'GET') {
+    console.log("=== Netlify Function Triggered ===");
+    console.log("Received Headers:", event.headers);
+    console.log("Cookies:", event.headers.cookie);
+
+    if (event.httpMethod !== "GET") {
         return {
-            statusCode: 405,
-            body: JSON.stringify({ error: 'Method not allowed' }),
+            statusCode: 405, body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
     const API_BASE_URL = process.env.API_BASE_URL;
     const API_KEY = process.env.API_KEY;
 
-    // Extract session ID from cookies
-    const cookies = event.headers.cookie;
-    if (!cookies) {
-        return {
-            statusCode: 401,
-            body: JSON.stringify({ error: 'Unauthorized: No session found' }),
-        };
-    }
-
+    const cookies = event.headers.cookie || "";
     const sessionID = cookies
-        .split('; ')
-        .find((row) => row.startsWith('sessionID='))
-        ?.split('=')[1];
+        .split("; ")
+        .find((row) => row.startsWith("sessionID="))
+        ?.split("=")[1];
 
     if (!sessionID) {
+        console.error("❌ No sessionID found in cookies.");
         return {
-            statusCode: 401,
-            body: JSON.stringify({ error: 'Unauthorized: Invalid session' }),
+            statusCode: 401, body: JSON.stringify({error: "Unauthorized: No valid session ID"}),
         };
     }
 
     try {
-        // Fetch the teams for the user using session_id
+        console.log("✅ Fetching teams from API...");
         const response = await axios.get(`${API_BASE_URL}/teams/session/${sessionID}`, {
-            headers: { 'x-api-key': API_KEY },
+            headers: {"x-api-key": API_KEY},
         });
 
+        console.log("✅ API Response:", response.data);
+
         return {
-            statusCode: 200,
-            body: JSON.stringify(response.data),
+            statusCode: 200, body: JSON.stringify(response.data),
         };
     } catch (error) {
-        console.error('Error:', error);
+        console.error("❌ API Fetch Error:", error.response?.data || error.message);
         return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            statusCode: 500, body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };
