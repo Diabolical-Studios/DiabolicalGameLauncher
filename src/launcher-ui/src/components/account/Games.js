@@ -68,16 +68,16 @@ const Games = ({ teams }) => {
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
     return (
-        <div style={{ textAlign: "center", padding: "20px" }}>
+        <div>
             <h3>Your Games</h3>
             {games.length === 0 ? (
                 <p>You did not create any Games.</p>
             ) : (
-                <Grid>
+                <div id="game-cards-container">
                     {games.map((game, index) => (
                         <GameCard key={index} game={game} isInstalled={false} />
                     ))}
-                </Grid>
+                </div>
             )}
         </div>
     );
