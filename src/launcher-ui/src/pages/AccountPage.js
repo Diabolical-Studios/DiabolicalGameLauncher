@@ -1,10 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const AccountPage = () => {
+    useEffect(() => {
+        window.addEventListener("message", (event) => {
+            if (event.data && event.data.username) {
+                console.log("Received auth data from popup:", event.data);
+                // Here you can update the UI with user info
+                localStorage.setItem("sessionID", event.data.sessionID);
+                localStorage.setItem("username", event.data.username);
+            }
+        });
+
+        // Cleanup event listener on component unmount
+        return () => {
+            window.removeEventListener("message", () => {});
+        };
+    }, []);
+
     const handleGitHubLogin = () => {
         const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
         const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
-        window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
+
+        // Open GitHub login in a popup window
+        const popup = window.open(
+            `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`,
+            "GitHubAuth",
+            "width=500,height=700"
+        );
+
+        // Poll the popup window to check if it's closed
+        const interval = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(interval);
+                console.log("Popup closed. Checking authentication status...");
+            }
+        }, 1000);
     };
 
     return (
