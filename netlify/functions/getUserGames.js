@@ -3,9 +3,23 @@ const axios = require("axios");
 exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered ===");
 
+    // ✅ Handle CORS preflight requests
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            body: "",
+        };
+    }
+
     if (event.httpMethod !== "GET") {
         return {
             statusCode: 405,
+            headers: { "Access-Control-Allow-Origin": "*" },
             body: JSON.stringify({ error: "Method not allowed" }),
         };
     }
@@ -17,6 +31,7 @@ exports.handler = async (event) => {
         console.error("❌ Missing team_name in request.");
         return {
             statusCode: 400,
+            headers: { "Access-Control-Allow-Origin": "*" },
             body: JSON.stringify({ error: "Missing team_name parameter" }),
         };
     }
@@ -36,7 +51,10 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
             body: JSON.stringify(response.data),
         };
     } catch (error) {
@@ -44,7 +62,7 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Access-Control-Allow-Origin": "*" },
             body: JSON.stringify({ error: error.message || "Internal Server Error" }),
         };
     }
