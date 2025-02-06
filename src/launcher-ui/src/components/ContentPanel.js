@@ -9,7 +9,7 @@ const ContentPanel = ({ children }) => {
             padding: "12px",
             display: "flex",
             flexDirection: "column",
-            overflow: "auto",
+            overflow: "hidden",
             border: "1px solid rgb(48, 48, 48)",
             borderRadius: "2px",
             backdropFilter: "blur(10px)",

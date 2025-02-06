@@ -7,7 +7,7 @@ const Teams = () => {
 
     useEffect(() => {
         const fetchTeams = async () => {
-            const sessionID = localStorage.getItem("sessionID"); // Retrieve sessionID manually
+            const sessionID = localStorage.getItem("sessionID");
 
             if (!sessionID) {
                 console.error("❌ No session ID found in localStorage.");
@@ -21,22 +21,20 @@ const Teams = () => {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        "sessionID": sessionID, // Send sessionID manually
+                        "sessionID": sessionID,
                     },
                 });
-
-                console.log("Raw Response:", response);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch teams.");
                 }
 
                 const data = await response.json();
-                console.log("Fetched Teams Data:", data);
+                console.log("✅ Fetched Teams Data:", data);
 
-                setTeams(data);
+                setTeams(data); // Ensure correct format
             } catch (err) {
-                console.error("Error fetching teams:", err);
+                console.error("❌ Error fetching teams:", err);
                 setError("Failed to load teams.");
             } finally {
                 setLoading(false);
@@ -53,44 +51,49 @@ const Teams = () => {
         <div style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
             justifyContent: "center",
             gap: "12px",
+            width: "-webkit-fill-available",
+            height: "fit-content",
         }}>
-            <h2>Your Teams</h2>
+            <h3>Your Teams</h3>
             {teams.length === 0 ? (
                 <p>You are not in any teams.</p>
             ) : (
                 <ul style={{
                     listStyle: "none",
                     padding: 0,
+                    margin: 0,
                     width: "100%",
                     maxWidth: "400px",
-                    textAlign: "left"
+                    textAlign: "left",
+                    
+                    backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    border: "1px solid rgb(48, 48, 48)",
+                    
+                    display: "flex",
+                    flexDirection: "column",
                 }}>
-                    {teams.map((team) => (
-                        <li key={team.id} style={{
-                            padding: "10px",
-                            margin: "5px 0",
-                            backgroundColor: "#222",
-                            color: "white",
-                            borderRadius: "5px",
+                    {teams.map((team, index) => (
+                        <li key={index} style={{
+                            padding: "12px",
+                            gap: "12px",
                             display: "flex",
+                            flexDirection: "row",
                             justifyContent: "space-between",
-                            alignItems: "center"
                         }}>
-                            <span>{team.name}</span>
-                            <button
+                            <span>{team.team_name}</span>
+                            <button className={"game-button shimmer-button"}
                                 style={{
-                                    padding: "5px 10px",
+                                    padding: "6px 12px",
                                     fontSize: "12px",
-                                    backgroundColor: "#d9534f",
                                     color: "white",
                                     border: "none",
-                                    borderRadius: "5px",
-                                    cursor: "pointer"
+                                    borderRadius: "2px",
+                                    cursor: "pointer",
+                                    width: "fit-content",
                                 }}
-                                onClick={() => console.log("Clicked on team:", team.name)}
+                                onClick={() => console.log("Clicked on team:", team.team_name)}
                             >
                                 View
                             </button>

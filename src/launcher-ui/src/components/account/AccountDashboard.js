@@ -1,40 +1,33 @@
 import React from "react";
 import Teams from "./Teams";
+import AccountName from "./AccountName";
+import LogoutButton from "./LogoutButton";
+import Grid from "../Grid";
+import Games from "./Games";
 
-const AccountDashboard = ({ username }) => {
+const AccountDashboard = ({username}) => {
     const sessionID = localStorage.getItem("sessionID");
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-        }}>
-            <h2>Welcome, <strong>{username}</strong>!</h2>
-            <p>Your account is now synced.</p>
+        <div style={{display: "flex", flexDirection: "column", height: "100%", gap: "12px",}}>
+            <div style={{
+                padding: "4px",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backdropFilter: "blur(5px)",
+                backgroundColor: "transparent",
+            }}>
+                <AccountName username={username}/>
+                <LogoutButton/>
+            </div>
 
-            {/* Render Teams Section */}
-            <Teams sessionID={sessionID} />
+            <Grid>
+                <Teams sessionID={sessionID}/>
+                <Games sessionID={sessionID}/>
+            </Grid>
 
-            <button className="game-button shimmer-button"
-                    onClick={() => {
-                        localStorage.removeItem("username");
-                        localStorage.removeItem("sessionID");
-                        window.dispatchEvent(new Event("storage")); // Notify UI of logout
-                    }}
-                    style={{
-                        padding: "10px 20px",
-                        fontSize: "14px",
-                        backgroundColor: "#d9534f",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                    }}>
-                Logout
-            </button>
         </div>
     );
 };

@@ -39,7 +39,6 @@ const AccountPage = () => {
 
     return (
         <Layout>
-            <h1 style={{ margin: 0 }}>Account</h1>
             {username ? <AccountDashboard username={username} /> : <LoginScreen />}
         </Layout>
     );
