@@ -17,9 +17,6 @@ const Grid = ({children, gap = "12px", style = {}}) => {
             scrollbarWidth: "thin",
             scrollbarColor: "#1f1e1e transparent",
 
-            borderTop: "1px solid rgb(48, 48, 48)",
-
-
             ...style
         }}>
             {children}

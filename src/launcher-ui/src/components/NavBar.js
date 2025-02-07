@@ -3,7 +3,7 @@ import {HomeIcon, SettingsIcon, ChangelogIcon, AccountIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 
-const ActionBar = ({onPageChange}) => {
+const NavBar = ({onPageChange}) => {
     const [activeButton, setActiveButton] = useState("home");
 
     const menuItems = [{id: "account", icon: AccountIcon, alt: "Account"}, {
@@ -62,4 +62,4 @@ const ActionBar = ({onPageChange}) => {
     </VerticalFlex>);
 };
 
-export default ActionBar;
+export default NavBar;

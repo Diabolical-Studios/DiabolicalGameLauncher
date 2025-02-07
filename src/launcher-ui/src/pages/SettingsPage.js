@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {Padding} from "@mui/icons-material";
 
 const SettingsPage = () => {
     const [resolution, setResolution] = useState("1280x720");

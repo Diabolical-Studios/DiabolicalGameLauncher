@@ -4,11 +4,14 @@ import AccountName from "./AccountName";
 import LogoutButton from "./LogoutButton";
 import Grid from "../Grid";
 import Games from "./Games";
+import Divider from "../Divider";
+import ImageButton from "../button/ImageButton";
 
 const AccountDashboard = ({ username }) => {
     const [teams, setTeams] = useState([]);
     const [loadingTeams, setLoadingTeams] = useState(true);
     const [errorTeams, setErrorTeams] = useState(null);
+    const [activeTab, setActiveTab] = useState("teams"); // Tracks selected tab
     const sessionID = localStorage.getItem("sessionID");
 
     useEffect(() => {
@@ -48,27 +51,71 @@ const AccountDashboard = ({ username }) => {
         fetchTeams();
     }, [sessionID]);
 
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+    };
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "12px" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "-webkit-fill-available" }}>
             <div
                 style={{
-                    padding: "4px",
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
                     alignItems: "center",
                     backdropFilter: "blur(5px)",
                     backgroundColor: "transparent",
+                    padding: "12px",
                 }}
             >
                 <AccountName username={username} />
                 <LogoutButton />
             </div>
 
-            <Grid>
-                <Teams teams={teams} loading={loadingTeams} error={errorTeams} />
-                <Games teams={teams} />
-            </Grid>
+            <Divider />
+
+            <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", overflow: "hidden" }}>
+                <ul
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                        height: "-webkit-fill-available",
+                        width: "20%",
+                        padding: "12px",
+                        margin: 0,
+                    }}
+                >
+                    <ImageButton
+                        text="Teams"
+                        imageSrc="MenuIcons/teams.png"
+                        onClick={() => handleTabClick("teams")}
+                        active={activeTab === "teams"}
+                    />
+                    <ImageButton
+                        text="My Games"
+                        imageSrc="MenuIcons/games.png"
+                        onClick={() => handleTabClick("games")}
+                        active={activeTab === "games"}
+                    />
+                </ul>
+                <Divider vertical={true} />
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                        height: "-webkit-fill-available",
+                        width: "-webkit-fill-available",
+                        marginTop: 0,
+                    }}
+                >
+                    <Grid>
+                        {activeTab === "teams" && <Teams teams={teams} loading={loadingTeams} error={errorTeams} />}
+                        {activeTab === "games" && <Games teams={teams} />}
+                    </Grid>
+                </div>
+            </div>
         </div>
     );
 };

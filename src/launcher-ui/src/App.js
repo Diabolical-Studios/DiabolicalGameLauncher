@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import BackgroundAnimation from "./components/BackgroundAnimation";
 import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
-import ActionBar from "./components/ActionBar";
+import NavBar from "./components/NavBar";
 import ContentPanel from "./components/ContentPanel";
 import StatusBar from "./components/StatusBar";
 import GameList from "./components/GameList";
@@ -25,7 +25,7 @@ function App() {
     return (<>
         <BackgroundAnimation/>
         <AppLayout>
-            <ActionBar onPageChange={handlePageChange}/>
+            <NavBar onPageChange={handlePageChange}/>
             <StatusBarAndContentPanel>
                 <HorizontalFlex>
                     <StatusBar/>

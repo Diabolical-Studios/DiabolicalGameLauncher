@@ -26,7 +26,7 @@ const ChangelogPage = () => {
 
     return (
         <div style={{
-            overflowX: 'auto', padding: "0px 12px 0px 0px", overscrollBehavior: "contain",
+            overflowX: 'auto', padding: "12px", overscrollBehavior: "contain",
             scrollSnapType: "x mandatory",
             scrollSnapAlign: "start",
             scrollbarWidth: "thin",

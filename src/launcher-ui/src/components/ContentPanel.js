@@ -6,7 +6,6 @@ const ContentPanel = ({ children }) => {
             flex: 1,
             height: "-webkit-fill-available",
             width: "-webkit-fill-available",
-            padding: "12px",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",

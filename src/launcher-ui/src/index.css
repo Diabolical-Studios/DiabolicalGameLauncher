@@ -269,7 +269,7 @@ body {
     gap: 12px;
     overflow-y: auto;
     height: -webkit-fill-available;
-    padding: 0 12px 0 0;
+    padding: 12px;
 }
 
 @media screen and (max-width: 1024px) {

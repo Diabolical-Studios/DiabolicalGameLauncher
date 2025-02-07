@@ -1,6 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import HoverMenu from "./button/HoverMenu";
+import GameButton from "./button/GameButton";
 
-const GameCard = ({ game, isInstalled, onAction }) => {
+const GameCard = ({ game, isInstalled }) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
     const [gameInstalled, setGameInstalled] = useState(isInstalled);
 
@@ -24,9 +26,9 @@ const GameCard = ({ game, isInstalled, onAction }) => {
 
     const handleButtonClick = () => {
         if (gameInstalled) {
-            window.electronAPI.openGame(game.game_id); // Ensure this opens the game
+            window.electronAPI.openGame(game.game_id);
         } else {
-            window.electronAPI.downloadGame(game.game_id); // Downloads the game if not installed
+            window.electronAPI.downloadGame(game.game_id);
         }
     };
 
@@ -44,24 +46,18 @@ const GameCard = ({ game, isInstalled, onAction }) => {
                 <p>{game.description}</p>
             </div>
             <div style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
-                <button
-                    className="game-button shimmer-button"
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center"
-                    }}
+                <GameButton
+                    gameInstalled={gameInstalled}
+                    downloadProgress={downloadProgress}
+                    gameVersion={game.version}
                     onClick={handleButtonClick}
-                >
-                    <img src={gameInstalled ? "MenuIcons/play.png" : "MenuIcons/download.png"} alt={gameInstalled ? "Play" : "Download"} />
-                    <p style={{ margin: "0", fontSize: "14px" }}>
-                        {downloadProgress || game.version}
-                    </p>
-                </button>
-                <button className="game-button shimmer-button" style={{ width: "min-content" }}>
-                    <img src={"MenuIcons/Hamburger.png"} alt="Menu" />
-                </button>
+                />
+
+                <HoverMenu
+                    actions={[
+                        { label: "Uninstall", icon: "MenuIcons/Trash.png", onClick: () => console.log("Uninstall clicked") },
+                    ]}
+                />
             </div>
         </div>
     );
