@@ -1,23 +1,10 @@
 import React, {useEffect, useState} from "react";
+import OpenExternalLink from "./link/OpenExternalLink";
 
 const StatusBar = () => {
     const [statusColor, setStatusColor] = useState("rgb(97, 97, 97)"); // Default gray
     const [message, setMessage] = useState("Status message..."); // Default message
     const [appVersion, setAppVersion] = useState(""); // Store the version number
-
-    const handleClick = (event) => {
-        event.preventDefault();
-
-        const url = event.currentTarget.href;
-
-        if (!url) {
-            console.error("Invalid URL: href is undefined.");
-            return;
-        }
-
-        console.log("Opening URL:", url);
-        window.electronAPI.openExternal(url);
-    };
 
     useEffect(() => {
         // Fetch app version from Electron preload
@@ -49,8 +36,7 @@ const StatusBar = () => {
     }, []);
 
     return (
-        <a href="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/"
-           onClick={(e) => handleClick(e, "https://github.com/Diabolical-Studios/DiabolicalGameLauncher/")} style={{textDecoration: "none", color: "white"}}>
+        <OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
             <div style={{
                 display: "flex",
                 flexDirection: "row",
@@ -85,7 +71,7 @@ const StatusBar = () => {
                     whiteSpace: "nowrap", // Prevents text wrapping
                 }}>{message}</div>
             </div>
-        </a>
+        </OpenExternalLink>
     );
 };
 

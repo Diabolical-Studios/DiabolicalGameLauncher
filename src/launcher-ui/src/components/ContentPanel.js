@@ -4,8 +4,8 @@ const ContentPanel = ({ children }) => {
     return (
         <div style={{
             flex: 1,
-            height: "auto",
-            width: "100px",
+            height: "-webkit-fill-available",
+            width: "-webkit-fill-available",
             padding: "12px",
             display: "flex",
             flexDirection: "column",
