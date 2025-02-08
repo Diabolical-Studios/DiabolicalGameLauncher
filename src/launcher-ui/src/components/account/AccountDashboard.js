@@ -60,12 +60,12 @@ const AccountDashboard = ({ username }) => {
 
     useEffect(() => {
         fetchTeams();
-    }, [sessionID]);
+    }, [fetchTeams]); // ✅ Add fetchTeams as a dependency
 
     const handleUpdateTeam = (updatedTeam) => {
         setTeams((prevTeams) =>
             prevTeams.map((team) =>
-                team.team_id === updatedTeam.team_id ? updatedTeam : team
+                team.team_id === updatedTeam.team_id ? { ...team, ...updatedTeam } : team
             )
         );
     };

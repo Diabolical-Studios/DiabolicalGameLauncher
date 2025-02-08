@@ -50,11 +50,12 @@ const TeamCard = ({team, onUpdateTeam}) => {
 
         setGithubAvatars(avatars);
     }, [team.github_ids]);
-    
+
     const handleSaveTeamChanges = (updatedTeam) => {
         console.log("✅ Updating Team in UI:", updatedTeam);
+
         if (typeof onUpdateTeam === "function") {
-            onUpdateTeam(updatedTeam); // ✅ Updates team in AccountDashboard.js
+            onUpdateTeam(updatedTeam); // ✅ Call parent function to update the teams list
         }
     };
 

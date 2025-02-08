@@ -21,4 +21,4 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
     );
 };
 
-export default Teams;
+export default Teams;   
