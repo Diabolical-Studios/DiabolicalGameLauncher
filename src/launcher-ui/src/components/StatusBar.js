@@ -35,44 +35,37 @@ const StatusBar = () => {
         };
     }, []);
 
-    return (
-        <OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
-            <div style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                position: "relative",
-                padding: "0 12px",
-                border: "1px solid rgb(48, 48, 48)",
-                borderRadius: "2px",
-                gap: "12px",
-                height: "50px",
-                maxWidth: "700px",
-                cursor: "pointer",
-                backdropFilter: "blur(10px)",
-            }}>
-                <span id="launcher-version-number">{appVersion}</span>
+    return (<OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
+        <div style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            position: "relative",
+            padding: "0 12px",
+            border: "1px solid rgb(48, 48, 48)",
+            borderRadius: "2px",
+            gap: "12px",
+            height: "50px",
+            maxWidth: "700px",
+            cursor: "pointer",
+            backdropFilter: "blur(10px)",
+        }}>
 
-                <div id="launcher-version-status-and-number" style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                }}>
-                    <div style={{
-                        width: "12px",
-                        height: "12px",
-                        borderRadius: "12px",
-                        backgroundColor: statusColor, // Dynamically update color
-                        animation: "blink 2s infinite",
-                        boxShadow: `0 0 12px ${statusColor}`,
-                    }}></div>
-                </div>
-                <div id="message" style={{
-                    whiteSpace: "nowrap", // Prevents text wrapping
-                }}>{message}</div>
+            <div id="message" style={{
+                whiteSpace: "nowrap", // Prevents text wrapping
+            }}>{message}</div>
+
+            <div id="launcher-version-status-and-number" style={{
+                display: "flex", flexDirection: "row", alignItems: "center",
+            }}>
+                <div style={{
+                    width: "12px", height: "12px", borderRadius: "12px", backgroundColor: statusColor, // Dynamically update color
+                    animation: "blink 2s infinite", boxShadow: `0 0 12px ${statusColor}`,
+                }}></div>
             </div>
-        </OpenExternalLink>
-    );
+            <span id="launcher-version-number">{appVersion}</span>
+        </div>
+    </OpenExternalLink>);
 };
 
 export default StatusBar;

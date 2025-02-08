@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import GameCard from "../GameCard";
+import EditGameCard from "./EditGameCard";
 
 const Games = ({ teams }) => {
     const [games, setGames] = useState([]);
@@ -74,7 +74,7 @@ const Games = ({ teams }) => {
             ) : (
                 <div id="game-cards-container">
                     {games.map((game, index) => (
-                        <GameCard key={index} game={game} isInstalled={false} />
+                        <EditGameCard key={index} game={game} isInstalled={false} />
                     ))}
                 </div>
             )}
