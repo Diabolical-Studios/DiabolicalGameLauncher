@@ -4,7 +4,7 @@ exports.handler = async (event) => {
   console.log("=== Netlify Function Triggered ===");
   console.log("Received Headers:", JSON.stringify(event.headers, null, 2));
 
-  // Normalize headers (case-insensitive)
+  // Normalize headers
   const headers = Object.keys(event.headers).reduce((acc, key) => {
     acc[key.toLowerCase()] = event.headers[key];
     return acc;
@@ -65,32 +65,16 @@ exports.handler = async (event) => {
   }
 
   try {
-    console.log("✅ Fetching GitHub ID from session...");
-    const githubIdResponse = await axios.get(
-        `${process.env.API_BASE_URL}/users/session/${sessionID}`,
-        {
-          headers: { "x-api-key": process.env.API_KEY },
-        }
-    );
-
-    const { github_id } = githubIdResponse.data;
-
-    if (!github_id) {
-      return {
-        statusCode: 404,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "GitHub ID not found for session" }),
-      };
-    }
-
-    console.log("✅ Creating team...");
-    const createTeamResponse = await axios.post(
+    console.log("✅ Sending request to create team...");
+    const response = await axios.post(
         `${process.env.API_BASE_URL}/teams`,
-        { team_name, github_id },
+        { session_id: sessionID, team_name },
         {
           headers: { "x-api-key": process.env.API_KEY },
         }
     );
+
+    console.log("✅ Team and membership created successfully:", response.data);
 
     return {
       statusCode: 201,
@@ -98,7 +82,7 @@ exports.handler = async (event) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(createTeamResponse.data),
+      body: JSON.stringify(response.data),
     };
   } catch (error) {
     console.error("❌ API Error:", error.response?.data || error.message);
