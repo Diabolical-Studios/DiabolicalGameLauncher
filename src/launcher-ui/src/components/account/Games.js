@@ -24,11 +24,7 @@ const Games = ({teams}) => {
     const handleSaveGameChanges = (updatedGame) => {
         console.log("✅ Updating Game in UI:", updatedGame);
 
-        setGames((prevGames) =>
-            prevGames.map((game) =>
-                game.game_id === updatedGame.game_id ? { ...game, ...updatedGame } : game
-            )
-        );
+        setGames((prevGames) => prevGames.map((game) => game.game_id === updatedGame.game_id ? {...game, ...updatedGame} : game));
     };
 
 
@@ -109,12 +105,7 @@ const Games = ({teams}) => {
 
         }}>
             <Stack sx={{
-                display: 'flex',
-                flexDirection: "row",
-                gap: "12px",
-                flexWrap: 'wrap',
-                alignItems: "center",
-                width: "50%"
+                display: 'flex', flexDirection: "row", gap: "12px", flexWrap: 'wrap', alignItems: "center", width: "50%"
             }}>
                 {teams.map((team) => (<Chip
                     icon={team.team_icon_url}
@@ -133,15 +124,11 @@ const Games = ({teams}) => {
                        onChange={handleSearchChange}
                        sx={{
                            "& .MuiOutlinedInput-root": {
-                               color: "#fff",
-                               fontFamily: "'Consolas', sans-serif !important",
-                               fontSize: "16px",
-                           },
-                           "& .MuiOutlinedInput-notchedOutline": {
-                               border: "1px solid #444444 !important",
-                               borderRadius: "2px"
-                           },
-                           "& .MuiFormLabel-root": {
+                               color: "#fff", fontFamily: "'Consolas', sans-serif !important", fontSize: "16px",
+                           }, "& .MuiOutlinedInput-notchedOutline": {
+                               border: "1px solid #444444 !important", borderRadius: "2px", color: "#fff",
+
+                           }, "& .MuiFormLabel-root": {
                                color: "#fff",
                            },
                        }}
@@ -150,13 +137,15 @@ const Games = ({teams}) => {
 
         <Divider/>
 
-        {games.length === 0 ? (<p>You did not create any Games.</p>) : (
-            <div id="game-cards-container"
-                 style={{padding: "12px", overflow: "hidden", gridTemplateColumns: "repeat(3, minmax(250px, 1fr))"}}>
-                {filterGames().map((game, index) => (
-                    <EditGameCard key={index} game={game} isInstalled={false} onUpdateGame={handleSaveGameChanges} />
-                ))}
-            </div>)}
+        {games.length === 0 ? (<p>You did not create any Games.</p>) : (<div id="game-cards-container"
+                                                                             style={{
+                                                                                 padding: "12px",
+                                                                                 overflow: "hidden",
+                                                                                 gridTemplateColumns: "repeat(3, minmax(250px, 1fr))"
+                                                                             }}>
+            {filterGames().map((game, index) => (
+                <EditGameCard key={index} game={game} isInstalled={false} onUpdateGame={handleSaveGameChanges}/>))}
+        </div>)}
     </div>);
 };
 

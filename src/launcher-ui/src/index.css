@@ -36,21 +36,49 @@ code {
 /*}*/
 
 body {
-    /*Box model stuff*/
+    /* Box model */
     width: 100vw;
     height: 100vh;
     margin: 0;
     background-color: #000;
-    /*Typography stuff*/
-    font-family: "Consolas", sans-serif;
+
+    /* Typography */
+    font-family: "Consolas", sans-serif !important;
     color: white;
-    /*Miscellaneous*/
+
+    /* Miscellaneous */
     overflow: hidden;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    /* Scroll behavior */
+    overscroll-behavior: contain;
+    scroll-snap-type: x mandatory;
+    scroll-snap-align: start;
 }
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #181818 !important;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #212121 !important;
+}
+
 
 @keyframes moveBackground {
     0% {
@@ -258,12 +286,6 @@ body {
 }
 
 #game-cards-container {
-    overscroll-behavior: contain;
-    scroll-snap-type: x mandatory;
-    scroll-snap-align: start;
-    scrollbar-width: thin;
-    scrollbar-color: #1f1e1e transparent;
-
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 12px;

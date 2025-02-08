@@ -11,12 +11,6 @@ const Grid = ({children, gap = "12px", style = {}}) => {
             overflowX: "hidden",
             overflowY: "scroll",
 
-            overscrollBehavior: "contain",
-            scrollSnapType: "x mandatory",
-            scrollSnapAlign: "start",
-            scrollbarWidth: "thin",
-            scrollbarColor: "#1f1e1e transparent",
-
             ...style
         }}>
             {children}
