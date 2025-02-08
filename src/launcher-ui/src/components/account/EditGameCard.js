@@ -4,7 +4,6 @@ import GameButton from "../button/GameButton";
 import OnlyImageButton from "../button/OnlyImageButton";
 import EditIcon from "@mui/icons-material/Edit";
 import {Stack} from "@mui/material";
-import EditTeamDialog from "./dialogs/EditTeamDialog";
 import EditGameDialog from "./dialogs/EditGameDialog";
 
 const EditGameCard = ({game, isInstalled, onUpdateGame}) => {
