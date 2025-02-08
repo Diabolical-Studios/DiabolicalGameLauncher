@@ -19,7 +19,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
     const [gameName, setGameName] = useState(game.game_name);
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState(game.background_image_url || "");
     const [gameDescription, setGameDescription] = useState(game.description || "");
-    const [gameVersion, setGameVersion] = useState(game.version || "");
+    const [gameVersion] = useState(game.version || "");
 
     useEffect(() => {
         setGameName(game.game_name);
