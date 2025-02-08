@@ -2,7 +2,7 @@ import React from "react";
 import Grid from "../Grid";
 import TeamCard from "./TeamCard";
 
-const Teams = ({ teams, loading, error }) => {
+const Teams = ({ teams, loading, error, onUpdateTeam }) => {
     if (loading) return <p>Loading teams...</p>;
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
@@ -12,8 +12,8 @@ const Teams = ({ teams, loading, error }) => {
                 <p>You are not in any teams.</p>
             ) : (
                 <Grid style={{ listStyle: "none", padding: 0, margin: 0, textAlign: "left", overflow: "hidden" }}>
-                    {teams.map((team, index) => (
-                        <TeamCard key={index} team={team} />
+                    {teams.map((team) => ( // ✅ Fixed team variable and added parentheses
+                        <TeamCard key={team.team_id} team={team} onUpdateTeam={onUpdateTeam} />
                     ))}
                 </Grid>
             )}

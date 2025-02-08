@@ -1,20 +1,13 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Stack,
-    Box,
-    FormControl, InputLabel
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Box, FormControl, InputLabel
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import InputBase from '@mui/material/InputBase';
 
 
 // ✅ Styled Dialog Paper Component
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
         border: "1px solid #444444", // ✅ Adds the outline
         borderRadius: "4px",
@@ -22,7 +15,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 // ✅ Bootstrap Styled Input
-const BootstrapInput = styled(InputBase)(({ theme }) => ({
+const BootstrapInput = styled(InputBase)(({theme}) => ({
     '& .MuiInputBase-input': {
         borderRadius: 4,
         position: 'relative',
@@ -33,27 +26,15 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
         width: '100%',
         padding: '10px 12px',
         transition: theme.transitions.create(['border-color', 'background-color', 'box-shadow']),
-        fontFamily: [
-            '-apple-system',
-            'BlinkMacSystemFont',
-            '"Segoe UI"',
-            'Roboto',
-            '"Helvetica Neue"',
-            'Arial',
-            'sans-serif',
-            '"Apple Color Emoji"',
-            '"Segoe UI Emoji"',
-            '"Segoe UI Symbol"',
-        ].join(','),
+        fontFamily: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"',].join(','),
         '&:focus': {
-            boxShadow: `0 0 0 0.2rem ${theme.palette.primary.light}`,
-            borderColor: theme.palette.primary.main,
+            boxShadow: `0 0 0 0.2rem ${theme.palette.primary.light}`, borderColor: theme.palette.primary.main,
         },
     },
 }));
 
 
-const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
+const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     const [teamName, setTeamName] = useState(team.team_name);
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
@@ -65,17 +46,44 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         }
     };
 
-    const handleSave = () => {
-        onSave({
-            ...team,
-            team_name: teamName,
-            github_ids: githubIds,
-        });
-        handleClose();
-    };
+    const handleSave = async () => {
+        const sessionID = localStorage.getItem("sessionID");
+        if (!sessionID) {
+            console.error("❌ No session ID found.");
+            return;
+        }
 
-    return (
-        <StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-team-dialog-title">
+        const updatedTeam = {
+            team_id: team.team_id,
+            team_name: teamName,
+            team_icon_url: team.team_icon_url
+        };
+
+        try {
+            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/updateTeam", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "sessionID": sessionID
+                },
+                body: JSON.stringify(updatedTeam)
+            });
+
+            if (!response.ok) {
+                throw new Error("❌ Failed to update team.");
+            }
+
+            const data = await response.json();
+            console.log("✅ Team updated successfully:", data);
+
+            onSave(data); // ✅ Pass updated team data back
+            handleClose();
+        } catch (err) {
+            console.error("❌ Error updating team:", err);
+        }
+    };
+    
+    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-team-dialog-title">
             <DialogTitle className={"dialog"} id="edit-team-dialog-title">Edit Team: {team.team_name}</DialogTitle>
             <DialogContent className={"dialog"} style={{padding: "12px", backdropFilter: "invert(1)"}}>
                 <Stack spacing={2}>
@@ -91,8 +99,8 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
 
                     {/* Add GitHub Member - Bootstrap Styled Input with Icon */}
                     <Stack direction="row" spacing={"12px"} alignItems="center">
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end', width: '100%' }}>
-                            <FormControl variant="standard" sx={{ width: '100%' }}>
+                        <Box sx={{display: 'flex', alignItems: 'flex-end', width: '100%'}}>
+                            <FormControl variant="standard" sx={{width: '100%'}}>
                                 <InputLabel shrink htmlFor="github-member-input">GitHub ID</InputLabel>
                                 <BootstrapInput
                                     id="github-member-input"
@@ -108,9 +116,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
 
                     {/* Display Current Members */}
                     <Stack spacing={1}>
-                        {githubIds.map((id) => (
-                            <span key={id}>{id}</span>
-                        ))}
+                        {githubIds.map((id) => (<span key={id}>{id}</span>))}
                     </Stack>
                 </Stack>
             </DialogContent>
@@ -120,8 +126,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                     Save
                 </Button>
             </DialogActions>
-        </StyledDialog>
-    );
+        </StyledDialog>);
 };
 
 export default EditTeamDialog;

@@ -62,6 +62,14 @@ const AccountDashboard = ({ username }) => {
         fetchTeams();
     }, [sessionID]);
 
+    const handleUpdateTeam = (updatedTeam) => {
+        setTeams((prevTeams) =>
+            prevTeams.map((team) =>
+                team.team_id === updatedTeam.team_id ? updatedTeam : team
+            )
+        );
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "-webkit-fill-available" }}>
             {/* Top Bar */}
@@ -92,7 +100,7 @@ const AccountDashboard = ({ username }) => {
                 {/* Content Area */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", height: "-webkit-fill-available", width: "-webkit-fill-available", marginTop: 0 }}>
                     <Grid>
-                        {activeTab === "teams" && <Teams teams={teams} loading={loadingTeams} error={errorTeams} />}
+                        {activeTab === "teams" && <Teams teams={teams} loading={loadingTeams} error={errorTeams} onUpdateTeam={handleUpdateTeam} />}
                         {activeTab === "games" && <Games teams={teams} />}
                     </Grid>
                 </div>
