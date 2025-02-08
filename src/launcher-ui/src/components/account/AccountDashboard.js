@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+
 import Teams from "./Teams";
 import AccountName from "./AccountName";
 import LogoutButton from "./LogoutButton";
@@ -19,7 +20,7 @@ const AccountDashboard = ({ username }) => {
     const [githubAvatar, setGithubAvatar] = useState(null);
     const sessionID = localStorage.getItem("sessionID");
 
-    const fetchTeams = async () => {
+    const fetchTeams = useCallback(async () => {
         if (!sessionID) {
             console.error("❌ No session ID found in localStorage.");
             setErrorTeams("No session ID found.");
@@ -56,11 +57,12 @@ const AccountDashboard = ({ username }) => {
         } finally {
             setLoadingTeams(false);
         }
-    };
+    }, [sessionID]); // ✅ `fetchTeams` now depends only on `sessionID`
 
+    // ✅ Now useEffect won't infinitely loop
     useEffect(() => {
         fetchTeams();
-    }, [fetchTeams]); // ✅ Add fetchTeams as a dependency
+    }, [fetchTeams]);
 
     const handleUpdateTeam = (updatedTeam) => {
         setTeams((prevTeams) =>
