@@ -34,7 +34,7 @@ const GameList = () => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "auto" }}>
             {/* Show Skeleton Loader Outside the Grid */}
             {loading && <GameCardsSkeleton topBar={false} columns={4} />}
 
