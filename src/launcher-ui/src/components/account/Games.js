@@ -97,7 +97,7 @@ const Games = ({teams}) => {
             padding: "12px",
 
         }}>
-            <Stack sx={{display: 'flex', flexDirection: "row", gap: "12px", flexWrap: 'wrap', alignItems: "center",}}>
+            <Stack sx={{display: 'flex', flexDirection: "row", gap: "12px", flexWrap: 'wrap', alignItems: "center", width: "50%"}}>
                 {teams.map((team) => (<Chip
                     icon={team.team_icon_url}
                     key={team.team_name}
@@ -124,7 +124,7 @@ const Games = ({teams}) => {
                                borderRadius: "2px"
                            },
                            "& .MuiFormLabel-root": {
-                               color: "#444444 !important",
+                               color: "#fff",
                            },
                        }}
             />
