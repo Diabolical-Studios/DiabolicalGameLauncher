@@ -9,8 +9,8 @@ const Grid = ({children, gap = "12px", style = {}}) => {
             height: "-webkit-fill-available",
             margin: 0,
             overflowX: "hidden",
+            overflowY: "scroll",
 
-            padding: "12px",
             overscrollBehavior: "contain",
             scrollSnapType: "x mandatory",
             scrollSnapAlign: "start",

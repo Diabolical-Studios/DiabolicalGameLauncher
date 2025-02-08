@@ -4,7 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import OnlyImageButton from "../button/OnlyImageButton";
 import InfiniteGameScroller from "../InfiniteGameScroller";
 import EditTeamDialog from "./dialogs/EditTeamDialog";
-import InfiniteGameSkeleton from "../InfiniteScrollerSkeleton"; // ✅ Import the dialog
+import InfiniteGameSkeleton from "../skeleton/InfiniteScrollerSkeleton"; // ✅ Import the dialog
 
 const TeamCard = ({team, onUpdateTeam}) => {
     const [games, setGames] = useState([]);
