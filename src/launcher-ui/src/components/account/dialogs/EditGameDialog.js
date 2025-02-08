@@ -19,6 +19,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
     const [gameName, setGameName] = useState(game.game_name);
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState(game.background_image_url || "");
     const [gameDescription, setGameDescription] = useState(game.description || "");
+    const [gameVersion, setGameVersion] = useState(game.version || "");
 
     useEffect(() => {
         setGameName(game.game_name);
@@ -78,7 +79,8 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                             game={{
                                 game_name: gameName,
                                 background_image_url: gameBackgroundUrl,
-                                description: gameDescription
+                                description: gameDescription,
+                                version: gameVersion,
                             }}
                             isEditing={true} // ✅ Enables editable mode
                             setGameName={setGameName}
