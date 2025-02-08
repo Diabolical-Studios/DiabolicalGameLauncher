@@ -494,21 +494,52 @@ h2 {
     justify-content: center;
 }
 
-.game-button svg {
-    /*Positioning stuff*/
-    position: absolute;
-    left: -70px;
-    top: -6px;
-    /*Manipulations stuff*/
-    transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
-    opacity: 0.5;
+.dialog {
+    position: relative;
+    width: -webkit-fill-available;
+    height: fit-content;
+    border: none;
+    border-radius: 2px;
+    outline: 1px solid #444444;
+    background-color: #000;
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 200% 100%;
+    background-size: 20px 20px;
+    font-family: "Consolas", sans-serif;
+    font-size: 16px;
+    font-weight: 670;
+    text-decoration: none;
+    color: #ffffff;
+    transition: 0.2s;
+    animation: 1.5s ease infinite alternate running shimmer;
+    animation: moveBackground 3s linear infinite;
+    cursor: pointer;
+    /* line-height: 24px; */
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 12px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
 }
 
-.game-button:hover svg {
-    /*Manipulations stuff*/
-    transform: translateX(210px) scale(2);
-    opacity: 0.8;
-}
+/*.game-button svg {*/
+/*    !*Positioning stuff*!*/
+/*    position: absolute;*/
+/*    left: -70px;*/
+/*    top: -6px;*/
+/*    !*Manipulations stuff*!*/
+/*    transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);*/
+/*    opacity: 0.5;*/
+/*}*/
+
+/*.game-button:hover svg {*/
+/*    !*Manipulations stuff*!*/
+/*    transform: translateX(210px) scale(2);*/
+/*    opacity: 0.8;*/
+/*}*/
 
 .game-button:hover {
     /*Manipulations stuff*/
@@ -901,3 +932,55 @@ h2 {
 .close-button:hover {
     background-color: #aa0606;
 }
+
+.game-list {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    padding: 4px 0;
+    overflow: hidden;
+}
+
+.loop-slider .inner {
+    display: flex;
+    width: fit-content;
+    gap: 12px;
+    animation-name: loop;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: var(--direction);
+    animation-duration: var(--duration);
+}
+
+.game-tag {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: white;
+    background-color: #334155;
+    border-radius: 0.4rem;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem; /* Required for smooth looping */
+    white-space: nowrap;
+    box-shadow: 0 0.1rem 0.5rem rgb(0 0 0 / 30%);
+}
+
+.fade {
+    pointer-events: none;
+    background: linear-gradient(90deg, #000, transparent 30%, transparent 70%, #000);
+    position: absolute;
+    inset: 0;
+}
+
+@keyframes loop {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
