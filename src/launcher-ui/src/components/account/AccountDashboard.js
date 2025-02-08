@@ -92,9 +92,13 @@ const AccountDashboard = ({ username }) => {
             {/* Main Content */}
             <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", overflow: "hidden" }}>
                 {/* Sidebar Navigation */}
-                <ul style={{ display: "flex", flexDirection: "column", gap: "12px", height: "-webkit-fill-available", width: "20%", padding: "12px", margin: 0 }}>
-                    <ImageButton text="Teams" icon={GroupsIcon} onClick={() => setActiveTab("teams")} />
-                    <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")} />
+                <ul style={{ display: "flex", flexDirection: "column", gap: "12px", height: "-webkit-fill-available", width: "20%", padding: "12px", margin: 0, justifyContent: "space-between" }}>
+                    <Stack direction="column" spacing={"12px"}>
+                        <ImageButton text="Teams" icon={GroupsIcon} onClick={() => setActiveTab("teams")} />
+                        <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")} />
+                    </Stack>
+
+                    <CreateTeamSpeedDial onCreateTeam={fetchTeams} />
                 </ul>
 
                 <Divider vertical={true} />
@@ -107,9 +111,6 @@ const AccountDashboard = ({ username }) => {
                     </Grid>
                 </div>
             </div>
-
-            {/* Create Team Speed Dial (Refresh teams on new team creation) */}
-            <CreateTeamSpeedDial onCreateTeam={fetchTeams} />
         </div>
     );
 };

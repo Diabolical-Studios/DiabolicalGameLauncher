@@ -3,7 +3,8 @@ import {Avatar, AvatarGroup, Stack} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import OnlyImageButton from "../button/OnlyImageButton";
 import InfiniteGameScroller from "../InfiniteGameScroller";
-import EditTeamDialog from "./dialogs/EditTeamDialog"; // ✅ Import the dialog
+import EditTeamDialog from "./dialogs/EditTeamDialog";
+import InfiniteGameSkeleton from "../InfiniteScrollerSkeleton"; // ✅ Import the dialog
 
 const TeamCard = ({team, onUpdateTeam}) => {
     const [games, setGames] = useState([]);
@@ -29,7 +30,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
             setGames(data);
         } catch (err) {
             console.error("❌ Error fetching games:", err);
-            setErrorGames("Failed to load games.");
+            setErrorGames("No Games Found!");
         } finally {
             setLoadingGames(false);
         }
@@ -66,7 +67,8 @@ const TeamCard = ({team, onUpdateTeam}) => {
         justifyContent: "space-between",
         aspectRatio: "1/1",
         backgroundColor: "#000",
-        border: "1px solid rgb(48, 48, 48)"
+        border: "1px solid rgb(48, 48, 48)",
+        borderRadius: "2px",
     }}>
         <Stack flexDirection={"column"} justifyContent={"space-between"} padding={"12px"} gap={"12px"}
                height={"-webkit-fill-available"}>
@@ -82,15 +84,15 @@ const TeamCard = ({team, onUpdateTeam}) => {
                     />
                     <span style={{lineHeight: 1}}>{team.team_name}</span>
                 </Stack>
-                <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)} />
+                <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)}/>
             </Stack>
 
             {/* Infinite Scrolling Games */}
-            {loadingGames ? (<p>Loading games...</p>) : errorGames ? (<p style={{color: "red"}}>{errorGames}</p>) : (
+            {loadingGames ? (<InfiniteGameSkeleton/>) : errorGames ? (<p style={{color: "red", textAlign: "center", }}>{errorGames}</p>) : (
                 <InfiniteGameScroller games={games}/>)}
 
             {/* Team Members - GitHub Profile Pictures */}
-            <Stack flexDirection={"row-reverse"} padding={"12px"}>
+            <Stack flexDirection={"row-reverse"}>
                 <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: "#444444"}}}>
                     {githubAvatars.map(member => (
                         <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>))}

@@ -64,11 +64,31 @@ exports.handler = async (event) => {
     };
   }
 
+  let team_icon_url;
+  try {
+    ({ team_icon_url } = JSON.parse(event.body));
+  } catch (error) {
+    console.error("❌ Invalid JSON body:", error);
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "Invalid JSON body" }),
+    };
+  }
+
+  if (!team_icon_url) {
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "Missing team_icon_url" }),
+    };
+  }
+
   try {
     console.log("✅ Sending request to create team...");
     const response = await axios.post(
         `${process.env.API_BASE_URL}/teams`,
-        { session_id: sessionID, team_name },
+        { session_id: sessionID, team_name, team_icon_url },
         {
           headers: { "x-api-key": process.env.API_KEY },
         }
