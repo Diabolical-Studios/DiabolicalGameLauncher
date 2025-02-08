@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import HoverMenu from "../button/HoverMenu";
 import GameButton from "../button/GameButton";
 import OnlyImageButton from "../button/OnlyImageButton";
@@ -6,44 +6,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import {Stack} from "@mui/material";
 import EditGameDialog from "./dialogs/EditGameDialog";
 
-const EditGameCard = ({game, isInstalled, onUpdateGame}) => {
-    const [downloadProgress, setDownloadProgress] = useState(null);
-    const [gameInstalled, setGameInstalled] = useState(isInstalled);
+const EditGameCard = ({game, onUpdateGame}) => {
     const [editOpen, setEditOpen] = useState(false); // ✅ Control dialog state
 
-    useEffect(() => {
-        const handleDownloadProgress = (progressData) => {
-            if (progressData.gameId === game.game_id) {
-                setDownloadProgress(`${Math.round(progressData.percentage * 100)}%`);
-            }
-        };
-
-        const handleDownloadComplete = ({gameId}) => {
-            if (gameId === game.game_id) {
-                setGameInstalled(true);
-                setDownloadProgress(null);
-            }
-        };
-
-        window.electronAPI.onDownloadProgress(handleDownloadProgress);
-        window.electronAPI.onDownloadComplete(handleDownloadComplete);
-    }, [game.game_id]);
-
-    const handleButtonClick = () => {
-        if (gameInstalled) {
-            window.electronAPI.openGame(game.game_id);
-        } else {
-            window.electronAPI.downloadGame(game.game_id);
-        }
-    };
-
     const handleSaveGameChanges = (updatedGame) => {
-        console.log("✅ Updating Team in UI:", updatedGame);
+        console.log("✅ Updating Game in UI:", updatedGame);
 
         if (typeof onUpdateGame === "function") {
-            onUpdateGame(updatedGame); // ✅ Call parent function to update the teams list
+            onUpdateGame(updatedGame); // ✅ Call parent function to update the game list
         }
     };
+
 
     return (<Stack className={"game-banner"}
         style={{
@@ -71,10 +44,7 @@ const EditGameCard = ({game, isInstalled, onUpdateGame}) => {
             </Stack>
             <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
                 <GameButton
-                    gameInstalled={gameInstalled}
-                    downloadProgress={downloadProgress}
                     gameVersion={game.version}
-                    onClick={handleButtonClick}
                 />
 
                 <HoverMenu
@@ -84,12 +54,12 @@ const EditGameCard = ({game, isInstalled, onUpdateGame}) => {
                 />
             </Stack>
         </Stack>
-        
+
         <EditGameDialog
             open={editOpen}
             handleClose={() => setEditOpen(false)}
             game={game}
-            onSave={handleSaveGameChanges}
+            onSave={handleSaveGameChanges} // ✅ Ensure this is passed
         />
 
     </Stack>);

@@ -52,16 +52,16 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                 body: JSON.stringify(updatedGame),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                console.error("❌ Server Error Response:", data);
                 throw new Error("Failed to update game.");
             }
 
-            console.log("✅ Game updated successfully:", data);
+            console.log("✅ Game updated successfully:", updatedGame);
+
+            // 🔹 Call `onSave` to update the parent component
             onSave(updatedGame);
-            handleClose();
+
+            handleClose(); // Close the dialog
         } catch (err) {
             console.error("❌ Error updating game:", err);
         }

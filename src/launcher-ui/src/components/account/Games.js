@@ -21,6 +21,17 @@ const Games = ({teams}) => {
         setSearchQuery(event.target.value.toLowerCase());
     };
 
+    const handleSaveGameChanges = (updatedGame) => {
+        console.log("✅ Updating Game in UI:", updatedGame);
+
+        setGames((prevGames) =>
+            prevGames.map((game) =>
+                game.game_id === updatedGame.game_id ? { ...game, ...updatedGame } : game
+            )
+        );
+    };
+
+
     const filterGames = () => {
         return games.filter((game) => {
             const gameName = game.game_name || ""; // Ensure game.name is always a string
@@ -83,7 +94,7 @@ const Games = ({teams}) => {
     }, [currentTeams]); // ✅ Use the stateful `currentTeams` instead of JSON.stringify(teams)
 
     if (!teams || teams.length === 0) return <p>⏳ Waiting for teams to load...</p>;
-    if (loading) return <GameCardsSkeleton />;
+    if (loading) return <GameCardsSkeleton/>;
     if (error) return <p style={{color: "red"}}>{error}</p>;
 
     return (<div style={{display: "flex", flexDirection: "column",}}>
@@ -97,7 +108,14 @@ const Games = ({teams}) => {
             padding: "12px",
 
         }}>
-            <Stack sx={{display: 'flex', flexDirection: "row", gap: "12px", flexWrap: 'wrap', alignItems: "center", width: "50%"}}>
+            <Stack sx={{
+                display: 'flex',
+                flexDirection: "row",
+                gap: "12px",
+                flexWrap: 'wrap',
+                alignItems: "center",
+                width: "50%"
+            }}>
                 {teams.map((team) => (<Chip
                     icon={team.team_icon_url}
                     key={team.team_name}
@@ -133,8 +151,11 @@ const Games = ({teams}) => {
         <Divider/>
 
         {games.length === 0 ? (<p>You did not create any Games.</p>) : (
-            <div id="game-cards-container" style={{padding: "12px", overflow: "hidden", gridTemplateColumns: "repeat(3, minmax(250px, 1fr))"}}>
-                {filterGames().map((game, index) => (<EditGameCard key={index} game={game} isInstalled={false}/>))}
+            <div id="game-cards-container"
+                 style={{padding: "12px", overflow: "hidden", gridTemplateColumns: "repeat(3, minmax(250px, 1fr))"}}>
+                {filterGames().map((game, index) => (
+                    <EditGameCard key={index} game={game} isInstalled={false} onUpdateGame={handleSaveGameChanges} />
+                ))}
             </div>)}
     </div>);
 };
