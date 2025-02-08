@@ -1,10 +1,12 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
-    Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Box, FormControl, TextField, IconButton
+    Button, Dialog, DialogActions, DialogContent, Stack, TextField, IconButton, AvatarGroup, Avatar
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import {styled} from "@mui/material/styles";
+import axios from "axios";
+
 
 // ✅ Styled Dialog Paper Component
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -19,6 +21,28 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || ""); // ✅ Added icon URL state
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
+    const [githubUsers, setGithubUsers] = useState({}); // Stores { id: login }
+
+    // Fetch GitHub usernames when IDs change
+    useEffect(() => {
+        const fetchGitHubUsernames = async () => {
+            const userPromises = githubIds.map(async (id) => {
+                try {
+                    const response = await axios.get(`https://api.github.com/user/${id}`);
+                    return {id, login: response.data.login};
+                } catch (error) {
+                    console.error(`Error fetching GitHub username for ID ${id}:`, error);
+                    return {id, login: `Unknown-${id}`};
+                }
+            });
+
+            const users = await Promise.all(userPromises);
+            const usersMap = Object.fromEntries(users.map(user => [user.id, user.login]));
+            setGithubUsers(usersMap);
+        };
+
+        fetchGitHubUsernames();
+    }, [githubIds]);
 
     const handleAddMember = () => {
         if (newMember.trim() !== "" && !githubIds.includes(newMember)) {
@@ -35,8 +59,10 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
         }
 
         const updatedTeam = {
-            team_id: team.team_id, team_name: teamName.trim(),  // ✅ Trim whitespace
-            team_icon_url: teamIconUrl.trim() // ✅ Trim whitespace
+            team_id: team.team_id,
+            team_name: teamName.trim(),
+            team_icon_url: teamIconUrl.trim(),
+            github_ids: githubIds.map(id => String(id)) // Ensure IDs are sent as strings
         };
 
         console.log("📤 Sending team update request:", updatedTeam); // ✅ Log the request payload
@@ -56,7 +82,12 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             }
 
             console.log("✅ Team updated successfully:", data);
-            onSave({...team, team_name: teamName, team_icon_url: teamIconUrl});
+            onSave({
+                ...team,
+                team_name: teamName,
+                team_icon_url: teamIconUrl,
+                github_ids: [...githubIds] // ✅ Ensure updated GitHub IDs are passed
+            });
             handleClose();
         } catch (err) {
             console.error("❌ Error updating team:", err);
@@ -148,9 +179,18 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     </IconButton>
                 </Stack>
 
-                {/*<Stack spacing={1}>*/}
-                {/*    {githubIds.map((id) => (<span key={id}>{id}</span>))}*/}
-                {/*</Stack>*/}
+                <Stack flexDirection={"row-reverse"}>
+                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: "#444444"}}}>
+                        {githubIds.map(id => (
+                            <Avatar
+                                key={id}
+                                alt={`GitHub User ${githubUsers[id] || id}`}
+                                src={`https://avatars.githubusercontent.com/u/${id}`}
+                                title={`${githubUsers[id] || "Loading..."}`} // 👈 Shows login name on hover
+                            />
+                        ))}
+                    </AvatarGroup>
+                </Stack>
 
             </Stack>
         </DialogContent>
@@ -162,7 +202,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 outline: "1px solid #444444",
                 borderRadius: "2px",
             }} onClick={handleSave}
-                    style={{height: "100%", borderRadius: "2px",}} aria-label="add"
+                    style={{height: "100%", borderRadius: "2px", width: "-webkit-fill-available",}} aria-label="add"
                     color="primary" startIcon={<SaveIcon/>}>
                 Save
             </Button>

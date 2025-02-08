@@ -26,9 +26,9 @@ const LoginScreen = () => {
             alignItems: "center",
             justifyContent: "center",
             gap: "12px",
+            height: "100%",
+            width: "100%",
         }}>
-            <h2>Login to Sync Your Data</h2>
-
             <button className="game-button shimmer-button" onClick={handleGitHubLogin}
                     style={{
                         display: "flex",
