@@ -28,16 +28,16 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
         const fetchGitHubUsernames = async () => {
             const userPromises = githubIds.map(async (id) => {
                 try {
-                    const response = await axios.get(`https://api.github.com/user/${id}`);
-                    return {id, login: response.data.login};
+                    const response = await axios.get(`https://api.diabolical.studio/rest-api/users/github/${id}`);
+                    return {id, username: response.data.username};
                 } catch (error) {
                     console.error(`Error fetching GitHub username for ID ${id}:`, error);
-                    return {id, login: `Unknown-${id}`};
+                    return {id, username: `Unknown-${id}`};
                 }
             });
 
             const users = await Promise.all(userPromises);
-            const usersMap = Object.fromEntries(users.map(user => [user.id, user.login]));
+            const usersMap = Object.fromEntries(users.map(user => [user.id, user.username]));
             setGithubUsers(usersMap);
         };
 
