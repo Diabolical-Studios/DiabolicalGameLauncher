@@ -2,9 +2,9 @@
 base = "src/launcher-ui"
 command = "npm run build"
 publish = "src/launcher-ui/build"
-functions = "src/launcher-ui/netlify/functions"
+functions = "netlify/functions"
 
 [dev]
 command = "npm start"
-functions = "src/launcher-ui/netlify/functions"
+functions = "netlify/functions"
 port = 8888
