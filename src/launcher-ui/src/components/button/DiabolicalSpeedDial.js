@@ -1,15 +1,13 @@
-import React, { useState } from "react";
-import { styled } from "@mui/material/styles";
-import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
+import React, {useState} from "react";
+import {styled} from "@mui/material/styles";
+import {SpeedDial, SpeedDialIcon, SpeedDialAction} from "@mui/material";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import CreateTeamDialog from "../account/dialogs/CreateTeamDialog";
+import CreateGameDialog from "../account/dialogs/CreateGameDialog";
 
-const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
-    position: "relative",
-    width: "-webkit-fill-available",
-    display: "flex",
-    flexDirection: "column-reverse",
+const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
+    position: "relative", width: "-webkit-fill-available", display: "flex", flexDirection: "column-reverse",
 
     "& .MuiFab-primary": {
         borderRadius: 2,
@@ -28,7 +26,7 @@ const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
     },
 }));
 
-const StyledSpeedDialAction = styled(SpeedDialAction)(({ theme }) => ({
+const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
     borderRadius: 2,
     width: "-webkit-fill-available",
     backgroundColor: "#000 !important",
@@ -38,24 +36,25 @@ const StyledSpeedDialAction = styled(SpeedDialAction)(({ theme }) => ({
     margin: 0,
 }));
 
-const CreateTeamSpeedDial = ({ onCreateTeam }) => {
+const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame}) => {
     const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
+    const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
-    return (
-        <>
+    return (<>
             {/* ✅ SpeedDial Component (Only handles opening the dialogs) */}
-            <StyledSpeedDial FabProps={{ className: "dialog" }} ariaLabel="SpeedDial for team actions" icon={<SpeedDialIcon />}>
+            <StyledSpeedDial FabProps={{className: "dialog"}} ariaLabel="SpeedDial for team actions"
+                             icon={<SpeedDialIcon/>}>
                 <StyledSpeedDialAction
                     className="dialog"
-                    icon={<GroupAddIcon />}
+                    icon={<GroupAddIcon/>}
                     tooltipTitle="Create Team"
                     onClick={() => setOpenCreateTeamDialog(true)}
                 />
                 <StyledSpeedDialAction
                     className="dialog"
-                    icon={<SportsEsportsIcon />}
+                    icon={<SportsEsportsIcon/>}
                     tooltipTitle="Create Game"
-                    onClick={() => console.log("Create Game Dialog here")}
+                    onClick={() => setOpenCreateGameDialog(true)}
                 />
             </StyledSpeedDial>
 
@@ -65,8 +64,13 @@ const CreateTeamSpeedDial = ({ onCreateTeam }) => {
                 handleClose={() => setOpenCreateTeamDialog(false)}
                 onCreate={onCreateTeam}
             />
-        </>
-    );
+
+            <CreateGameDialog
+                open={openCreateGameDialog}
+                handleClose={() => setOpenCreateGameDialog(false)}
+                onCreate={onCreateGame}
+            />
+        </>);
 };
 
-export default CreateTeamSpeedDial;
+export default DiabolicalSpeedDial;

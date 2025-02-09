@@ -4,7 +4,6 @@ import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import NavBar from "./components/NavBar";
 import ContentPanel from "./components/ContentPanel";
 import StatusBar from "./components/StatusBar";
-import GameList from "./components/GameList";
 import Toaster from "./components/Toaster";
 import SettingsPage from "./pages/SettingsPage";
 import ChangelogPage from "./pages/ChangelogPage";
@@ -14,6 +13,7 @@ import StatusBarAndContentPanel from "./components/StatusBarAndContentPanel";
 import HorizontalFlex from "./components/layout/HorizontalFlex";
 import "./settings.css";
 import "./changelog.css";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
     const [selectedPage, setSelectedPage] = useState("home");
@@ -33,7 +33,7 @@ function App() {
                 </HorizontalFlex>
 
                 <ContentPanel>
-                    {selectedPage === "home" && <GameList/>}
+                    {selectedPage === "home" && <LandingPage/>}
                     {selectedPage === "settings" && <SettingsPage/>}
                     {selectedPage === "changelog" && <ChangelogPage/>}
                     {selectedPage === "account" && <AccountPage/>}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Slide } from "@mui/material"; // Import MUI Slide animation
-import GameCard from "./GameCard";
-import GameCardsSkeleton from "./skeleton/GameCardsSkeleton"; // Import Skeleton Loader
+import GameCard from "../components/GameCard";
+import GameCardsSkeleton from "../components/skeleton/GameCardsSkeleton"; // Import Skeleton Loader
 
 const GameList = () => {
     const [games, setGames] = useState([]);
@@ -35,6 +35,7 @@ const GameList = () => {
     };
 
     return (
+        
         <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "auto" }}>
             {/* Show Skeleton Loader While Loading */}
             {loading && <GameCardsSkeleton topBar={false} columns={4} />}

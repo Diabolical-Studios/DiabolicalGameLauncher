@@ -10,7 +10,7 @@ import ImageButton from "../button/ImageButton";
 import { Avatar, Stack } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
-import CreateTeamSpeedDial from "../button/CreateTeamSpeedDial";
+import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 
 const AccountDashboard = ({ username }) => {
     const [teams, setTeams] = useState([]);
@@ -98,7 +98,7 @@ const AccountDashboard = ({ username }) => {
                         <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")} />
                     </Stack>
 
-                    <CreateTeamSpeedDial onCreateTeam={fetchTeams} />
+                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} />
                 </ul>
 
                 <Divider vertical={true} />
