@@ -1,12 +1,6 @@
 import React, {useState} from "react";
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Stack,
-    TextField,
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography, // Import Typography to display the error
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
@@ -21,7 +15,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
     const [teamName, setTeamName] = useState("");
     const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubIds, setGithubIds] = useState([]);
-    const [setError] = useState(null);
+    const [error, setError] = useState(null); // Corrected state definition
 
     const handleCreate = async () => {
         if (teamName.trim() === "") {
@@ -80,13 +74,10 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                     focused
                     fullWidth
                     placeholder="Very Cool Team Name"
-
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     sx={{
-                        borderRadius: "8px",
-
-                        "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px", "& .MuiOutlinedInput-root": {
                             backgroundColor: "#000", // Input background color
                             color: "#fff", border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
@@ -96,7 +87,6 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                         }
                     }}
                 />
-
 
                 {/* ✅ Edit Team Icon URL Field */}
                 <TextField
@@ -119,6 +109,11 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                         }
                     }}
                 />
+
+                {/* Show Error Message */}
+                {error && (<Typography color="error" variant="body2" style={{marginTop: "10px"}}>
+                    {error}
+                </Typography>)}
 
             </Stack>
         </DialogContent>
