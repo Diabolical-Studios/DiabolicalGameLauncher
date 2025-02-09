@@ -1,19 +1,20 @@
-import React, {useEffect, useState, useMemo} from "react";
-import {Avatar, AvatarGroup, Stack} from "@mui/material";
+import React, { useEffect, useState, useMemo } from "react";
+import { Avatar, AvatarGroup, Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import OnlyImageButton from "../button/OnlyImageButton";
 import InfiniteGameScroller from "../InfiniteGameScroller";
 import EditTeamDialog from "./dialogs/EditTeamDialog";
-import InfiniteGameSkeleton from "../skeleton/InfiniteScrollerSkeleton"; // ✅ Import the dialog
+import InfiniteGameSkeleton from "../skeleton/InfiniteScrollerSkeleton";
 
-const TeamCard = ({team, onUpdateTeam}) => {
+const TeamCard = ({ team, onUpdateTeam }) => {
     const [games, setGames] = useState([]);
     const [loadingGames, setLoadingGames] = useState(true);
     const [errorGames, setErrorGames] = useState(null);
     const [githubAvatars, setGithubAvatars] = useState([]);
-    const [editOpen, setEditOpen] = useState(false); // ✅ Control dialog state
+    const [editOpen, setEditOpen] = useState(false); // Control dialog state
+    const [isMobile, setIsMobile] = useState(false); // Track if the screen is mobile
 
-    // 🔹 Fetch games for the team
+    // Fetch games for the team
     const fetchGames = useMemo(() => async () => {
         if (!team.team_name) return;
         console.log(`🎯 Fetching games for team: ${team.team_name}`);
@@ -40,7 +41,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
         fetchGames();
     }, [fetchGames]);
 
-    // 🔹 Fetch GitHub profile pictures
+    // Fetch GitHub profile pictures
     useEffect(() => {
         if (!team.github_ids || team.github_ids.length === 0) return;
 
@@ -56,59 +57,87 @@ const TeamCard = ({team, onUpdateTeam}) => {
         console.log("✅ Updating Team in UI:", updatedTeam);
 
         if (typeof onUpdateTeam === "function") {
-            onUpdateTeam(updatedTeam); // ✅ Call parent function to update the teams list
+            onUpdateTeam(updatedTeam); // Call parent function to update the teams list
         }
     };
 
-    return (<li style={{
+    // Listen for window resize to determine if we are on a mobile screen
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768); // Adjust the mobile breakpoint here
+        };
+
+        handleResize(); // Check on component mount
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // Inline styles with mobile responsiveness
+    const listStyle = {
         gap: "12px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        aspectRatio: "1/1",
+        aspectRatio: isMobile ? false : "1",
         backgroundColor: "#000",
         border: "1px solid rgb(48, 48, 48)",
         borderRadius: "2px",
-    }}>
-        <Stack flexDirection={"column"} justifyContent={"space-between"} padding={"12px"} gap={"12px"}
-               height={"-webkit-fill-available"}>
+    };
 
-            {/* Team Header */}
-            <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
-                <Stack flexDirection="row" alignItems="center" gap="12px">
-                    <Avatar
-                        src={team.team_icon_url}
-                        alt={team.team_name}
-                        variant="square"
-                        sx={{width: 32, height: 32, "& img": {objectFit: "scale-down"}}}
-                    />
-                    <span style={{lineHeight: 1}}>{team.team_name}</span>
+    const stackStyle = {
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "12px",
+        gap: "12px",
+        height: "-webkit-fill-available",
+    };
+
+    return (
+        <li style={listStyle}>
+            <Stack style={stackStyle}>
+                {/* Team Header */}
+                <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
+                    <Stack flexDirection="row" alignItems="center" gap="12px">
+                        <Avatar
+                            src={team.team_icon_url}
+                            alt={team.team_name}
+                            variant="square"
+                            sx={{ width: 32, height: 32, "& img": { objectFit: "scale-down" } }}
+                        />
+                        <span style={{ lineHeight: 1 }}>{team.team_name}</span>
+                    </Stack>
+                    <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)} />
                 </Stack>
-                <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)}/>
+
+                {/* Infinite Scrolling Games */}
+                {loadingGames ? (
+                    <InfiniteGameSkeleton />
+                ) : errorGames ? (
+                    <p style={{ color: "red", textAlign: "center" }}>{errorGames}</p>
+                ) : (
+                    <InfiniteGameScroller games={games} />
+                )}
+
+                {/* Team Members - GitHub Profile Pictures */}
+                <Stack flexDirection={"row-reverse"}>
+                    <AvatarGroup max={4} sx={{ "& .MuiAvatar-root": { width: 32, height: 32, borderColor: "#444444" } }}>
+                        {githubAvatars.map(member => (
+                            <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url} />
+                        ))}
+                    </AvatarGroup>
+                </Stack>
             </Stack>
 
-            {/* Infinite Scrolling Games */}
-            {loadingGames ? (<InfiniteGameSkeleton/>) : errorGames ? (<p style={{color: "red", textAlign: "center", }}>{errorGames}</p>) : (
-                <InfiniteGameScroller games={games}/>)}
-
-            {/* Team Members - GitHub Profile Pictures */}
-            <Stack flexDirection={"row-reverse"}>
-                <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: "#444444"}}}>
-                    {githubAvatars.map(member => (
-                        <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>))}
-                </AvatarGroup>
-            </Stack>
-        </Stack>
-
-        {/* ✅ Edit Team Dialog */}
-        <EditTeamDialog
-            open={editOpen}
-            handleClose={() => setEditOpen(false)}
-            team={team}
-            onSave={handleSaveTeamChanges}
-        />
-
-    </li>);
+            {/* Edit Team Dialog */}
+            <EditTeamDialog
+                open={editOpen}
+                handleClose={() => setEditOpen(false)}
+                team={team}
+                onSave={handleSaveTeamChanges}
+            />
+        </li>
+    );
 };
 
 export default TeamCard;

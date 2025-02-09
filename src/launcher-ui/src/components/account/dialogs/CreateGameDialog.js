@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Dialog, DialogContent, Button, TextField, Stack, Select, MenuItem, InputLabel, FormControl
 } from "@mui/material";
@@ -20,6 +20,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameVersion] = useState("0.0.1");
     const [selectedTeam, setSelectedTeam] = useState(""); // Store selected team
     const [teamIconUrl, setTeamIconUrl] = useState(""); // Store team icon URL
+    const [isMobile, setIsMobile] = useState(false); // Track if screen is mobile
 
     // Set default selected team when teams are loaded
     useEffect(() => {
@@ -28,6 +29,18 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             setTeamIconUrl(teams[0].team_icon_url); // Set default team icon URL
         }
     }, [teams]);
+
+    // Screen resize handler for mobile detection
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768); // Adjust the breakpoint for mobile
+        };
+
+        handleResize(); // Check on initial load
+        window.addEventListener("resize", handleResize); // Update on resize
+
+        return () => window.removeEventListener("resize", handleResize); // Cleanup event listener
+    }, []);
 
     const handleSave = async () => {
         const sessionID = localStorage.getItem("sessionID");
@@ -52,7 +65,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         };
 
         console.log("📤 Sending game creation request:", newGame);
-        
+
         try {
             const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/createGame", {
                 method: "POST",
@@ -68,9 +81,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             }
 
             console.log("✅ Game created successfully:", newGame);
-
-            onSave(newGame);
-
             handleClose(); // Close the dialog
         } catch (err) {
             console.error("❌ Error creating game:", err);
@@ -87,7 +97,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     return (
         <StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
             <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
-                <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
+                <Stack display={"flex"} flexDirection={isMobile ? "column" : "row"} gap={"24px"}>
                     <Stack spacing={2} alignItems="center">
                         {/* Render Editable Game Card */}
                         <GameCard

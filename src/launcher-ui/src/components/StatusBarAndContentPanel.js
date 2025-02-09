@@ -7,6 +7,7 @@ const StatusBarAndContentPanel = ({children}) => {
             display: "flex",
             flexDirection: "column",
             gap: "12px",
+            overflow: "hidden",
         }}>
             {children}
         </div>

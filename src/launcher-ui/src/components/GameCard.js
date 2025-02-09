@@ -30,10 +30,15 @@ const GameCard = ({
         };
 
         // Add event listeners
-        window.electronAPI.onDownloadProgress(handleDownloadProgress);
-        window.electronAPI.onDownloadComplete(handleDownloadComplete);
-        window.electronAPI.onGameUninstalled(handleGameUninstalled);
-        
+        if (window.api) {
+            window.electronAPI.onDownloadProgress(handleDownloadProgress);
+            window.electronAPI.onDownloadComplete(handleDownloadComplete);
+            window.electronAPI.onGameUninstalled(handleGameUninstalled);
+        } else {
+            // Log or handle when the API is not available (e.g., in the browser)
+            console.log("window.api is not available (running in the browser)");
+        }
+
     }, [game.game_id]);  // Only re-run the effect if game.game_id changes
 
 
@@ -65,8 +70,7 @@ const GameCard = ({
                 sx={{
                     "& .MuiInputBase-root": {
                         border: "none",
-                    },
-                    "& .MuiInputBase-input": {
+                    }, "& .MuiInputBase-input": {
                         color: "#fff",
                         fontFamily: "'Consolas', sans-serif",
                         fontSize: "18px",
@@ -86,8 +90,7 @@ const GameCard = ({
                 sx={{
                     "& .MuiInputBase-root": {
                         border: "none",
-                    },
-                    "& .MuiInputBase-input": {
+                    }, "& .MuiInputBase-input": {
                         color: "#8e8e8e", fontFamily: "'Consolas', sans-serif", fontSize: "14px", lineHeight: "normal",
                     }
                 }}
