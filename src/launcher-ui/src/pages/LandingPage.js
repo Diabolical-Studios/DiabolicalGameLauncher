@@ -3,7 +3,7 @@ import { Slide } from "@mui/material"; // Import MUI Slide animation
 import GameCard from "../components/GameCard";
 import GameCardsSkeleton from "../components/skeleton/GameCardsSkeleton"; // Import Skeleton Loader
 
-const GameList = () => {
+const LandingPage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
     const [loading, setLoading] = useState(true); // Loading state
@@ -65,4 +65,4 @@ const GameList = () => {
     );
 };
 
-export default GameList;
+export default LandingPage;

@@ -4,7 +4,7 @@ import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 
 const NavBar = ({onPageChange}) => {
-    const [activeButton, setActiveButton] = useState("home");
+    const [activeButton, setActiveButton] = useState("account");
 
     const menuItems = [{id: "account", icon: AccountIcon, alt: "Account"}, {
         id: "home", icon: HomeIcon, alt: "Home"

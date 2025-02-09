@@ -14,17 +14,22 @@ const StatusBar = () => {
             });
         }
 
-        // Listen for db-status event from Electron
-        window.api.onDbStatusChange((color) => {
-            console.log(`Received new status color: ${color}`);
-            setStatusColor(color);
-        });
+        if (window.api) {
+            // Listen for database status changes
+            window.api.onDbStatusChange((color) => {
+                console.log(`Received new status color: ${color}`);
+                setStatusColor(color);
+            });
 
-        // Listen for update messages
-        window.api.onUpdateMessage((msg) => {
-            console.log(`Received new message: ${msg}`);
-            setMessage(msg);
-        });
+            // Listen for update messages
+            window.api.onUpdateMessage((msg) => {
+                console.log(`Received new message: ${msg}`);
+                setMessage(msg);
+            });
+        } else {
+            // Log or handle when the API is not available (e.g., in the browser)
+            console.log("window.api is not available (running in the browser)");
+        }
 
         return () => {
             // Cleanup event listeners when component unmounts

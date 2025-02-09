@@ -16,7 +16,7 @@ import "./changelog.css";
 import LandingPage from "./pages/LandingPage";
 
 function App() {
-    const [selectedPage, setSelectedPage] = useState("home");
+    const [selectedPage, setSelectedPage] = useState("account");
 
     const handlePageChange = (page) => {
         setSelectedPage(page);
