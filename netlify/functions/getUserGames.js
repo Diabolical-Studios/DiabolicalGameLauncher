@@ -41,7 +41,7 @@ exports.handler = async (event) => {
 
         // ✅ Fetch games based on team name
         const response = await axios.get(
-            `${process.env.API_BASE_URL}/games/team/${encodeURIComponent(teamName)}`,
+            `${process.env.API_BASE_URL}/rest-api/games/team/${encodeURIComponent(teamName)}`,
             {
                 headers: { "x-api-key": process.env.API_KEY },
             }

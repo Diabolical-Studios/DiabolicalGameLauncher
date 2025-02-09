@@ -38,7 +38,7 @@ exports.handler = async (event) => {
 
     try {
         console.log("✅ Fetching teams from API...");
-        const response = await axios.get(`${process.env.API_BASE_URL}/teams/session/${sessionID}`, {
+        const response = await axios.get(`${process.env.API_BASE_URL}/rest-api/teams/session/${sessionID}`, {
             headers: { "x-api-key": process.env.API_KEY },
         });
 

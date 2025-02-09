@@ -58,7 +58,7 @@ exports.handler = async (event) => {
     try {
         console.log("✅ Sending request to update team...");
         const response = await axios.put(
-            `${process.env.API_BASE_URL}/teams`,
+            `${process.env.API_BASE_URL}/rest-api/teams`,
             teamData,
             {
                 headers: { "x-api-key": process.env.API_KEY },

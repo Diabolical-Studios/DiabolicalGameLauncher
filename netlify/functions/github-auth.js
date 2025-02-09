@@ -47,7 +47,7 @@ exports.handler = async function (event) {
 
         // Create or update the user using the REST API
         await axios.post(
-            `${API_BASE_URL}/users`,
+            `${API_BASE_URL}/rest-api/users`,
             {github_id, username, email, session_id: sessionID},
             {
                 headers: {"x-api-key": API_KEY},

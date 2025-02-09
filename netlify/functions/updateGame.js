@@ -74,7 +74,7 @@ exports.handler = async (event) => {
     try {
         console.log("✅ Sending request to update game...");
         const response = await axios.put(
-            `${process.env.API_BASE_URL}/games/${game_id}`,
+            `${process.env.API_BASE_URL}/rest-api/games/${game_id}`,
             updatedFields,
             {
                 headers: { "x-api-key": process.env.API_KEY },

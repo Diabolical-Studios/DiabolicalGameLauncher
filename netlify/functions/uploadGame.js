@@ -42,7 +42,7 @@ exports.handler = async (event) => {
 
   try {
     // Step 1: Retrieve the GitHub ID using sessionID
-    const githubIdResponse = await axios.get(`${API_BASE_URL}/users/session/${sessionID}`, {
+    const githubIdResponse = await axios.get(`${API_BASE_URL}/rest-api/users/session/${sessionID}`, {
       headers: { 'x-api-key': API_KEY },
     });
 

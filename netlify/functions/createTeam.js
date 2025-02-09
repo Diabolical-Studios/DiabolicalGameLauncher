@@ -87,7 +87,7 @@ exports.handler = async (event) => {
   try {
     console.log("✅ Sending request to create team...");
     const response = await axios.post(
-        `${process.env.API_BASE_URL}/teams`,
+        `${process.env.API_BASE_URL}/rest-api/teams`,
         { session_id: sessionID, team_name, team_icon_url },
         {
           headers: { "x-api-key": process.env.API_KEY },
