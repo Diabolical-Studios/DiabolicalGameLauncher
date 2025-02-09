@@ -1,4 +1,5 @@
 import React from "react";
+import {Zoom} from "@mui/material"; // Import MUI Slide animation
 import Grid from "../Grid";
 import TeamCard from "./TeamCard";
 import TeamsSkeleton from "../skeleton/TeamsSkeleton";
@@ -13,8 +14,17 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
                 <p>You are not in any teams.</p>
             ) : (
                 <Grid style={{ listStyle: "none", padding: "12px", margin: 0, textAlign: "left", overflow: "hidden" }}>
-                    {teams.map((team) => ( // ✅ Fixed team variable and added parentheses
-                        <TeamCard key={team.team_id} team={team} onUpdateTeam={onUpdateTeam} />
+                    {teams.map((team, index) => (
+                        <Zoom
+                            key={team.team_id}
+                            direction="up"
+                            in={!loading}
+                            timeout={300 + index * 100} // Staggered animation
+                        >
+                            <div>
+                                <TeamCard team={team} onUpdateTeam={onUpdateTeam} />
+                            </div>
+                        </Zoom>
                     ))}
                 </Grid>
             )}
@@ -22,4 +32,4 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
     );
 };
 
-export default Teams;   
+export default Teams;

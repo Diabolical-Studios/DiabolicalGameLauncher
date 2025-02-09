@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Slide } from "@mui/material"; // Import MUI Slide animation
 import GameCard from "./GameCard";
 import GameCardsSkeleton from "./skeleton/GameCardsSkeleton"; // Import Skeleton Loader
 
@@ -35,19 +36,27 @@ const GameList = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "auto" }}>
-            {/* Show Skeleton Loader Outside the Grid */}
+            {/* Show Skeleton Loader While Loading */}
             {loading && <GameCardsSkeleton topBar={false} columns={4} />}
 
-            {/* Game Cards Container (Only Rendered When Games Are Loaded) */}
+            {/* Game Cards Container */}
             {!loading && (
                 <div id="game-cards-container">
-                    {games.map((game) => (
-                        <GameCard
+                    {games.map((game, index) => (
+                        <Slide
                             key={game.game_id}
-                            game={game}
-                            isInstalled={installedGames.includes(game.game_id)}
-                            onAction={handleAction}
-                        />
+                            direction="up"
+                            in={!loading}
+                            timeout={300 + index * 100} // Staggered animation
+                        >
+                            <div>
+                                <GameCard
+                                    game={game}
+                                    isInstalled={installedGames.includes(game.game_id)}
+                                    onAction={handleAction}
+                                />
+                            </div>
+                        </Slide>
                     ))}
                 </div>
             )}
