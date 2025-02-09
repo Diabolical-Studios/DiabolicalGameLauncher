@@ -107,26 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
     statusDiv.style.backgroundColor = status;
   });
 
-  window.electronAPI.onDownloadComplete((event, gameId, installPath) => {
-    const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
-    if (downloadButton) {
-      downloadButton.innerHTML = `<img src="Resources/MenuIcons/play.png" alt="Play">`;
-      downloadButton.onclick = () => window.electronAPI.openGame(gameId);
-      const pathDisplay = document.getElementById(`path-container-${gameId}`);
-      if (pathDisplay) {
-        pathDisplay.textContent = `Installed at: ${installPath}`;
-        pathDisplay.style.display = "block";
-      }
-    }
-  });
-
-  window.electronAPI.onDownloadProgress((event, { gameId, percentage }) => {
-    const downloadButton = document.querySelector(`[data-gameid="${gameId}"]`);
-    if (downloadButton) {
-      downloadButton.innerHTML = `${Math.round(percentage * 100)}%`;
-    }
-  });
-
   window.electronAPI.onDownloadError((event, gameId, error) => {
     console.error(`Download failed for ${gameId}:`, error);
   });
@@ -150,12 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkUpdateButton = document.getElementById("check-for-update");
   checkUpdateButton.addEventListener("click", () => {
     ipcRenderer.send("check-for-updates");
-  });
-
-  // Correctly listening for the 'game-uninstalled' event
-  window.electronAPI.onGameUninstalled((gameId) => {
-    console.log(`Received 'game-uninstalled' event for game ID: ${gameId}`);
-    // Add logic to update the UI, e.g., update the button to a download button
   });
 });
 

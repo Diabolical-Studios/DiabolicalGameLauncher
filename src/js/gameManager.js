@@ -43,7 +43,7 @@ function showContextMenu(event, gameId, position) {
                 label: "Uninstall Game",
                 click: () => {
                     uninstallGame(gameId);
-                    event.sender.send("download-complete", gameId); // Notify frontend
+                    event.sender.send("game-uninstalled", gameId); // Notify frontend
                 },
             }
         );

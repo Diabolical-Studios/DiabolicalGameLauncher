@@ -16,16 +16,26 @@ const GameCard = ({
             }
         };
 
-        const handleDownloadComplete = ({gameId}) => {
+        const handleDownloadComplete = ({gameId, installPath}) => {
             if (gameId === game.game_id) {
                 setGameInstalled(true);
                 setDownloadProgress(null);
             }
         };
 
+        const handleGameUninstalled = (gameId) => {
+            if (gameId === game.game_id) {
+                setGameInstalled(false);
+            }
+        };
+
+        // Add event listeners
         window.electronAPI.onDownloadProgress(handleDownloadProgress);
         window.electronAPI.onDownloadComplete(handleDownloadComplete);
-    }, [game.game_id]);
+        window.electronAPI.onGameUninstalled(handleGameUninstalled);
+        
+    }, [game.game_id]);  // Only re-run the effect if game.game_id changes
+
 
     const handleButtonClick = () => {
         if (gameInstalled) {
@@ -54,10 +64,14 @@ const GameCard = ({
                 onChange={(e) => setGameName && setGameName(e.target.value)}
                 sx={{
                     "& .MuiInputBase-root": {
-                        border: "none", 
+                        border: "none",
                     },
                     "& .MuiInputBase-input": {
-                        color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "18px", textTransform: "uppercase", fontWeight: 600,
+                        color: "#fff",
+                        fontFamily: "'Consolas', sans-serif",
+                        fontSize: "18px",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
                     }
                 }}
             />) : (<h3>{game.game_name.toUpperCase()}</h3>)}
