@@ -1,13 +1,16 @@
-import React, {useState} from "react";
-import {styled} from "@mui/material/styles";
-import {SpeedDial, SpeedDialIcon, SpeedDialAction} from "@mui/material";
+import React, { useState } from "react";
+import { styled } from "@mui/material/styles";
+import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import CreateTeamDialog from "../account/dialogs/CreateTeamDialog";
 import CreateGameDialog from "../account/dialogs/CreateGameDialog";
 
-const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
-    position: "relative", width: "-webkit-fill-available", display: "flex", flexDirection: "column-reverse",
+const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
+    position: "relative",
+    width: "-webkit-fill-available",
+    display: "flex",
+    flexDirection: "column-reverse",
 
     "& .MuiFab-primary": {
         borderRadius: 2,
@@ -26,7 +29,7 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
     },
 }));
 
-const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
+const StyledSpeedDialAction = styled(SpeedDialAction)(({ theme }) => ({
     borderRadius: 2,
     width: "-webkit-fill-available",
     backgroundColor: "#000 !important",
@@ -36,42 +39,55 @@ const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
     margin: 0,
 }));
 
-const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame, teams }) => {
+const DiabolicalSpeedDial = ({ onCreateTeam, onCreateGame, teams, setActiveTab }) => {
     const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
     const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
-    return (<>
-            {/* ✅ SpeedDial Component (Only handles opening the dialogs) */}
-            <StyledSpeedDial FabProps={{className: "dialog"}} ariaLabel="SpeedDial for team actions"
-                             icon={<SpeedDialIcon/>}>
+    // Handle "Create Team" button click
+    const handleCreateTeam = () => {
+        setActiveTab("teams");  // Set the active tab to "teams"
+        setOpenCreateTeamDialog(true);  // Open the "Create Team" dialog
+    };
+
+    // Handle "Create Game" button click
+    const handleCreateGame = () => {
+        setActiveTab("games");  // Set the active tab to "games"
+        setOpenCreateGameDialog(true);  // Open the "Create Game" dialog
+    };
+
+    return (
+        <>
+            <StyledSpeedDial FabProps={{ className: "dialog" }} ariaLabel="SpeedDial for team actions" icon={<SpeedDialIcon />}>
                 <StyledSpeedDialAction
                     className="dialog"
-                    icon={<GroupAddIcon/>}
+                    icon={<GroupAddIcon />}
                     tooltipTitle="Create Team"
-                    onClick={() => setOpenCreateTeamDialog(true)}
+                    onClick={handleCreateTeam}  // Trigger tab change and open dialog
                 />
                 <StyledSpeedDialAction
                     className="dialog"
-                    icon={<SportsEsportsIcon/>}
+                    icon={<SportsEsportsIcon />}
                     tooltipTitle="Create Game"
-                    onClick={() => setOpenCreateGameDialog(true)}
+                    onClick={handleCreateGame}  // Trigger tab change and open dialog
                 />
             </StyledSpeedDial>
 
-            {/* ✅ Create Team Dialog (Handles API logic) */}
+            {/* Create Team Dialog */}
             <CreateTeamDialog
                 open={openCreateTeamDialog}
                 handleClose={() => setOpenCreateTeamDialog(false)}
                 onCreate={onCreateTeam}
             />
 
+            {/* Create Game Dialog */}
             <CreateGameDialog
                 open={openCreateGameDialog}
                 handleClose={() => setOpenCreateGameDialog(false)}
                 onCreate={onCreateGame}
                 teams={teams}
             />
-        </>);
+        </>
+    );
 };
 
 export default DiabolicalSpeedDial;

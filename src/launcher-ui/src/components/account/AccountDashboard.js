@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
-
+import React, { useState, useEffect, useCallback } from "react";
 import Teams from "./Teams";
 import AccountName from "./AccountName";
 import LogoutButton from "./LogoutButton";
@@ -57,9 +56,8 @@ const AccountDashboard = ({ username }) => {
         } finally {
             setLoadingTeams(false);
         }
-    }, [sessionID]); // ✅ `fetchTeams` now depends only on `sessionID`
+    }, [sessionID]);
 
-    // ✅ Now useEffect won't infinitely loop
     useEffect(() => {
         fetchTeams();
     }, [fetchTeams]);
@@ -98,7 +96,7 @@ const AccountDashboard = ({ username }) => {
                         <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")} />
                     </Stack>
 
-                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
+                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} setActiveTab={setActiveTab} />
                 </ul>
 
                 <Divider vertical={true} />
