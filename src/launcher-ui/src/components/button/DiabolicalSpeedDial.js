@@ -36,7 +36,7 @@ const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
     margin: 0,
 }));
 
-const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame}) => {
+const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame, teams }) => {
     const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
     const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
@@ -69,6 +69,7 @@ const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame}) => {
                 open={openCreateGameDialog}
                 handleClose={() => setOpenCreateGameDialog(false)}
                 onCreate={onCreateGame}
+                teams={teams}
             />
         </>);
 };

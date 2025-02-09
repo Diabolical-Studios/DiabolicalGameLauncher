@@ -35,11 +35,11 @@ exports.handler = async (event) => {
     };
   }
 
-  const { game_name, description, background_image_url, version } = JSON.parse(event.body);
+  const { game_name, game_id, team_name, description, background_image_url, version } = JSON.parse(event.body);
   const API_BASE_URL = process.env.API_BASE_URL;
   const API_KEY = process.env.API_KEY;
 
-  if (!game_name || !version) {
+  if (!game_name || !game_id || !team_name ) {
     return {
       statusCode: 400,
       headers: { "Access-Control-Allow-Origin": "*" },
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
     // Step 2: Add the game to the backend API
     const gameUploadResponse = await axios.post(
         `${API_BASE_URL}/rest-api/games`,
-        { game_name, description, background_image_url, version },
+        { game_name, game_id, team_name, description, background_image_url, version },
         { headers: { 'x-api-key': API_KEY } }
     );
 

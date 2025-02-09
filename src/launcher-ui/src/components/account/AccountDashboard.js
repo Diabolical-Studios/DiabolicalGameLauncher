@@ -98,7 +98,7 @@ const AccountDashboard = ({ username }) => {
                         <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")} />
                     </Stack>
 
-                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} />
+                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
                 </ul>
 
                 <Divider vertical={true} />
