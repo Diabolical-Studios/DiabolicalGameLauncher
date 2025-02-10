@@ -392,6 +392,8 @@ body {
     z-index: 4;
     /*Box model stuff*/
     width: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
 }
 
 .game-details p,

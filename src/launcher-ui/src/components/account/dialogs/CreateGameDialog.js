@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
-    Dialog, DialogContent, Button, TextField, Stack, Select, MenuItem, InputLabel, FormControl
+    Dialog, DialogContent, Button, Stack, Select, MenuItem, InputLabel, FormControl, CircularProgress, Link, TextField
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import SaveIcon from '@mui/icons-material/Save';
-import GameCard from "../../GameCard"; // ✅ Import the editable card component
+import {styled} from "@mui/material/styles";
+import GameCard from "../../GameCard";
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid #444444", borderRadius: "4px", width: "60vw", height: "fit-content",
+        width: "70vw",
+        height: "90vh",
+        maxHeight: "none",
+        maxWidth: "none",
+        background: "transparent",
+        boxShadow: "none",
+        margin: 0,
     }
 }));
 
@@ -18,29 +24,96 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("https://png.pngtree.com/element_our/20190530/ourmid/pngtree-white-spot-float-image_1256405.jpg");
     const [gameDescription, setGameDescription] = useState("Default Game Description");
     const [gameVersion] = useState("0.0.1");
-    const [selectedTeam, setSelectedTeam] = useState(""); // Store selected team
-    const [teamIconUrl, setTeamIconUrl] = useState(""); // Store team icon URL
-    const [isMobile, setIsMobile] = useState(false); // Track if screen is mobile
+    const [selectedTeam, setSelectedTeam] = useState("");
+    const [teamIconUrl, setTeamIconUrl] = useState("");
+    const [githubRepos, setGithubRepos] = useState([]);
+    const [selectedRepo, setSelectedRepo] = useState("");
+    const [loadingRepos, setLoadingRepos] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [refreshRepos, setRefreshRepos] = useState(false);
 
-    // Set default selected team when teams are loaded
     useEffect(() => {
         if (teams && teams.length > 0) {
-            setSelectedTeam(teams[0].team_id);  // Set default selected team
-            setTeamIconUrl(teams[0].team_icon_url); // Set default team icon URL
+            setSelectedTeam(teams[0].team_id);
+            setTeamIconUrl(teams[0].team_icon_url);
         }
     }, [teams]);
 
-    // Screen resize handler for mobile detection
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 768); // Adjust the breakpoint for mobile
+            setIsMobile(window.innerWidth < 768);
         };
 
-        handleResize(); // Check on initial load
-        window.addEventListener("resize", handleResize); // Update on resize
-
-        return () => window.removeEventListener("resize", handleResize); // Cleanup event listener
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    const fetchGithubRepos = async () => {
+        const installationId = localStorage.getItem("githubInstallationId");
+        const accessToken = localStorage.getItem("githubAccessToken");
+
+        if (!installationId || !accessToken) {
+            console.log("❌ Missing GitHub Installation ID or Access Token.");
+            return;
+        }
+
+        setLoadingRepos(true);
+        try {
+            const response = await fetch(`https://api.github.com/installation/repositories`, {
+                method: "GET", headers: {
+                    Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch repositories. Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setGithubRepos(data.repositories);
+        } catch (error) {
+            console.error("❌ Error fetching repositories:", error);
+        } finally {
+            setLoadingRepos(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchGithubRepos();
+    }, [refreshRepos]);
+
+    useEffect(() => {
+        const handleGitHubAuthMessage = (event) => {
+            console.log("📥 Received GitHub postMessage:", event);
+
+            // Ensure the message comes from a trusted source
+            if (!event.origin.includes("diabolical.studio") && !event.origin.includes("localhost")) {
+                console.warn("⚠️ Ignoring message from unknown origin:", event.origin);
+                return;
+            }
+
+            if (event.data && event.data.githubInstallationId && event.data.githubAccessToken) {
+                console.log("✅ Storing GitHub Installation ID & Access Token in main window localStorage");
+
+                localStorage.setItem("githubInstallationId", event.data.githubInstallationId);
+                localStorage.setItem("githubAccessToken", event.data.githubAccessToken);
+
+                console.log("✅ Confirmed in localStorage:", {
+                    installationId: localStorage.getItem("githubInstallationId"),
+                    accessToken: localStorage.getItem("githubAccessToken"),
+                });
+
+                setRefreshRepos(prev => !prev); // 🔄 Refresh repo list
+            } else {
+                console.error("❌ postMessage received but missing data. Event data:", event.data);
+            }
+        };
+
+        window.addEventListener("message", handleGitHubAuthMessage);
+        return () => window.removeEventListener("message", handleGitHubAuthMessage);
+    }, []);
+
 
     const handleSave = async () => {
         const sessionID = localStorage.getItem("sessionID");
@@ -54,26 +127,29 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
+        if (!selectedRepo) {
+            console.error("❌ No repository selected.");
+            return;
+        }
+
         const newGame = {
             game_name: gameName.trim(),
             game_id: gameId.trim(),
             background_image_url: gameBackgroundUrl.trim(),
             description: gameDescription.trim(),
             version: gameVersion,
-            team_name: selectedTeam,  // Include selected team
-            team_icon_url: teamIconUrl, // Add team icon URL here
+            team_name: selectedTeam,
+            team_icon_url: teamIconUrl,
+            github_repo: selectedRepo, // ✅ Store the selected repository
         };
 
         console.log("📤 Sending game creation request:", newGame);
 
         try {
             const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/createGame", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID,
-                },
-                body: JSON.stringify(newGame),
+                method: "POST", headers: {
+                    "Content-Type": "application/json", "sessionID": sessionID,
+                }, body: JSON.stringify(newGame),
             });
 
             if (!response.ok) {
@@ -81,7 +157,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             }
 
             console.log("✅ Game created successfully:", newGame);
-            handleClose(); // Close the dialog
+            handleClose();
         } catch (err) {
             console.error("❌ Error creating game:", err);
         }
@@ -92,41 +168,62 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         setSelectedTeam(selectedTeamName);
         const team = teams.find((team) => team.team_name === selectedTeamName);
         setTeamIconUrl(team ? team.team_icon_url : ""); // Update the team icon URL
+    }
+
+    // Open GitHub authorization popup
+    const handleAuthorizeMoreRepos = () => {
+        const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
+
+        const popup = window.open(githubAppAuthUrl, "GitHubAppAuth", "width=1200,height=700");
+
+        // Check when the popup is closed
+        const checkPopup = setInterval(() => {
+            if (!popup || popup.closed) {
+                clearInterval(checkPopup);
+                console.log("✅ GitHub App Auth completed. Refreshing repository list...");
+                setRefreshRepos((prev) => !prev); // 🔄 Trigger repository refresh
+            }
+        }, 1000);
     };
 
-    return (
-        <StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
-            <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
-                <Stack display={"flex"} flexDirection={isMobile ? "column" : "row"} gap={"24px"}>
-                    <Stack spacing={2} alignItems="center">
-                        {/* Render Editable Game Card */}
-                        <GameCard
-                            style={{aspectRatio: "63/88", outline: "1px solid #444444"}}
-                            game={{
-                                game_name: gameName,
-                                game_id: gameId,
-                                background_image_url: gameBackgroundUrl,
-                                description: gameDescription,
-                                version: gameVersion,
-                            }}
-                            isEditing={true} // ✅ Enables editable mode
-                            setGameName={setGameName}
-                            setGameId={setGameId}
-                            setGameBackgroundUrl={setGameBackgroundUrl}
-                            setGameDescription={setGameDescription}
-                        />
-                    </Stack>
-                    <Stack
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            width: "-webkit-fill-available",
-                            gap: "24px",
-                            justifyContent: "space-between",
+    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
+        <DialogContent style={{padding: 0, overflow: 'hidden'}}>
+            <Stack className={"dialog"} flexDirection={isMobile ? "column" : "row"} style={{
+                height: "-webkit-fill-available",
+                gap: "24px",
+                display: "flex",
+                backgroundColor: "black",
+                border: "1px solid #444444",
+                padding: "24px",
+                borderRadius: "4px",
+            }}>
+                <Stack spacing={"24px"} alignItems="center" style={{
+                    borderRadius: "4px", gap: "24px", justifyContent: "space-between"
+                }}>
+                    <GameCard
+                        style={{aspectRatio: "63/88", outline: "1px solid #444444", width: "auto"}}
+                        game={{
+                            game_name: gameName,
+                            game_id: gameId,
+                            background_image_url: gameBackgroundUrl,
+                            description: gameDescription,
+                            version: gameVersion,
                         }}
-                    >
-                        <Stack style={{display: "flex", flexDirection: "column", gap: "24px"}}>
+                        isEditing={true}
+                        setGameName={setGameName}
+                        setGameId={setGameId}
+                        setGameBackgroundUrl={setGameBackgroundUrl}
+                        setGameDescription={setGameDescription}
+                    />
+                    <Stack style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "24px",
+                        width: "-webkit-fill-available",
+                        marginTop: 0,
+                    }}>
 
+                        <Stack style={{display: "flex", flexDirection: "row", gap: "24px"}}>
                             <TextField
                                 label="Game ID"
                                 variant="outlined"
@@ -137,26 +234,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     "& .MuiOutlinedInput-root": {
                                         color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "16px",
                                     }, "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid #444444 !important", borderRadius: "2px"
-                                    }, "& .MuiFormLabel-root": {
-                                        color: "#444444 !important",
-                                    },
-                                }}
-                            />
-
-                            {/* Background Image URL Input Field */}
-                            <TextField
-                                label="Background Image URL"
-                                variant="outlined"
-                                fullWidth
-                                multiline={true}
-                                value={gameBackgroundUrl}
-                                onChange={(e) => setGameBackgroundUrl(e.target.value)}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "16px",
-                                    }, "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid #444444 !important", borderRadius: "2px"
+                                        border: "1px solid #444444 !important", borderRadius: "4px"
                                     }, "& .MuiFormLabel-root": {
                                         color: "#444444 !important",
                                     },
@@ -166,7 +244,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
-                                    border: "1px solid #444444 !important", borderRadius: "2px", color: "#fff",
+                                    border: "1px solid #444444 !important", borderRadius: "4px", color: "#fff",
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
@@ -179,36 +257,135 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     onChange={handleTeamChange}
                                     variant={"filled"}
                                 >
-                                    {teams.map((team) => (
-                                        <MenuItem
-                                            style={{backgroundColor: "#000", color: "#444444", padding: "0 !important"}}
-                                            key={team.team_name}
-                                            value={team.team_name}>
-                                            {team.team_name}
-                                        </MenuItem>))}
+                                    {teams.map((team) => (<MenuItem
+                                        style={{backgroundColor: "#000", color: "#444444", padding: "0 !important"}}
+                                        key={team.team_name}
+                                        value={team.team_name}>
+                                        {team.team_name}
+                                    </MenuItem>))}
                                 </Select>
                             </FormControl>
                         </Stack>
 
-                        {/* Save Button */}
-                        <Button
+                        {/* Background Image URL Input Field */}
+                        <TextField
+                            label="Background Image URL"
+                            variant="outlined"
+                            fullWidth
+                            multiline={true}
+                            minRows={1} // Minimum 1 row
+                            maxRows={3} // Maximum 3 rows
+                            value={gameBackgroundUrl}
+                            onChange={(e) => setGameBackgroundUrl(e.target.value)}
                             sx={{
-                                color: "#fff !important",
-                                backgroundColor: "#121212 !important",
-                                outline: "1px solid #444444",
-                                borderRadius: "2px",
+                                "& .MuiOutlinedInput-root": {
+                                    color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "16px",
+                                }, "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "1px solid #444444 !important", borderRadius: "4px"
+                                }, "& .MuiFormLabel-root": {
+                                    color: "#444444 !important",
+                                },
                             }}
-                            onClick={handleSave}
-                            aria-label="save"
-                            startIcon={<SaveIcon />}
-                        >
-                            Save
-                        </Button>
+                        />
+
+
                     </Stack>
                 </Stack>
-            </DialogContent>
-        </StyledDialog>
-    );
+
+                <Stack
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        width: "-webkit-fill-available",
+                        gap: "24px",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <Stack style={{
+                        display: "flex", flexDirection: "column", gap: "24px", width: "-webkit-fill-available",
+                    }}>
+                        {/* GitHub Repository Selection */}
+                        <Stack style={{
+                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px", // Enables scrolling when many repos exist
+                            overflowY: "auto", padding: "8px", backgroundColor: "#161616", borderRadius: "4px"
+                        }}>
+                            {loadingRepos ? (<Stack alignItems="center" justifyContent="center">
+                                <CircularProgress size={20}/>
+                                <p style={{color: "#fff", fontSize: "14px", margin: "8px 0 0"}}>Loading
+                                    Repositories...</p>
+                            </Stack>) : (githubRepos.map((repo) => (<Stack
+                                key={repo.id}
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                style={{
+                                    padding: "12px",
+                                    borderRadius: "4px",
+                                    transition: "background 0.2s",
+                                    cursor: "pointer",
+                                    border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "1px solid transparent",
+                                }}
+                                onClick={() => setSelectedRepo(repo.full_name)}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = "#222")}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                            >
+                                {/* Custom GitHub Icon */}
+                                <img
+                                    src="MenuIcons/github-mark-white.png"
+                                    alt="GitHub"
+                                    style={{aspectRatio: "1 / 1", width: "16px"}}
+                                />
+
+                                {/* Repository Name */}
+                                <p style={{
+                                    color: "#fff", margin: 0, fontSize: "14px", flex: 1, paddingLeft: "8px"
+                                }}>
+                                    {repo.full_name}
+                                </p>
+
+                                {/* Repo Visibility (Public/Private) */}
+                                <span
+                                    style={{
+                                        color: repo.private ? "#ff4081" : "#00e676",
+                                        fontSize: "12px",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                    {repo.private ? "PRIVATE" : "PUBLIC"}
+                </span>
+                            </Stack>)))}
+                        </Stack>
+
+                        {/* Link to authorize more repositories */}
+                        <Link component="button" onClick={handleAuthorizeMoreRepos}
+                              style={{color: "#00bcd4", textAlign: "center",}}>
+                            Can't find your repo? Authorize more repositories.
+                        </Link>
+
+                    </Stack>
+
+                    {/* Save Button */}
+                    <Button
+                        sx={{
+                            color: "#fff !important",
+                            outline: "1px solid #444444",
+                            borderRadius: "4px",
+                            fontFamily: "'Consolas', sans-serif",
+                            justifyContent: "space-between",
+                            padding: "12px",
+                            width: "fit-content"
+                        }}
+                        onClick={handleSave}
+                        aria-label="save"
+                        startIcon={<RocketLaunchIcon/>}
+                    >
+                        Create and Deploy Game!
+                    </Button>
+                </Stack>
+            </Stack>
+        </DialogContent>
+    </StyledDialog>);
 };
 
 export default CreateGameDialog;
