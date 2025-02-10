@@ -16,21 +16,26 @@ exports.handler = async function (event) {
         statusCode: 200, headers: {"Content-Type": "text/html"}, body: `
             <html>
             <script>
-                console.log("📥 Before setting localStorage:", localStorage);
+                console.log("📥 Sending postMessage to opener:", "${installation_id}");
 
-                try {
-                    // Save GitHub Installation ID in localStorage
-                    localStorage.setItem("githubInstallationId", "${installation_id}");
-                    console.log("✅ Stored installation_id:", localStorage.getItem("githubInstallationId"));
-
-                    // Send postMessage to launcher
-                    window.opener.postMessage({ githubInstallationId: "${installation_id}" }, "*");
-                } catch (err) {
-                    console.error("❌ Error setting localStorage:", err);
+                if (window.opener) {
+                    window.opener.postMessage(
+                        { githubInstallationId: "${installation_id}" }, 
+                        "*"
+                    );
+                    console.log("✅ postMessage sent:", "${installation_id}");
+                } else {
+                    console.error("❌ window.opener is NULL. Cannot send postMessage.");
                 }
+
+                // Close the popup after sending the message
+                setTimeout(() => {
+                    console.log("🚪 Closing popup after postMessage...");
+                    window.close();
+                }, 1000);
             </script>
             <body>
-                <p>GitHub App Auth Successful! Closing...</p>
+                <p>GitHub App Auth Successful! Redirecting...</p>
             </body>
             </html>
         `,
