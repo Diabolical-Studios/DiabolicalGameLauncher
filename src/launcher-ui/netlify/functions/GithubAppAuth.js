@@ -25,9 +25,6 @@ exports.handler = async function (event) {
 
                     // Send postMessage to launcher
                     window.opener.postMessage({ githubInstallationId: "${installation_id}" }, "*");
-
-                    // Close popup
-                    window.close();
                 } catch (err) {
                     console.error("❌ Error setting localStorage:", err);
                 }
