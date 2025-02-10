@@ -16,16 +16,21 @@ exports.handler = async function (event) {
         statusCode: 200, headers: {"Content-Type": "text/html"}, body: `
             <html>
             <script>
-                console.log("📥 Received installation_id:", "${installation_id}");
+                console.log("📥 Before setting localStorage:", localStorage);
 
-                // Save GitHub Installation ID in localStorage
-                localStorage.setItem("githubInstallationId", "${installation_id}");
+                try {
+                    // Save GitHub Installation ID in localStorage
+                    localStorage.setItem("githubInstallationId", "${installation_id}");
+                    console.log("✅ Stored installation_id:", localStorage.getItem("githubInstallationId"));
 
-                // Send postMessage to launcher
-                window.opener.postMessage({ githubInstallationId: "${installation_id}" }, "*");
+                    // Send postMessage to launcher
+                    window.opener.postMessage({ githubInstallationId: "${installation_id}" }, "*");
 
-                // Close popup
-                window.close();
+                    // Close popup
+                    window.close();
+                } catch (err) {
+                    console.error("❌ Error setting localStorage:", err);
+                }
             </script>
             <body>
                 <p>GitHub App Auth Successful! Closing...</p>
@@ -34,3 +39,4 @@ exports.handler = async function (event) {
         `,
     };
 };
+
