@@ -11,24 +11,17 @@ exports.handler = async function (event) {
 
     if (!code) {
         return {
-            statusCode: 400,
-            body: JSON.stringify({error: 'Missing "code" parameter'}),
+            statusCode: 400, body: JSON.stringify({error: 'Missing "code" parameter'}),
         };
     }
 
     try {
         // Exchange code for GitHub access token
-        const tokenResponse = await axios.post(
-            "https://github.com/login/oauth/access_token",
-            {
-                client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
-                code: code,
-            },
-            {
-                headers: {accept: "application/json"},
-            }
-        );
+        const tokenResponse = await axios.post("https://github.com/login/oauth/access_token", {
+            client_id: CLIENT_ID, client_secret: CLIENT_SECRET, code: code,
+        }, {
+            headers: {accept: "application/json"},
+        });
 
         const accessToken = tokenResponse.data.access_token;
 
@@ -46,39 +39,20 @@ exports.handler = async function (event) {
         console.log("Payload:", {github_id, username, email, sessionID});
 
         // Create or update the user using the REST API
-        await axios.post(
-            `${API_BASE_URL}/rest-api/users`,
-            {github_id, username, email, session_id: sessionID},
-            {
-                headers: {"x-api-key": API_KEY},
-            }
-        );
+        await axios.post(`${API_BASE_URL}/rest-api/users`, {github_id, username, email, session_id: sessionID}, {
+            headers: {"x-api-key": API_KEY},
+        });
 
         // Return an HTML page that will set localStorage and close the popup
         return {
-            statusCode: 200,
-            headers: {"Content-Type": "text/html"},
-            body: `
-                <html>
-                <script>
-                    // Save session data
-                    localStorage.setItem("sessionID", "${sessionID}");
-                    localStorage.setItem("username", "${username}");
-
-                    // Notify the parent window and close the popup
-                    window.opener.postMessage({ username: "${username}", sessionID: "${sessionID}" }, "*");
-                    window.close();
-                </script>
-                <body>
-                    <p>Logging you in...</p>
-                </body>
-                </html>
-            `,
+            statusCode: 302, headers: {
+                Location: `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
+            },
         };
+
     } catch (error) {
         return {
-            statusCode: 500,
-            body: JSON.stringify({error: error.response?.data || error.message}),
+            statusCode: 500, body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };
