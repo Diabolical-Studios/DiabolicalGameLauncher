@@ -69,12 +69,11 @@ exports.handler = async function (event) {
                     } else {
                         console.error("❌ window.opener is NULL. Cannot send postMessage.");
                     }
-                    
-                                        // 🚀 Try to open the launcher
-                    console.log("🚀 Attempting to open diabolicallauncher://");
-                    window.location.href = "diabolicallauncher://";
 
-                    
+                    setTimeout(() => {
+                        console.log("🚪 Closing popup after postMessage...");
+                        window.close();
+                    }, 1000);
                 </script>
                 <body>
                     <p>GitHub App Auth Successful! Redirecting...</p>
