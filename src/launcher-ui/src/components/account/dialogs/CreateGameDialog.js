@@ -135,6 +135,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
+        const installationId = Cookies.get("githubInstallationId"); // ✅ Retrieve installation ID from cookies
+        if (!installationId) {
+            console.error("❌ No GitHub Installation ID found.");
+            return;
+        }
+
         const newGame = {
             game_name: gameName.trim(),
             game_id: gameId.trim(),
@@ -160,6 +166,20 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             }
 
             console.log("✅ Game created successfully:", newGame);
+
+            // ✅ Notify GitHub App Webhook to create workflow file
+            await fetch("https://launcher.diabolical.studio/github-app/webhook", {
+                method: "POST", headers: {
+                    "Content-Type": "application/json",
+                }, body: JSON.stringify({
+                    event: "game_created",
+                    repository: selectedRepo,
+                    game_id: gameId.trim(),
+                    installation_id: installationId, // ✅ Include GitHub Installation ID
+                }),
+            });
+
+            console.log("✅ GitHub App notified to create workflow.");
             handleClose();
         } catch (err) {
             console.error("❌ Error creating game:", err);

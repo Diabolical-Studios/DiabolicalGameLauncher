@@ -8,8 +8,7 @@ const LogoutButton = () => {
                     Cookies.remove("username");
                     Cookies.remove("sessionID");
 
-                    // Notify UI of logout
-                    window.dispatchEvent(new Event("storage"));
+                    window.location.reload();
                 }}
                 style={{
                     padding: "12px 24px",
