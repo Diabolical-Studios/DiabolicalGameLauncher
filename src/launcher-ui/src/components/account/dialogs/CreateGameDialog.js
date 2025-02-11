@@ -106,9 +106,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     installationId: Cookies.get("githubInstallationId"), accessToken: Cookies.get("githubAccessToken"),
                 });
 
-                // Refresh repository list
-                setRefreshRepos(prev => !prev);
-            }
+                setTimeout(() => {
+                    setRefreshRepos(prev => !prev);
+                }, 1000);            }
         };
 
         window.electronAPI.onProtocolData(handleProtocolData);
