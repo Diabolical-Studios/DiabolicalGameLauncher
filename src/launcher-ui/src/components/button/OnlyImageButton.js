@@ -1,7 +1,7 @@
 import React from "react";
 import {SvgIcon} from "@mui/material";
 
-const OnlyImageButton = ({icon: IconComponent, onClick}) => {
+const OnlyImageButton = ({icon: IconComponent, onClick, style = {}}) => {
     return (<button
             className="game-button shimmer-button"
             style={{
@@ -16,6 +16,7 @@ const OnlyImageButton = ({icon: IconComponent, onClick}) => {
                 width: "fit-content",
                 height: "fit-content",
                 margin: 0,
+                ...style,
                 
             }}
             onClick={onClick}

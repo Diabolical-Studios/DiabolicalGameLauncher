@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { SvgIcon } from "@mui/material";
 
-const ImageButton = ({ text, icon: IconComponent, onClick }) => {
+const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
     const [isMobile, setIsMobile] = useState(false);
 
     // Detect mobile screen size
@@ -28,6 +28,7 @@ const ImageButton = ({ text, icon: IconComponent, onClick }) => {
                 padding: "12px",
                 border: "none",
                 cursor: "pointer",
+                ...style, // ✅ Merge parent-provided styles
             }}
             onClick={onClick}
         >
