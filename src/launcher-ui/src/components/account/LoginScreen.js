@@ -5,18 +5,10 @@ const handleGitHubLogin = () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
     const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
 
-    const popup = window.open(
-        `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`,
-        "GitHubAuth",
-        "width=500,height=700"
-    );
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
 
-    const checkPopup = setInterval(() => {
-        if (!popup || popup.closed) {
-            clearInterval(checkPopup);
-            console.log("Popup closed.");
-        }
-    }, 1000);
+    // Open in default system browser
+    window.electronAPI.openExternal(authUrl);
 };
 
 const LoginScreen = () => {

@@ -41,6 +41,27 @@ app.on("activate", () => {
   }
 });
 
+app.on("second-instance", (event, argv) => {
+  const url = argv.find(arg => arg.startsWith("diabolicallauncher://"));
+  if (url) {
+    console.log("Received Protocol URL:", url);
+
+    // Extract parameters from the URL
+    const params = new URL(url);
+    const sessionID = params.searchParams.get("sessionID");
+    const username = params.searchParams.get("username");
+
+    if (sessionID && username) {
+      const mainWindow = require("./js/windowManager").getMainWindow();
+      if (mainWindow) {
+        // Send extracted data to the renderer process
+        mainWindow.webContents.send("protocol-data", { sessionID, username });
+        mainWindow.focus();
+      }
+    }
+  }
+});
+
 // Ensure single instance
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {

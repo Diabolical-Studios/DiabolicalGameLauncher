@@ -18,6 +18,12 @@ contextBridge.exposeInMainWorld("versions", {
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
+    onProtocolData: (callback) => {
+        ipcRenderer.on("protocol-data", (event, data) => {
+            callback(data);
+        });
+    },
+    
     setWindowSize: (width, height) => {
         ipcRenderer.send("set-window-size-and-center", width, height);
     },

@@ -37,6 +37,20 @@ const AccountPage = () => {
         };
     }, []);
 
+    useEffect(() => {
+        window.electronAPI.onProtocolData((data) => {
+            console.log("Received Protocol Data:", data);
+
+            // Store user data
+            localStorage.setItem("sessionID", data.sessionID);
+            localStorage.setItem("username", data.username);
+
+            // Update state dynamically
+            setUsername(data.username);
+        });
+    }, []);
+
+
     return (
         <Layout>
             {username ? <AccountDashboard username={username} /> : <LoginScreen />}
