@@ -38,7 +38,7 @@ const EditGameCard = ({game, onUpdateGame}) => {
         <ImageButton text={"Deployed on Github"} icon={GitHubIcon} style={{justifyContent: "space-between"}}
                      onClick={() => {
                          if (game.github_repo) {
-                             window.open(`https://github.com/${game.github_repo}`, "_blank");
+                             window.electronAPI.openExternal(`https://github.com/${game.github_repo}`, "_blank");
                          } else {
                              console.error("❌ No GitHub repository URL found for this game.");
                          }
