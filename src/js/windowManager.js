@@ -25,10 +25,9 @@ async function createWindow() {
     resizable: true,
   });
 
-  // Load the correct URL based on environment
   const startURL = isDev
       ? "http://localhost:3000" // Load React Dev Server
-      : `file://${path.join(__dirname, "../launcher-ui/build/index.html")}`; // Load built React
+      : "https://launcher.diabolical.studio"; // Use the actual hosted website
 
   mainWindow.loadURL(startURL);
 
