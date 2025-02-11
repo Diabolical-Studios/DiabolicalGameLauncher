@@ -4,7 +4,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
-import GameCard from "../../GameCard"; // ✅ Import the editable card component
+import GameCard from "../../GameCard";
+import Cookies from "js-cookie"; // ✅ Import the editable card component
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -28,7 +29,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
     }, [game]);
 
     const handleSave = async () => {
-        const sessionID = localStorage.getItem("sessionID");
+        const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
             return;

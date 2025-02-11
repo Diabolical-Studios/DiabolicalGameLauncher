@@ -1,13 +1,15 @@
 import React from "react";
+import Cookies from "js-cookie";
 
 const LogoutButton = () => {
-
     return (
         <button className="game-button shimmer-button"
                 onClick={() => {
-                    localStorage.removeItem("username");
-                    localStorage.removeItem("sessionID");
-                    window.dispatchEvent(new Event("storage")); // Notify UI of logout
+                    Cookies.remove("username");
+                    Cookies.remove("sessionID");
+
+                    // Notify UI of logout
+                    window.dispatchEvent(new Event("storage"));
                 }}
                 style={{
                     padding: "12px 24px",

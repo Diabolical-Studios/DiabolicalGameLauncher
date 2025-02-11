@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import {styled} from "@mui/material/styles";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 
 // ✅ Styled Dialog Paper Component
@@ -52,7 +53,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     };
 
     const handleSave = async () => {
-        const sessionID = localStorage.getItem("sessionID");
+        const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
             return;

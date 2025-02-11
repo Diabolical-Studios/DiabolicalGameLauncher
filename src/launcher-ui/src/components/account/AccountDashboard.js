@@ -10,6 +10,8 @@ import { Avatar, Stack } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
+import Cookies from "js-cookie";
+
 
 const AccountDashboard = ({ username }) => {
     const [teams, setTeams] = useState([]);
@@ -17,11 +19,12 @@ const AccountDashboard = ({ username }) => {
     const [errorTeams, setErrorTeams] = useState(null);
     const [activeTab, setActiveTab] = useState("teams");
     const [githubAvatar, setGithubAvatar] = useState(null);
-    const sessionID = localStorage.getItem("sessionID");
 
     const fetchTeams = useCallback(async () => {
+        const sessionID = Cookies.get("sessionID");
+
         if (!sessionID) {
-            console.error("❌ No session ID found in localStorage.");
+            console.error("❌ No session ID found in cookies.");
             setErrorTeams("No session ID found.");
             setLoadingTeams(false);
             return;
@@ -32,7 +35,7 @@ const AccountDashboard = ({ username }) => {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "sessionID": sessionID,
+                    "sessionID": sessionID, // ✅ Use session from cookies
                 },
             });
 
@@ -56,7 +59,7 @@ const AccountDashboard = ({ username }) => {
         } finally {
             setLoadingTeams(false);
         }
-    }, [sessionID]);
+    }, []);
 
     useEffect(() => {
         fetchTeams();

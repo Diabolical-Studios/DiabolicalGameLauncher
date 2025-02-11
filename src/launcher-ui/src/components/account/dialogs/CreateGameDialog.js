@@ -5,6 +5,8 @@ import {
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import Cookies from "js-cookie"; // ✅ Import js-cookie
+
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -50,8 +52,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     }, []);
 
     const fetchGithubRepos = async () => {
-        const installationId = localStorage.getItem("githubInstallationId");
-        const accessToken = localStorage.getItem("githubAccessToken");
+        const installationId = Cookies.get("githubInstallationId"); // ✅ Use Cookies
+        const accessToken = Cookies.get("githubAccessToken"); // ✅ Use Cookies
 
         if (!installationId || !accessToken) {
             console.log("❌ Missing GitHub Installation ID or Access Token.");
@@ -62,7 +64,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         try {
             const response = await fetch(`https://api.github.com/installation/repositories`, {
                 method: "GET", headers: {
-                    Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${accessToken}`, // ✅ Use token from cookies
+                    Accept: "application/vnd.github+json",
                 },
             });
 
@@ -89,15 +92,18 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             console.log("🔄 Handling Protocol Data:", action, data);
 
             if (action === "github-app") {
-                console.log("✅ GitHub App Authentication Successful. Storing credentials.");
+                console.log("✅ GitHub App Authentication Successful. Storing credentials in cookies.");
 
-                // Store GitHub App credentials
-                localStorage.setItem("githubInstallationId", data.githubInstallationId);
-                localStorage.setItem("githubAccessToken", data.githubAccessToken);
+                // ✅ Store GitHub App credentials securely in cookies
+                Cookies.set("githubInstallationId", data.githubInstallationId, {
+                    secure: true, sameSite: "Strict", expires: 7
+                });
+                Cookies.set("githubAccessToken", data.githubAccessToken, {
+                    secure: true, sameSite: "Strict", expires: 7
+                });
 
-                console.log("✅ Confirmed in localStorage:", {
-                    installationId: localStorage.getItem("githubInstallationId"),
-                    accessToken: localStorage.getItem("githubAccessToken"),
+                console.log("✅ Confirmed in cookies:", {
+                    installationId: Cookies.get("githubInstallationId"), accessToken: Cookies.get("githubAccessToken"),
                 });
 
                 // Refresh repository list
@@ -113,7 +119,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     }, []);
 
     const handleSave = async () => {
-        const sessionID = localStorage.getItem("sessionID");
+        const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
             return;
