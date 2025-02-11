@@ -35,7 +35,7 @@ exports.handler = async (event) => {
     };
   }
 
-  const { game_name, game_id, team_name, description, background_image_url, version, team_icon_url } = JSON.parse(event.body);
+  const { game_name, game_id, team_name, description, background_image_url, version, team_icon_url, github_repo } = JSON.parse(event.body);
   const API_BASE_URL = process.env.API_BASE_URL;
   const API_KEY = process.env.API_KEY;
 
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
     // Step 2: Add the game to the backend API
     const gameUploadResponse = await axios.post(
         `${API_BASE_URL}/rest-api/games`,
-        { game_name, game_id, team_name, description, background_image_url, version, team_icon_url },
+        { game_name, game_id, team_name, description, background_image_url, version, team_icon_url, github_repo },
         { headers: { 'x-api-key': API_KEY } }
     );
 
