@@ -6,7 +6,7 @@ const Grid = ({ children, gap = "12px", style = {} }) => {
     // Use window resizing event to determine screen size
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 512); // Example: 1024px breakpoint for mobile
+            setIsMobile(window.innerWidth < 1024); // Example: 1024px breakpoint for mobile
         };
 
         window.addEventListener("resize", handleResize);
@@ -20,7 +20,7 @@ const Grid = ({ children, gap = "12px", style = {} }) => {
         display: "grid",
         gridTemplateColumns: isMobile
             ? "repeat(1, minmax(100px, 1fr))" // Mobile layout
-            : "repeat(3, minmax(250px, 1fr))", // Desktop layout
+            : "repeat(auto-fit, minmax(250px, 1fr))", // Desktop layout
         gap: gap,
         width: "-webkit-fill-available",
         height: "-webkit-fill-available",

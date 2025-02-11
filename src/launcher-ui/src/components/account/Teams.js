@@ -13,7 +13,7 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
             {teams.length === 0 ? (
                 <p>You are not in any teams.</p>
             ) : (
-                <Grid style={{ listStyle: "none", padding: "12px", margin: 0, textAlign: "left", overflow: "hidden" }}>
+                <Grid style={{ listStyle: "none", padding: "12px", margin: 0, textAlign: "left", overflow: "hidden", gridTemplateColumns: "repeat(3, minmax(250px, 1fr))" }}>
                     {teams.map((team, index) => (
                         <Zoom
                             key={team.team_id}
