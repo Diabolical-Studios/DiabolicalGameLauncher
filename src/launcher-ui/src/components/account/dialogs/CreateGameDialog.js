@@ -83,37 +83,34 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         fetchGithubRepos();
     }, [refreshRepos]);
 
+
     useEffect(() => {
-        const handleGitHubAuthMessage = (event) => {
-            console.log("📥 Received GitHub postMessage:", event);
+        const handleProtocolData = (action, data) => {
+            console.log("🔄 Handling Protocol Data:", action, data);
 
-            // Ensure the message comes from a trusted source
-            if (!event.origin.includes("diabolical.studio") && !event.origin.includes("localhost")) {
-                console.warn("⚠️ Ignoring message from unknown origin:", event.origin);
-                return;
-            }
+            if (action === "github-app") {
+                console.log("✅ GitHub App Authentication Successful. Storing credentials.");
 
-            if (event.data && event.data.githubInstallationId && event.data.githubAccessToken) {
-                console.log("✅ Storing GitHub Installation ID & Access Token in main window localStorage");
-
-                localStorage.setItem("githubInstallationId", event.data.githubInstallationId);
-                localStorage.setItem("githubAccessToken", event.data.githubAccessToken);
+                // Store GitHub App credentials
+                localStorage.setItem("githubInstallationId", data.githubInstallationId);
+                localStorage.setItem("githubAccessToken", data.githubAccessToken);
 
                 console.log("✅ Confirmed in localStorage:", {
                     installationId: localStorage.getItem("githubInstallationId"),
                     accessToken: localStorage.getItem("githubAccessToken"),
                 });
 
-                setRefreshRepos(prev => !prev); // 🔄 Refresh repo list
-            } else {
-                console.error("❌ postMessage received but missing data. Event data:", event.data);
+                // Refresh repository list
+                setRefreshRepos(prev => !prev);
             }
         };
 
-        window.addEventListener("message", handleGitHubAuthMessage);
-        return () => window.removeEventListener("message", handleGitHubAuthMessage);
-    }, []);
+        window.electronAPI.onProtocolData(handleProtocolData);
 
+        return () => {
+            window.electronAPI.onProtocolData(null);
+        };
+    }, []);
 
     const handleSave = async () => {
         const sessionID = localStorage.getItem("sessionID");
@@ -174,16 +171,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
 
-        const popup = window.open(githubAppAuthUrl, "GitHubAppAuth", "width=1200,height=700");
-
-        // Check when the popup is closed
-        const checkPopup = setInterval(() => {
-            if (!popup || popup.closed) {
-                clearInterval(checkPopup);
-                console.log("✅ GitHub App Auth completed. Refreshing repository list...");
-                setRefreshRepos((prev) => !prev); // 🔄 Trigger repository refresh
-            }
-        }, 1000);
+        // Open in default system browser
+        window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";  // Wraps UI for consistency
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
@@ -38,22 +38,27 @@ const AccountPage = () => {
     }, []);
 
     useEffect(() => {
-        window.electronAPI.onProtocolData((data) => {
-            console.log("Received Protocol Data:", data);
+        window.electronAPI.onProtocolData((action, data) => {
+            console.log("Received Protocol Data:", action, data);
 
-            // Store user data
-            localStorage.setItem("sessionID", data.sessionID);
-            localStorage.setItem("username", data.username);
+            if (action === "auth") {
+                console.log("✅ GitHub OAuth successful. Storing session data.");
+                localStorage.setItem("sessionID", data.sessionID);
+                localStorage.setItem("username", data.username);
+                setUsername(data.username);
+            }
 
-            // Update state dynamically
-            setUsername(data.username);
+            if (action === "github-app") {
+                console.log("✅ GitHub App Installation Successful.");
+                localStorage.setItem("githubInstallationId", data.githubInstallationId);
+                localStorage.setItem("githubAccessToken", data.githubAccessToken);
+            }
         });
     }, []);
 
-
     return (
         <Layout>
-            {username ? <AccountDashboard username={username} /> : <LoginScreen />}
+            {username ? <AccountDashboard username={username}/> : <LoginScreen/>}
         </Layout>
     );
 };

@@ -43,24 +43,28 @@ app.on("activate", () => {
 
 app.on("second-instance", (event, argv) => {
   const url = argv.find(arg => arg.startsWith("diabolicallauncher://"));
+
   if (url) {
     console.log("Received Protocol URL:", url);
 
-    // Extract parameters from the URL
+    // Parse the URL and extract parameters dynamically
     const params = new URL(url);
-    const sessionID = params.searchParams.get("sessionID");
-    const username = params.searchParams.get("username");
+    const action = params.hostname; // e.g., "auth", "github-app", etc.
 
-    if (sessionID && username) {
-      const mainWindow = require("./js/windowManager").getMainWindow();
-      if (mainWindow) {
-        // Send extracted data to the renderer process
-        mainWindow.webContents.send("protocol-data", { sessionID, username });
-        mainWindow.focus();
-      }
+    let data = {};
+    params.searchParams.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    const mainWindow = require("./js/windowManager").getMainWindow();
+    if (mainWindow) {
+      // Send extracted authentication data to renderer
+      mainWindow.webContents.send("protocol-data", { action, data });
+      mainWindow.focus();
     }
   }
 });
+
 
 // Ensure single instance
 const gotTheLock = app.requestSingleInstanceLock();

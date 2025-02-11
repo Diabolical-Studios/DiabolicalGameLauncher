@@ -19,8 +19,8 @@ contextBridge.exposeInMainWorld("versions", {
 
 contextBridge.exposeInMainWorld("electronAPI", {
     onProtocolData: (callback) => {
-        ipcRenderer.on("protocol-data", (event, data) => {
-            callback(data);
+        ipcRenderer.on("protocol-data", (event, { action, data }) => {
+            callback(action, data);
         });
     },
     
