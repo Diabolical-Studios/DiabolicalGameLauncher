@@ -4,7 +4,6 @@ exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered: Update Game ===");
     console.log("Received Headers:", JSON.stringify(event.headers, null, 2));
 
-    // Normalize headers
     const headers = Object.keys(event.headers).reduce((acc, key) => {
         acc[key.toLowerCase()] = event.headers[key];
         return acc;
@@ -13,7 +12,6 @@ exports.handler = async (event) => {
     const sessionID = headers["sessionid"];
     console.log("Extracted sessionID:", sessionID);
 
-    // ✅ Handle CORS preflight requests
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,
@@ -56,7 +54,6 @@ exports.handler = async (event) => {
         };
     }
 
-    // ✅ Construct the update request to only include fields that are provided
     const updatedFields = {};
     if (game_name) updatedFields.game_name = game_name;
     if (version) updatedFields.version = version;

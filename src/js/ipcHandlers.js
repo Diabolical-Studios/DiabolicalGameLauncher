@@ -16,7 +16,7 @@ function initIPCHandlers() {
   });
 
   ipcMain.on("uninstall-game", (event, gameId) => {
-    uninstallGame(gameId); // This will handle the uninstallation and emit the event
+    uninstallGame(gameId);
   });
 
   ipcMain.handle("get-settings", () => {
@@ -98,7 +98,6 @@ function initIPCHandlers() {
 
     console.log(`Launching game from path: ${executablePath}`);
 
-    // Set working directory and environment variables
     exec(
       `"${executablePath}"`,
       { cwd: gamePath, env: process.env },

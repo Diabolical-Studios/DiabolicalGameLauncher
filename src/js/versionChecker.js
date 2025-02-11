@@ -1,7 +1,7 @@
 const fetch = import('node-fetch');
 
 async function getLatestGameVersion(gameId) {
-    const fetch = (await import('node-fetch')).default; // Dynamic import of node-fetch
+    const fetch = (await import('node-fetch')).default;
     const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
   
     try {

@@ -4,16 +4,15 @@ import { SvgIcon } from "@mui/material";
 const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
     const [isMobile, setIsMobile] = useState(false);
 
-    // Detect mobile screen size
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 768); // Adjust the breakpoint for mobile
+            setIsMobile(window.innerWidth < 768);
         };
 
-        handleResize(); // Check on initial load
-        window.addEventListener("resize", handleResize); // Update on resize
+        handleResize();
+        window.addEventListener("resize", handleResize);
 
-        return () => window.removeEventListener("resize", handleResize); // Cleanup event listener
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     return (
@@ -28,7 +27,7 @@ const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
                 padding: "12px",
                 border: "none",
                 cursor: "pointer",
-                ...style, // ✅ Merge parent-provided styles
+                ...style,
             }}
             onClick={onClick}
         >
@@ -38,7 +37,7 @@ const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
                     margin: "0",
                     fontSize: "14px",
                     color: "#fff",
-                    display: isMobile ? "none" : "block", // Hide text on mobile screens
+                    display: isMobile ? "none" : "block",
                 }}
             >
                 {text.toUpperCase()}

@@ -4,7 +4,7 @@ import HoverMenu from "./button/HoverMenu";
 import GameButton from "./button/GameButton";
 
 const GameCard = ({
-                      game, isInstalled, isEditing = false, setGameName, setGameIconUrl, setGameDescription, style = {} // ✅ Accept custom styles 
+                      game, isInstalled, isEditing = false, setGameName, setGameIconUrl, setGameDescription, style = {}
                   }) => {
     const [downloadProgress, setDownloadProgress] = React.useState(null);
     const [gameInstalled, setGameInstalled] = React.useState(isInstalled);
@@ -29,17 +29,15 @@ const GameCard = ({
             }
         };
 
-        // Add event listeners
         if (window.api) {
             window.electronAPI.onDownloadProgress(handleDownloadProgress);
             window.electronAPI.onDownloadComplete(handleDownloadComplete);
             window.electronAPI.onGameUninstalled(handleGameUninstalled);
         } else {
-            // Log or handle when the API is not available (e.g., in the browser)
             console.log("window.api is not available (running in the browser)");
         }
 
-    }, [game.game_id]);  // Only re-run the effect if game.game_id changes
+    }, [game.game_id]);
 
 
     const handleButtonClick = () => {
@@ -53,7 +51,7 @@ const GameCard = ({
     return (<div
         className="game-banner"
         style={{
-            backgroundImage: `url('${game.background_image_url}')`, ...style, // ✅ Apply external styles 
+            backgroundImage: `url('${game.background_image_url}')`, ...style,
         }}
         onContextMenu={(e) => {
             e.preventDefault();

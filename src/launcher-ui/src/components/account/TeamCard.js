@@ -11,10 +11,9 @@ const TeamCard = ({ team, onUpdateTeam }) => {
     const [loadingGames, setLoadingGames] = useState(true);
     const [errorGames, setErrorGames] = useState(null);
     const [githubAvatars, setGithubAvatars] = useState([]);
-    const [editOpen, setEditOpen] = useState(false); // Control dialog state
-    const [isMobile, setIsMobile] = useState(false); // Track if the screen is mobile
+    const [editOpen, setEditOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
-    // Fetch games for the team
     const fetchGames = useMemo(() => async () => {
         if (!team.team_name) return;
         console.log(`🎯 Fetching games for team: ${team.team_name}`);
@@ -41,11 +40,9 @@ const TeamCard = ({ team, onUpdateTeam }) => {
         fetchGames();
     }, [fetchGames]);
 
-    // Fetch GitHub profile pictures
     useEffect(() => {
         if (!team.github_ids || team.github_ids.length === 0) return;
 
-        // Properly format GitHub avatar URLs
         const avatars = team.github_ids.map(id => ({
             id, avatar_url: `https://avatars.githubusercontent.com/u/${id}?v=4`,
         }));
@@ -57,23 +54,21 @@ const TeamCard = ({ team, onUpdateTeam }) => {
         console.log("✅ Updating Team in UI:", updatedTeam);
 
         if (typeof onUpdateTeam === "function") {
-            onUpdateTeam(updatedTeam); // Call parent function to update the teams list
+            onUpdateTeam(updatedTeam);
         }
     };
 
-    // Listen for window resize to determine if we are on a mobile screen
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 768); // Adjust the mobile breakpoint here
+            setIsMobile(window.innerWidth < 768);
         };
 
-        handleResize(); // Check on component mount
+        handleResize();
         window.addEventListener("resize", handleResize);
 
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Inline styles with mobile responsiveness
     const listStyle = {
         gap: "12px",
         display: "flex",

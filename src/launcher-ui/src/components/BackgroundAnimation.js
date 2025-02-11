@@ -162,17 +162,17 @@ const BackgroundAnimation = () => {
         noise.seed(Math.random());
 
         let i = 0;
-        let globalHueSeed = Math.random() * 360; // Random base hue per session
+        let globalHueSeed = Math.random() * 360;
 
         let lastTime = performance.now();
 
         function animate() {
             const now = performance.now();
-            const deltaTime = (now - lastTime) / 1000; // Convert to seconds
+            const deltaTime = (now - lastTime) / 1000;
             lastTime = now;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            i += deltaTime * 0.05; // Adjust multiplier to balance speed
+            i += deltaTime * 0.05;
 
             for (let x = 0; x < canvas.width; x += 15) {
                 for (let y = 0; y < canvas.height; y += 15) {

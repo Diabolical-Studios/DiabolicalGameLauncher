@@ -5,14 +5,13 @@ const { initIPCHandlers } = require("./js/ipcHandlers");
 const path = require("path");
 const os = require("os");
 
-// Update launcherExecutablePath to point directly to the executable
 const launcherExecutablePath = path.join(
   os.homedir(),
   "AppData",
   "Local",
   "Programs",
   "diabolicallauncher",
-  "Diabolical Launcher.exe" // Add the executable name
+  "Diabolical Launcher.exe"
 );
 
 app.on("ready", () => {
@@ -20,11 +19,10 @@ app.on("ready", () => {
   createWindow();
   initIPCHandlers();
 
-  // Dynamically set the protocol registration
   const executablePath =
     process.defaultApp && process.argv.includes("--no-sandbox")
-      ? process.execPath // Path to Electron binary (development mode)
-      : launcherExecutablePath; // Path to the installed app executable
+      ? process.execPath
+      : launcherExecutablePath;
 
   app.setAsDefaultProtocolClient("diabolicallauncher", executablePath);
 });
@@ -47,9 +45,8 @@ app.on("second-instance", (event, argv) => {
   if (url) {
     console.log("Received Protocol URL:", url);
 
-    // Parse the URL and extract parameters dynamically
     const params = new URL(url);
-    const action = params.hostname; // e.g., "auth", "github-app", etc.
+    const action = params.hostname;
 
     let data = {};
     params.searchParams.forEach((value, key) => {
@@ -58,7 +55,6 @@ app.on("second-instance", (event, argv) => {
 
     const mainWindow = require("./js/windowManager").getMainWindow();
     if (mainWindow) {
-      // Send extracted authentication data to renderer
       mainWindow.webContents.send("protocol-data", { action, data });
       mainWindow.focus();
     }
@@ -66,7 +62,6 @@ app.on("second-instance", (event, argv) => {
 });
 
 
-// Ensure single instance
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();

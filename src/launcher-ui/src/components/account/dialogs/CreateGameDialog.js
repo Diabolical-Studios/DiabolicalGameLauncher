@@ -5,7 +5,7 @@ import {
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import Cookies from "js-cookie"; // ✅ Import js-cookie
+import Cookies from "js-cookie";
 
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -52,8 +52,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     }, []);
 
     const fetchGithubRepos = async () => {
-        const installationId = Cookies.get("githubInstallationId"); // ✅ Use Cookies
-        const accessToken = Cookies.get("githubAccessToken"); // ✅ Use Cookies
+        const installationId = Cookies.get("githubInstallationId");
+        const accessToken = Cookies.get("githubAccessToken");
 
         if (!installationId || !accessToken) {
             console.log("❌ Missing GitHub Installation ID or Access Token.");
@@ -64,7 +64,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         try {
             const response = await fetch(`https://api.github.com/installation/repositories`, {
                 method: "GET", headers: {
-                    Authorization: `Bearer ${accessToken}`, // ✅ Use token from cookies
+                    Authorization: `Bearer ${accessToken}`,
                     Accept: "application/vnd.github+json",
                 },
             });
@@ -94,7 +94,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             if (action === "github-app") {
                 console.log("✅ GitHub App Authentication Successful. Storing credentials in cookies.");
 
-                // ✅ Store GitHub App credentials securely in cookies
                 Cookies.set("githubInstallationId", data.githubInstallationId, {
                     secure: true, sameSite: "Strict", expires: 7
                 });
@@ -135,7 +134,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
-        const installationId = Cookies.get("githubInstallationId"); // ✅ Retrieve installation ID from cookies
+        const installationId = Cookies.get("githubInstallationId");
         if (!installationId) {
             console.error("❌ No GitHub Installation ID found.");
             return;
@@ -149,7 +148,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             version: gameVersion,
             team_name: selectedTeam,
             team_icon_url: teamIconUrl,
-            github_repo: selectedRepo, // ✅ Store the selected repository
+            github_repo: selectedRepo,
         };
 
         console.log("📤 Sending game creation request:", newGame);
@@ -167,7 +166,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             console.log("✅ Game created successfully:", newGame);
 
-            // ✅ Notify GitHub App Webhook to create workflow file
             await fetch("https://api.diabolical.studio/github-app/webhook", {
                 method: "POST", headers: {
                     "Content-Type": "application/json",
@@ -175,7 +173,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     event: "game_created",
                     repository: selectedRepo,
                     game_id: gameId.trim(),
-                    installation_id: installationId, // ✅ Include GitHub Installation ID
+                    installation_id: installationId,
                 }),
             });
 
@@ -190,14 +188,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         const selectedTeamName = e.target.value;
         setSelectedTeam(selectedTeamName);
         const team = teams.find((team) => team.team_name === selectedTeamName);
-        setTeamIconUrl(team ? team.team_icon_url : ""); // Update the team icon URL
+        setTeamIconUrl(team ? team.team_icon_url : "");
     }
 
-    // Open GitHub authorization popup
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
 
-        // Open in default system browser
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
@@ -288,8 +284,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             variant="outlined"
                             fullWidth
                             multiline={true}
-                            minRows={1} // Minimum 1 row
-                            maxRows={3} // Maximum 3 rows
+                            minRows={1}
+                            maxRows={3}
                             value={gameBackgroundUrl}
                             onChange={(e) => setGameBackgroundUrl(e.target.value)}
                             sx={{
@@ -322,7 +318,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     }}>
                         {/* GitHub Repository Selection */}
                         <Stack style={{
-                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px", // Enables scrolling when many repos exist
+                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px", 
                             overflowY: "auto", padding: "8px", backgroundColor: "#161616", borderRadius: "4px"
                         }}>
                             {loadingRepos ? (<Stack alignItems="center" justifyContent="center">

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import Layout from "../components/Layout";  // Wraps UI for consistency
+import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
@@ -14,7 +14,6 @@ const AccountPage = () => {
             if (action === "auth") {
                 console.log("✅ GitHub OAuth successful. Storing session data in cookies.");
 
-                // Set secure cookies
                 Cookies.set("sessionID", data.sessionID, {secure: true, sameSite: "Strict", expires: 7});
                 Cookies.set("username", data.username, {secure: true, sameSite: "Strict", expires: 7});
 
@@ -24,7 +23,6 @@ const AccountPage = () => {
             if (action === "github-app") {
                 console.log("✅ GitHub App Installation Successful.");
 
-                // Store GitHub App tokens securely
                 Cookies.set("githubInstallationId", data.githubInstallationId, {
                     secure: true,
                     sameSite: "Strict",

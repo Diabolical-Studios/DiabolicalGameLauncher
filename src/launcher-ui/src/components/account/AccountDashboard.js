@@ -35,7 +35,7 @@ const AccountDashboard = ({ username }) => {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "sessionID": sessionID, // ✅ Use session from cookies
+                    "sessionID": sessionID,
                 },
             });
 

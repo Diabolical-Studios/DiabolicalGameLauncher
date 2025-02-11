@@ -43,16 +43,14 @@ const DiabolicalSpeedDial = ({ onCreateTeam, onCreateGame, teams, setActiveTab }
     const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
     const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
-    // Handle "Create Team" button click
     const handleCreateTeam = () => {
-        setActiveTab("teams");  // Set the active tab to "teams"
-        setOpenCreateTeamDialog(true);  // Open the "Create Team" dialog
+        setActiveTab("teams");
+        setOpenCreateTeamDialog(true);
     };
 
-    // Handle "Create Game" button click
     const handleCreateGame = () => {
-        setActiveTab("games");  // Set the active tab to "games"
-        setOpenCreateGameDialog(true);  // Open the "Create Game" dialog
+        setActiveTab("games");
+        setOpenCreateGameDialog(true);
     };
 
     return (
@@ -62,13 +60,13 @@ const DiabolicalSpeedDial = ({ onCreateTeam, onCreateGame, teams, setActiveTab }
                     className="dialog"
                     icon={<GroupAddIcon />}
                     tooltipTitle="Create Team"
-                    onClick={handleCreateTeam}  // Trigger tab change and open dialog
+                    onClick={handleCreateTeam}
                 />
                 <StyledSpeedDialAction
                     className="dialog"
                     icon={<SportsEsportsIcon />}
                     tooltipTitle="Create Game"
-                    onClick={handleCreateGame}  // Trigger tab change and open dialog
+                    onClick={handleCreateGame}
                 />
             </StyledSpeedDial>
 

@@ -4,7 +4,6 @@ exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered ===");
     console.log("Received Headers:", JSON.stringify(event.headers, null, 2));
 
-    // Normalize headers
     const headers = Object.keys(event.headers).reduce((acc, key) => {
         acc[key.toLowerCase()] = event.headers[key];
         return acc;
@@ -14,7 +13,6 @@ exports.handler = async (event) => {
 
     console.log("Extracted sessionID:", sessionID);
 
-    // ✅ Handle CORS preflight requests
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,

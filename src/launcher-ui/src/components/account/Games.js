@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Chip, TextField, Stack, Slide } from "@mui/material"; // Import MUI Slide animation
+import { Chip, TextField, Stack, Slide } from "@mui/material";
 import EditGameCard from "./EditGameCard";
 import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
@@ -38,7 +38,7 @@ const Games = ({ teams }) => {
 
     const filterGames = () => {
         return games.filter((game) => {
-            const gameName = game.game_name || ""; // Ensure game.name is always a string
+            const gameName = game.game_name || "";
             const matchesTeam =
                 selectedTeams.length === 0 ||
                 selectedTeams.includes(game.team_name);
@@ -198,7 +198,7 @@ const Games = ({ teams }) => {
                             key={game.game_id}
                             direction="up"
                             in={!loading}
-                            timeout={300 + index * 100} // Staggered animation
+                            timeout={300 + index * 100}
                         >
                             <div>
                                 <EditGameCard

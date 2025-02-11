@@ -3,7 +3,6 @@ const axios = require("axios");
 exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered ===");
 
-    // ✅ Handle CORS preflight requests
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,
@@ -24,7 +23,6 @@ exports.handler = async (event) => {
         };
     }
 
-    // ✅ Get team_name from query parameters
     const teamName = event.queryStringParameters.team_name;
 
     if (!teamName) {
@@ -39,7 +37,6 @@ exports.handler = async (event) => {
     try {
         console.log(`🎯 Fetching games for team: ${teamName}`);
 
-        // ✅ Fetch games based on team name
         const response = await axios.get(
             `${process.env.API_BASE_URL}/rest-api/games/team/${encodeURIComponent(teamName)}`,
             {

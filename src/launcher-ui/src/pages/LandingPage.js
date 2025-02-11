@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Slide } from "@mui/material"; // Import MUI Slide animation
+import { Slide } from "@mui/material";
 import GameCard from "../components/GameCard";
-import GameCardsSkeleton from "../components/skeleton/GameCardsSkeleton"; // Import Skeleton Loader
+import GameCardsSkeleton from "../components/skeleton/GameCardsSkeleton";
 
 const LandingPage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
-    const [loading, setLoading] = useState(true); // Loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchGames = async () => {
@@ -19,7 +19,7 @@ const LandingPage = () => {
             } catch (error) {
                 console.error("Error fetching games:", error);
             } finally {
-                setLoading(false); // Stop loading once data is fetched
+                setLoading(false);
             }
         };
 
@@ -48,7 +48,7 @@ const LandingPage = () => {
                             key={game.game_id}
                             direction="up"
                             in={!loading}
-                            timeout={300 + index * 100} // Staggered animation
+                            timeout={300 + index * 100}
                         >
                             <div>
                                 <GameCard

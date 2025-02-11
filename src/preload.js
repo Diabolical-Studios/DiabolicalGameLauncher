@@ -48,14 +48,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     reloadWindow: () => ipcRenderer.send("reload-window"),
     getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
 
-    // ✅ Fixed: Now properly listens for download progress
     onDownloadProgress: (callback) => {
         ipcRenderer.on("download-progress", (event, {gameId, percentage}) => {
             callback({gameId, percentage});
         });
     },
 
-    // ✅ Fixed: Now properly listens for download completion
     onDownloadComplete: (callback) => {
         ipcRenderer.on("download-complete", (event, gameId, installPath) => {
             callback({gameId, installPath});

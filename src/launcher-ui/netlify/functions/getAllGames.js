@@ -3,7 +3,6 @@ const axios = require("axios");
 exports.handler = async (event) => {
     console.log("=== Netlify Function Triggered ===");
 
-    // Handle CORS preflight requests
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,
@@ -25,7 +24,6 @@ exports.handler = async (event) => {
     }
 
     try {
-        // Fetch games without any authentication
         const response = await axios.get(`${process.env.API_BASE_URL}/rest-api/games`);
 
         console.log("✅ API Response:", response.data);

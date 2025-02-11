@@ -9,22 +9,20 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 
-// ✅ Styled Dialog Paper Component
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid #444444", // ✅ Adds the outline
+        border: "1px solid #444444",
         borderRadius: "4px",
     }
 }));
 
 const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     const [teamName, setTeamName] = useState(team.team_name);
-    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || ""); // ✅ Added icon URL state
+    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || ""); 
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
-    const [githubUsers, setGithubUsers] = useState({}); // Stores { id: login }
+    const [githubUsers, setGithubUsers] = useState({});
 
-    // Fetch GitHub usernames when IDs change
     useEffect(() => {
         const fetchGitHubUsernames = async () => {
             const userPromises = githubIds.map(async (id) => {
@@ -63,16 +61,16 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             team_id: team.team_id,
             team_name: teamName.trim(),
             team_icon_url: teamIconUrl.trim(),
-            github_ids: githubIds.map(id => String(id)) // Ensure IDs are sent as strings
+            github_ids: githubIds.map(id => String(id))
         };
 
-        console.log("📤 Sending team update request:", updatedTeam); // ✅ Log the request payload
+        console.log("📤 Sending team update request:", updatedTeam);
 
         try {
             const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/updateTeam", {
                 method: "PUT", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID
-                }, body: JSON.stringify(updatedTeam) // ✅ Convert to JSON
+                }, body: JSON.stringify(updatedTeam)
             });
 
             const data = await response.json();
@@ -87,7 +85,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 ...team,
                 team_name: teamName,
                 team_icon_url: teamIconUrl,
-                github_ids: [...githubIds] // ✅ Ensure updated GitHub IDs are passed
+                github_ids: [...githubIds]
             });
             handleClose();
         } catch (err) {
@@ -113,7 +111,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         borderRadius: "8px",
 
                         "& .MuiOutlinedInput-root": {
-                            backgroundColor: "#000", // Input background color
+                            backgroundColor: "#000",
                             color: "#fff", border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
@@ -136,7 +134,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     onChange={(e) => setTeamIconUrl(e.target.value)}
                     sx={{
                         borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                            backgroundColor: "#000", // Input background color
+                            backgroundColor: "#000",
                             color: "#fff", border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
@@ -159,7 +157,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         onChange={(e) => setNewMember(e.target.value)}
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#000", // Input background color
+                                backgroundColor: "#000",
                                 color: "#fff", border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
@@ -187,7 +185,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                 key={id}
                                 alt={`GitHub User ${githubUsers[id] || id}`}
                                 src={`https://avatars.githubusercontent.com/u/${id}`}
-                                title={`${githubUsers[id] || "Loading..."}`} // 👈 Shows login name on hover
+                                title={`${githubUsers[id] || "Loading..."}`}
                             />
                         ))}
                     </AvatarGroup>

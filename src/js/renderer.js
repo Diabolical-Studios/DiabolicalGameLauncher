@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((games) => {
       createGameCards(games);
       enableHorizontalDragging("game-cards-container");
-      attachContextMenu(); // Attach context menu listeners after the cards are created
+      attachContextMenu();
     })
     .catch((err) => {
       console.error("Error loading games:", err);
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((games) => {
         createGameCards(games);
         enableHorizontalDragging("game-cards-container");
-        attachContextMenu(); // Attach context menu listeners after the cards are created
+        attachContextMenu();
       })
       .catch((err) => {
         console.error("Error reloading games:", err);
@@ -213,7 +213,6 @@ async function updateResolutionDropdown() {
   }
 }
 
-// Function to update CSS classes based on window size
 function updateCSSClasses(width, height) {
   const body = document.body;
   body.classList.remove(
@@ -298,7 +297,6 @@ function attachContextMenu() {
     card.addEventListener("contextmenu", (e) => {
       e.preventDefault();
 
-      // Find the button within the card to get the game ID
       const button = card.querySelector(".game-button");
       const gameId = button.getAttribute("data-gameid");
 
@@ -309,7 +307,6 @@ function attachContextMenu() {
 
       const position = { x: e.pageX, y: e.pageY };
 
-      // Debugging: Check if the event is firing correctly
       console.log(`Right-click detected on game with ID: ${gameId}`);
       console.log(`Position: ${position.x}, ${position.y}`);
 

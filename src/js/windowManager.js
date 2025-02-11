@@ -7,7 +7,7 @@ let mainWindow;
 let allowResize = false;
 
 async function createWindow() {
-  const isDev = (await import("electron-is-dev")).default; // ✅ Use dynamic import
+  const isDev = (await import("electron-is-dev")).default;
 
   const settings = loadSettings();
 
@@ -15,7 +15,7 @@ async function createWindow() {
     width: settings.windowSize.width,
     height: settings.windowSize.height,
     frame: false,
-    icon: path.join(__dirname, "../Resources/icon.ico"), // Update this path as necessary
+    icon: path.join(__dirname, "../Resources/icon.ico"),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: true,
@@ -26,8 +26,8 @@ async function createWindow() {
   });
 
   const startURL = isDev
-      ? "http://localhost:3000" // Load React Dev Server
-      : "https://launcher.diabolical.studio"; // Use the actual hosted website
+      ? "http://localhost:3000"
+      : "https://launcher.diabolical.studio";
 
   mainWindow.loadURL(startURL);
 
@@ -44,17 +44,14 @@ async function createWindow() {
   });
 
   mainWindow.webContents.on("did-finish-load", async () => {
-    // Initialize the updater and pass the mainWindow
     const {initUpdater, startPeriodicChecks} = require("./updater");
     require("./updater").checkForUpdates();
     require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
 
     initUpdater();
-    startPeriodicChecks(mainWindow); // Check game updates periodically
+    startPeriodicChecks(mainWindow);
 
-    // Send a message to the renderer (index.html) that we're checking for updates
     showMessage(`Checking For Updates... `);
-
   });
 
 

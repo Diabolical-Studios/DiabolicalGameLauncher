@@ -16,7 +16,6 @@ exports.handler = async function (event) {
     }
 
     try {
-        // Exchange code for GitHub access token
         const tokenResponse = await axios.post("https://github.com/login/oauth/access_token", {
             client_id: CLIENT_ID, client_secret: CLIENT_SECRET, code: code,
         }, {
@@ -25,25 +24,20 @@ exports.handler = async function (event) {
 
         const accessToken = tokenResponse.data.access_token;
 
-        // Get user info from GitHub
         const userResponse = await axios.get("https://api.github.com/user", {
             headers: {Authorization: `token ${accessToken}`},
         });
 
         const {id: github_id, login: username, email = "N/A"} = userResponse.data;
 
-        // Generate session ID
         const sessionID = uuidv4();
 
-        // Log the payload to verify
         console.log("Payload:", {github_id, username, email, sessionID});
 
-        // Create or update the user using the REST API
         await axios.post(`${API_BASE_URL}/rest-api/users`, {github_id, username, email, session_id: sessionID}, {
             headers: {"x-api-key": API_KEY},
         });
 
-        // Return an HTML page that will set localStorage and close the popup
         return {
             statusCode: 302, headers: {
                 Location: `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,

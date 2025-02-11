@@ -8,17 +8,17 @@ const InfiniteGameSkeleton = () => {
             <Skeleton
                 width="100%"
                 height="-webkit-fill-available"
-                sx={{ bgcolor: "#161616" }} // Change background color here
+                sx={{ bgcolor: "#161616" }}
             />
             <Skeleton
                 width="100%"
                 height="-webkit-fill-available"
-                sx={{ bgcolor: "#161616" }} // Change background color here
+                sx={{ bgcolor: "#161616" }}
             />
             <Skeleton
                 width="100%"
                 height="-webkit-fill-available"
-                sx={{ bgcolor: "#161616" }} // Change background color here
+                sx={{ bgcolor: "#161616" }}
             />
         </Stack>
     );

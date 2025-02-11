@@ -7,7 +7,6 @@ const handleGitHubLogin = () => {
 
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
 
-    // Open in default system browser
     window.electronAPI.openExternal(authUrl);
 };
 

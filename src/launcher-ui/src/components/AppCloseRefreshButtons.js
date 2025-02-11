@@ -2,11 +2,11 @@ import React from "react";
 
 const AppCloseRefreshButtons = () => {
     const handleClose = () => {
-        window.electronAPI.closeWindow(); // Call Electron API to close the window
+        window.electronAPI.closeWindow();
     };
 
     const handleReload = () => {
-        window.location.reload(); // Reloads the window
+        window.location.reload();
     };
 
     return (<div
@@ -22,7 +22,7 @@ const AppCloseRefreshButtons = () => {
             height: "100%",
             color: "#fff",
             zIndex: 999,
-            WebkitAppRegion: "drag", // Makes title bar draggable in Electron
+            WebkitAppRegion: "drag",
         }}
     >
         {/* Window Controls */}

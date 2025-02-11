@@ -5,7 +5,7 @@ import {
 import { styled } from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
-import Cookies from "js-cookie"; // ✅ Import the editable card component
+import Cookies from "js-cookie";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -60,10 +60,9 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
 
             console.log("✅ Game updated successfully:", updatedGame);
 
-            // 🔹 Call `onSave` to update the parent component
             onSave(updatedGame);
 
-            handleClose(); // Close the dialog
+            handleClose();
         } catch (err) {
             console.error("❌ Error updating game:", err);
         }
@@ -83,7 +82,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                                 description: gameDescription,
                                 version: gameVersion,
                             }}
-                            isEditing={true} // ✅ Enables editable mode
+                            isEditing={true}
                             setGameName={setGameName}
                             setGameBackgroundUrl={setGameBackgroundUrl}
                             setGameDescription={setGameDescription}

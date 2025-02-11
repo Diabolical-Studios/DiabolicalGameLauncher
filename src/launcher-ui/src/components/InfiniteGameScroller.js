@@ -1,9 +1,9 @@
 import React from "react";
 import { Stack } from "@mui/material";
 
-const DURATION = 15000; // Animation speed in ms
-const ROWS = 3; // Number of rows
-const GAMES_PER_ROW = 4; // Games displayed per row
+const DURATION = 15000;
+const ROWS = 3;
+const GAMES_PER_ROW = 4;
 
 const shuffle = (arr) => [...arr].sort(() => 0.5 - Math.random());
 

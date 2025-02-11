@@ -7,9 +7,8 @@ const Toaster = () => {
         if (window.electronAPI) {
             window.electronAPI.onNotification((data) => {
                 setToasters((prevToasters) => {
-                    // Check if a toaster with the same gameId already exists
                     if (prevToasters.some(toaster => toaster.gameId === data.gameId)) {
-                        return prevToasters; // Prevent duplicates
+                        return prevToasters;
                     }
 
                     const newToaster = {
@@ -22,7 +21,6 @@ const Toaster = () => {
                     return [...prevToasters, newToaster];
                 });
 
-                // Automatically remove toaster after 60 seconds
                 setTimeout(() => {
                     setToasters((prevToasters) =>
                         prevToasters.filter((toaster) => toaster.gameId !== data.gameId)
@@ -47,7 +45,7 @@ const Toaster = () => {
                 <div
                     key={toaster.id}
                     className="toaster-notification show"
-                    style={{ bottom: `${12 + index * 75}px` }} // Stacks toasters
+                    style={{ bottom: `${12 + index * 75}px` }}
                 >
                     <div className="toaster-content">
                         <div style={{ margin: "12px 0 12px 16px" }}>

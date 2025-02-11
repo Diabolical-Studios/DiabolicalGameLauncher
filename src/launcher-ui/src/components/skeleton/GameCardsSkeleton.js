@@ -54,11 +54,11 @@ const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
                     padding: "12px",
                     overflow: "hidden",
                     display: "grid",
-                    gridTemplateColumns: `repeat(${columns}, minmax(250px, 1fr))`, // Manual column setting
+                    gridTemplateColumns: `repeat(${columns}, minmax(250px, 1fr))`,
                     gap: "12px",
                 }}
             >
-                {Array.from({ length: columns * 2 }).map((_, index) => ( // Generate cards dynamically
+                {Array.from({ length: columns * 2 }).map((_, index) => (
                     <Skeleton
                         key={index}
                         variant="rounded"

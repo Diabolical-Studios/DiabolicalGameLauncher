@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Cookies from "js-cookie"; // ✅ Import Cookies
+import Cookies from "js-cookie";
 import {
     Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography,
 } from "@mui/material";
@@ -26,7 +26,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
 
         setError(null);
 
-        const sessionID = Cookies.get("sessionID"); // ✅ Use Cookies instead of localStorage
+        const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             setError("No session ID found. Please log in again.");
             return;
@@ -45,7 +45,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "sessionID": sessionID, // ✅ Use session ID from cookies
+                    "sessionID": sessionID,
                 },
                 body: JSON.stringify(newTeam)
             });

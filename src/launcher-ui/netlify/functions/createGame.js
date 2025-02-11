@@ -4,7 +4,6 @@ exports.handler = async (event) => {
   console.log("=== Netlify Function Triggered ===");
   console.log("Received Headers:", JSON.stringify(event.headers, null, 2));
 
-  // Normalize headers
   const headers = Object.keys(event.headers).reduce((acc, key) => {
     acc[key.toLowerCase()] = event.headers[key];
     return acc;
@@ -14,7 +13,6 @@ exports.handler = async (event) => {
 
   console.log("Extracted sessionID:", sessionID);
 
-  // ✅ Handle CORS preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -56,7 +54,6 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Step 1: Get the user's GitHub ID using the session ID
     const githubIdResponse = await axios.get(`${API_BASE_URL}/rest-api/users/session/${sessionID}`, {
       headers: { 'x-api-key': API_KEY },
     });
@@ -71,7 +68,6 @@ exports.handler = async (event) => {
       };
     }
 
-    // Step 2: Add the game to the backend API
     const gameUploadResponse = await axios.post(
         `${API_BASE_URL}/rest-api/games`,
         { game_name, game_id, team_name, description, background_image_url, version, team_icon_url, github_repo },

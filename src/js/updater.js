@@ -5,9 +5,9 @@ const os = require("os");
 const fs = require("fs");
 const path = require("path");
 const { downloadGame } = require("./downloadManager");
-const { getLatestGameVersion } = require("./versionChecker"); // Correct import
+const { getLatestGameVersion } = require("./versionChecker");
 
-let mainWindow = null; // To store the reference to the main window
+let mainWindow = null;
 
 const versionDirectory = path.join(
   os.homedir(),
@@ -16,7 +16,6 @@ const versionDirectory = path.join(
   "Diabolical Launcher"
 );
 
-// Function to initialize the updater with the main window instance
 function initUpdater() {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
@@ -41,9 +40,8 @@ function initUpdater() {
   });
 }
 
-// Function to send a custom notification to the renderer
 function showCustomNotification(mainWindow, title, body, gameId) {
-  console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`); // Debugging
+  console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
   if (mainWindow && mainWindow.webContents) {
     mainWindow.webContents.send('show-notification', { title, body, gameId });
   } else {
@@ -51,7 +49,6 @@ function showCustomNotification(mainWindow, title, body, gameId) {
   }
 }
 
-// Function to check for game updates
 async function checkGameUpdates(gameId, currentVersion) {
   try {
     const { latestVersion } = await getLatestGameVersion(gameId);
@@ -59,7 +56,6 @@ async function checkGameUpdates(gameId, currentVersion) {
     if (latestVersion && latestVersion !== currentVersion) {
       console.log(`New game update available for ${gameId}: Version ${latestVersion}`);
 
-      // Send notification to frontend
       showCustomNotification(mainWindow, `Update for ${gameId}`, `v${latestVersion}`, gameId);
     } else {
       console.log(`${gameId} is up-to-date. Current version: ${currentVersion}`);
@@ -73,7 +69,6 @@ function checkForUpdates() {
   autoUpdater.checkForUpdates();
 }
 
-// Function to get the current version of the game from local storage
 function getCurrentGameVersion(gameId) {
   const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
   try {
@@ -86,7 +81,6 @@ function getCurrentGameVersion(gameId) {
   }
 }
 
-// Function to periodically check all game versions and notify if there are updates
 function periodicallyCheckGameVersions(gameIds, interval = 600000) {
   gameIds.forEach((gameId) => {
     const currentVersion = getCurrentGameVersion(gameId);

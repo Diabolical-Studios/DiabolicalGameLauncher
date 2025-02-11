@@ -1,5 +1,5 @@
 import React from "react";
-import {Zoom} from "@mui/material"; // Import MUI Slide animation
+import {Zoom} from "@mui/material";
 import Grid from "../Grid";
 import TeamCard from "./TeamCard";
 import TeamsSkeleton from "../skeleton/TeamsSkeleton";
@@ -19,7 +19,7 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
                             key={team.team_id}
                             direction="up"
                             in={!loading}
-                            timeout={300 + index * 100} // Staggered animation
+                            timeout={300 + index * 100}
                         >
                             <div>
                                 <TeamCard team={team} onUpdateTeam={onUpdateTeam} />

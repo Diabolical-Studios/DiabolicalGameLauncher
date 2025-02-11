@@ -7,13 +7,13 @@ import ImageButton from "../button/ImageButton";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 const EditGameCard = ({game, onUpdateGame}) => {
-    const [editOpen, setEditOpen] = useState(false); // ✅ Control dialog state
+    const [editOpen, setEditOpen] = useState(false);
 
     const handleSaveGameChanges = (updatedGame) => {
         console.log("✅ Updating Game in UI:", updatedGame);
 
         if (typeof onUpdateGame === "function") {
-            onUpdateGame(updatedGame); // ✅ Call parent function to update the game list
+            onUpdateGame(updatedGame);
         }
     };
 
@@ -66,7 +66,7 @@ const EditGameCard = ({game, onUpdateGame}) => {
             open={editOpen}
             handleClose={() => setEditOpen(false)}
             game={game}
-            onSave={handleSaveGameChanges} // ✅ Ensure this is passed
+            onSave={handleSaveGameChanges}
         />
 
     </Stack>);
