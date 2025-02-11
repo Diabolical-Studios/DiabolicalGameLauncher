@@ -3,6 +3,7 @@ import {HomeIcon, SettingsIcon, ChangelogIcon, AccountIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 
+
 const NavBar = ({onPageChange}) => {
     const [activeButton, setActiveButton] = useState("account");
 
@@ -44,7 +45,7 @@ const NavBar = ({onPageChange}) => {
                         padding: 0,
                         border: "1px solid #303030",
                         borderRadius: "2px",
-                        backgroundColor: activeButton === item.id ? "rgba(60, 60, 60, 0.3)" : "transparent",
+                        backgroundColor: activeButton === item.id ? "rgba(0,0,0,0.6)" : "transparent",
                         width: "50px",
                         height: "50px",
                         display: "flex",

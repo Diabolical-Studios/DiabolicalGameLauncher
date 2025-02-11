@@ -11,6 +11,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import Cookies from "js-cookie";
+import colors from "../../theme/colors";
 
 
 const AccountDashboard = ({ username }) => {
@@ -76,7 +77,7 @@ const AccountDashboard = ({ username }) => {
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "-webkit-fill-available" }}>
             {/* Top Bar */}
-            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", backdropFilter: "blur(5px)", backgroundColor: "transparent", padding: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", backdropFilter: "blur(5px)", backgroundColor: colors.transparent, padding: "12px" }}>
                 <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
                     <Avatar
                         alt="GitHub User"

@@ -5,6 +5,7 @@ import OnlyImageButton from "../button/OnlyImageButton";
 import InfiniteGameScroller from "../InfiniteGameScroller";
 import EditTeamDialog from "./dialogs/EditTeamDialog";
 import InfiniteGameSkeleton from "../skeleton/InfiniteScrollerSkeleton";
+import colors from "../../theme/colors";
 
 const TeamCard = ({ team, onUpdateTeam }) => {
     const [games, setGames] = useState([]);
@@ -75,7 +76,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
         flexDirection: "column",
         justifyContent: "space-between",
         aspectRatio: isMobile ? false : "1",
-        backgroundColor: "#000",
+        backgroundColor: colors.background,
         border: "1px solid rgb(48, 48, 48)",
         borderRadius: "2px",
     };

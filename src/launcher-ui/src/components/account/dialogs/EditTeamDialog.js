@@ -7,6 +7,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import {styled} from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
+import colors from "../../../theme/colors";
 
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -111,7 +112,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         borderRadius: "8px",
 
                         "& .MuiOutlinedInput-root": {
-                            backgroundColor: "#000",
+                            backgroundColor: colors.background,
                             color: "#fff", border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
@@ -134,7 +135,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     onChange={(e) => setTeamIconUrl(e.target.value)}
                     sx={{
                         borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                            backgroundColor: "#000",
+                            backgroundColor: colors.background,
                             color: "#fff", border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
@@ -157,7 +158,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         onChange={(e) => setNewMember(e.target.value)}
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#000",
+                                backgroundColor: colors.background,
                                 color: "#fff", border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
@@ -168,7 +169,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     />
                     <IconButton sx={{
                         color: "#fff !important",
-                        backgroundColor: "#121212 !important",
+                        backgroundColor: colors.button,
                         outline: "1px solid #444444",
                         borderRadius: "2px "
                     }} onClick={handleAddMember}
@@ -197,7 +198,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             {/*<Button onClick={handleClose}>Cancel</Button>*/}
             <Button sx={{
                 color: "#fff !important",
-                backgroundColor: "#121212 !important",
+                backgroundColor: colors.button,
                 outline: "1px solid #444444",
                 borderRadius: "2px",
             }} onClick={handleSave}

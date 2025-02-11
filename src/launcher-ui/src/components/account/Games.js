@@ -3,6 +3,7 @@ import { Chip, TextField, Stack, Slide } from "@mui/material";
 import EditGameCard from "./EditGameCard";
 import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
+import colors from "../../theme/colors";
 
 const Games = ({ teams }) => {
     const [games, setGames] = useState([]);
@@ -119,7 +120,7 @@ const Games = ({ teams }) => {
                     width: "-webkit-fill-available",
                     display: "flex",
                     flexDirection: "row",
-                    backgroundColor: "transparent",
+                    backgroundColor: colors.transparent,
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "12px",

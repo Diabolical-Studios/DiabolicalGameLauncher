@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
+import colors from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -85,7 +86,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                         onChange={(e) => setTeamName(e.target.value)}
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#000",
+                                backgroundColor: colors.background,
                                 color: "#fff", border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
@@ -107,7 +108,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                         onChange={(e) => setTeamIconUrl(e.target.value)}
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#000",
+                                backgroundColor: colors.background,
                                 color: "#fff", border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
@@ -128,7 +129,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
             <DialogActions className="dialog">
                 <Button sx={{
                     color: "#fff !important",
-                    backgroundColor: "#121212 !important",
+                    backgroundColor: colors.button,
                     outline: "1px solid #444444",
                     borderRadius: "2px",
                 }}

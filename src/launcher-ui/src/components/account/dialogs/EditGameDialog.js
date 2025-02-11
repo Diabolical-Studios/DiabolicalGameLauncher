@@ -6,6 +6,7 @@ import { styled } from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
 import Cookies from "js-cookie";
+import colors from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -134,7 +135,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                         <Button
                             sx={{
                                 color: "#fff !important",
-                                backgroundColor: "#121212 !important",
+                                backgroundColor: colors.button,
                                 outline: "1px solid #444444",
                                 borderRadius: "2px",
                             }}

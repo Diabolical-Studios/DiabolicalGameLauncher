@@ -3,8 +3,8 @@ import OpenExternalLink from "./link/OpenExternalLink";
 
 const StatusBar = () => {
     const [statusColor, setStatusColor] = useState("rgb(97, 97, 97)");
-    const [message, setMessage] = useState("Status message..."); 
-    const [appVersion, setAppVersion] = useState(""); 
+    const [message, setMessage] = useState("Status message...");
+    const [appVersion, setAppVersion] = useState("");
 
     useEffect(() => {
         if (window.versions) {
@@ -59,8 +59,12 @@ const StatusBar = () => {
                 display: "flex", flexDirection: "row", alignItems: "center",
             }}>
                 <div style={{
-                    width: "12px", height: "12px", borderRadius: "12px", backgroundColor: statusColor,
-                    animation: "blink 2s infinite", boxShadow: `0 0 12px ${statusColor}`,
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "12px",
+                    backgroundColor: statusColor,
+                    animation: "blink 2s infinite",
+                    boxShadow: `0 0 12px ${statusColor}`,
                 }}></div>
             </div>
             <span id="launcher-version-number">{appVersion}</span>

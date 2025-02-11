@@ -1,6 +1,7 @@
 import * as React from "react";
 import Skeleton from "@mui/material/Skeleton";
 import { Stack } from "@mui/material";
+import colors from "../../theme/colors";
 
 const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
     return (
@@ -14,7 +15,7 @@ const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
                             width: "-webkit-fill-available",
                             display: "flex",
                             flexDirection: "row",
-                            backgroundColor: "transparent",
+                            backgroundColor: colors.transparent,
                             alignItems: "center",
                             justifyContent: "space-between",
                             padding: "12px",

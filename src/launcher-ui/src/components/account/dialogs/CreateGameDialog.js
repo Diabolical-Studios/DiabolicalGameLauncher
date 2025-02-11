@@ -6,6 +6,7 @@ import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
+import colors from "../../../theme/colors";
 
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -203,7 +204,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 height: "-webkit-fill-available",
                 gap: "24px",
                 display: "flex",
-                backgroundColor: "black",
+                backgroundColor: colors.background,
                 border: "1px solid #444444",
                 padding: "24px",
                 borderRadius: "4px",
@@ -259,7 +260,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
-                                            style={{backgroundColor: "#000", color: "#444444", padding: "0 8px"}}>Select
+                                            style={{backgroundColor: colors.background, color: colors.border, padding: "0 8px"}}>Select
                                     Team</InputLabel>
                                 <Select
                                     labelId="team-select-label"
@@ -269,7 +270,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     variant={"filled"}
                                 >
                                     {teams.map((team) => (<MenuItem
-                                        style={{backgroundColor: "#000", color: "#444444", padding: "0 !important"}}
+                                        style={{backgroundColor: colors.background, color: colors.border, padding: "0 !important"}}
                                         key={team.team_name}
                                         value={team.team_name}>
                                         {team.team_name}
