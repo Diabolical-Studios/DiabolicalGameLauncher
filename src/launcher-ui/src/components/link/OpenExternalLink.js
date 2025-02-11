@@ -1,6 +1,6 @@
 import React from "react";
 
-const OpenExternalLink = ({ url, children, className, style }) => {
+const OpenExternalLink = ({url, children, className, style}) => {
     const handleClick = (e) => {
         e.preventDefault();
         window.electronAPI.openExternal(url);

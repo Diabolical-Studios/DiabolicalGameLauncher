@@ -63,7 +63,7 @@ function showContextMenu(event, gameId, position) {
 
     const menu = Menu.buildFromTemplate(template);
     const win = BrowserWindow.fromWebContents(event.sender);
-    menu.popup({ window: win, x: position.x, y: position.y });
+    menu.popup({window: win, x: position.x, y: position.y});
 }
 
 

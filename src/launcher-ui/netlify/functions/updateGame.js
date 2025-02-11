@@ -27,8 +27,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "PUT") {
         return {
             statusCode: 405,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Method not allowed" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
@@ -39,18 +39,18 @@ exports.handler = async (event) => {
         console.error("❌ Invalid JSON body:", error);
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Invalid JSON body" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Invalid JSON body"}),
         };
     }
 
-    const { game_id, game_name, version, description, background_image_url } = gameData;
+    const {game_id, game_name, version, description, background_image_url} = gameData;
 
     if (!game_id) {
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Game ID is required" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Game ID is required"}),
         };
     }
 
@@ -63,8 +63,8 @@ exports.handler = async (event) => {
     if (Object.keys(updatedFields).length === 0) {
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "No fields to update" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "No fields to update"}),
         };
     }
 
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
             `${process.env.API_BASE_URL}/rest-api/games/${game_id}`,
             updatedFields,
             {
-                headers: { "x-api-key": process.env.API_KEY },
+                headers: {"x-api-key": process.env.API_KEY},
             }
         );
 
@@ -92,8 +92,8 @@ exports.handler = async (event) => {
         console.error("❌ API Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };

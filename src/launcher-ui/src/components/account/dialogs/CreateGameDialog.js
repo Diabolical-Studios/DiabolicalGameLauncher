@@ -1,6 +1,16 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
-    Dialog, DialogContent, Button, Stack, Select, MenuItem, InputLabel, FormControl, CircularProgress, Link, TextField
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    FormControl,
+    InputLabel,
+    Link,
+    MenuItem,
+    Select,
+    Stack,
+    TextField
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -108,7 +118,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
                 setTimeout(() => {
                     setRefreshRepos(prev => !prev);
-                }, 1000);            }
+                }, 1000);
+            }
         };
 
         window.electronAPI.onProtocolData(handleProtocolData);
@@ -244,7 +255,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 onChange={(e) => setGameId(e.target.value)}
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
-                                        color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "16px",
+                                        color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
                                     }, "& .MuiOutlinedInput-notchedOutline": {
                                         border: "1px solid #444444 !important", borderRadius: "4px"
                                     }, "& .MuiFormLabel-root": {
@@ -256,11 +267,15 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
-                                    border: "1px solid #444444 !important", borderRadius: "4px", color: "#fff",
+                                    border: "1px solid #444444 !important", borderRadius: "4px", color: colors.text,
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
-                                            style={{backgroundColor: colors.background, color: colors.border, padding: "0 8px"}}>Select
+                                            style={{
+                                                backgroundColor: colors.background,
+                                                color: colors.border,
+                                                padding: "0 8px"
+                                            }}>Select
                                     Team</InputLabel>
                                 <Select
                                     labelId="team-select-label"
@@ -270,7 +285,11 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     variant={"filled"}
                                 >
                                     {teams.map((team) => (<MenuItem
-                                        style={{backgroundColor: colors.background, color: colors.border, padding: "0 !important"}}
+                                        style={{
+                                            backgroundColor: colors.background,
+                                            color: colors.border,
+                                            padding: "0 !important"
+                                        }}
                                         key={team.team_name}
                                         value={team.team_name}>
                                         {team.team_name}
@@ -291,7 +310,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             onChange={(e) => setGameBackgroundUrl(e.target.value)}
                             sx={{
                                 "& .MuiOutlinedInput-root": {
-                                    color: "#fff", fontFamily: "'Consolas', sans-serif", fontSize: "16px",
+                                    color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
                                 }, "& .MuiOutlinedInput-notchedOutline": {
                                     border: "1px solid #444444 !important", borderRadius: "4px"
                                 }, "& .MuiFormLabel-root": {
@@ -319,12 +338,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     }}>
                         {/* GitHub Repository Selection */}
                         <Stack style={{
-                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px", 
+                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px",
                             overflowY: "auto", padding: "8px", backgroundColor: "#161616", borderRadius: "4px"
                         }}>
                             {loadingRepos ? (<Stack alignItems="center" justifyContent="center">
                                 <CircularProgress size={20}/>
-                                <p style={{color: "#fff", fontSize: "14px", margin: "8px 0 0"}}>Loading
+                                <p style={{color: colors.text, fontSize: "14px", margin: "8px 0 0"}}>Loading
                                     Repositories...</p>
                             </Stack>) : (githubRepos.map((repo) => (<Stack
                                 key={repo.id}
@@ -351,7 +370,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
                                 {/* Repository Name */}
                                 <p style={{
-                                    color: "#fff", margin: 0, fontSize: "14px", flex: 1, paddingLeft: "8px"
+                                    color: colors.text, margin: 0, fontSize: "14px", flex: 1, paddingLeft: "8px"
                                 }}>
                                     {repo.full_name}
                                 </p>

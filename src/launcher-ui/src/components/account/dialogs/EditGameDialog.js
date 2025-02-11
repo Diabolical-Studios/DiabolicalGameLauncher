@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-    Dialog, DialogContent, Button, TextField, Stack
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import React, {useEffect, useState} from "react";
+import {Button, Dialog, DialogContent, Stack, TextField} from "@mui/material";
+import {styled} from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
 import Cookies from "js-cookie";
 import colors from "../../../theme/colors";
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
         border: "1px solid #444444",
         borderRadius: "4px",
@@ -17,7 +15,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     }
 }));
 
-const EditGameDialog = ({ open, handleClose, game, onSave }) => {
+const EditGameDialog = ({open, handleClose, game, onSave}) => {
     const [gameName, setGameName] = useState(game.game_name);
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState(game.background_image_url || "");
     const [gameDescription, setGameDescription] = useState(game.description || "");
@@ -71,12 +69,12 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
 
     return (
         <StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
-            <DialogContent style={{ padding: "24px", backdropFilter: "invert(1)" }}>
+            <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
                 <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
                     <Stack spacing={2} alignItems="center">
                         {/* Render Editable Game Card */}
                         <GameCard
-                            style={{ aspectRatio: "63/88", outline: "1px solid #444444" }}
+                            style={{aspectRatio: "63/88", outline: "1px solid #444444"}}
                             game={{
                                 game_name: gameName,
                                 background_image_url: gameBackgroundUrl,
@@ -116,7 +114,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                                 onChange={(e) => setGameBackgroundUrl(e.target.value)}
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
-                                        color: "#fff",
+                                        color: colors.text,
                                         fontFamily: "'Consolas', sans-serif",
                                         fontSize: "16px",
                                     },
@@ -141,7 +139,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                             }}
                             onClick={handleSave}
                             aria-label="save"
-                            startIcon={<SaveIcon />}
+                            startIcon={<SaveIcon/>}
                         >
                             Save
                         </Button>

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {HomeIcon, SettingsIcon, ChangelogIcon, AccountIcon} from "./icons";
+import {AccountIcon, ChangelogIcon, HomeIcon, SettingsIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 

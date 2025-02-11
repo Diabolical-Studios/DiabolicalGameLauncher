@@ -24,7 +24,7 @@
     outline: 1px solid #444444;
 
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
-        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
     animation: moveBackground 3s linear infinite;
@@ -80,7 +80,7 @@
     outline: 1px solid #444444;
 
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
-        radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
     animation: moveBackground 3s linear infinite;

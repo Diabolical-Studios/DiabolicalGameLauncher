@@ -19,11 +19,11 @@ contextBridge.exposeInMainWorld("versions", {
 
 contextBridge.exposeInMainWorld("electronAPI", {
     onProtocolData: (callback) => {
-        ipcRenderer.on("protocol-data", (event, { action, data }) => {
+        ipcRenderer.on("protocol-data", (event, {action, data}) => {
             callback(action, data);
         });
     },
-    
+
     setWindowSize: (width, height) => {
         ipcRenderer.send("set-window-size-and-center", width, height);
     },

@@ -1,7 +1,8 @@
 import React from "react";
-import {TextField, Stack} from "@mui/material";
+import {Stack, TextField} from "@mui/material";
 import HoverMenu from "./button/HoverMenu";
 import GameButton from "./button/GameButton";
+import colors from "../theme/colors";
 
 const GameCard = ({
                       game, isInstalled, isEditing = false, setGameName, setGameIconUrl, setGameDescription, style = {}
@@ -69,7 +70,7 @@ const GameCard = ({
                     "& .MuiInputBase-root": {
                         border: "none",
                     }, "& .MuiInputBase-input": {
-                        color: "#fff",
+                        color: colors.text,
                         fontFamily: "'Consolas', sans-serif",
                         fontSize: "18px",
                         textTransform: "uppercase",

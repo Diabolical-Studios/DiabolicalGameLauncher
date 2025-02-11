@@ -29,15 +29,15 @@ exports.handler = async (event) => {
         console.error("❌ No sessionID found in headers.");
         return {
             statusCode: 401,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Unauthorized: No valid session ID" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Unauthorized: No valid session ID"}),
         };
     }
 
     try {
         console.log("✅ Fetching teams from API...");
         const response = await axios.get(`${process.env.API_BASE_URL}/rest-api/teams/session/${sessionID}`, {
-            headers: { "x-api-key": process.env.API_KEY },
+            headers: {"x-api-key": process.env.API_KEY},
         });
 
         console.log("✅ API Response:", response.data);
@@ -54,8 +54,8 @@ exports.handler = async (event) => {
         console.error("❌ API Fetch Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };

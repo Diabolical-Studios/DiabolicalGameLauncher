@@ -33,13 +33,13 @@ const AppCloseRefreshButtons = () => {
             <button onClick={handleReload}
                     className="window-button reload-button"
             >
-                <CachedIcon style={{color: "#fff"}} fontSize="small"/>
+                <CachedIcon style={{color: colors.text}} fontSize="small"/>
             </button>
 
             <button onClick={handleClose}
                     className="window-button close-button"
             >
-                <CloseIcon style={{color: "#fff"}} fontSize="small"/>
+                <CloseIcon style={{color: colors.text}} fontSize="small"/>
             </button>
         </Stack>
     </Stack>);

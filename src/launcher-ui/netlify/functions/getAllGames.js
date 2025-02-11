@@ -18,8 +18,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "GET") {
         return {
             statusCode: 405,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Method not allowed" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
@@ -41,8 +41,8 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.message || "Internal Server Error" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: error.message || "Internal Server Error"}),
         };
     }
 };

@@ -28,8 +28,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "PUT") {
         return {
             statusCode: 405,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Method not allowed" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
@@ -40,16 +40,16 @@ exports.handler = async (event) => {
         console.error("❌ Invalid JSON body:", error);
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Invalid JSON body" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Invalid JSON body"}),
         };
     }
 
     if (!teamData.team_id || !teamData.team_name || !teamData.team_icon_url) {
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Missing required fields" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Missing required fields"}),
         };
     }
 
@@ -59,7 +59,7 @@ exports.handler = async (event) => {
             `${process.env.API_BASE_URL}/rest-api/teams`,
             teamData,
             {
-                headers: { "x-api-key": process.env.API_KEY },
+                headers: {"x-api-key": process.env.API_KEY},
             }
         );
 
@@ -77,8 +77,8 @@ exports.handler = async (event) => {
         console.error("❌ API Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };

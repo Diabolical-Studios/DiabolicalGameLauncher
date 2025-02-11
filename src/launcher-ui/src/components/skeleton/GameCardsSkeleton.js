@@ -1,11 +1,11 @@
 import * as React from "react";
 import Skeleton from "@mui/material/Skeleton";
-import { Stack } from "@mui/material";
+import {Stack} from "@mui/material";
 import colors from "../../theme/colors";
 
-const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
+const GameCardsSkeleton = ({topBar = true, columns = 3}) => {
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{display: "flex", flexDirection: "column"}}>
             {/* Top Bar with Chips and Search (Only Rendered if topBar is true) */}
             {topBar && (
                 <>
@@ -22,14 +22,20 @@ const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
                         }}
                     >
                         {/* Skeleton Chips */}
-                        <Stack sx={{ display: "flex", flexDirection: "row", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
-                            {Array.from({ length: 4 }).map((_, index) => (
+                        <Stack sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: "12px",
+                            flexWrap: "wrap",
+                            alignItems: "center"
+                        }}>
+                            {Array.from({length: 4}).map((_, index) => (
                                 <Skeleton
                                     key={index}
                                     variant="rounded"
                                     width={100}
                                     height={32}
-                                    sx={{ bgcolor: "#161616", borderRadius: "2px" }}
+                                    sx={{bgcolor: "#161616", borderRadius: "2px"}}
                                 />
                             ))}
                         </Stack>
@@ -39,12 +45,12 @@ const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
                             variant="rounded"
                             width="50%"
                             height={40}
-                            sx={{ bgcolor: "#161616", borderRadius: "2px", padding: "8px" }}
+                            sx={{bgcolor: "#161616", borderRadius: "2px", padding: "8px"}}
                         />
                     </Stack>
 
                     {/* Divider Skeleton */}
-                    <Skeleton variant="rectangular" width="100%" height={2} sx={{ bgcolor: "#222" }} />
+                    <Skeleton variant="rectangular" width="100%" height={2} sx={{bgcolor: "#222"}}/>
                 </>
             )}
 
@@ -59,13 +65,13 @@ const GameCardsSkeleton = ({ topBar = true, columns = 3 }) => {
                     gap: "12px",
                 }}
             >
-                {Array.from({ length: columns * 2 }).map((_, index) => (
+                {Array.from({length: columns * 2}).map((_, index) => (
                     <Skeleton
                         key={index}
                         variant="rounded"
                         width="-webkit-fill-available"
                         height="350px"
-                        sx={{ bgcolor: "#161616", borderRadius: "2px" }}
+                        sx={{bgcolor: "#161616", borderRadius: "2px"}}
                     />
                 ))}
             </div>

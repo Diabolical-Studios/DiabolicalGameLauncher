@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, {useEffect, useRef} from "react";
 
 const BackgroundAnimation = () => {
     const canvasRef = useRef(null);
@@ -45,7 +45,7 @@ const BackgroundAnimation = () => {
                 }
             };
             module.seed(0);
-            
+
             var F3 = 1 / 3;
             var G3 = 1 / 6;
 
@@ -194,7 +194,15 @@ const BackgroundAnimation = () => {
         animate();
     }, []);
 
-    return <canvas ref={canvasRef} style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: -1, opacity: "0.5", }} />;
+    return <canvas ref={canvasRef} style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: -1,
+        opacity: "0.5",
+    }}/>;
 };
 
 export default BackgroundAnimation;

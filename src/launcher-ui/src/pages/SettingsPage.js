@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 
 const SettingsPage = () => {
     const [resolution, setResolution] = useState("1280x720");
@@ -17,7 +17,8 @@ const SettingsPage = () => {
             <div className="settingsGrid">
                 <div className="resolutionSetting">
                     <label htmlFor="resolution">Change Window Size:</label>
-                    <select id="resolution" className="settingsSelect" value={resolution} onChange={handleResolutionChange}>
+                    <select id="resolution" className="settingsSelect" value={resolution}
+                            onChange={handleResolutionChange}>
                         <option value="1280x720">1280x720</option>
                         <option value="800x600">800x600</option>
                     </select>

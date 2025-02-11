@@ -1,6 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {
-    Button, Dialog, DialogActions, DialogContent, Stack, TextField, IconButton, AvatarGroup, Avatar
+    Avatar,
+    AvatarGroup,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    IconButton,
+    Stack,
+    TextField
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,7 +27,7 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
 
 const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     const [teamName, setTeamName] = useState(team.team_name);
-    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || ""); 
+    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || "");
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
     const [githubUsers, setGithubUsers] = useState({});
@@ -113,7 +121,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
 
                         "& .MuiOutlinedInput-root": {
                             backgroundColor: colors.background,
-                            color: "#fff", border: "none",
+                            color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
@@ -136,7 +144,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     sx={{
                         borderRadius: "8px", "& .MuiOutlinedInput-root": {
                             backgroundColor: colors.background,
-                            color: "#fff", border: "none",
+                            color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
@@ -159,7 +167,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
                                 backgroundColor: colors.background,
-                                color: "#fff", border: "none",
+                                color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {

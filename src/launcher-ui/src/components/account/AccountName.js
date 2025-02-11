@@ -1,6 +1,6 @@
 import React from "react";
 
-const AccountName = ({ username }) => {
+const AccountName = ({username}) => {
 
     return (
         <div>

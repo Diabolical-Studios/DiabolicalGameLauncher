@@ -1,19 +1,17 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Cookies from "js-cookie";
-import {
-    Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography,} from "@mui/material";
+import {styled} from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
 import colors from "../../../theme/colors";
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
         border: "1px solid #444444", borderRadius: "4px",
     }
 }));
 
-const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
+const CreateTeamDialog = ({open, handleClose, onCreate}) => {
     const [teamName, setTeamName] = useState("");
     const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubIds, setGithubIds] = useState([]);
@@ -73,7 +71,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
     return (
         <StyledDialog open={open} onClose={handleClose} aria-labelledby="create-team-dialog-title">
             <DialogTitle className="dialog" id="create-team-dialog-title">Create a New Team</DialogTitle>
-            <DialogContent className="dialog" style={{ padding: "12px", backdropFilter: "invert(1)" }}>
+            <DialogContent className="dialog" style={{padding: "12px", backdropFilter: "invert(1)"}}>
                 <Stack spacing={2}>
                     {/* Team Name Field */}
                     <TextField
@@ -87,7 +85,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
                                 backgroundColor: colors.background,
-                                color: "#fff", border: "none",
+                                color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
@@ -109,7 +107,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
                                 backgroundColor: colors.background,
-                                color: "#fff", border: "none",
+                                color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid #444444 !important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
@@ -120,7 +118,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
 
                     {/* Show Error Message */}
                     {error && (
-                        <Typography color="error" variant="body2" style={{ marginTop: "10px" }}>
+                        <Typography color="error" variant="body2" style={{marginTop: "10px"}}>
                             {error}
                         </Typography>
                     )}
@@ -134,10 +132,10 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                     borderRadius: "2px",
                 }}
                         onClick={handleCreate}
-                        style={{ height: "100%", borderRadius: "2px", width: "-webkit-fill-available" }}
+                        style={{height: "100%", borderRadius: "2px", width: "-webkit-fill-available"}}
                         aria-label="add"
                         color="primary"
-                        startIcon={<SaveIcon />}>
+                        startIcon={<SaveIcon/>}>
                     Save
                 </Button>
             </DialogActions>

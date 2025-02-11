@@ -1,6 +1,6 @@
 import React from "react";
 
-const GameButton = ({ gameInstalled, downloadProgress, gameVersion, onClick }) => {
+const GameButton = ({gameInstalled, downloadProgress, gameVersion, onClick}) => {
     return (
         <button
             className="game-button shimmer-button"
@@ -16,7 +16,7 @@ const GameButton = ({ gameInstalled, downloadProgress, gameVersion, onClick }) =
                 src={gameInstalled ? "MenuIcons/play.png" : "MenuIcons/download.png"}
                 alt={gameInstalled ? "Play" : "Download"}
             />
-            <p style={{ margin: "0", fontSize: "14px" }}>
+            <p style={{margin: "0", fontSize: "14px"}}>
                 {downloadProgress || gameVersion}
             </p>
         </button>

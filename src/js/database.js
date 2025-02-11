@@ -2,7 +2,7 @@
 console.log("Loaded database.js!");
 const https = require('https');
 const axios = require("axios");
-const { getMainWindow } = require("./windowManager");
+const {getMainWindow} = require("./windowManager");
 require('dotenv').config();
 
 function fetchGames() {
@@ -64,4 +64,4 @@ function pingDatabase(url) {
         });
 }
 
-module.exports = { pingDatabase, fetchGames };
+module.exports = {pingDatabase, fetchGames};

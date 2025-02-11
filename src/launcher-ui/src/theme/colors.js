@@ -2,7 +2,7 @@ const colors = {
     primary: "#00bcd4",        // Cyan
     secondary: "#ff4081",      // Pink
     background: "#000000 !important",     // Dark Theme Background
-    button: "#121212", 
+    button: "#121212",
     border: "#444444",         // Gray Border
     text: "#ffffff",           // White Text
     error: "#ff5252",          // Red for Errors

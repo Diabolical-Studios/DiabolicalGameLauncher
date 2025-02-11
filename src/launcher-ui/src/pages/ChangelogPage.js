@@ -61,7 +61,7 @@ const ChangelogPage = () => {
                                 </a></div>
 
                             <div style={{width: "-webkit-fill-available",}}><p style={{margin: 0}}
-                                    dangerouslySetInnerHTML={{__html: release.body.replace(/\r\n/g, "<br>")}}></p>
+                                                                               dangerouslySetInnerHTML={{__html: release.body.replace(/\r\n/g, "<br>")}}></p>
                             </div>
                         </li>
                     ))}

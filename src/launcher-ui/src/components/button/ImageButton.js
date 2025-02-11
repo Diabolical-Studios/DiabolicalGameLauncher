@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { SvgIcon } from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {SvgIcon} from "@mui/material";
+import colors from "../../theme/colors";
 
-const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
+const ImageButton = ({text, icon: IconComponent, onClick, style = {}}) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -36,7 +37,7 @@ const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
                 style={{
                     margin: "0",
                     fontSize: "14px",
-                    color: "#fff",
+                    color: colors.text,
                     display: isMobile ? "none" : "block",
                 }}
             >
@@ -45,7 +46,7 @@ const ImageButton = ({ text, icon: IconComponent, onClick, style = {} }) => {
 
             {/* Render the icon */}
             {IconComponent && (
-                <SvgIcon component={IconComponent} style={{ width: "24px", height: "24px", color: "#fff" }} />
+                <SvgIcon component={IconComponent} style={{width: "24px", height: "24px", color: colors.text}}/>
             )}
         </button>
     );

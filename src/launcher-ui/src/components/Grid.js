@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
-const Grid = ({ children, gap = "12px", style = {} }) => {
+const Grid = ({children, gap = "12px", style = {}}) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 1024); 
+            setIsMobile(window.innerWidth < 1024);
         };
 
         window.addEventListener("resize", handleResize);

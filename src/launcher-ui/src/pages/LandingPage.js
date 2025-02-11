@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Slide } from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Slide} from "@mui/material";
 import GameCard from "../components/GameCard";
 import GameCardsSkeleton from "../components/skeleton/GameCardsSkeleton";
 
@@ -35,10 +35,10 @@ const LandingPage = () => {
     };
 
     return (
-        
-        <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "auto" }}>
+
+        <div style={{display: "flex", flexDirection: "column", width: "100%", overflow: "auto"}}>
             {/* Show Skeleton Loader While Loading */}
-            {loading && <GameCardsSkeleton topBar={false} columns={4} />}
+            {loading && <GameCardsSkeleton topBar={false} columns={4}/>}
 
             {/* Game Cards Container */}
             {!loading && (

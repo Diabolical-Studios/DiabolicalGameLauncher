@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Chip, TextField, Stack, Slide } from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Chip, Slide, Stack, TextField} from "@mui/material";
 import EditGameCard from "./EditGameCard";
 import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
 import colors from "../../theme/colors";
 
-const Games = ({ teams }) => {
+const Games = ({teams}) => {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,7 +31,7 @@ const Games = ({ teams }) => {
         setGames((prevGames) =>
             prevGames.map((game) =>
                 game.game_id === updatedGame.game_id
-                    ? { ...game, ...updatedGame }
+                    ? {...game, ...updatedGame}
                     : game
             )
         );
@@ -79,7 +79,7 @@ const Games = ({ teams }) => {
                         )}`,
                         {
                             method: "GET",
-                            headers: { "Content-Type": "application/json" },
+                            headers: {"Content-Type": "application/json"},
                         }
                     );
 
@@ -109,11 +109,11 @@ const Games = ({ teams }) => {
 
     if (!teams || teams.length === 0)
         return <p>⏳ Waiting for teams to load...</p>;
-    if (loading) return <GameCardsSkeleton />;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+    if (loading) return <GameCardsSkeleton/>;
+    if (error) return <p style={{color: "red"}}>{error}</p>;
 
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{display: "flex", flexDirection: "column"}}>
             <Stack
                 className={"dialog"}
                 style={{
@@ -148,7 +148,7 @@ const Games = ({ teams }) => {
                                     : "default"
                             }
                             style={{
-                                color: "#fff",
+                                color: colors.text,
                                 borderRadius: "2px",
                                 outline: "1px solid #444444",
                             }}
@@ -156,30 +156,30 @@ const Games = ({ teams }) => {
                     ))}
                 </Stack>
                 <TextField
-                    style={{ width: "50%" }}
+                    style={{width: "50%"}}
                     label="Search Games"
                     variant="outlined"
                     fullWidth
                     onChange={handleSearchChange}
                     sx={{
                         "& .MuiOutlinedInput-root": {
-                            color: "#fff",
+                            color: colors.text,
                             fontFamily: "'Consolas', sans-serif !important",
                             fontSize: "16px",
                         },
                         "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid #444444 !important",
                             borderRadius: "2px",
-                            color: "#fff",
+                            color: colors.text,
                         },
                         "& .MuiFormLabel-root": {
-                            color: "#fff",
+                            color: colors.text,
                         },
                     }}
                 />
             </Stack>
 
-            <Divider />
+            <Divider/>
 
             {games.length === 0 ? (
                 <p>You did not create any Games.</p>

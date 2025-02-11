@@ -1,6 +1,6 @@
 import React from "react";
 
-const ContentPanel = ({ children }) => {
+const ContentPanel = ({children}) => {
     return (
         <div style={{
             flex: 1,

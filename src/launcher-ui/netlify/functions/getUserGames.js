@@ -18,8 +18,8 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "GET") {
         return {
             statusCode: 405,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Method not allowed" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
@@ -29,8 +29,8 @@ exports.handler = async (event) => {
         console.error("❌ Missing team_name in request.");
         return {
             statusCode: 400,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "Missing team_name parameter" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: "Missing team_name parameter"}),
         };
     }
 
@@ -40,7 +40,7 @@ exports.handler = async (event) => {
         const response = await axios.get(
             `${process.env.API_BASE_URL}/rest-api/games/team/${encodeURIComponent(teamName)}`,
             {
-                headers: { "x-api-key": process.env.API_KEY },
+                headers: {"x-api-key": process.env.API_KEY},
             }
         );
 
@@ -59,8 +59,8 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.message || "Internal Server Error" }),
+            headers: {"Access-Control-Allow-Origin": "*"},
+            body: JSON.stringify({error: error.message || "Internal Server Error"}),
         };
     }
 };
