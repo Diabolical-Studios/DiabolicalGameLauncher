@@ -19,7 +19,6 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, sessionID",
       },
@@ -30,7 +29,6 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
@@ -39,7 +37,6 @@ exports.handler = async (event) => {
     console.error("❌ No sessionID found in headers.");
     return {
       statusCode: 401,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Unauthorized: No valid session ID" }),
     };
   }
@@ -51,7 +48,6 @@ exports.handler = async (event) => {
     console.error("❌ Invalid JSON body:", error);
     return {
       statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Invalid JSON body" }),
     };
   }
@@ -59,7 +55,6 @@ exports.handler = async (event) => {
   if (!team_name) {
     return {
       statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Missing team_name" }),
     };
   }
@@ -71,7 +66,6 @@ exports.handler = async (event) => {
     console.error("❌ Invalid JSON body:", error);
     return {
       statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Invalid JSON body" }),
     };
   }
@@ -79,7 +73,6 @@ exports.handler = async (event) => {
   if (!team_icon_url) {
     return {
       statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "Missing team_icon_url" }),
     };
   }
@@ -100,7 +93,6 @@ exports.handler = async (event) => {
       statusCode: 201,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify(response.data),
     };
@@ -108,7 +100,6 @@ exports.handler = async (event) => {
     console.error("❌ API Error:", error.response?.data || error.message);
     return {
       statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: error.response?.data || error.message }),
     };
   }
