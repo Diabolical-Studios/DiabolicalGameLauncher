@@ -168,7 +168,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             console.log("✅ Game created successfully:", newGame);
 
             // ✅ Notify GitHub App Webhook to create workflow file
-            await fetch("https://launcher.diabolical.studio/github-app/webhook", {
+            await fetch("https://api.diabolical.studio/github-app/webhook", {
                 method: "POST", headers: {
                     "Content-Type": "application/json",
                 }, body: JSON.stringify({
