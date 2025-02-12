@@ -5,7 +5,7 @@ import OnlyImageButton from "../button/OnlyImageButton";
 import InfiniteGameScroller from "../InfiniteGameScroller";
 import EditTeamDialog from "./dialogs/EditTeamDialog";
 import InfiniteGameSkeleton from "../skeleton/InfiniteScrollerSkeleton";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const TeamCard = ({team, onUpdateTeam}) => {
     const [games, setGames] = useState([]);
@@ -77,7 +77,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
         justifyContent: "space-between",
         aspectRatio: isMobile ? false : "1",
         backgroundColor: colors.background,
-        border: "1px solid rgb(48, 48, 48)",
+        border: "1px solid" + colors.border,
         borderRadius: "2px",
     };
 
@@ -117,7 +117,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
 
                 {/* Team Members - GitHub Profile Pictures */}
                 <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: "#444444"}}}>
+                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
                         {githubAvatars.map(member => (
                             <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>
                         ))}

@@ -1,6 +1,6 @@
 import React from "react";
 import {Box, Container, Typography} from "@mui/material";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const handleGitHubLogin = () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";

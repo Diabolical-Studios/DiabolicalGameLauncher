@@ -1,3 +1,14 @@
+:root {
+    --primary: #00bcd4;
+    --secondary: #ff4081;
+    --background: #121212;
+    --border: #444444;
+    --text: #ffffff;
+    --error: #ff5252;
+    --success: #00e676;
+    --warning: #ff9800;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,14 +28,14 @@ code {
 /*    width: 100vw;*/
 /*    height: 100vh;*/
 /*    margin: 0;*/
-/*    background-color: #000;*/
+/*    background-color: var(--background);*/
 /*    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),*/
 /*    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);*/
 /*    background-position: 0 0, 0 0;*/
 /*    background-size: 20px 20px;*/
 /*    !*Typography stuff*!*/
 /*    font-family: "Consolas", sans-serif;*/
-/*    color: white;*/
+/*    color: var(--text);*/
 /*    !*Manipulations stuff*!*/
 /*    animation: moveBackground 3s linear infinite;*/
 /*    !*Miscellaneous*!*/
@@ -40,11 +51,11 @@ body {
     width: 100vw;
     height: 100vh;
     margin: 0;
-    background-color: #000;
+    background-color: var(--background);
 
     /* Typography */
     font-family: "Consolas", sans-serif !important;
-    color: white;
+    color: var(--text);
 
     /* Miscellaneous */
     overflow: hidden;
@@ -104,9 +115,9 @@ body {
     /*Box model stuff*/
     width: -webkit-fill-available;
     padding: 10px 10px;
-    background: #00000000;
+    background: var(--background)00000;
     /*Typography stuff*/
-    color: #fff;
+    color: var(--text);
     /*Miscellaneous*/
     -webkit-app-region: drag;
 }
@@ -128,7 +139,7 @@ body {
     border: none;
     border-radius: 4px;
     background-color: #272727;
-    color: #fff;
+    color: var(--text);
     cursor: pointer;
     padding: 0;
 }
@@ -165,7 +176,7 @@ body {
     border: none;
     border-radius: 4px;
     background-color: #272727;
-    color: #fff;
+    color: var(--text);
     cursor: pointer;
     padding: 0;
 }
@@ -198,7 +209,7 @@ body {
     width: 100%;
     height: 100%;
     /*Miscellaneous*/
-    fill: white;
+    fill: var(--text);
 }
 
 .LauncherContainer {
@@ -322,7 +333,7 @@ body {
 #game-cards-container::-webkit-scrollbar-thumb {
     /*Box model stuff*/
     border-radius: 0px;
-    background-color: white;
+    background-color: var(--text);
 }
 
 .game-banner {
@@ -493,8 +504,8 @@ h2 {
     height: fit-content;
     border: none;
     border-radius: 2px;
-    outline: 1px solid #444444;
-    background-color: #000;
+    outline: 1px solid var(--border);
+    background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
@@ -504,7 +515,7 @@ h2 {
     font-size: 16px;
     font-weight: 670;
     text-decoration: none;
-    color: #ffffff;
+    color: var(--text);
     transition: 0.2s;
     animation: 1.5s ease infinite alternate running shimmer;
     animation: moveBackground 3s linear infinite;
@@ -524,8 +535,8 @@ h2 {
     height: fit-content;
     border: none;
     border-radius: 2px;
-    outline: 1px solid #444444;
-    background-color: #000;
+    outline: 1px solid var(--border);
+    background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
@@ -535,7 +546,7 @@ h2 {
     font-size: 16px;
     font-weight: 670;
     text-decoration: none;
-    color: #ffffff;
+    color: var(--text);
     transition: 0.2s;
     animation: 1.5s ease infinite alternate running shimmer;
     animation: moveBackground 3s linear infinite;
@@ -561,7 +572,7 @@ h2 {
 
 /*.game-button:hover svg {*/
 /*    !*Manipulations stuff*!*/
-/*    transform: translateX(210px) scale(2);*/
+/*    transform: translateX(210px) scale(2);*/ 
 /*    opacity: 0.8;*/
 /*}*/
 
@@ -607,7 +618,7 @@ h2 {
     background-color: rgba(0, 0, 0, 0.5);
     /*Typography stuff*/
     text-align: left;
-    color: white;
+    color: var(--text);
 }
 
 .game-details h3 {
@@ -657,7 +668,7 @@ h2 {
     border-radius: 5px;
     background-color: #0078d7;
     /*Typography stuff*/
-    color: #fff;
+    color: var(--text);
     /*Manipulations stuff*/
     transition: background-color 0.3s;
     /*Miscellaneous*/
@@ -796,14 +807,14 @@ h2 {
     /*Manipulations stuff*/
     filter: drop-shadow(0 0 2px #ffffff87);
     /*Miscellaneous*/
-    fill: #ffffff;
+    fill: var(--text);
 }
 
 .MenuItems li.active svg {
     /*Manipulations stuff*/
     filter: drop-shadow(0 0 3px #ffffff87);
     /*Miscellaneous*/
-    fill: #ffffff;
+    fill: var(--text);
 }
 
 .grabbable {
@@ -836,16 +847,16 @@ h2 {
     bottom: 0;
     right: -350px; /* Initially off the screen */
     width: auto;
-    background-color: #000;
+    background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
     animation: moveBackground 3s linear infinite;
-    color: white;
+    color: var(--text);
     border-radius: 2px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-    font-family: "Consolas", sans-serif;
+    font-family: Consolas, sans-serif;
     transition: right 0.5s ease-in-out;
     z-index: 1000;
     opacity: 0; /* Start hidden */
@@ -857,7 +868,7 @@ h2 {
     opacity: 1;
     visibility: visible;
     width: 400px;
-    outline: solid 1px #444444;
+    outline: solid 1px var(--border);
 }
 
 .toaster-content {
@@ -883,15 +894,15 @@ h2 {
     border-radius: 0 2px 2px 0;
     height: 60px;
     width: 100px;
-    background-color: #000;
+    background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
-    font-family: "Consolas", sans-serif;
+    font-family: Consolas, sans-serif;
     font-size: 16px;
     font-weight: 670;
-    color: #ffffff;
+    color: var(--text);
     transition: 0.2s;
     animation: moveBackground 3s linear infinite;
     cursor: pointer;
@@ -913,8 +924,8 @@ h2 {
 }
 
 .toaster-button:hover {
-    background-color: #fff;
-    color: #000;
+    background-color: var(--text);
+    color: var(--background);
 }
 
 .toaster-button:active {
@@ -983,7 +994,7 @@ h2 {
     display: flex;
     align-items: center;
     font-size: 1rem;
-    color: white;
+    color: var(--text);
     background-color: #334155;
     border-radius: 0.4rem;
     padding: 0.5rem 1rem;

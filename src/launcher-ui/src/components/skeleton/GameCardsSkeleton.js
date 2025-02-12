@@ -1,7 +1,7 @@
 import * as React from "react";
 import Skeleton from "@mui/material/Skeleton";
 import {Stack} from "@mui/material";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const GameCardsSkeleton = ({topBar = true, columns = 3}) => {
     return (

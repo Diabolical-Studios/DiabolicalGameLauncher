@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {SvgIcon} from "@mui/material";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const ImageButton = ({text, icon: IconComponent, onClick, style = {}}) => {
     const [isMobile, setIsMobile] = useState(false);

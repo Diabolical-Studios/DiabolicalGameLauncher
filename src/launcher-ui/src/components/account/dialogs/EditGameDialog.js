@@ -4,11 +4,11 @@ import {styled} from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
 import Cookies from "js-cookie";
-import colors from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid #444444",
+        border: "1px solid" + colors.border,
         borderRadius: "4px",
         width: "60vw",
         height: "fit-content",
@@ -74,7 +74,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                     <Stack spacing={2} alignItems="center">
                         {/* Render Editable Game Card */}
                         <GameCard
-                            style={{aspectRatio: "63/88", outline: "1px solid #444444"}}
+                            style={{aspectRatio: "63/88", outline: "1px solid" + colors.border}}
                             game={{
                                 game_name: gameName,
                                 background_image_url: gameBackgroundUrl,
@@ -119,7 +119,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                                         fontSize: "16px",
                                     },
                                     "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid #444444 !important",
+                                        border: "1px solid" + colors.border + "!important",
                                         borderRadius: "2px"
                                     },
                                     "& .MuiFormLabel-root": {
@@ -134,7 +134,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                             sx={{
                                 color: "#fff !important",
                                 backgroundColor: colors.button,
-                                outline: "1px solid #444444",
+                                outline: "1px solid" + colors.border,
                                 borderRadius: "2px",
                             }}
                             onClick={handleSave}

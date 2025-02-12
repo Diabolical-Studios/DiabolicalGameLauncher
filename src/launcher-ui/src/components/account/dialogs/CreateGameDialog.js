@@ -16,7 +16,7 @@ import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
-import colors from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -216,7 +216,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 gap: "24px",
                 display: "flex",
                 backgroundColor: colors.background,
-                border: "1px solid #444444",
+                border: "1px solid" + colors.border,
                 padding: "24px",
                 borderRadius: "4px",
             }}>
@@ -224,7 +224,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     borderRadius: "4px", gap: "24px", justifyContent: "space-between"
                 }}>
                     <GameCard
-                        style={{aspectRatio: "63/88", outline: "1px solid #444444", width: "auto"}}
+                        style={{aspectRatio: "63/88", outline: "1px solid" + colors.border, width: "auto"}}
                         game={{
                             game_name: gameName,
                             game_id: gameId,
@@ -257,7 +257,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     "& .MuiOutlinedInput-root": {
                                         color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
                                     }, "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid #444444 !important", borderRadius: "4px"
+                                        border: "1px solid" + colors.border + "!important", borderRadius: "4px"
                                     }, "& .MuiFormLabel-root": {
                                         color: "#444444 !important",
                                     },
@@ -267,7 +267,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
-                                    border: "1px solid #444444 !important", borderRadius: "4px", color: colors.text,
+                                    border: "1px solid" + colors.border + "!important", borderRadius: "4px", color: colors.text,
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
@@ -312,7 +312,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 "& .MuiOutlinedInput-root": {
                                     color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
                                 }, "& .MuiOutlinedInput-notchedOutline": {
-                                    border: "1px solid #444444 !important", borderRadius: "4px"
+                                    border: "1px solid" + colors.border + "!important", borderRadius: "4px"
                                 }, "& .MuiFormLabel-root": {
                                     color: "#444444 !important",
                                 },
@@ -355,7 +355,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     borderRadius: "4px",
                                     transition: "background 0.2s",
                                     cursor: "pointer",
-                                    border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "1px solid transparent",
+                                    border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "transparent",
                                 }}
                                 onClick={() => setSelectedRepo(repo.full_name)}
                                 onMouseEnter={(e) => (e.currentTarget.style.background = "#222")}
@@ -400,7 +400,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     <Button
                         sx={{
                             color: "#fff !important",
-                            outline: "1px solid #444444",
+                            outline: "1px solid" + colors.border,
                             borderRadius: "4px",
                             fontFamily: "'Consolas', sans-serif",
                             justifyContent: "space-between",

@@ -115,8 +115,8 @@
     flex-wrap: nowrap;
     gap: 12px;
     padding: 12px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgb(48, 48, 48);
+    background-color: var(--background);
+    border: 1px solid var(--border);
 }
 
 .checkUpdateText {

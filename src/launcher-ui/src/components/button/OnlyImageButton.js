@@ -1,6 +1,6 @@
 import React from "react";
 import {SvgIcon} from "@mui/material";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const OnlyImageButton = ({icon: IconComponent, onClick, style = {}}) => {
     return (<button

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {colors} from "../theme/colors";
 
 const ChangelogPage = () => {
     const [releases, setReleases] = useState([]);
@@ -43,7 +44,7 @@ const ChangelogPage = () => {
                                 padding: "12px",
                                 gap: "12px",
                                 backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                border: "1px solid rgb(48, 48, 48)",
+                                border: "1px solid" + colors.border,
                                 display: "flex", flexDirection: "row", justifyContent: "space-between",
                             }}>
 

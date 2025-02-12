@@ -3,11 +3,11 @@ import Cookies from "js-cookie";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography,} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
-import colors from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid #444444", borderRadius: "4px",
+        border: "1px solid" + colors.border, borderRadius: "4px",
     }
 }));
 
@@ -87,7 +87,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                                 backgroundColor: colors.background,
                                 color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid #444444 !important", borderRadius: "2px"
+                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
                                 color: "#444444 !important",
                             }
@@ -109,7 +109,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                                 backgroundColor: colors.background,
                                 color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid #444444 !important", borderRadius: "2px"
+                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
                                 color: "#444444 !important",
                             }
@@ -128,7 +128,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                 <Button sx={{
                     color: "#fff !important",
                     backgroundColor: colors.button,
-                    outline: "1px solid #444444",
+                    outline: "1px solid" + colors.border,
                     borderRadius: "2px",
                 }}
                         onClick={handleCreate}

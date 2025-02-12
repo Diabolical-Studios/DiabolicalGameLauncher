@@ -15,12 +15,12 @@ import SaveIcon from '@mui/icons-material/Save';
 import {styled} from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
-import colors from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid #444444",
+        border: "1px solid" + colors.border,
         borderRadius: "4px",
     }
 }));
@@ -123,7 +123,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                             backgroundColor: colors.background,
                             color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid #444444 !important", borderRadius: "2px"
+                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
                             color: "#444444 !important",
                         }
@@ -131,7 +131,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 />
 
 
-                {/* ✅ Edit Team Icon URL Field */}
+                {/* ✅ Edit Team Icon URL Field */} 
                 <TextField
                     label="Team Icon URL"
                     color="secondary"
@@ -146,7 +146,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                             backgroundColor: colors.background,
                             color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid #444444 !important", borderRadius: "2px"
+                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
                             color: "#444444 !important",
                         }
@@ -169,7 +169,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                 backgroundColor: colors.background,
                                 color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid #444444 !important", borderRadius: "2px"
+                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
                                 color: "#444444 !important",
                             }
@@ -178,7 +178,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     <IconButton sx={{
                         color: "#fff !important",
                         backgroundColor: colors.button,
-                        outline: "1px solid #444444",
+                        outline: "1px solid" + colors.border,
                         borderRadius: "2px "
                     }} onClick={handleAddMember}
                                 style={{height: "100%", borderRadius: "2px",}} aria-label="add"
@@ -188,7 +188,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 </Stack>
 
                 <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: "#444444"}}}>
+                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
                         {githubIds.map(id => (
                             <Avatar
                                 key={id}
@@ -207,7 +207,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             <Button sx={{
                 color: "#fff !important",
                 backgroundColor: colors.button,
-                outline: "1px solid #444444",
+                outline: "1px solid" + colors.border,
                 borderRadius: "2px",
             }} onClick={handleSave}
                     style={{height: "100%", borderRadius: "2px", width: "-webkit-fill-available",}} aria-label="add"

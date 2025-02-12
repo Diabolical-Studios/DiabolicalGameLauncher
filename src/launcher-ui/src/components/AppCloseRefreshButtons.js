@@ -2,7 +2,7 @@ import React from "react";
 import {Stack} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CachedIcon from '@mui/icons-material/Cached';
-import colors from "../theme/colors";
+import {colors} from "../theme/colors";
 
 const AppCloseRefreshButtons = () => {
     const handleClose = () => {

@@ -11,7 +11,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import Cookies from "js-cookie";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 
 const AccountDashboard = ({username}) => {
@@ -90,7 +90,7 @@ const AccountDashboard = ({username}) => {
                     <Avatar
                         alt="GitHub User"
                         src={githubAvatar || "/static/images/avatar/1.jpg"}
-                        sx={{width: 32, height: 32, outline: "1px solid #444444"}}
+                        sx={{width: 32, height: 32, outline: "1px solid" + colors.border}}
                     />
                     <AccountName username={username}/>
                 </Stack>

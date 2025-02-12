@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import OpenExternalLink from "./link/OpenExternalLink";
+import {colors} from "../theme/colors";
 
 const StatusBar = () => {
     const [statusColor, setStatusColor] = useState("rgb(97, 97, 97)");
@@ -42,7 +43,7 @@ const StatusBar = () => {
             alignItems: "center",
             position: "relative",
             padding: "0 12px",
-            border: "1px solid rgb(48, 48, 48)",
+            border: "1px solid" + colors.border,
             borderRadius: "2px",
             gap: "12px",
             height: "50px",
@@ -53,6 +54,7 @@ const StatusBar = () => {
 
             <div id="message" style={{
                 whiteSpace: "nowrap",
+                color: colors.text,
             }}>{message}</div>
 
             <div id="launcher-version-status-and-number" style={{
@@ -67,7 +69,7 @@ const StatusBar = () => {
                     boxShadow: `0 0 12px ${statusColor}`,
                 }}></div>
             </div>
-            <span id="launcher-version-number">{appVersion}</span>
+            <span style={{color: colors.text}} id="launcher-version-number">{appVersion}</span>
         </div>
     </OpenExternalLink>);
 };

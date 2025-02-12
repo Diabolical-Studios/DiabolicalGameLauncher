@@ -5,7 +5,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import CreateTeamDialog from "../account/dialogs/CreateTeamDialog";
 import CreateGameDialog from "../account/dialogs/CreateGameDialog";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
     position: "relative",
@@ -15,8 +15,8 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
 
     "& .MuiFab-primary": {
         borderRadius: 2,
-        backgroundColor: colors.background,
-        outline: "1px solid #444444",
+        backgroundColor: colors.background + "!important",
+        outline: "1px solid" + colors.border + "!important",
         width: "-webkit-fill-available",
     },
 
@@ -33,8 +33,8 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
 const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
     borderRadius: 2,
     width: "-webkit-fill-available",
-    backgroundColor: colors.background,
-    outline: "1px solid #444444",
+    backgroundColor: colors.background + "!important",
+    outline: "1px solid" + colors.border,
     color: colors.text,
     padding: 0,
     margin: 0,

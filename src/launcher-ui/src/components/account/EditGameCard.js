@@ -35,7 +35,7 @@ const EditGameCard = ({game, onUpdateGame}) => {
                    }}
     >
         <OnlyImageButton icon={EditIcon} style={{padding: "12px"}} onClick={() => setEditOpen(true)}/>
-        <ImageButton text={"Deployed on Github"} icon={GitHubIcon} style={{justifyContent: "space-between"}}
+        <ImageButton text={"Deployed From Github"} icon={GitHubIcon} style={{justifyContent: "space-between"}}
                      onClick={() => {
                          if (game.github_repo) {
                              window.electronAPI.openExternal(`https://github.com/${game.github_repo}`, "_blank");

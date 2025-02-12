@@ -3,7 +3,7 @@ import {Chip, Slide, Stack, TextField} from "@mui/material";
 import EditGameCard from "./EditGameCard";
 import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
-import colors from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
 const Games = ({teams}) => {
     const [games, setGames] = useState([]);
@@ -150,7 +150,7 @@ const Games = ({teams}) => {
                             style={{
                                 color: colors.text,
                                 borderRadius: "2px",
-                                outline: "1px solid #444444",
+                                outline: "1px solid" + colors.border,
                             }}
                         />
                     ))}
@@ -168,7 +168,7 @@ const Games = ({teams}) => {
                             fontSize: "16px",
                         },
                         "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid #444444 !important",
+                            border: "1px solid" + colors.border + "!important",
                             borderRadius: "2px",
                             color: colors.text,
                         },

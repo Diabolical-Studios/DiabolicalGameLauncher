@@ -2,7 +2,7 @@ import React from "react";
 import {Stack, TextField} from "@mui/material";
 import HoverMenu from "./button/HoverMenu";
 import GameButton from "./button/GameButton";
-import colors from "../theme/colors";
+import {colors} from "../theme/colors";
 
 const GameCard = ({
                       game, isInstalled, isEditing = false, setGameName, setGameIconUrl, setGameDescription, style = {}

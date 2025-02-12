@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {AccountIcon, ChangelogIcon, HomeIcon, SettingsIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
+import {colors} from "../theme/colors";
 
 
 const NavBar = ({onPageChange}) => {
@@ -43,7 +44,7 @@ const NavBar = ({onPageChange}) => {
                     }}
                     style={{
                         padding: 0,
-                        border: "1px solid #303030",
+                        border: "1px solid" + colors.border,
                         borderRadius: "2px",
                         backgroundColor: activeButton === item.id ? "rgba(0,0,0,0.6)" : "transparent",
                         width: "50px",

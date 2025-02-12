@@ -1,5 +1,6 @@
 import React from "react";
 import Cookies from "js-cookie";
+import {colors} from "../../theme/colors";
 
 const LogoutButton = () => {
     return (
@@ -15,7 +16,7 @@ const LogoutButton = () => {
                 style={{
                     padding: "12px 24px",
                     fontSize: "14px",
-                    color: "white",
+                    color: colors.text,
                     border: "none",
                     borderRadius: "2px",
                     cursor: "pointer",
