@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
-    Stack, Typography, Box, CircularProgress, Tabs, Tab, Dialog, DialogTitle, DialogContent
+    Stack, Typography, Box, Tabs, Tab, Dialog, DialogTitle, DialogContent
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -14,17 +14,13 @@ import Cookies from "js-cookie";
 const GameInfoPanel = ({ game }) => {
     const [workflows, setWorkflows] = useState([]);
     const [logs, setLogs] = useState("");
-    const [loadingLogs, setLoadingLogs] = useState(false);
+    const [, setLoadingLogs] = useState(false);
     const [activeTab, setActiveTab] = useState("gameInfo");
     const [logPopupOpen, setLogPopupOpen] = useState(false);
     const [deployStatus, setDeployStatus] = useState("unknown");
     const accessToken = Cookies.get("githubAccessToken");
 
-    useEffect(() => {
-        fetchWorkflows();
-    }, []);
-
-    const fetchWorkflows = async () => {
+    const fetchWorkflows = useCallback(async () => {
         if (!game.github_repo || !accessToken) return;
 
         const runs = await window.githubAPI.fetchWorkflows(game.github_repo, accessToken);
@@ -35,7 +31,11 @@ const GameInfoPanel = ({ game }) => {
             const status = latestRun.conclusion || latestRun.status; // Use `conclusion` for final status
             setDeployStatus(status || "unknown");
         }
-    };
+    }, [game.github_repo, accessToken]);
+
+    useEffect(() => {
+        fetchWorkflows();
+    }, [fetchWorkflows]);
 
     const fetchLogs = async (runId) => {
         if (!runId) return;
@@ -46,14 +46,6 @@ const GameInfoPanel = ({ game }) => {
         setLoadingLogs(false);
         setLogs(logData);
         setLogPopupOpen(true);
-    };
-
-    const openRepoLink = () => {
-        window.electronAPI.openExternal(`https://github.com/${game.github_repo}`);
-    };
-
-    const openRepoActions = () => {
-        window.electronAPI.openExternal(`https://github.com/${game.github_repo}/actions`);
     };
 
     // Get icon and color for workflow status
