@@ -14,7 +14,7 @@ import Cookies from "js-cookie";
 const GameInfoPanel = ({game}) => {
     const [workflows, setWorkflows] = useState([]);
     const [logs, setLogs] = useState("");
-    const [setLoadingLogs] = useState(false);
+    const [, setLoadingLogs] = useState(false);
     const [activeTab, setActiveTab] = useState("gameInfo");
     const [logPopupOpen, setLogPopupOpen] = useState(false);
     const [deployStatus, setDeployStatus] = useState("unknown");
