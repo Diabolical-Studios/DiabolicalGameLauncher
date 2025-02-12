@@ -255,7 +255,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 onChange={(e) => setGameId(e.target.value)}
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
-                                        color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
+                                        color: colors.text, fontSize: "16px",
                                     }, "& .MuiOutlinedInput-notchedOutline": {
                                         border: "1px solid" + colors.border + "!important", borderRadius: "4px"
                                     }, "& .MuiFormLabel-root": {
@@ -310,7 +310,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             onChange={(e) => setGameBackgroundUrl(e.target.value)}
                             sx={{
                                 "& .MuiOutlinedInput-root": {
-                                    color: colors.text, fontFamily: "'Consolas', sans-serif", fontSize: "16px",
+                                    color: colors.text, fontSize: "16px",
                                 }, "& .MuiOutlinedInput-notchedOutline": {
                                     border: "1px solid" + colors.border + "!important", borderRadius: "4px"
                                 }, "& .MuiFormLabel-root": {
@@ -402,7 +402,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             color: "#fff !important",
                             outline: "1px solid" + colors.border,
                             borderRadius: "4px",
-                            fontFamily: "'Consolas', sans-serif",
                             justifyContent: "space-between",
                             padding: "12px",
                             width: "fit-content"

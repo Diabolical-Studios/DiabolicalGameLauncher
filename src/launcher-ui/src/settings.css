@@ -16,9 +16,6 @@
     width: 60px;
     height: 40px;
 
-    font-family: 'Consolas', sans-serif;
-
-
     background-color: #000;
 
     outline: 1px solid #444444;
@@ -72,9 +69,6 @@
     width: fit-content;
     height: 40px;
 
-    font-family: 'Consolas', sans-serif;
-
-
     background-color: #000;
 
     outline: 1px solid #444444;
@@ -102,7 +96,6 @@
     /* Padding inside each grid item */
     text-align: center;
     /* Center-align text inside grid items */
-    font-family: 'Arial', sans-serif;
     /* Font style for the text */
     font-size: 16px;
     /* Font size for the text */

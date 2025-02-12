@@ -115,7 +115,6 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
                                         color: colors.text,
-                                        fontFamily: "'Consolas', sans-serif",
                                         fontSize: "16px",
                                     },
                                     "& .MuiOutlinedInput-notchedOutline": {

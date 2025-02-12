@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Tektur:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
 :root {
     --primary: #00bcd4;
     --secondary: #ff4081;
@@ -9,6 +16,16 @@
     --warning: #ff9800;
 }
 
+:root {
+    --font-primary: 'JetBrains Mono', monospace;
+    --font-secondary: 'Fira Code', monospace;
+    --font-fallback: monospace;
+}
+
+* {
+    font-family: var(--font-primary) !important;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -16,11 +33,6 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
 }
 
 /*body {*/
@@ -34,7 +46,6 @@ code {
 /*    background-position: 0 0, 0 0;*/
 /*    background-size: 20px 20px;*/
 /*    !*Typography stuff*!*/
-/*    font-family: "Consolas", sans-serif;*/
 /*    color: var(--text);*/
 /*    !*Manipulations stuff*!*/
 /*    animation: moveBackground 3s linear infinite;*/
@@ -54,7 +65,7 @@ body {
     background-color: var(--background);
 
     /* Typography */
-    font-family: "Consolas", sans-serif !important;
+    font-family: var(--font-primary), monospace !important;
     color: var(--text);
 
     /* Miscellaneous */
@@ -511,7 +522,6 @@ h2 {
     background-position: 0 0, 0 0;
     background-size: 200% 100%;
     background-size: 20px 20px;
-    font-family: "Consolas", sans-serif;
     font-size: 16px;
     font-weight: 670;
     text-decoration: none;
@@ -542,7 +552,6 @@ h2 {
     background-position: 0 0, 0 0;
     background-size: 200% 100%;
     background-size: 20px 20px;
-    font-family: "Consolas", sans-serif;
     font-size: 16px;
     font-weight: 670;
     text-decoration: none;
@@ -856,7 +865,6 @@ h2 {
     color: var(--text);
     border-radius: 2px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-    font-family: Consolas, sans-serif;
     transition: right 0.5s ease-in-out;
     z-index: 1000;
     opacity: 0; /* Start hidden */
@@ -899,7 +907,6 @@ h2 {
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
     background-size: 20px 20px;
-    font-family: Consolas, sans-serif;
     font-size: 16px;
     font-weight: 670;
     color: var(--text);

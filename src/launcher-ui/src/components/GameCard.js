@@ -71,7 +71,6 @@ const GameCard = ({
                         border: "none",
                     }, "& .MuiInputBase-input": {
                         color: colors.text,
-                        fontFamily: "'Consolas', sans-serif",
                         fontSize: "18px",
                         textTransform: "uppercase",
                         fontWeight: 600,
@@ -90,7 +89,7 @@ const GameCard = ({
                     "& .MuiInputBase-root": {
                         border: "none",
                     }, "& .MuiInputBase-input": {
-                        color: "#8e8e8e", fontFamily: "'Consolas', sans-serif", fontSize: "14px", lineHeight: "normal",
+                        color: "#8e8e8e", fontSize: "14px", lineHeight: "normal",
                     }
                 }}
             />) : (<p>{game.description}</p>)}

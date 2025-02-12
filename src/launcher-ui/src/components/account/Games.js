@@ -164,7 +164,6 @@ const Games = ({teams}) => {
                     sx={{
                         "& .MuiOutlinedInput-root": {
                             color: colors.text,
-                            fontFamily: "'Consolas', sans-serif !important",
                             fontSize: "16px",
                         },
                         "& .MuiOutlinedInput-notchedOutline": {
