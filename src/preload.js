@@ -67,6 +67,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
 });
 
+contextBridge.exposeInMainWorld("githubAPI", {
+    fetchWorkflows: (repoFullName, accessToken) => ipcRenderer.invoke("fetch-github-workflows", repoFullName, accessToken),
+    fetchLogs: (repoFullName, runId, accessToken) => ipcRenderer.invoke("fetch-github-logs", repoFullName, runId, accessToken),
+});
+
 let bridge = {
     updateMessage: (callback) => ipcRenderer.on("updateMessage", callback),
 };

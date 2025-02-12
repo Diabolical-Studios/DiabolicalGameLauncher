@@ -206,7 +206,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
 
-        window.electronAPI.openExternal(githubAppAuthUrl);
+        window.electronAPI.openExternal(githubAppAuthUrl); 
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">

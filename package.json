@@ -58,6 +58,7 @@
   "author": "doruksasmaz",
   "license": "MIT",
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "axios": "^1.7.8",
     "dotenv": "^16.4.7",
     "electron-dl": "^3.5.2",

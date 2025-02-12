@@ -7,6 +7,8 @@ const {
     saveSettings,
     diabolicalLauncherPath,
 } = require("./settings");
+const AdmZip = require("adm-zip"); // 📌 Install this with: npm install adm-zip
+
 const {downloadGame} = require("./downloadManager");
 const {getInstalledGames, showContextMenu, uninstallGame} = require("./gameManager");
 
@@ -38,6 +40,47 @@ function initIPCHandlers() {
             };
         }
         return {width: 1280, height: 720};
+    });
+
+    // Use the GitHub Installation Access Token stored in cookies
+    ipcMain.handle("fetch-github-workflows", async (event, repoFullName, accessToken) => {
+        try {
+            const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            const data = await response.json();
+            return data.workflow_runs || [];
+        } catch (error) {
+            console.error("❌ Error fetching workflows:", error);
+            return [];
+        }
+    });
+
+    ipcMain.handle("fetch-github-logs", async (event, repoFullName, runId, accessToken) => {
+        try {
+            const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs/${runId}/logs`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch logs: ${response.statusText}`);
+            }
+
+            const buffer = await response.arrayBuffer();
+            const zip = new AdmZip(Buffer.from(buffer));
+
+            let extractedLogs = "";
+            zip.getEntries().forEach((entry) => {
+                if (!entry.isDirectory && entry.entryName.endsWith(".txt")) {
+                    extractedLogs += `\n--- ${entry.entryName} ---\n${zip.readAsText(entry)}`;
+                }
+            });
+
+            return extractedLogs || "No logs found in archive.";
+        } catch (error) {
+            console.error("❌ Error extracting logs:", error);
+            return "Failed to retrieve logs.";
+        }
     });
 
     ipcMain.on("set-window-size-and-center", (event, width, height) => {

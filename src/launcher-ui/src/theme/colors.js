@@ -6,7 +6,7 @@ const colors = {
     border: "#444444",         // Gray Border
     text: "#ededed",           // White Text
     error: "#ff5252",          // Red for Errors
-    success: "#00e676",        // Green for Success
+    success: "#07d400",        // Green for Success
     warning: "#ff9800",        // Orange for Warnings
     buttonHover: "#1f1f1f",    // Darker Gray
     transparent: "transparent",
