@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {Chip, Slide, Stack, TextField} from "@mui/material";
+import {Chip, Stack, TextField, Zoom} from "@mui/material";
 import EditGameCard from "./EditGameCard";
 import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
 import {colors} from "../../theme/colors";
+import GameInfoPanel from "./GameInfoPanel";
 
 const Games = ({teams}) => {
     const [games, setGames] = useState([]);
@@ -14,11 +15,7 @@ const Games = ({teams}) => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const handleChipClick = (teamName) => {
-        setSelectedTeams((prevSelected) =>
-            prevSelected.includes(teamName)
-                ? prevSelected.filter((name) => name !== teamName)
-                : [...prevSelected, teamName]
-        );
+        setSelectedTeams((prevSelected) => prevSelected.includes(teamName) ? prevSelected.filter((name) => name !== teamName) : [...prevSelected, teamName]);
     };
 
     const handleSearchChange = (event) => {
@@ -28,21 +25,13 @@ const Games = ({teams}) => {
     const handleSaveGameChanges = (updatedGame) => {
         console.log("✅ Updating Game in UI:", updatedGame);
 
-        setGames((prevGames) =>
-            prevGames.map((game) =>
-                game.game_id === updatedGame.game_id
-                    ? {...game, ...updatedGame}
-                    : game
-            )
-        );
+        setGames((prevGames) => prevGames.map((game) => game.game_id === updatedGame.game_id ? {...game, ...updatedGame} : game));
     };
 
     const filterGames = () => {
         return games.filter((game) => {
             const gameName = game.game_name || "";
-            const matchesTeam =
-                selectedTeams.length === 0 ||
-                selectedTeams.includes(game.team_name);
+            const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(game.team_name);
             const matchesSearch = gameName
                 .toLowerCase()
                 .includes(searchQuery);
@@ -73,20 +62,12 @@ const Games = ({teams}) => {
 
                     console.log(`🎯 Fetching games for team: ${team.team_name}`);
 
-                    const response = await fetch(
-                        `https://launcher.diabolical.studio/.netlify/functions/getUserGames?team_name=${encodeURIComponent(
-                            team.team_name
-                        )}`,
-                        {
-                            method: "GET",
-                            headers: {"Content-Type": "application/json"},
-                        }
-                    );
+                    const response = await fetch(`https://launcher.diabolical.studio/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`, {
+                        method: "GET", headers: {"Content-Type": "application/json"},
+                    });
 
                     if (!response.ok) {
-                        throw new Error(
-                            `Failed to fetch games for team ${team.team_name}.`
-                        );
+                        throw new Error(`Failed to fetch games for team ${team.team_name}.`);
                     }
 
                     const data = await response.json();
@@ -107,112 +88,89 @@ const Games = ({teams}) => {
         fetchGames();
     }, [currentTeams]);
 
-    if (!teams || teams.length === 0)
-        return <p>⏳ Waiting for teams to load...</p>;
+    if (!teams || teams.length === 0) return <p>⏳ Waiting for teams to load...</p>;
     if (loading) return <GameCardsSkeleton/>;
     if (error) return <p style={{color: "red"}}>{error}</p>;
 
-    return (
-        <div style={{display: "flex", flexDirection: "column"}}>
+    return (<div style={{display: "flex", flexDirection: "column", overflow: "hidden"}}>
+        <Stack
+            className={"dialog"}
+            style={{
+                width: "-webkit-fill-available",
+                display: "flex",
+                flexDirection: "row",
+                backgroundColor: colors.transparent,
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px",
+                minHeight: "fit-content"
+            }}
+        >
             <Stack
-                className={"dialog"}
-                style={{
-                    width: "-webkit-fill-available",
+                sx={{
                     display: "flex",
                     flexDirection: "row",
-                    backgroundColor: colors.transparent,
+                    gap: "12px",
+                    flexWrap: "wrap",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "12px",
+                    width: "50%",
                 }}
             >
-                <Stack
-                    sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "12px",
-                        flexWrap: "wrap",
-                        alignItems: "center",
-                        width: "50%",
-                    }}
-                >
-                    {teams.map((team) => (
-                        <Chip
-                            icon={team.team_icon_url}
-                            key={team.team_name}
-                            label={team.team_name}
-                            onClick={() => handleChipClick(team.team_name)}
-                            color={
-                                selectedTeams.includes(team.team_name)
-                                    ? "primary"
-                                    : "default"
-                            }
-                            style={{
-                                color: colors.text,
-                                borderRadius: "2px",
-                                outline: "1px solid" + colors.border,
-                            }}
-                        />
-                    ))}
-                </Stack>
-                <TextField
-                    style={{width: "50%"}}
-                    label="Search Games"
-                    variant="outlined"
-                    fullWidth
-                    onChange={handleSearchChange}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                            color: colors.text,
-                            fontSize: "16px",
-                        },
-                        "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid" + colors.border + "!important",
-                            borderRadius: "2px",
-                            color: colors.text,
-                        },
-                        "& .MuiFormLabel-root": {
-                            color: colors.text,
-                        },
-                    }}
-                />
-            </Stack>
-
-            <Divider/>
-
-            {games.length === 0 ? (
-                <p>You did not create any Games.</p>
-            ) : (
-                <div
-                    id="game-cards-container"
+                {teams.map((team) => (<Chip
+                    icon={team.team_icon_url}
+                    key={team.team_name}
+                    label={team.team_name}
+                    onClick={() => handleChipClick(team.team_name)}
+                    color={selectedTeams.includes(team.team_name) ? "primary" : "default"}
                     style={{
-                        padding: "12px",
-                        overflow: "hidden",
-                        display: "grid",
-                        gridTemplateColumns: "repeat(3, minmax(250px, 1fr))",
-                        gap: "12px",
+                        color: colors.text, borderRadius: "2px", outline: "1px solid" + colors.border,
                     }}
-                >
-                    {filterGames().map((game, index) => (
-                        <Slide
-                            key={game.game_id}
-                            direction="up"
-                            in={!loading}
-                            timeout={300 + index * 100}
-                        >
-                            <div>
-                                <EditGameCard
-                                    game={game}
-                                    isInstalled={false}
-                                    onUpdateGame={handleSaveGameChanges}
-                                />
-                            </div>
-                        </Slide>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+                />))}
+            </Stack>
+            <TextField
+                style={{width: "50%"}}
+                label="Search Games"
+                variant="outlined"
+                fullWidth
+                onChange={handleSearchChange}
+                sx={{
+                    "& .MuiOutlinedInput-root": {
+                        color: colors.text, fontSize: "16px",
+                    }, "& .MuiOutlinedInput-notchedOutline": {
+                        border: "1px solid" + colors.border + "!important", borderRadius: "2px", color: colors.text,
+                    }, "& .MuiFormLabel-root": {
+                        color: colors.text,
+                    },
+                }}
+            />
+        </Stack>
+
+        <Divider/>
+
+        {games.length === 0 ? (<p>You did not create any Games.</p>) : (<Stack
+            style={{
+                padding: "12px", overflow: "auto", display: "flex", flexDirection: "column", gap: "12px",
+            }}
+        >
+            {filterGames().map((game, index) => (<Zoom
+                key={game.game_id}
+                direction="up"
+                in={!loading}
+                timeout={300 + index * 100}
+            >
+                <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
+                    <div>
+                        <EditGameCard
+                            game={game}
+                            isInstalled={false}
+                            onUpdateGame={handleSaveGameChanges}
+                        />
+                    </div>
+                    <GameInfoPanel game={game}/> {/* Now correctly passing game data */}
+                </Stack>
+            </Zoom>))}
+        </Stack>)}
+    </div>);
 };
 
 export default Games;

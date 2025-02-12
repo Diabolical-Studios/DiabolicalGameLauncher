@@ -23,8 +23,6 @@ const Grid = ({children, gap = "12px", style = {}}) => {
         width: "-webkit-fill-available",
         height: "-webkit-fill-available",
         margin: 0,
-        overflowX: "hidden",
-        overflowY: "scroll",
         ...style,
     };
 

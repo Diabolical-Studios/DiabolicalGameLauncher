@@ -8,7 +8,10 @@ const handleGitHubLogin = () => {
 
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
 
-    window.electronAPI.openExternal(authUrl);
+    if(window.api){
+        window.electronAPI.openExternal(authUrl);
+
+    } else window.open(authUrl);
 };
 
 const LoginScreen = () => {

@@ -8,6 +8,8 @@ const AccountPage = () => {
     const [username, setUsername] = useState(Cookies.get("username") || "");
 
     useEffect(() => {
+        if(!window.api) return;
+        
         window.electronAPI.onProtocolData((action, data) => {
             console.log("Received Protocol Data:", action, data);
 

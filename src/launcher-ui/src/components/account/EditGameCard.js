@@ -3,8 +3,8 @@ import OnlyImageButton from "../button/OnlyImageButton";
 import EditIcon from "@mui/icons-material/Edit";
 import {Stack} from "@mui/material";
 import EditGameDialog from "./dialogs/EditGameDialog";
-import ImageButton from "../button/ImageButton";
-import GitHubIcon from '@mui/icons-material/GitHub';
+import GameButton from "../button/GameButton";
+import HoverMenu from "../button/HoverMenu";
 
 const EditGameCard = ({game, onUpdateGame}) => {
     const [editOpen, setEditOpen] = useState(false);
@@ -26,7 +26,7 @@ const EditGameCard = ({game, onUpdateGame}) => {
                        justifyContent: "space-between",
                        alignItems: "flex-end",
                        padding: "12px",
-
+                       width: "auto",
                        aspectRatio: "63/88",
                    }}
                    onContextMenu={(e) => {
@@ -34,24 +34,17 @@ const EditGameCard = ({game, onUpdateGame}) => {
                        window.electronAPI.showContextMenu(game.game_id, {x: e.pageX, y: e.pageY});
                    }}
     >
-        <OnlyImageButton icon={EditIcon} style={{padding: "12px"}} onClick={() => setEditOpen(true)}/>
-        <ImageButton text={"Deployed From Github"} icon={GitHubIcon} style={{justifyContent: "space-between"}}
-                     onClick={() => {
-                         if (game.github_repo) {
-                             window.electronAPI.openExternal(`https://github.com/${game.github_repo}`, "_blank");
-                         } else {
-                             console.error("❌ No GitHub repository URL found for this game.");
-                         }
-                     }}/>
+        <OnlyImageButton icon={EditIcon} style={{padding: "6px"}} onClick={() => setEditOpen(true)}/>
 
-        {/*<Stack style={{display: "flex", flexDirection: "column", gap: "12px", width: "100%"}}>
+
+        <Stack style={{display: "flex", flexDirection: "column", gap: "12px", width: "100%"}}>
             <Stack className="game-details">
                 <h3>{game.game_name.toUpperCase()}</h3>
                 <p>{game.description}</p>
             </Stack>
             <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
                 <GameButton
-                    gameVersion={game.version}
+                    gameVersion={"placeholder button"}
                 />
 
                 <HoverMenu
@@ -60,7 +53,7 @@ const EditGameCard = ({game, onUpdateGame}) => {
                     },]}
                 />
             </Stack>
-        </Stack>*/}
+        </Stack>
 
         <EditGameDialog
             open={editOpen}
