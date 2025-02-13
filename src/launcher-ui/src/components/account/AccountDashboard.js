@@ -70,7 +70,7 @@ const AccountDashboard = ({ username }) => {
         }
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/getGitHubInstallations", {
+            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/getGithubAccessToken", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
