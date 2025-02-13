@@ -2,23 +2,49 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 
 exports.handler = async function (event) {
+    // Handle CORS Preflight Requests
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*", // ✅ Allow requests from any domain (Update to a specific domain if needed)
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, sessionid",
+                "Access-Control-Allow-Credentials": "true",
+            },
+            body: "",
+        };
+    }
+
     try {
-        const sessionID = event.headers["sessionid"]; // ✅ Get session ID from headers
+        const sessionID = event.headers["sessionid"]; // ✅ Extract session ID from headers
 
         if (!sessionID) {
-            return { statusCode: 401, body: JSON.stringify({ error: "Session ID missing." }) };
+            return {
+                statusCode: 401,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ error: "Session ID missing." }),
+            };
         }
 
-        // Fetch the user's installation ID from our API with API key authentication
+        // Fetch the user's GitHub installation ID using API key authentication
         const installationRes = await axios.get(
             `${process.env.API_BASE_URL}/rest-api/users/installations/${sessionID}`,
             {
-                headers: { "x-api-key": process.env.API_KEY } // ✅ Add API key in headers
+                headers: { "x-api-key": process.env.API_KEY },
             }
         );
 
         if (!installationRes.data || !installationRes.data.installation_id) {
-            return { statusCode: 404, body: JSON.stringify({ error: "Installation ID not found." }) };
+            return {
+                statusCode: 404,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ error: "Installation ID not found." }),
+            };
         }
 
         const installationID = installationRes.data.installation_id;
@@ -48,10 +74,12 @@ exports.handler = async function (event) {
 
         const githubAccessToken = tokenResponse.data.token;
 
-        // Return success response with the token set as a secure cookie
+        // Return success response with CORS headers and the token set as a secure cookie
         return {
             statusCode: 200,
             headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": "true",
                 "Set-Cookie": `githubAccessToken=${githubAccessToken}; Path=/; HttpOnly; Secure; SameSite=Strict`,
                 "Content-Type": "application/json",
             },
@@ -62,6 +90,9 @@ exports.handler = async function (event) {
         console.error("❌ Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
             body: JSON.stringify({ error: error.response?.data || error.message }),
         };
     }
