@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Cookies from "js-cookie";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography,} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogTitle, Stack, TextField, Typography,} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
 import {colors} from "../../../theme/colors";
