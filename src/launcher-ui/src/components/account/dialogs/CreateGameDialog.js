@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    Button, CircularProgress, Dialog, DialogContent, FormControl, InputLabel, Link, MenuItem, Select, Stack, TextField
+    Button, CircularProgress, Dialog, FormControl, InputLabel, Link, MenuItem, Select, Stack, TextField
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -199,7 +199,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
-        <DialogContent className={"p-0 overflow-hidden"}>
+        <Stack className={"p-0 overflow-hidden"}>
             <Stack className={"dialog gap-5 p-5"} flexDirection={isMobile ? "column" : "row"} style={{
                 backgroundColor: colors.background, border: "1px solid" + colors.border,
             }}>
@@ -383,7 +383,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     </Button>
                 </Stack>
             </Stack>
-        </DialogContent>
+        </Stack>
     </StyledDialog>);
 };
 
