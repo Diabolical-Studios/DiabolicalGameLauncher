@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import clsx from "clsx";
 
-const Grid = ({children, gap = "12px", style = {}}) => {
+const Grid = ({ children, gap = "12px", className = "", style = {} }) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -14,19 +15,18 @@ const Grid = ({children, gap = "12px", style = {}}) => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const gridStyles = {
-        display: "grid",
-        gridTemplateColumns: isMobile
-            ? "repeat(1, minmax(100px, 1fr))"
-            : "repeat(auto-fit, minmax(250px, 1fr))",
-        gap: gap,
-        width: "-webkit-fill-available",
-        height: "-webkit-fill-available",
-        margin: 0,
-        ...style,
-    };
-
-    return <div style={gridStyles}>{children}</div>;
+    return (
+        <div
+            className={clsx(
+                "grid w-full h-full m-0",
+                isMobile ? "grid-cols-1 min-[100px]:min-w-[100px]" : "grid-cols-auto-fit min-[250px]:min-w-[250px]",
+                className
+            )}
+            style={{ gap, ...style }}
+        >
+            {children}
+        </div>
+    );
 };
 
 export default Grid;

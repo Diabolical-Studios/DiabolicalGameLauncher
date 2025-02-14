@@ -17,24 +17,14 @@ const NavBar = ({onPageChange}) => {
     return (<VerticalFlex>
         <OpenExternalLink url="https://diabolical.studio">
             <img
+                className={"w-full aspect-square cursor-pointer"}
                 src="android-chrome-192x192.png"
                 alt="Icon"
                 draggable="false"
-                style={{width: "100%", aspectRatio: "1/1", cursor: "pointer"}}
             />
         </OpenExternalLink>
 
-        <ul
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                margin: 0,
-                padding: 0,
-                listStyleType: "none",
-                gap: "12px",
-                width: "fit-content",
-            }}
+        <ul className={"flex flex-col align-center m-0 p-0 gap-3 w-fit"}
         >
             {menuItems.map((item) => (<li key={item.id}>
                 <button
@@ -42,19 +32,11 @@ const NavBar = ({onPageChange}) => {
                         setActiveButton(item.id);
                         onPageChange(item.id);
                     }}
+                    className={"game-button p-3 border rounded-xs w-fit flex align-center cursor-pointer justify-center backdrop-blur"}
                     style={{
-                        padding: 0,
-                        border: "1px solid" + colors.border,
-                        borderRadius: "2px",
+                        borderColor: colors.border,
                         backgroundColor: activeButton === item.id ? "rgba(0,0,0,0.6)" : "transparent",
-                        width: "50px",
-                        height: "50px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
                         transition: "background-color 0.3s ease",
-                        backdropFilter: "blur(10px)",
                     }}
                 >
                     <item.icon fill={activeButton === item.id ? "#ffffff" : "#4b4b4b"}/>

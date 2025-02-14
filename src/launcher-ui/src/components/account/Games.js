@@ -92,30 +92,15 @@ const Games = ({teams}) => {
     if (loading) return <GameCardsSkeleton/>;
     if (error) return <p style={{color: "red"}}>{error}</p>;
 
-    return (<div style={{display: "flex", flexDirection: "column", overflow: "hidden"}}>
+    return (<Stack className={"overflow-hidden"}>
         <Stack
-            className={"dialog"}
+            className={"dialog w-full items-center justify-between p-3 min-h-fit"}
+            direction={"row"}
             style={{
-                width: "-webkit-fill-available",
-                display: "flex",
-                flexDirection: "row",
                 backgroundColor: colors.transparent,
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px",
-                minHeight: "fit-content"
             }}
         >
-            <Stack
-                sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "12px",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    width: "50%",
-                }}
-            >
+            <Stack direction={"row"} className={"gap-3 flex-wrap items-center w-1/2"}>
                 {teams.map((team) => (<Chip
                     icon={team.team_icon_url}
                     key={team.team_name}
@@ -148,9 +133,7 @@ const Games = ({teams}) => {
         <Divider/>
 
         {games.length === 0 ? (<p>You did not create any Games.</p>) : (<Stack
-            style={{
-                padding: "12px", overflow: "auto", display: "flex", flexDirection: "column", gap: "12px",
-            }}
+            className={"flex p-3 overflow-auto flex-col gap-3"}
         >
             {filterGames().map((game, index) => (<Zoom
                 key={game.game_id}
@@ -158,7 +141,7 @@ const Games = ({teams}) => {
                 in={!loading}
                 timeout={300 + index * 100}
             >
-                <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
+                <Stack className={"gap-3"} direction={"row"}>
                     <div>
                         <EditGameCard
                             game={game}
@@ -170,7 +153,7 @@ const Games = ({teams}) => {
                 </Stack>
             </Zoom>))}
         </Stack>)}
-    </div>);
+    </Stack>);
 };
 
 export default Games;

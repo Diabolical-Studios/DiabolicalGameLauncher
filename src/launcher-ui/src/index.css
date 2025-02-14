@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Tektur:wght@400..900&display=swap');
@@ -350,7 +352,6 @@ body {
 .game-banner {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     position: relative;
     height: 350px;
     width: -webkit-fill-available;
@@ -362,7 +363,6 @@ body {
     background-size: cover;
     transition: all 0.5s ease, box-shadow 0.3s ease;
     gap: 12px;
-    justify-content: flex-end;
     overflow: hidden;
 }
 
@@ -511,7 +511,6 @@ h2 {
 
 .game-button {
     position: relative;
-    width: -webkit-fill-available;
     height: fit-content;
     border: none;
     border-radius: 2px;
@@ -536,7 +535,6 @@ h2 {
     padding: 12px;
     display: flex;
     align-content: center;
-    justify-content: center;
 }
 
 .dialog {

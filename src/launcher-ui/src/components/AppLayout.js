@@ -1,15 +1,8 @@
 import React from "react";
 
-const AppLayout = ({children}) => {
+const AppLayout = ({ children }) => {
     return (
-        <div style={{
-            overflow: "hidden", display: "flex",
-            flexDirection: "row",
-            width: "-webkit-fill-available",
-            height: "-webkit-fill-available",
-            padding: "12px",
-            gap: "12px",
-        }}>
+        <div className="overflow-hidden flex flex-row w-full h-full p-3 gap-3">
             {children}
         </div>
     );

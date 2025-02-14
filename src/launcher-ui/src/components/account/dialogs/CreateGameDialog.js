@@ -1,16 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    FormControl,
-    InputLabel,
-    Link,
-    MenuItem,
-    Select,
-    Stack,
-    TextField
+    Button, CircularProgress, Dialog, DialogContent, FormControl, InputLabel, Link, MenuItem, Select, Stack, TextField
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -32,13 +22,13 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
 }));
 
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
-    const [gameName, setGameName] = useState("Default Game Name");
-    const [gameId, setGameId] = useState("Default Game ID");
+    const [gameName, setGameName] = useState();
+    const [gameId, setGameId] = useState();
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("https://png.pngtree.com/element_our/20190530/ourmid/pngtree-white-spot-float-image_1256405.jpg");
-    const [gameDescription, setGameDescription] = useState("Default Game Description");
+    const [gameDescription, setGameDescription] = useState();
     const [gameVersion] = useState("0.0.1");
-    const [selectedTeam, setSelectedTeam] = useState("");
-    const [teamIconUrl, setTeamIconUrl] = useState("");
+    const [selectedTeam, setSelectedTeam] = useState();
+    const [teamIconUrl, setTeamIconUrl] = useState();
     const [githubRepos, setGithubRepos] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState("");
     const [loadingRepos, setLoadingRepos] = useState(false);
@@ -75,8 +65,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         try {
             const response = await fetch(`https://api.github.com/installation/repositories`, {
                 method: "GET", headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json",
                 },
             });
 
@@ -206,23 +195,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
 
-        window.electronAPI.openExternal(githubAppAuthUrl); 
+        window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
-        <DialogContent style={{padding: 0, overflow: 'hidden'}}>
-            <Stack className={"dialog"} flexDirection={isMobile ? "column" : "row"} style={{
-                height: "-webkit-fill-available",
-                gap: "24px",
-                display: "flex",
+        <DialogContent className={"p-0 overflow-hidden"}>
+            <Stack className={"dialog gap-5 p-5"} flexDirection={isMobile ? "column" : "row"} style={{
                 backgroundColor: colors.background,
                 border: "1px solid" + colors.border,
-                padding: "24px",
-                borderRadius: "4px",
             }}>
-                <Stack spacing={"24px"} alignItems="center" style={{
-                    borderRadius: "4px", gap: "24px", justifyContent: "space-between"
-                }}>
+                <Stack alignItems="center" className={"gap-5 justify-between rounded-xs"}>
                     <GameCard
                         style={{aspectRatio: "63/88", outline: "1px solid" + colors.border, width: "auto"}}
                         game={{
@@ -238,15 +220,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         setGameBackgroundUrl={setGameBackgroundUrl}
                         setGameDescription={setGameDescription}
                     />
-                    <Stack style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "24px",
-                        width: "-webkit-fill-available",
-                        marginTop: 0,
-                    }}>
+                    <Stack className={"gap-5 w-full"} style={{margin: 0}}>  
 
-                        <Stack style={{display: "flex", flexDirection: "row", gap: "24px"}}>
+                        <Stack className={"gap-5"} direction={"row"}>
                             <TextField
                                 label="Game ID"
                                 variant="outlined"
@@ -267,7 +243,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
-                                    border: "1px solid" + colors.border + "!important", borderRadius: "4px", color: colors.text,
+                                    border: "1px solid" + colors.border + "!important",
+                                    borderRadius: "4px",
+                                    color: colors.text,
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
@@ -275,12 +253,11 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                                 backgroundColor: colors.background,
                                                 color: colors.border,
                                                 padding: "0 8px"
-                                            }}>Select
-                                    Team</InputLabel>
+                                            }}>Team</InputLabel>
                                 <Select
                                     labelId="team-select-label"
                                     value={selectedTeam}
-                                    label="Select Team"
+                                    label="Team"
                                     onChange={handleTeamChange}
                                     variant={"filled"}
                                 >
@@ -323,23 +300,11 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     </Stack>
                 </Stack>
 
-                <Stack
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end",
-                        width: "-webkit-fill-available",
-                        gap: "24px",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Stack style={{
-                        display: "flex", flexDirection: "column", gap: "24px", width: "-webkit-fill-available",
-                    }}>
+                <Stack className={"items-end w-full gap-5 justify-between"}>
+                    <Stack className={"gap-5 w-full"}>
                         {/* GitHub Repository Selection */}
-                        <Stack style={{
-                            display: "flex", flexDirection: "column", gap: "12px", maxHeight: "400px",
-                            overflowY: "auto", padding: "8px", backgroundColor: "#161616", borderRadius: "4px"
+                        <Stack className={"gap-3 h-[400px] overflow-auto p-2 rounded-xs"} style={{
+                            backgroundColor: "#161616",
                         }}>
                             {loadingRepos ? (<Stack alignItems="center" justifyContent="center">
                                 <CircularProgress size={20}/>
@@ -348,13 +313,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             </Stack>) : (githubRepos.map((repo) => (<Stack
                                 key={repo.id}
                                 direction="row"
-                                alignItems="center"
-                                justifyContent="space-between"
+                                className={"justify-between items-center p-3 rounded-xs cursor-pointer"}
                                 style={{
-                                    padding: "12px",
-                                    borderRadius: "4px",
                                     transition: "background 0.2s",
-                                    cursor: "pointer",
                                     border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "transparent",
                                 }}
                                 onClick={() => setSelectedRepo(repo.full_name)}

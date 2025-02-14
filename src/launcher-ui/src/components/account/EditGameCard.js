@@ -4,7 +4,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import {Stack} from "@mui/material";
 import EditGameDialog from "./dialogs/EditGameDialog";
 import GameButton from "../button/GameButton";
-import HoverMenu from "../button/HoverMenu";
 
 const EditGameCard = ({game, onUpdateGame}) => {
     const [editOpen, setEditOpen] = useState(false);
@@ -18,16 +17,9 @@ const EditGameCard = ({game, onUpdateGame}) => {
     };
 
 
-    return (<Stack className={"game-banner"}
+    return (<Stack className={"game-banner flex flex-col justify-between items-end p-3 w-auto aspect-63/88"}
                    style={{
                        backgroundImage: `url('${game.background_image_url}')`,
-                       display: "flex",
-                       flexDirection: "column",
-                       justifyContent: "space-between",
-                       alignItems: "flex-end",
-                       padding: "12px",
-                       width: "auto",
-                       aspectRatio: "63/88",
                    }}
                    onContextMenu={(e) => {
                        e.preventDefault();
@@ -37,21 +29,21 @@ const EditGameCard = ({game, onUpdateGame}) => {
         <OnlyImageButton icon={EditIcon} style={{padding: "6px"}} onClick={() => setEditOpen(true)}/>
 
 
-        <Stack style={{display: "flex", flexDirection: "column", gap: "12px", width: "100%"}}>
+        <Stack className={"flex flex-col gap-3 w-full"}>
             <Stack className="game-details">
                 <h3>{game.game_name.toUpperCase()}</h3>
                 <p>{game.description}</p>
             </Stack>
-            <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
+            <Stack className={"flex gap-3"}>
                 <GameButton
                     gameVersion={"placeholder button"}
                 />
 
-                <HoverMenu
+                {/* <HoverMenu
                     actions={[{
                         label: "Uninstall", icon: "MenuIcons/Trash.png", onClick: () => console.log("Uninstall clicked")
                     },]}
-                />
+                />*/}
             </Stack>
         </Stack>
 

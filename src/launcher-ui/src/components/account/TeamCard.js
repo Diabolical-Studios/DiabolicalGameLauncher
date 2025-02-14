@@ -71,27 +71,15 @@ const TeamCard = ({team, onUpdateTeam}) => {
     }, []);
 
     const listStyle = {
-        gap: "12px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
         aspectRatio: isMobile ? false : "1",
         backgroundColor: colors.background,
-        border: "1px solid" + colors.border,
-        borderRadius: "2px",
-    };
+        borderColor: colors.border,
 
-    const stackStyle = {
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "12px",
-        gap: "12px",
-        height: "-webkit-fill-available",
     };
 
     return (
-        <li style={listStyle}>
-            <Stack style={stackStyle}>
+        <li className={"gap-3 flex flex-col justify-between border rounded-xs"} style={listStyle}>
+            <Stack className={"h-full gap-3 p-3 justify-between flex-col flex"}>
                 {/* Team Header */}
                 <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
                     <Stack flexDirection="row" alignItems="center" gap="12px">

@@ -1,7 +1,7 @@
 import React from "react";
 
 const Layout = ({children}) => {
-    return (<div style={{height: "100%", overflow: "hidden",}}>
+    return (<div className={"h-full overflow-hidden"}>
         {children}
     </div>);
 };

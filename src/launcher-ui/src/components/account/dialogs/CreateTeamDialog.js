@@ -32,21 +32,16 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         }
 
         const newTeam = {
-            team_name: teamName.trim(),
-            team_icon_url: teamIconUrl.trim(),
-            github_ids: githubIds
+            team_name: teamName.trim(), team_icon_url: teamIconUrl.trim(), github_ids: githubIds
         };
 
         console.log("📤 Sending team creation request:", newTeam);
 
         try {
             const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/createTeam", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID,
-                },
-                body: JSON.stringify(newTeam)
+                method: "POST", headers: {
+                    "Content-Type": "application/json", "sessionID": sessionID,
+                }, body: JSON.stringify(newTeam)
             });
 
             const data = await response.json();
@@ -68,79 +63,73 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         }
     };
 
-    return (
-        <StyledDialog open={open} onClose={handleClose} aria-labelledby="create-team-dialog-title">
-            <DialogTitle className="dialog" id="create-team-dialog-title">Create a New Team</DialogTitle>
-            <DialogContent className="dialog" style={{padding: "12px", backdropFilter: "invert(1)"}}>
-                <Stack spacing={2}>
-                    {/* Team Name Field */}
-                    <TextField
-                        label="Team Name"
-                        color="secondary"
-                        focused
-                        fullWidth
-                        placeholder="Very Cool Team Name"
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        sx={{
-                            borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: colors.background,
-                                color: colors.text, border: "none",
-                            }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                            }, "& .MuiFormLabel-root": {
-                                color: "#444444 !important",
-                            }
-                        }}
-                    />
+    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-team-dialog-title">
+        <DialogTitle className="dialog" id="create-team-dialog-title">Create a New Team</DialogTitle>
+        <Stack className="dialog backdrop-invert">
+            <Stack className={"gap-5"}>
+                {/* Team Name Field */}
+                <TextField
+                    label="Team Name"
+                    color="secondary"
+                    focused
+                    fullWidth
+                    placeholder="Very Cool Team Name"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    sx={{
+                        borderRadius: "8px", "& .MuiOutlinedInput-root": {
+                            backgroundColor: colors.background, color: colors.text, border: "none",
+                        }, "& .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
+                        }, "& .MuiFormLabel-root": {
+                            color: "#444444 !important",
+                        }
+                    }}
+                />
 
-                    {/* Team Icon URL Field */}
-                    <TextField
-                        label="Team Icon URL"
-                        color="secondary"
-                        focused
-                        multiline
-                        fullWidth
-                        placeholder="example.com/image.png"
-                        value={teamIconUrl}
-                        onChange={(e) => setTeamIconUrl(e.target.value)}
-                        sx={{
-                            borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: colors.background,
-                                color: colors.text, border: "none",
-                            }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                            }, "& .MuiFormLabel-root": {
-                                color: "#444444 !important",
-                            }
-                        }}
-                    />
+                {/* Team Icon URL Field */}
+                <TextField
+                    label="Team Icon URL"
+                    color="secondary"
+                    focused
+                    multiline
+                    fullWidth
+                    placeholder="example.com/image.png"
+                    value={teamIconUrl}
+                    onChange={(e) => setTeamIconUrl(e.target.value)}
+                    sx={{
+                        borderRadius: "8px", "& .MuiOutlinedInput-root": {
+                            backgroundColor: colors.background, color: colors.text, border: "none",
+                        }, "& .MuiOutlinedInput-notchedOutline": {
+                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
+                        }, "& .MuiFormLabel-root": {
+                            color: "#444444 !important",
+                        }
+                    }}
+                />
 
-                    {/* Show Error Message */}
-                    {error && (
-                        <Typography color="error" variant="body2" style={{marginTop: "10px"}}>
-                            {error}
-                        </Typography>
-                    )}
-                </Stack>
-            </DialogContent>
-            <DialogActions className="dialog">
-                <Button sx={{
-                    color: "#fff !important",
-                    backgroundColor: colors.button,
-                    outline: "1px solid" + colors.border,
-                    borderRadius: "2px",
-                }}
-                        onClick={handleCreate}
-                        style={{height: "100%", borderRadius: "2px", width: "-webkit-fill-available"}}
-                        aria-label="add"
-                        color="primary"
-                        startIcon={<SaveIcon/>}>
-                    Save
-                </Button>
-            </DialogActions>
-        </StyledDialog>
-    );
+                {/* Show Error Message */}
+                {error && (<Typography color="error" variant="body2" style={{marginTop: "10px"}}>
+                    {error}
+                </Typography>)}
+            </Stack>
+        </Stack>
+        <DialogActions className="dialog">
+            <Button sx={{
+                color: colors.text,
+                backgroundColor: colors.button,
+                outline: "1px solid" + colors.border,
+                borderRadius: "2px",
+            }}
+                    onClick={handleCreate}
+                    className={"size-full rounded-xs"}
+                    aria-label="add"
+                    color="primary"
+                    startIcon={<SaveIcon/>}>
+                Save
+            </Button>
+        </DialogActions>
+    </StyledDialog>);
 };
 
 export default CreateTeamDialog;

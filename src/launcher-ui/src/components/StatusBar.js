@@ -37,36 +37,19 @@ const StatusBar = () => {
     }, []);
 
     return (<OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
-        <div style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            position: "relative",
-            padding: "0 12px",
-            border: "1px solid" + colors.border,
-            borderRadius: "2px",
-            gap: "12px",
-            height: "50px",
-            maxWidth: "700px",
-            cursor: "pointer",
-            backdropFilter: "blur(10px)",
-        }}>
+        <div
+            className={"flex position-relative align-center h-fit p-3 border rounded-xs gap-3 w-fit cursor-pointer backdrop-blur"}
+            style={{
+                borderColor: colors.border,
+            }}>
 
             <div id="message" style={{
-                whiteSpace: "nowrap",
-                color: colors.text,
+                whiteSpace: "nowrap", color: colors.text,
             }}>{message}</div>
 
-            <div id="launcher-version-status-and-number" style={{
-                display: "flex", flexDirection: "row", alignItems: "center",
-            }}>
-                <div style={{
-                    width: "12px",
-                    height: "12px",
-                    borderRadius: "12px",
-                    backgroundColor: statusColor,
-                    animation: "blink 2s infinite",
-                    boxShadow: `0 0 12px ${statusColor}`,
+            <div id="launcher-version-status-and-number" className={"flex align-center"}>
+                <div className={"w-3 h-3 rounded-xl"} style={{
+                    backgroundColor: statusColor, animation: "blink 2s infinite", boxShadow: `0 0 12px ${statusColor}`,
                 }}></div>
             </div>
             <span style={{color: colors.text}} id="launcher-version-number">{appVersion}</span>

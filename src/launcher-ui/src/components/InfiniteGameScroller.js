@@ -22,7 +22,7 @@ const InfiniteLoopSlider = ({children, duration, reverse = false}) => {
 };
 
 const GameTag = ({name}) => (
-    <div className="game-button shimmer-button" style={{width: "fit-content",}}>{name}</div>
+    <div className="game-button shimmer-button w-fit">{name}</div>
 );
 
 const InfiniteGameScroller = ({games}) => {

@@ -1,12 +1,11 @@
 import React from "react";
+import {Stack} from "@mui/material";
 
 const HorizontalFlex = ({children}) => {
     return (
-        <div style={{
-            display: "flex", flexDirection: "row", justifyContent: "space-between",
-        }}>
+        <Stack direction={"row"} className={"justify-between"}>
             {children}
-        </div>
+        </Stack>
     );
 };
 

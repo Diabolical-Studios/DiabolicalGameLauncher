@@ -3,13 +3,7 @@ import React from "react";
 const GameButton = ({gameInstalled, downloadProgress, gameVersion, onClick}) => {
     return (
         <button
-            className="game-button shimmer-button"
-            style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-            }}
+            className="game-button shimmer-button w-full flex justify-between align-center"
             onClick={onClick}
         >
             <img

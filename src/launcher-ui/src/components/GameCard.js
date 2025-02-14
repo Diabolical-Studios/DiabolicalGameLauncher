@@ -1,11 +1,10 @@
 import React from "react";
 import {Stack, TextField} from "@mui/material";
-import HoverMenu from "./button/HoverMenu";
 import GameButton from "./button/GameButton";
 import {colors} from "../theme/colors";
 
 const GameCard = ({
-                      game, isInstalled, isEditing = false, setGameName, setGameIconUrl, setGameDescription, style = {}
+                      game, isInstalled, isEditing = false, setGameName, setGameDescription, style = {}
                   }) => {
     const [downloadProgress, setDownloadProgress] = React.useState(null);
     const [gameInstalled, setGameInstalled] = React.useState(isInstalled);
@@ -50,7 +49,7 @@ const GameCard = ({
     };
 
     return (<div
-        className="game-banner"
+        className="game-banner items-stretch justify-end"
         style={{
             backgroundImage: `url('${game.background_image_url}')`, ...style,
         }}
@@ -65,15 +64,13 @@ const GameCard = ({
                 variant={"standard"}
                 fullWidth
                 value={game.game_name}
+                placeholder={"Game Name"}
                 onChange={(e) => setGameName && setGameName(e.target.value)}
                 sx={{
                     "& .MuiInputBase-root": {
                         border: "none",
                     }, "& .MuiInputBase-input": {
-                        color: colors.text,
-                        fontSize: "18px",
-                        textTransform: "uppercase",
-                        fontWeight: 600,
+                        color: colors.text, fontSize: "18px", textTransform: "uppercase", fontWeight: 600,
                     }
                 }}
             />) : (<h3>{game.game_name.toUpperCase()}</h3>)}
@@ -82,6 +79,7 @@ const GameCard = ({
                 variant={"standard"}
                 fullWidth
                 multiline
+                placeholder={"Game Description lalalala"}
                 minRows={2}
                 value={game.description}
                 onChange={(e) => setGameDescription && setGameDescription(e.target.value)}
@@ -96,7 +94,7 @@ const GameCard = ({
         </div>
 
         {/* Controls */}
-        <Stack style={{display: "flex", flexDirection: "row", gap: "12px"}}>
+        <Stack className={"flex flex-row gap-3"}>
             <GameButton
                 gameInstalled={gameInstalled}
                 downloadProgress={downloadProgress}
@@ -104,11 +102,11 @@ const GameCard = ({
                 onClick={handleButtonClick}
             />
 
-            <HoverMenu
+            {/* <HoverMenu
                 actions={[{
                     label: "Uninstall", icon: "MenuIcons/Trash.png", onClick: () => console.log("Uninstall clicked")
                 }]}
-            />
+            />*/}
         </Stack>
     </div>);
 };
