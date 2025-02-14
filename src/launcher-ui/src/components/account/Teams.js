@@ -15,7 +15,8 @@ const Teams = ({teams, loading, error, onUpdateTeam}) => {
             justifyContent: "center",
             gap: "12px",
             width: "-webkit-fill-available",
-            height: "fit-content"
+            height: "-webkit-fill-available",
+            overflow: "auto",
         }}>
             {teams.length === 0 ? (
                 <p>You are not in any teams.</p>
@@ -25,7 +26,7 @@ const Teams = ({teams, loading, error, onUpdateTeam}) => {
                     padding: "12px",
                     margin: 0,
                     textAlign: "left",
-                    overflow: "hidden",
+                    overflow: "auto",
                     gridTemplateColumns: "repeat(3, minmax(250px, 1fr))"
                 }}>
                     {teams.map((team, index) => (
