@@ -26,6 +26,7 @@ const LoginScreen = () => {
                 textAlign: "center",
                 height: "-webkit-fill-available",
                 width: "-webkit-fill-available",
+                maxWidth: "none !important",
                 color: colors.text,
                 padding: "48px",
                 borderRadius: "12px",
