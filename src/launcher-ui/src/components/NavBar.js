@@ -32,7 +32,7 @@ const NavBar = ({onPageChange}) => {
                         setActiveButton(item.id);
                         onPageChange(item.id);
                     }}
-                    className={"game-button p-3 border rounded-xs w-fit flex align-center cursor-pointer justify-center backdrop-blur"}
+                    className={"dialog p-3 border rounded-xs w-fit flex align-center cursor-pointer justify-center backdrop-blur"}
                     style={{
                         borderColor: colors.border,
                         backgroundColor: activeButton === item.id ? "rgba(0,0,0,0.6)" : "transparent",

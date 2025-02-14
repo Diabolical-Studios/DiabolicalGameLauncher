@@ -201,10 +201,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <DialogContent className={"p-0 overflow-hidden"}>
             <Stack className={"dialog gap-5 p-5"} flexDirection={isMobile ? "column" : "row"} style={{
-                backgroundColor: colors.background,
-                border: "1px solid" + colors.border,
+                backgroundColor: colors.background, border: "1px solid" + colors.border,
             }}>
-                <Stack alignItems="center" className={"gap-5 justify-between rounded-xs"}>
+                <Stack width={"min-content"} alignItems="center" className={"gap-5 justify-between rounded-xs"}>
                     <GameCard
                         style={{aspectRatio: "63/88", outline: "1px solid" + colors.border, width: "auto"}}
                         game={{
@@ -220,7 +219,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         setGameBackgroundUrl={setGameBackgroundUrl}
                         setGameDescription={setGameDescription}
                     />
-                    <Stack className={"gap-5 w-full"} style={{margin: 0}}>  
+                    <Stack className={"gap-5 w-full"} style={{margin: 0}}>
 
                         <Stack className={"gap-5"} direction={"row"}>
                             <TextField
@@ -246,6 +245,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     border: "1px solid" + colors.border + "!important",
                                     borderRadius: "4px",
                                     color: colors.text,
+                                    padding: "16.5px 14px !important",
+                                    height: "-webkit-fill-available",
                                 },
                             }}>
                                 <InputLabel id="team-select-label"
@@ -259,7 +260,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     value={selectedTeam}
                                     label="Team"
                                     onChange={handleTeamChange}
-                                    variant={"filled"}
+                                    variant="outlined"
+                                    sx={{
+                                        "& .MuiOutlinedSelect-root": {
+                                            color: colors.text, fontSize: "16px",
+                                        }, "& .MuiOutlinedInput-notchedOutline": {
+                                            border: "1px solid" + colors.border + "!important", borderRadius: "4px"
+                                        }, "& .MuiFormLabel-root": {
+                                            color: "#444444 !important",
+                                        },
+                                    }}
                                 >
                                     {teams.map((team) => (<MenuItem
                                         style={{
@@ -295,8 +305,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 },
                             }}
                         />
-
-
                     </Stack>
                 </Stack>
 

@@ -101,12 +101,6 @@ const GameCard = ({
                 gameVersion={game.version}
                 onClick={handleButtonClick}
             />
-
-            {/* <HoverMenu
-                actions={[{
-                    label: "Uninstall", icon: "MenuIcons/Trash.png", onClick: () => console.log("Uninstall clicked")
-                }]}
-            />*/}
         </Stack>
     </div>);
 };
