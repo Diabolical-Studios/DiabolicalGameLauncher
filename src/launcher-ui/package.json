@@ -53,7 +53,6 @@
       "last 1 safari version"
     ]
   },
-  "homepage": ".",
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "react-router-sitemap-generator": "^0.0.8"
