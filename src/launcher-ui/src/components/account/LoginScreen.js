@@ -4,7 +4,7 @@ import {colors} from "../../theme/colors";
 
 const handleGitHubLogin = () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
-    const redirectUri = encodeURIComponent("/.netlify/functions/github-auth");
+    const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
 
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
 
