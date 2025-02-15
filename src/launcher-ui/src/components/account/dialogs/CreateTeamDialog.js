@@ -38,7 +38,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         console.log("📤 Sending team creation request:", newTeam);
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/createTeam", {
+            const response = await fetch("/.netlify/functions/createTeam", {
                 method: "POST", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 }, body: JSON.stringify(newTeam)

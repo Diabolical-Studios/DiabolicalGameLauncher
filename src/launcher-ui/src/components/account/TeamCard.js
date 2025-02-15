@@ -20,7 +20,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
         console.log(`🎯 Fetching games for team: ${team.team_name}`);
 
         try {
-            const response = await fetch(`https://launcher.diabolical.studio/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`);
+            const response = await fetch(`/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch games for team ${team.team_name}.`);

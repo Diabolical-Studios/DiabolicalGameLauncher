@@ -31,7 +31,7 @@ const AccountDashboard = ({username}) => {
         }
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/getUserTeams", {
+            const response = await fetch("/.netlify/functions/getUserTeams", {
                 method: "GET", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 },
@@ -68,7 +68,7 @@ const AccountDashboard = ({username}) => {
         }
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/getGithubAccessToken", {
+            const response = await fetch("/.netlify/functions/getGithubAccessToken", {
                 method: "GET", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 }, credentials: "include", // Ensures cookies are set properly

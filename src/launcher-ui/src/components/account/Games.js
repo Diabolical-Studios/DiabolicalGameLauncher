@@ -62,7 +62,7 @@ const Games = ({teams}) => {
 
                     console.log(`🎯 Fetching games for team: ${team.team_name}`);
 
-                    const response = await fetch(`https://launcher.diabolical.studio/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`, {
+                    const response = await fetch(`/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`, {
                         method: "GET", headers: {"Content-Type": "application/json"},
                     });
 

@@ -155,7 +155,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         console.log("📤 Sending game creation request:", newGame);
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/createGame", {
+            const response = await fetch("/.netlify/functions/createGame", {
                 method: "POST", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 }, body: JSON.stringify(newGame),

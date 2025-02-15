@@ -44,7 +44,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
         console.log("📤 Sending game update request:", updatedGame);
 
         try {
-            const response = await fetch("https://launcher.diabolical.studio/.netlify/functions/updateGame", {
+            const response = await fetch("/.netlify/functions/updateGame", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
