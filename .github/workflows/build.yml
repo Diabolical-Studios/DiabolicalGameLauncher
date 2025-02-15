@@ -33,15 +33,36 @@ jobs:
         run: |
           echo "Fetching tags..."
           git fetch --tags
-          # Find the last version tag and increment its patch version
+          # Find the last version tag
           LAST_TAG=$(git tag | sort -V | tail -n1)
-          LAST_VERSION=$LAST_TAG
-          if [[ $LAST_VERSION == "" ]]; then LAST_VERSION="0.0.0"; fi
-          NEW_VERSION=$(echo $LAST_VERSION | awk -F. '{$NF = $NF + 1;}1' OFS='.')
+          if [[ -z "$LAST_TAG" ]]; then LAST_TAG="0.0.0"; fi
+          echo "Last version: $LAST_TAG"
+          # Get commit message
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MESSAGE"
+          # Extract version numbers
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_TAG"
+          # Determine version increment
+          if echo "$COMMIT_MESSAGE" | grep -iq "major"; then
+            echo "Incrementing major version"
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif echo "$COMMIT_MESSAGE" | grep -iq "minor"; then
+            echo "Incrementing minor version"
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            echo "Incrementing patch version"
+            PATCH=$((PATCH + 1))
+          fi
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "New version: $NEW_VERSION"
+          # Create new tag
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag $NEW_VERSION
+          # Set environment variable for the new version
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         shell: bash
         env:
