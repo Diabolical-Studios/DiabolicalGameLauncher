@@ -58,6 +58,12 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
             }
 
             console.log("✅ Game updated successfully:", updatedGame);
+            
+            // Send the notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Updated", "Your game was successfully updated!"
+                );
+            }
 
             onSave(updatedGame);
 

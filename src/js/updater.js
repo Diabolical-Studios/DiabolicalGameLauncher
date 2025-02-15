@@ -6,15 +6,12 @@ const fs = require("fs");
 const path = require("path");
 const {downloadGame} = require("./downloadManager");
 const {getLatestGameVersion} = require("./versionChecker");
+const {getInstalledGames} = require("./gameManager");
+
 
 let mainWindow = null;
 
-const versionDirectory = path.join(
-    os.homedir(),
-    "AppData",
-    "Local",
-    "Diabolical Launcher"
-);
+const versionDirectory = path.join(os.homedir(), "AppData", "Local", "Diabolical Launcher");
 
 function initUpdater() {
     autoUpdater.autoDownload = false;
@@ -43,7 +40,7 @@ function initUpdater() {
 function showCustomNotification(mainWindow, title, body, gameId) {
     console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
     if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('show-notification', {title, body, gameId});
+        mainWindow.webContents.send('show-notification', { title, body, gameId });
     } else {
         console.log('mainWindow or webContents is not available.');
     }
@@ -99,16 +96,20 @@ function periodicallyCheckGameVersions(gameIds, interval = 600000) {
     }, interval);
 }
 
-function startPeriodicChecks(window) {
+function startPeriodicChecks(window, interval = 600000) {
     mainWindow = window;
-    const gameIds = ["Forgekeepers", "GFOS1992", "DieStylish", "GP1", "GP2", "ggj25"];
-    periodicallyCheckGameVersions(gameIds);
+
+    const gameIds = getInstalledGames();
+
+    if (!gameIds || gameIds.length === 0) {
+        console.log("No installed games found for update checks.");
+        return;
+    }
+
+    periodicallyCheckGameVersions(gameIds, interval);
 }
 
+
 module.exports = {
-    initUpdater,
-    checkGameUpdates,
-    startPeriodicChecks,
-    checkForUpdates,
-    getLatestGameVersion
+    initUpdater, checkGameUpdates, startPeriodicChecks, checkForUpdates, getLatestGameVersion
 };

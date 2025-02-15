@@ -850,9 +850,7 @@ h2 {
 }
 
 .toaster-notification {
-    position: absolute;
-    bottom: 0;
-    right: -350px; /* Initially off the screen */
+    position: relative;
     width: auto;
     background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),

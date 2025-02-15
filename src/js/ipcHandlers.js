@@ -1,11 +1,9 @@
 const path = require("path");
 const fs = require("fs");
-const {app, ipcMain} = require("electron");
+const {app, ipcMain, BrowserWindow} = require("electron");
 const {exec} = require("child_process");
 const {
-    loadSettings,
-    saveSettings,
-    diabolicalLauncherPath,
+    loadSettings, saveSettings, diabolicalLauncherPath,
 } = require("./settings");
 const AdmZip = require("adm-zip"); // 📌 Install this with: npm install adm-zip
 
@@ -35,8 +33,7 @@ function initIPCHandlers() {
         if (mainWindow) {
             const {width, height} = mainWindow.getContentBounds();
             return {
-                width: Math.round(width / 10) * 10,
-                height: Math.round(height / 10) * 10,
+                width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10,
             };
         }
         return {width: 1280, height: 720};
@@ -46,7 +43,7 @@ function initIPCHandlers() {
     ipcMain.handle("fetch-github-workflows", async (event, repoFullName, accessToken) => {
         try {
             const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
+                headers: {Authorization: `Bearer ${accessToken}`}
             });
             const data = await response.json();
             return data.workflow_runs || [];
@@ -59,7 +56,7 @@ function initIPCHandlers() {
     ipcMain.handle("fetch-github-logs", async (event, repoFullName, runId, accessToken) => {
         try {
             const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs/${runId}/logs`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
+                headers: {Authorization: `Bearer ${accessToken}`}
             });
 
             if (!response.ok) {
@@ -87,15 +84,11 @@ function initIPCHandlers() {
         const mainWindow = require("./windowManager").getMainWindow();
         if (mainWindow) {
             allowResize = true;
-            mainWindow.setContentSize(
-                Math.round(width / 10) * 10,
-                Math.round(height / 10) * 10
-            );
+            mainWindow.setContentSize(Math.round(width / 10) * 10, Math.round(height / 10) * 10);
             mainWindow.center();
             const settings = loadSettings();
             settings.windowSize = {
-                width: Math.round(width / 10) * 10,
-                height: Math.round(height / 10) * 10,
+                width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10,
             };
             saveSettings(settings);
             allowResize = false;
@@ -132,32 +125,22 @@ function initIPCHandlers() {
 
         if (!fs.existsSync(executablePath)) {
             console.error(`Executable not found at path: ${executablePath}`);
-            event.sender.send(
-                "game-launch-error",
-                `Executable not found at path: ${executablePath}`
-            );
+            event.sender.send("game-launch-error", `Executable not found at path: ${executablePath}`);
             return;
         }
 
         console.log(`Launching game from path: ${executablePath}`);
 
-        exec(
-            `"${executablePath}"`,
-            {cwd: gamePath, env: process.env},
-            (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Failed to open game: ${error.message}`);
-                    console.error(`stdout: ${stdout}`);
-                    console.error(`stderr: ${stderr}`);
-                    event.sender.send(
-                        "game-launch-error",
-                        `Failed to open game: ${error.message}`
-                    );
-                } else {
-                    console.log("Game launched successfully");
-                }
+        exec(`"${executablePath}"`, {cwd: gamePath, env: process.env}, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Failed to open game: ${error.message}`);
+                console.error(`stdout: ${stdout}`);
+                console.error(`stderr: ${stderr}`);
+                event.sender.send("game-launch-error", `Failed to open game: ${error.message}`);
+            } else {
+                console.log("Game launched successfully");
             }
-        );
+        });
     });
 
     ipcMain.handle("get-installed-games", async () => {
@@ -181,6 +164,17 @@ function initIPCHandlers() {
     ipcMain.handle("get-app-version", () => {
         return app.getVersion();
     });
+
+    ipcMain.on("show-notification", (event, data) => {
+        const mainWindow = BrowserWindow.getFocusedWindow() || require("./windowManager").getMainWindow();
+
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send("show-notification", data);
+        } else {
+            console.log("No main window found to send notification");
+        }
+    });
+
 }
 
 module.exports = {

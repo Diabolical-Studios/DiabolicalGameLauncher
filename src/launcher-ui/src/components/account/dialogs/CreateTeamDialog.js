@@ -32,7 +32,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         }
 
         const newTeam = {
-            team_name: teamName.trim(), team_icon_url: teamIconUrl.trim(), github_ids: githubIds
+            team_name: teamName.trim(), team_icon_url: teamIconUrl.trim(), github_ids: githubIds,
         };
 
         console.log("📤 Sending team creation request:", newTeam);
@@ -40,8 +40,8 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         try {
             const response = await fetch("/.netlify/functions/createTeam", {
                 method: "POST", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID,
-                }, body: JSON.stringify(newTeam)
+                    "Content-Type": "application/json", sessionID: sessionID,
+                }, body: JSON.stringify(newTeam),
             });
 
             const data = await response.json();
@@ -52,6 +52,13 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
             }
 
             console.log("✅ Team created successfully:", data);
+
+            // Send the notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Team Created", "Your team was successfully created!"
+                );
+            }
+
             onCreate(data);
             setTeamName("");
             setTeamIconUrl("");
@@ -60,6 +67,11 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         } catch (err) {
             console.error("❌ Error creating team:", err);
             setError(err.message || "An error occurred while creating the team.");
+
+            // Send an error notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Team Creation Failed", err.message || "An error occurred.", "team-" + Date.now());
+            }
         }
     };
 

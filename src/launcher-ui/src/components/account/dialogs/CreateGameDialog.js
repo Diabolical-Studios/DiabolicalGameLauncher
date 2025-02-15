@@ -167,6 +167,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             console.log("✅ Game created successfully:", newGame);
 
+            // Send the notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Created", "Your game was successfully created!"
+                );
+            }
+
             await fetch("https://api.diabolical.studio/github-app/webhook", {
                 method: "POST", headers: {
                     "Content-Type": "application/json",

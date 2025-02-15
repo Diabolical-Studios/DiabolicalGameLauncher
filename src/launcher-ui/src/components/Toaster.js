@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from "react";
-
+import React, { useEffect, useState } from "react";
+import { colors } from "../theme/colors";
+import ToastItem from "./ToastItem";
 
 const Toaster = () => {
     const [toasters, setToasters] = useState([]);
@@ -7,21 +8,21 @@ const Toaster = () => {
     useEffect(() => {
         if (window.electronAPI) {
             window.electronAPI.onNotification((data) => {
-                setToasters((prevToasters) => {
-                    if (prevToasters.some(toaster => toaster.gameId === data.gameId)) {
-                        return prevToasters;
+                setToasters((prev) => {
+                    // Avoid duplicate notifications based on gameId and title
+                    if (prev.some((t) => t.gameId === data.gameId && t.title === data.title)) {
+                        return prev;
                     }
-
-                    const newToaster = {
-                        id: Date.now(), title: data.title, body: data.body, gameId: data.gameId,
+                    const newToast = {
+                        id: Date.now(),
+                        title: data.title,
+                        body: data.body,
+                        gameId: data.gameId, // if not provided, will be undefined
                     };
-
-                    return [...prevToasters, newToaster];
+                    return [...prev, newToast];
                 });
 
-                setTimeout(() => {
-                    setToasters((prevToasters) => prevToasters.filter((toaster) => toaster.gameId !== data.gameId));
-                }, 60000);
+                // Instead of immediately removing the toast, let ToastItem auto-dismiss via its own timer.
             });
         }
     }, []);
@@ -29,30 +30,32 @@ const Toaster = () => {
     const handleDownload = (gameId) => {
         if (window.electronAPI) {
             window.electronAPI.downloadGame(gameId);
-            setToasters((prevToasters) => prevToasters.filter((toaster) => toaster.gameId !== gameId));
+            // Remove toast via dismissal after slide out (handled in ToastItem)
         }
     };
 
-    return (<div id="toaster-container">
-        {toasters.map((toaster, index) => (<div
-            key={toaster.id}
-            className="toaster-notification show"
-            style={{bottom: `${12 + index * 75}px`}}
+    const dismissToaster = (id) => {
+        setToasters((prev) => prev.filter((t) => t.id !== id));
+    };
+
+    return (
+        <div
+            id="toaster-container"
+            className="fixed z-[1000] flex flex-col gap-3 items-end"
+            style={{ bottom: "24px", right: "24px" }}
         >
-            <div className="toaster-content">
-                <div style={{margin: "12px 0 12px 16px"}}>
-                    <strong>{toaster.title}</strong>
-                    <p>{toaster.body}</p>
-                </div>
-                <button
-                    className="toaster-button"
-                    onClick={() => handleDownload(toaster.gameId)}
-                >
-                    UPDATE
-                </button>
-            </div>
-        </div>))}
-    </div>);
+            {toasters.map((toast) => (
+                <ToastItem
+                    key={toast.id}
+                    toast={toast}
+                    timeout={300}
+                    autoDismiss={5000}
+                    onDownload={handleDownload}
+                    onDismiss={dismissToaster}
+                />
+            ))}
+        </div>
+    );
 };
 
 export default Toaster;

@@ -90,6 +90,13 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             }
 
             console.log("✅ Team updated successfully:", data);
+            
+            // Send the notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Team Updated", "Your team was successfully updated!"
+                );
+            }
+            
             onSave({
                 ...team,
                 team_name: teamName,

@@ -30,10 +30,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
     openExternal: (url) => shell.openExternal(url),
 
+    showCustomNotification: (title, body, gameId) => ipcRenderer.send("show-notification", {title, body, gameId}),
     onNotification: (callback) => {
-        ipcRenderer.on("show-notification", (event, data) => {
-            callback(data);
-        });
+        ipcRenderer.on("show-notification", (event, data) => callback(data));
     },
 
     showContextMenu: (gameId, position) => {

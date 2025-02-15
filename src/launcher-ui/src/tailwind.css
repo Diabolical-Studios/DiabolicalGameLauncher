@@ -1562,100 +1562,12 @@ body {
   cursor: -webkit-grabbing;
   cursor: -moz-grabbing;
 }
-#toaster-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: auto;
-  z-index: 1000;
-  gap: 16px;
-  display: flex;
-  flex-direction: column;
-}
-.toaster-notification {
-  position: absolute;
-  bottom: 0;
-  right: -350px;
-  width: auto;
-  background-color: var(--background);
-  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-  background-position: 0 0, 0 0;
-  background-size: 20px 20px;
-  animation: moveBackground 3s linear infinite;
-  color: var(--text);
-  border-radius: 2px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-  transition: right 0.5s ease-in-out;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-}
-.toaster-notification.show {
-  right: 12px;
-  opacity: 1;
-  visibility: visible;
-  width: 400px;
-  outline: solid 1px var(--border);
-}
-.toaster-content {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  justify-content: space-between;
-}
-.toaster-content p {
-  margin: 0;
-  color: #4b4b4b;
-}
-.toaster-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-.toaster-button {
-  position: relative;
-  border: none;
-  border-radius: 0 2px 2px 0;
-  height: 60px;
-  width: 100px;
-  background-color: var(--background);
-  background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-  background-position: 0 0, 0 0;
-  background-size: 20px 20px;
-  font-size: 16px;
-  font-weight: 670;
-  color: var(--text);
-  transition: 0.2s;
-  animation: moveBackground 3s linear infinite;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.toaster-button svg {
-  position: absolute;
-  left: -77px;
-  top: -10px;
-  transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
-  opacity: 0.5;
-}
-.toaster-button:hover svg {
-  transform: translateX(260px) scale(4);
-  opacity: 0.8;
-}
+
 .toaster-button:hover {
-  background-color: var(--text);
+  backdrop-filter: invert(1);
   color: var(--background);
 }
-.toaster-button:active {
-  transform: scale(0.9) rotate(-3deg) !important;
-}
-@keyframes moveBackground {
-  0% {
-    background-position: 0 0, 0 0;
-  }
-  100% {
-    background-position: 20px 20px, 20px 20px;
-  }
-}
+
 .window-button {
   padding: 4px;
   border: 1px solid #303030;
