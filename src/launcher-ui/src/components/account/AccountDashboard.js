@@ -117,7 +117,7 @@ const AccountDashboard = ({username}) => {
             </Stack>
             <LogoutButton/>
         </div>
-        
+
         {/* Main Content */}
         <div className={"w-full h-full flex overflow-hidden"}>
             {/* Sidebar Navigation */}

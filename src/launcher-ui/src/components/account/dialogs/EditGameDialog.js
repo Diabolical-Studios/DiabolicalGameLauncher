@@ -73,76 +73,76 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
-            <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
-                <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
-                    <Stack spacing={2} alignItems="center">
-                        {/* Render Editable Game Card */}
-                        <GameCard
-                            style={{aspectRatio: "63/88", outline: "1px solid" + colors.border}}
-                            game={{
-                                game_name: gameName,
-                                background_image_url: gameBackgroundUrl,
-                                description: gameDescription,
-                                version: gameVersion,
-                            }}
-                            isEditing={true}
-                            setGameName={setGameName}
-                            setGameBackgroundUrl={setGameBackgroundUrl}
-                            setGameDescription={setGameDescription}
-                        />
-                    </Stack>
+        <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
+            <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
+                <Stack spacing={2} alignItems="center">
+                    {/* Render Editable Game Card */}
+                    <GameCard
+                        style={{aspectRatio: "63/88", outline: "1px solid" + colors.border}}
+                        game={{
+                            game_name: gameName,
+                            background_image_url: gameBackgroundUrl,
+                            description: gameDescription,
+                            version: gameVersion,
+                        }}
+                        isEditing={true}
+                        setGameName={setGameName}
+                        setGameBackgroundUrl={setGameBackgroundUrl}
+                        setGameDescription={setGameDescription}
+                    />
+                </Stack>
+                <Stack
+                    style={{
+                        display: "flex", flexDirection: "column", width: "-webkit-fill-available", gap: "24px"
+                    }}
+                >
+                    {/* ✅ Background Image URL Input Field */}
                     <Stack
                         style={{
-                            display: "flex", flexDirection: "column", width: "-webkit-fill-available", gap: "24px"
+                            height: '-webkit-fill-available',
+                            alignItems: "center",
+                            borderRadius: "2px",
+                            display: "flex",
+                            width: "-webkit-fill-available"
                         }}
                     >
-                        {/* ✅ Background Image URL Input Field */}
-                        <Stack
-                            style={{
-                                height: '-webkit-fill-available',
-                                alignItems: "center",
-                                borderRadius: "2px",
-                                display: "flex",
-                                width: "-webkit-fill-available"
-                            }}
-                        >
-                            <TextField
-                                label="Background Image URL"
-                                variant="outlined"
-                                fullWidth
-                                multiline={true}
-                                value={gameBackgroundUrl}
-                                onChange={(e) => setGameBackgroundUrl(e.target.value)}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        color: colors.text, fontSize: "16px",
-                                    }, "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                                    }, "& .MuiFormLabel-root": {
-                                        color: "#444444 !important",
-                                    },
-                                }}
-                            />
-                        </Stack>
-
-                        {/* Save Button */}
-                        <Button
+                        <TextField
+                            label="Background Image URL"
+                            variant="outlined"
+                            fullWidth
+                            multiline={true}
+                            value={gameBackgroundUrl}
+                            onChange={(e) => setGameBackgroundUrl(e.target.value)}
                             sx={{
-                                color: "#fff !important",
-                                backgroundColor: colors.button,
-                                outline: "1px solid" + colors.border,
-                                borderRadius: "2px",
+                                "& .MuiOutlinedInput-root": {
+                                    color: colors.text, fontSize: "16px",
+                                }, "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "1px solid" + colors.border + "!important", borderRadius: "2px"
+                                }, "& .MuiFormLabel-root": {
+                                    color: "#444444 !important",
+                                },
                             }}
-                            onClick={handleSave}
-                            aria-label="save"
-                            startIcon={<SaveIcon/>}
-                        >
-                            Save
-                        </Button>
+                        />
                     </Stack>
+
+                    {/* Save Button */}
+                    <Button
+                        sx={{
+                            color: "#fff !important",
+                            backgroundColor: colors.button,
+                            outline: "1px solid" + colors.border,
+                            borderRadius: "2px",
+                        }}
+                        onClick={handleSave}
+                        aria-label="save"
+                        startIcon={<SaveIcon/>}
+                    >
+                        Save
+                    </Button>
                 </Stack>
-            </DialogContent>
-        </StyledDialog>);
+            </Stack>
+        </DialogContent>
+    </StyledDialog>);
 };
 
 export default EditGameDialog;

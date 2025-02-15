@@ -26,4 +26,4 @@ const applyColorsToCSS = () => {
 // Automatically apply colors when the script runs
 applyColorsToCSS();
 
-export { colors, applyColorsToCSS };
+export {colors, applyColorsToCSS};

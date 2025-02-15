@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Slide } from "@mui/material";
-import { colors } from "../theme/colors";
+import React, {useEffect, useState} from "react";
+import {Slide} from "@mui/material";
+import {colors} from "../theme/colors";
 
-const ToastItem = ({ toast, timeout = 300, autoDismiss = 3000, onDownload, onDismiss }) => {
+const ToastItem = ({toast, timeout = 300, autoDismiss = 3000, onDownload, onDismiss}) => {
     const [show, setShow] = useState(false);
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const ToastItem = ({ toast, timeout = 300, autoDismiss = 3000, onDownload, onDis
                 <div className="flex items-center justify-between h-full gap-3">
                     <div className="p-3">
                         <strong>{toast.title}</strong>
-                        <p className="m-0" style={{ color: colors.border }}>
+                        <p className="m-0" style={{color: colors.border}}>
                             {toast.body}
                         </p>
                     </div>

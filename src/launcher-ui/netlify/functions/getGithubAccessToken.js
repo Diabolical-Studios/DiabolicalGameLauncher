@@ -15,7 +15,7 @@ exports.handler = async function (event) {
         if (!sessionID) {
             return {
                 statusCode: 401,
-                body: JSON.stringify({ error: "Session ID missing." }),
+                body: JSON.stringify({error: "Session ID missing."}),
             };
         }
 
@@ -23,14 +23,14 @@ exports.handler = async function (event) {
         const installationsRes = await axios.get(
             `${process.env.API_BASE_URL}/rest-api/users/installations/${sessionID}`,
             {
-                headers: { "x-api-key": process.env.API_KEY },
+                headers: {"x-api-key": process.env.API_KEY},
             }
         );
 
         if (!installationsRes.data || !installationsRes.data.github_installations) {
             return {
                 statusCode: 404,
-                body: JSON.stringify({ error: "No GitHub installations found." }),
+                body: JSON.stringify({error: "No GitHub installations found."}),
             };
         }
 
@@ -43,14 +43,14 @@ exports.handler = async function (event) {
                 "Set-Cookie": `githubInstallations=${encodeURIComponent(JSON.stringify(githubInstallations))}; Path=/; HttpOnly; Secure; SameSite=Strict`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ success: true, githubInstallations }),
+            body: JSON.stringify({success: true, githubInstallations}),
         };
 
     } catch (error) {
         console.error("❌ Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };

@@ -105,7 +105,8 @@ const TeamCard = ({team, onUpdateTeam}) => {
 
                 {/* Team Members - GitHub Profile Pictures */}
                 <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup max={4} sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
+                    <AvatarGroup max={4}
+                                 sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
                         {githubAvatars.map(member => (
                             <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>
                         ))}

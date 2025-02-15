@@ -40,7 +40,7 @@ function initUpdater() {
 function showCustomNotification(mainWindow, title, body, gameId) {
     console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
     if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('show-notification', { title, body, gameId });
+        mainWindow.webContents.send('show-notification', {title, body, gameId});
     } else {
         console.log('mainWindow or webContents is not available.');
     }

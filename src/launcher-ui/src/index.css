@@ -128,7 +128,7 @@ body {
     /*Box model stuff*/
     width: -webkit-fill-available;
     padding: 10px 10px;
-    background: var(--background)00000;
+    background: var(--background) 00000;
     /*Typography stuff*/
     color: var(--text);
     /*Miscellaneous*/
@@ -579,7 +579,7 @@ h2 {
 
 /*.game-button:hover svg {*/
 /*    !*Manipulations stuff*!*/
-/*    transform: translateX(210px) scale(2);*/ 
+/*    transform: translateX(210px) scale(2);*/
 /*    opacity: 0.8;*/
 /*}*/
 

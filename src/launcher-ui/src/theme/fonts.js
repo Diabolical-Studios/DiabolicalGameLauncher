@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import {createTheme} from "@mui/material/styles";
 
 const fonts = {
     primary: "'JetBrains Mono', monospace",
@@ -25,11 +25,11 @@ applyFontsToCSS();
 const themeFont = createTheme({
     typography: {
         fontFamily: fonts.primary,
-        h1: { fontFamily: fonts.primary },
-        h2: { fontFamily: fonts.primary },
-        body1: { fontFamily: fonts.primary },
-        button: { fontFamily: fonts.primary },
+        h1: {fontFamily: fonts.primary},
+        h2: {fontFamily: fonts.primary},
+        body1: {fontFamily: fonts.primary},
+        button: {fontFamily: fonts.primary},
     },
 });
 
-export { fonts, applyFontsToCSS, themeFont };
+export {fonts, applyFontsToCSS, themeFont};

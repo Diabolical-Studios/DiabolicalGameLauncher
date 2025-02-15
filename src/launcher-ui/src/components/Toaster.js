@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ToastItem from "./ToastItem";
 
 const Toaster = () => {
@@ -41,7 +41,7 @@ const Toaster = () => {
         <div
             id="toaster-container"
             className="fixed flex flex-col gap-3 items-end"
-            style={{ bottom: "24px", right: "24px", zIndex: "9999" }}
+            style={{bottom: "24px", right: "24px", zIndex: "9999"}}
         >
             {toasters.map((toast) => (
                 <ToastItem

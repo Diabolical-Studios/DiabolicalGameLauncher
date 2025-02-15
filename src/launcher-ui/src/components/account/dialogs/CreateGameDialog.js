@@ -1,6 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {
-    Button, CircularProgress, Dialog, FormControl, InputLabel, Link, MenuItem, Select, Stack, TextField
+    Button,
+    CircularProgress,
+    Dialog,
+    FormControl,
+    InputLabel,
+    Link,
+    MenuItem,
+    Select,
+    Stack,
+    TextField
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";

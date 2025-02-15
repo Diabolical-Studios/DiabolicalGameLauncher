@@ -1,17 +1,15 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {
-    Stack, Typography, Box, Tabs, Tab, Dialog, DialogTitle, DialogContent
-} from "@mui/material";
+import {Box, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography} from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { colors } from "../../theme/colors";
+import {colors} from "../../theme/colors";
 import Cookies from "js-cookie";
 
-const GameInfoPanel = ({ game }) => {
+const GameInfoPanel = ({game}) => {
     const [workflows, setWorkflows] = useState([]);
     const [logs, setLogs] = useState("");
     const [, setLoadingLogs] = useState(false);
@@ -52,16 +50,16 @@ const GameInfoPanel = ({ game }) => {
     const getWorkflowStatus = (status) => {
         switch (status) {
             case "success":
-                return { color: colors.success, icon: <CheckCircleIcon fontSize="small" /> };
+                return {color: colors.success, icon: <CheckCircleIcon fontSize="small"/>};
             case "in_progress":
-                return { color: colors.primary, icon: <PlayCircleOutlineIcon fontSize="small" /> };
+                return {color: colors.primary, icon: <PlayCircleOutlineIcon fontSize="small"/>};
             case "queued":
-                return { color: colors.warning, icon: <HourglassEmptyIcon fontSize="small" /> };
+                return {color: colors.warning, icon: <HourglassEmptyIcon fontSize="small"/>};
             case "failure":
             case "failed":
-                return { color: colors.error, icon: <ErrorIcon fontSize="small" /> };
+                return {color: colors.error, icon: <ErrorIcon fontSize="small"/>};
             default:
-                return { color: colors.textSecondary, icon: <HelpOutlineIcon fontSize="small" /> };
+                return {color: colors.textSecondary, icon: <HelpOutlineIcon fontSize="small"/>};
         }
     };
 
@@ -85,10 +83,10 @@ const GameInfoPanel = ({ game }) => {
                     padding: "6px 12px",
                     borderRadius: "2px",
                     cursor: "pointer",
-                    "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" }
+                    "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"}
                 }}
             >
-                <OpenInNewIcon fontSize="small" sx={{ marginRight: 1 }} />
+                <OpenInNewIcon fontSize="small" sx={{marginRight: 1}}/>
                 {game.github_repo}
             </Box>
         ) : "No Repo Linked",
@@ -102,7 +100,7 @@ const GameInfoPanel = ({ game }) => {
                 }}
             >
                 {getWorkflowStatus(deployStatus).icon}
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                <Typography variant="body2" sx={{marginLeft: 1}}>
                     {deployStatus.toUpperCase()}
                 </Typography>
             </Box>
@@ -130,8 +128,8 @@ const GameInfoPanel = ({ game }) => {
                     borderBottom: `1px solid ${colors.border}`
                 }}
             >
-                <Tab value="gameInfo" label="Game Info" sx={{ color: colors.text }} />
-                <Tab value="workflowLogs" label="Workflow Logs" sx={{ color: colors.text }} />
+                <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>
+                <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>
             </Tabs>
 
             {/* Game Info Tab */}
@@ -147,7 +145,7 @@ const GameInfoPanel = ({ game }) => {
                                 borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
                             }}
                         >
-                            <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+                            <Typography variant="body2" sx={{color: colors.textSecondary}}>
                                 {key}:
                             </Typography>
                             {value}
@@ -161,14 +159,14 @@ const GameInfoPanel = ({ game }) => {
                 <Stack spacing={2}>
                     {workflows.length > 0 ? (
                         <>
-                            <Typography variant="h6" sx={{ color: colors.textSecondary }}>
+                            <Typography variant="h6" sx={{color: colors.textSecondary}}>
                                 GitHub Actions Logs
                             </Typography>
 
                             {/* List of Workflow Runs */}
-                            <Stack spacing={1} sx={{ maxHeight: "200px", overflowY: "auto" }}>
+                            <Stack spacing={1} sx={{maxHeight: "200px", overflowY: "auto"}}>
                                 {workflows.map((run, index) => {
-                                    const { color, icon } = getWorkflowStatus(run.conclusion || run.status);
+                                    const {color, icon} = getWorkflowStatus(run.conclusion || run.status);
                                     return (
                                         <Box
                                             key={run.id}
@@ -179,13 +177,13 @@ const GameInfoPanel = ({ game }) => {
                                                 fontWeight: "bold",
                                                 padding: "10px 8px",
                                                 cursor: "pointer",
-                                                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                                                "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"},
                                                 borderBottom: index !== workflows.length - 1 ? `1px solid ${colors.border}` : "none"
                                             }}
                                             onClick={() => fetchLogs(run.id)}
                                         >
                                             {icon}
-                                            <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                                            <Typography variant="body2" sx={{marginLeft: 1}}>
                                                 {run.display_title || `Run #${run.run_number}`} - {(run.conclusion || run.status).toUpperCase()}
                                             </Typography>
                                         </Box>
@@ -194,7 +192,7 @@ const GameInfoPanel = ({ game }) => {
                             </Stack>
                         </>
                     ) : (
-                        <Typography sx={{ color: colors.textSecondary }}>
+                        <Typography sx={{color: colors.textSecondary}}>
                             No GitHub workflows found for this repository.
                         </Typography>
                     )}
@@ -208,12 +206,17 @@ const GameInfoPanel = ({ game }) => {
                 fullWidth
                 maxWidth="md"
                 sx={{
-                    "& .MuiDialog-paper": { backgroundColor: "rgba(0,0,0,0.9)", color: colors.text, outline: "1px solid" + colors.border, borderRadius: "2px" },
+                    "& .MuiDialog-paper": {
+                        backgroundColor: "rgba(0,0,0,0.9)",
+                        color: colors.text,
+                        outline: "1px solid" + colors.border,
+                        borderRadius: "2px"
+                    },
                 }}
             >
                 <DialogTitle>GitHub Actions Logs</DialogTitle>
                 <DialogContent>
-                    <pre style={{ whiteSpace: "pre-wrap" }}>{logs}</pre>
+                    <pre style={{whiteSpace: "pre-wrap"}}>{logs}</pre>
                 </DialogContent>
             </Dialog>
         </Stack>

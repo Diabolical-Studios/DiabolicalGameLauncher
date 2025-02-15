@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import BackgroundAnimation from "./components/BackgroundAnimation";
 import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import NavBar from "./components/NavBar";
@@ -16,7 +16,7 @@ import {applyColorsToCSS} from "./theme/colors";
 import "./settings.css";
 import "./changelog.css";
 import {ThemeProvider} from "@mui/material";
-import { themeFont, applyFontsToCSS } from "./theme/fonts"; // ✅ Import fonts
+import {applyFontsToCSS, themeFont} from "./theme/fonts"; // ✅ Import fonts
 
 
 function App() {
