@@ -32,7 +32,7 @@ const LoginScreen = () => {
             <button className="game-button shimmer-button flex flex-row justify-between items-center gap-3 w-fit"
                     onClick={handleGitHubLogin}>
                 <img alt="GitHub" className={"aspect-square w-6"}
-                     src="MenuIcons/github-mark-white.png"/>
+                     src="/github.png"/>
                 <p className={"m-0"}>Get Started with GitHub</p>
             </button>
         </Box>

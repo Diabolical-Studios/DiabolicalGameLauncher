@@ -18,7 +18,7 @@ const NavBar = () => {
             <OpenExternalLink url="https://diabolical.studio">
                 <img
                     className="w-full aspect-square cursor-pointer"
-                    src="android-chrome-192x192.png"
+                    src="/android-chrome-192x192.png"
                     alt="Icon"
                     draggable="false"
                 />

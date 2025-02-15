@@ -371,7 +371,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             >
                                 {/* Custom GitHub Icon */}
                                 <img
-                                    src="MenuIcons/github-mark-white.png"
+                                    src="/github.png"
                                     alt="GitHub"
                                     style={{aspectRatio: "1 / 1", width: "16px"}}
                                 />

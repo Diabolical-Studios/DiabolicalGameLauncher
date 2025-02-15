@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 ">
+
     <url>
-      <loc>https://launcher.diabolical.studio/</loc>
-      <lastmod>2025-02-15T18:42:28.971Z</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
+        <loc>https://launcher.diabolical.studio/</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
     </url>
     <url>
-      <loc>https://launcher.diabolical.studio/landing</loc>
-      <lastmod>2025-02-15T18:42:28.971Z</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
+        <loc>https://launcher.diabolical.studio/account</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
     </url>
     <url>
-      <loc>https://launcher.diabolical.studio/account</loc>
-      <lastmod>2025-02-15T18:42:28.971Z</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
+        <loc>https://launcher.diabolical.studio/account/login</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
     </url>
     <url>
-      <loc>https://launcher.diabolical.studio/changelog</loc>
-      <lastmod>2025-02-15T18:42:28.971Z</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority> 
+        <loc>https://launcher.diabolical.studio/account/dashboard</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
     </url>
     <url>
-      <loc>https://launcher.diabolical.studio/settings</loc>
-      <lastmod>2025-02-15T18:42:28.971Z</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.8</priority>
+        <loc>https://launcher.diabolical.studio/account/dashboard/teams</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://launcher.diabolical.studio/account/dashboard/games</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://launcher.diabolical.studio/changelog</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://launcher.diabolical.studio/settings</loc>
+        <lastmod>2025-02-15T21:56:15.844Z</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
     </url>
 </urlset>

@@ -97,21 +97,19 @@ export default function AccountPage() {
                 <Route
                     index
                     element={
-                        isLoggedIn ? (
-                            <AccountDashboard username={username} />
-                        ) : (
-                            <Navigate to="login" />
-                        )
+                        isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />
                     }
                 />
                 <Route
                     path="login"
                     element={
-                        isLoggedIn ? (
-                            <Navigate to="/account" />
-                        ) : (
-                            <LoginScreen />
-                        )
+                        isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />
+                    }
+                />
+                <Route
+                    path="dashboard/*"
+                    element={
+                        isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />
                     }
                 />
             </Route>

@@ -1,58 +1,53 @@
-import React, {useCallback, useEffect, useState} from "react";
+// AccountDashboard.js
+import React, { useCallback, useEffect, useState } from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import Cookies from "js-cookie";
+import { Avatar, Stack } from "@mui/material";
 import Teams from "./Teams";
+import Games from "./Games";
 import AccountName from "./AccountName";
 import LogoutButton from "./LogoutButton";
 import Grid from "../Grid";
-import Games from "./Games";
 import Divider from "../Divider";
 import ImageButton from "../button/ImageButton";
-import {Avatar, Stack} from "@mui/material";
+import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
-import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
-import Cookies from "js-cookie";
-import {colors} from "../../theme/colors";
+import { colors } from "../../theme/colors";
 
-const AccountDashboard = ({username}) => {
+export default function AccountDashboard({ username }) {
     const [teams, setTeams] = useState([]);
     const [loadingTeams, setLoadingTeams] = useState(true);
     const [errorTeams, setErrorTeams] = useState(null);
-    const [activeTab, setActiveTab] = useState("teams");
     const [githubAvatar, setGithubAvatar] = useState(null);
 
     const fetchTeams = useCallback(async () => {
         const sessionID = Cookies.get("sessionID");
-
         if (!sessionID) {
-            console.error("❌ No session ID found in cookies.");
             setErrorTeams("No session ID found.");
             setLoadingTeams(false);
             return;
         }
-
         try {
             const response = await fetch("/.netlify/functions/getUserTeams", {
-                method: "GET", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID,
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    sessionID: sessionID,
                 },
             });
-
             if (!response.ok) {
                 throw new Error("Failed to fetch teams.");
             }
-
             const data = await response.json();
-            console.log("✅ Fetched Teams Data:", data);
             setTeams(data);
-
             if (data.length > 0 && data[0].github_ids) {
-                const userGithubID = data[0].github_ids.find(id => id);
+                const userGithubID = data[0].github_ids.find((id) => id);
                 if (userGithubID) {
                     setGithubAvatar(`https://avatars.githubusercontent.com/u/${userGithubID}?v=4`);
                 }
             }
         } catch (err) {
-            console.error("❌ Error fetching teams:", err);
             setErrorTeams("Failed to load teams.");
         } finally {
             setLoadingTeams(false);
@@ -61,87 +56,113 @@ const AccountDashboard = ({username}) => {
 
     const fetchGitHubInstallations = useCallback(async () => {
         const sessionID = Cookies.get("sessionID");
-
-        if (!sessionID) {
-            console.error("❌ No session ID found.");
-            return;
-        }
-
+        if (!sessionID) return;
         try {
             const response = await fetch("/.netlify/functions/getGithubAccessToken", {
-                method: "GET", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID,
-                }, credentials: "include", // Ensures cookies are set properly
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    sessionID: sessionID,
+                },
+                credentials: "include",
             });
-
             if (!response.ok) {
-                throw new Error(`Failed to fetch installations: ${response.statusText}`);
+                throw new Error("Failed to fetch installations");
             }
-
             const data = await response.json();
             if (data.githubInstallations) {
                 Cookies.set("githubInstallations", JSON.stringify(data.githubInstallations), {
-                    expires: 1, secure: true
+                    expires: 1,
+                    secure: true,
                 });
-                console.log("✅ GitHub Installations Stored in Cookies:", data.githubInstallations);
-            } else {
-                console.warn("⚠️ No installations found in response.");
             }
-        } catch (error) {
-            console.error("❌ Error fetching GitHub installations:", error);
-        }
+        } catch {}
     }, []);
 
     useEffect(() => {
         fetchTeams();
-        fetchGitHubInstallations(); // 🔥 Fetch installations after login
+        fetchGitHubInstallations();
     }, [fetchTeams, fetchGitHubInstallations]);
 
     const handleUpdateTeam = (updatedTeam) => {
-        setTeams((prevTeams) => prevTeams.map((team) => team.team_id === updatedTeam.team_id ? {...team, ...updatedTeam} : team));
+        setTeams((prev) =>
+            prev.map((team) =>
+                team.team_id === updatedTeam.team_id ? { ...team, ...updatedTeam } : team
+            )
+        );
     };
 
-    return (<div className={"flex flex-col h-full"}>
-        {/* Top Bar */}
-        <div className={"flex justify-between align-center backdrop-blur p-3"} style={{
-            backgroundColor: colors.transparent,
-            borderBottom: "1px solid" + colors.border,
-        }}>
-            <Stack direction="row" spacing={"12px"} justifyContent="center" alignItems="center">
-                <Avatar
-                    alt="GitHub User"
-                    src={githubAvatar || "/static/images/avatar/1.jpg"}
-                    sx={{width: 32, height: 32, outline: "1px solid" + colors.border}}
-                />
-                <AccountName username={username}/>
-            </Stack>
-            <LogoutButton/>
-        </div>
-
-        {/* Main Content */}
-        <div className={"w-full h-full flex overflow-hidden"}>
-            {/* Sidebar Navigation */}
-            <ul className={"flex flex-col gap-3 h-full w-1/5 p-3 m-0 justify-between"}>
-                <Stack direction="column" spacing={"12px"}>
-                    <ImageButton text="Teams" icon={GroupsIcon} onClick={() => setActiveTab("teams")}/>
-                    <ImageButton text="Games" icon={VideogameAssetIcon} onClick={() => setActiveTab("games")}/>
+    return (
+        <div className="flex flex-col h-full">
+            <div
+                className="flex justify-between align-center backdrop-blur p-3"
+                style={{
+                    backgroundColor: colors.transparent,
+                    borderBottom: "1px solid" + colors.border,
+                }}
+            >
+                <Stack direction="row" spacing="12px" justifyContent="center" alignItems="center">
+                    <Avatar
+                        alt="GitHub User"
+                        src={githubAvatar || "/static/images/avatar/1.jpg"}
+                        sx={{ width: 32, height: 32, outline: "1px solid" + colors.border }}
+                    />
+                    <AccountName username={username} />
                 </Stack>
-
-                <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} setActiveTab={setActiveTab}/>
-            </ul>
-
-            <Divider vertical={true}/>
-
-            {/* Content Area */}
-            <div className={"flex flex-col gap-3 size-full mt-0"}>
-                <Grid>
-                    {activeTab === "teams" && <Teams teams={teams} loading={loadingTeams} error={errorTeams}
-                                                     onUpdateTeam={handleUpdateTeam}/>}
-                    {activeTab === "games" && <Games teams={teams}/>}
-                </Grid>
+                <LogoutButton />
+            </div>
+            <div className="w-full h-full flex overflow-hidden">
+                <ul className="flex flex-col gap-3 h-full w-1/5 p-3 m-0 justify-between">
+                    <Stack direction="column" spacing="12px">
+                        <Link to="/account/dashboard/teams">
+                            <ImageButton style={{width: "100%"}} text="Teams" icon={GroupsIcon} />
+                        </Link>
+                        <Link to="/account/dashboard/games">
+                            <ImageButton style={{width: "100%"}} text="Games" icon={VideogameAssetIcon} />
+                        </Link>
+                    </Stack>
+                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
+                </ul>
+                <Divider vertical />
+                <div className="flex flex-col gap-3 size-full mt-0">
+                    <Routes>
+                        <Route
+                            index
+                            element={
+                                <Grid>
+                                    <Teams
+                                        teams={teams}
+                                        loading={loadingTeams}
+                                        error={errorTeams}
+                                        onUpdateTeam={handleUpdateTeam}
+                                    />
+                                </Grid>
+                            }
+                        />
+                        <Route
+                            path="teams"
+                            element={
+                                <Grid>
+                                    <Teams
+                                        teams={teams}
+                                        loading={loadingTeams}
+                                        error={errorTeams}
+                                        onUpdateTeam={handleUpdateTeam}
+                                    />
+                                </Grid>
+                            }
+                        />
+                        <Route
+                            path="games"
+                            element={
+                                <Grid>
+                                    <Games teams={teams} />
+                                </Grid>
+                            }
+                        />
+                    </Routes>
+                </div>
             </div>
         </div>
-    </div>);
-};
-
-export default AccountDashboard;
+    );
+}
