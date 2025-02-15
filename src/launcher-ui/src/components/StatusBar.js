@@ -24,16 +24,17 @@ const StatusBar = () => {
                 console.log(`Received new message: ${msg}`);
                 setMessage(msg);
             });
+
+
+            return () => {
+                window.api.onDbStatusChange(() => {
+                });
+                window.api.onUpdateMessage(() => {
+                });
+            };
         } else {
             console.log("window.api is not available (running in the browser)");
         }
-
-        return () => {
-            window.api.onDbStatusChange(() => {
-            });
-            window.api.onUpdateMessage(() => {
-            });
-        };
     }, []);
 
     return (<OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">

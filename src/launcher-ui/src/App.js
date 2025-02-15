@@ -27,8 +27,9 @@ function App() {
     return (
         <ThemeProvider theme={themeFont}>
             <Router>
-                <BackgroundAnimation />
                 <AppLayout>
+                    <BackgroundAnimation />
+
                     {/* NavBar with React Router Links */}
                     <NavBar />
 

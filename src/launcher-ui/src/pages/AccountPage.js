@@ -1,15 +1,37 @@
-// AccountPage.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
     const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get("sessionID"));
     const [checkingSession, setCheckingSession] = useState(true);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const cookieOptions = useMemo(() => {
+        const options = { expires: 7 };
+        if (window.location.protocol === "https:") {
+            options.secure = true;
+            options.sameSite = "Strict";
+        }
+        return options;
+    }, []);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const sessionIDParam = params.get("sessionID");
+        const usernameParam = params.get("username");
+        if (sessionIDParam && usernameParam) {
+            Cookies.set("sessionID", sessionIDParam, cookieOptions);
+            Cookies.set("username", usernameParam, cookieOptions);
+            setUsername(usernameParam);
+            setIsLoggedIn(true);
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location.search, location.pathname, navigate, cookieOptions]);
 
     useEffect(() => {
         const sessionID = Cookies.get("sessionID");
@@ -46,42 +68,27 @@ export default function AccountPage() {
     }, []);
 
     useEffect(() => {
-        if (!window.api) return;
-        window.electronAPI.onProtocolData((action, data) => {
-            if (action === "auth") {
-                if (window.electronAPI) {
-                    window.electronAPI.showCustomNotification("GitHub OAuth", "Success! Logging user in...");
+        if (window.api && window.electronAPI && typeof window.electronAPI.onProtocolData === "function") {
+            window.electronAPI.onProtocolData((action, data) => {
+                if (action === "auth") {
+                    if (window.electronAPI) {
+                        window.electronAPI.showCustomNotification("GitHub OAuth", "Success! Logging user in...");
+                    }
+                    Cookies.set("sessionID", data.sessionID, cookieOptions);
+                    Cookies.set("username", data.username, cookieOptions);
+                    setUsername(data.username);
+                    setIsLoggedIn(true);
                 }
-                Cookies.set("sessionID", data.sessionID, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7,
-                });
-                Cookies.set("username", data.username, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7,
-                });
-                setUsername(data.username);
-                setIsLoggedIn(true);
-            }
-            if (action === "github-app") {
-                if (window.electronAPI) {
-                    window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized!");
+                if (action === "github-app") {
+                    if (window.electronAPI) {
+                        window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized!");
+                    }
+                    Cookies.set("githubInstallationId", data.githubInstallationId, cookieOptions);
+                    Cookies.set("githubAccessToken", data.githubAccessToken, cookieOptions);
                 }
-                Cookies.set("githubInstallationId", data.githubInstallationId, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7,
-                });
-                Cookies.set("githubAccessToken", data.githubAccessToken, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7,
-                });
-            }
-        });
-    }, []);
+            });
+        }
+    }, [cookieOptions]);
 
     if (checkingSession) {
         return (
@@ -94,24 +101,9 @@ export default function AccountPage() {
     return (
         <Routes>
             <Route element={<Layout />}>
-                <Route
-                    index
-                    element={
-                        isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />
-                    }
-                />
-                <Route
-                    path="login"
-                    element={
-                        isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />
-                    }
-                />
-                <Route
-                    path="dashboard/*"
-                    element={
-                        isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />
-                    }
-                />
+                <Route index element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />} />
+                <Route path="login" element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />} />
+                <Route path="dashboard/*" element={isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />} />
             </Route>
         </Routes>
     );

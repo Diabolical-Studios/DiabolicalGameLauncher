@@ -1,15 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    Button,
-    CircularProgress,
-    Dialog,
-    FormControl,
-    InputLabel,
-    Link,
-    MenuItem,
-    Select,
-    Stack,
-    TextField
+    Button, CircularProgress, Dialog, FormControl, InputLabel, Link, MenuItem, Select, Stack, TextField
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -19,11 +10,7 @@ import {colors} from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        maxHeight: "none",
-        maxWidth: "none",
-        background: "transparent",
-        boxShadow: "none",
-        margin: 0,
+        maxHeight: "none", maxWidth: "none", background: "transparent", boxShadow: "none", margin: 0,
     }
 }));
 
@@ -117,11 +104,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             }
         };
 
-        window.electronAPI.onProtocolData(handleProtocolData);
+        if (window.api) {
+            window.electronAPI.onProtocolData(handleProtocolData);
 
-        return () => {
-            window.electronAPI.onProtocolData(null);
-        };
+
+            return () => {
+                window.electronAPI.onProtocolData(null);
+            };
+        } else {
+            console.log("window.api is not available (running in the browser)");
+        }
     }, []);
 
     const handleSave = async () => {
