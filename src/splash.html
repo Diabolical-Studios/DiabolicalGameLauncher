@@ -44,7 +44,11 @@
         }
 
         #loading-text {
-            font-size: 16px;
+            font-size: 14px;
+            position: absolute;
+            bottom: 0;
+            padding: 8px;
+            z-index: 5;
         }
 
         img {
@@ -53,14 +57,16 @@
     </style>
 </head>
 <body>
-<div style="width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.5); border-radius: 4px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative">
+<div style="width: 100vw; height: 100vh; background-color: #000; border-radius: 4px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative">
     <canvas id="canvas"></canvas>
+    <div style="background: radial-gradient(ellipse, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 50%) 100%); width: 100%; height: 100%; position: absolute; z-index: 2;"></div>
 
-    <!--    <div style="background: radial-gradient(circle, rgb(0 0 0 / 45%) 0%, rgb(0 0 0 / 0%) 100%); width: 100%; height: 100%; position: absolute; z-index: 2"></div>-->
     <div id="content">
         <img src="./launcher-ui/public/android-chrome-192x192.png" alt="Icon"/>
-        <!--        <div id="loading-text">Loading, please wait...</div>-->
     </div>
+
+    <!--    <div id="loading-text">Loading, please wait...</div>-->
+
 </div>
 
 <script>
@@ -191,10 +197,10 @@
         const deltaTime = (now - lastTime) / 1000;
         lastTime = now;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        iVal += deltaTime * 0.05;
+        iVal += deltaTime * 0.1;
         for (let x = 0; x < canvas.width; x += 10) {
             for (let y = 0; y < canvas.height; y += 10) {
-                let point = Math.abs(simplex3(x / 900, y / 900, iVal * 2));
+                let point = Math.abs(simplex3(x / 500, y / 500, iVal * 2));
                 const baseHue = globalHueSeed + simplex3(x / 1000, y / 1000, iVal) * 60;
                 const hueVariation = 80 + simplex3(x / 500, y / 500, iVal) * 100;
                 const hue = (baseHue + point * hueVariation) % 360;
