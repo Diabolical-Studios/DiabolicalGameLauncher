@@ -1,4 +1,6 @@
-import React, {useEffect, useState} from "react";
+// App.js
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BackgroundAnimation from "./components/BackgroundAnimation";
 import AppCloseRefreshButtons from "./components/AppCloseRefreshButtons";
 import NavBar from "./components/NavBar";
@@ -8,55 +10,48 @@ import Toaster from "./components/Toaster";
 import SettingsPage from "./pages/SettingsPage";
 import ChangelogPage from "./pages/ChangelogPage";
 import AccountPage from "./pages/AccountPage";
+import LandingPage from "./pages/LandingPage";
 import AppLayout from "./components/AppLayout";
 import StatusBarAndContentPanel from "./components/StatusBarAndContentPanel";
 import HorizontalFlex from "./components/layout/HorizontalFlex";
-import LandingPage from "./pages/LandingPage";
-import {applyColorsToCSS} from "./theme/colors";
-import "./settings.css";
-import "./changelog.css";
-import {ThemeProvider} from "@mui/material";
-import {applyFontsToCSS, themeFont} from "./theme/fonts"; // ✅ Import fonts
-
+import { applyColorsToCSS } from "./theme/colors";
+import { applyFontsToCSS, themeFont } from "./theme/fonts";
+import { ThemeProvider } from "@mui/material";
 
 function App() {
-    const [selectedPage, setSelectedPage] = useState("account");
-
-    // ✅ Call applyColorsToCSS() once when App mounts
     useEffect(() => {
         applyColorsToCSS();
-        applyFontsToCSS(); // ✅ Ensure CSS variables are updated
-
+        applyFontsToCSS();
     }, []);
 
-    const handlePageChange = (page) => {
-        setSelectedPage(page);
-    };
-
     return (
-        <>
-            <ThemeProvider theme={themeFont}>
-                <BackgroundAnimation/>
+        <ThemeProvider theme={themeFont}>
+            <Router>
+                <BackgroundAnimation />
                 <AppLayout>
-                    <NavBar onPageChange={handlePageChange}/>
+                    {/* NavBar with React Router Links */}
+                    <NavBar />
+
                     <StatusBarAndContentPanel>
                         <HorizontalFlex>
-                            <StatusBar/>
-                            <AppCloseRefreshButtons/>
+                            <StatusBar />
+                            <AppCloseRefreshButtons />
                         </HorizontalFlex>
 
                         <ContentPanel>
-                            {selectedPage === "home" && <LandingPage/>}
-                            {selectedPage === "settings" && <SettingsPage/>}
-                            {selectedPage === "changelog" && <ChangelogPage/>}
-                            {selectedPage === "account" && <AccountPage/>}
+                            <Routes>
+                                <Route path="/" element={<LandingPage />} />
+                                <Route path="/account" element={<AccountPage />} />
+                                <Route path="/settings" element={<SettingsPage />} />
+                                <Route path="/changelog" element={<ChangelogPage />} />
+                                {/* Add more routes if needed */}
+                            </Routes>
                         </ContentPanel>
                     </StatusBarAndContentPanel>
                 </AppLayout>
-                <Toaster/>
-            </ThemeProvider>
-
-        </>
+                <Toaster />
+            </Router>
+        </ThemeProvider>
     );
 }
 
