@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
@@ -17,15 +17,16 @@ const AccountPage = () => {
         }
 
         fetch("/.netlify/functions/verifySession", {
-            method: "GET",
-            headers: { "sessionID": sessionID }
+            method: "GET", headers: {sessionID},
         })
             .then((res) => res.json())
             .then((data) => {
                 // Assume a valid session returns a GitHub ID and username
                 if (data && data.github_id && data.username) {
-                    if (!username) setUsername(data.username);
+                    // Always set the username from server response
+                    setUsername(data.username);
                 } else {
+                    // Session invalid or missing data
                     Cookies.remove("sessionID");
                     Cookies.remove("username");
                     setUsername("");
@@ -56,8 +57,12 @@ const AccountPage = () => {
                     window.electronAPI.showCustomNotification("GitHub OAuth", "Success! Logging user in...");
                 }
 
-                Cookies.set("sessionID", data.sessionID, { secure: true, sameSite: "Strict", expires: 7 });
-                Cookies.set("username", data.username, { secure: true, sameSite: "Strict", expires: 7 });
+                Cookies.set("sessionID", data.sessionID, {
+                    secure: true, sameSite: "Strict", expires: 7,
+                });
+                Cookies.set("username", data.username, {
+                    secure: true, sameSite: "Strict", expires: 7,
+                });
                 setUsername(data.username);
             }
 
@@ -69,32 +74,24 @@ const AccountPage = () => {
                 }
 
                 Cookies.set("githubInstallationId", data.githubInstallationId, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7
+                    secure: true, sameSite: "Strict", expires: 7,
                 });
                 Cookies.set("githubAccessToken", data.githubAccessToken, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7
+                    secure: true, sameSite: "Strict", expires: 7,
                 });
             }
         });
     }, []);
 
     if (checkingSession) {
-        return (
-            <Layout>
-                <div>Loading...</div>
-            </Layout>
-        );
+        return (<Layout>
+            <div>Loading...</div>
+        </Layout>);
     }
 
-    return (
-        <Layout>
-            {username ? <AccountDashboard username={username} /> : <LoginScreen />}
-        </Layout>
-    );
+    return (<Layout>
+        {username ? <AccountDashboard username={username}/> : <LoginScreen/>}
+    </Layout>);
 };
 
 export default AccountPage;
