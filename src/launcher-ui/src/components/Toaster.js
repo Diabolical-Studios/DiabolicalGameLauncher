@@ -40,8 +40,8 @@ const Toaster = () => {
     return (
         <div
             id="toaster-container"
-            className="fixed z-[1000] flex flex-col gap-3 items-end"
-            style={{ bottom: "24px", right: "24px" }}
+            className="fixed flex flex-col gap-3 items-end"
+            style={{ bottom: "24px", right: "24px", zIndex: "9999" }}
         >
             {toasters.map((toast) => (
                 <ToastItem

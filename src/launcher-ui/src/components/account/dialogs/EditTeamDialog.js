@@ -86,6 +86,9 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
 
             if (!response.ok) {
                 console.error("❌ Server Error Response:", data);
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Edit Team Failed", "Please try again later");
+                }
                 throw new Error("Failed to update team.");
             }
 
@@ -106,13 +109,16 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             handleClose();
         } catch (err) {
             console.error("❌ Error updating team:", err);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Edit Team Failed", "Please try again later");
+            }
         }
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-team-dialog-title">
         {/*<DialogTitle className={"dialog"} id="edit-team-dialog-title">Edit Team: {team.team_name}</DialogTitle>*/}
         <DialogContent className={"dialog"} style={{padding: "12px", backdropFilter: "invert(1)"}}>
-            <Stack spacing={2}>
+            <Stack spacing={"12px"}>
                 {/* Edit Team Name - MUI TextField */}
                 <TextField
                     label="Team Name"

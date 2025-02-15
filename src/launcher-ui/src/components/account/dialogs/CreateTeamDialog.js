@@ -19,7 +19,9 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
 
     const handleCreate = async () => {
         if (teamName.trim() === "") {
-            setError("Team name is required.");
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Team Creation Failed", "Team name is Required!");
+            }
             return;
         }
 
@@ -48,6 +50,9 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
 
             if (!response.ok) {
                 console.error("❌ Server Error Response:", data);
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Team Creation Failed", "Please try again later");
+                }
                 throw new Error("Failed to create team.");
             }
 
@@ -66,12 +71,10 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
             handleClose();
         } catch (err) {
             console.error("❌ Error creating team:", err);
-            setError(err.message || "An error occurred while creating the team.");
-
-            // Send an error notification via main process.
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Team Creation Failed", err.message || "An error occurred.", "team-" + Date.now());
+                window.electronAPI.showCustomNotification("Team Creation Failed", "Please try again later");
             }
+            setError(err.message || "An error occurred while creating the team.");
         }
     };
 

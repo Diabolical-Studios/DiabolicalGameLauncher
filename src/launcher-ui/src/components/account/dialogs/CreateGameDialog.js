@@ -8,11 +8,8 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 
-
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        width: "70vw",
-        height: "90vh",
         maxHeight: "none",
         maxWidth: "none",
         background: "transparent",
@@ -34,6 +31,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [loadingRepos, setLoadingRepos] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [refreshRepos, setRefreshRepos] = useState(false);
+    const [isSaving, setIsSaving] = useState(false); // New state for saving status
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -86,7 +84,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         fetchGithubRepos();
     }, [refreshRepos]);
 
-
     useEffect(() => {
         const handleProtocolData = (action, data) => {
             console.log("🔄 Handling Protocol Data:", action, data);
@@ -119,25 +116,42 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     }, []);
 
     const handleSave = async () => {
+        setIsSaving(true); // Disable the button while processing
         const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Creation Failed", "Please try again later");
+            }
+            setIsSaving(false);
             return;
         }
 
         if (!selectedTeam) {
             console.error("❌ No team selected.");
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Creation Failed", "Please select a team");
+            }
+            setIsSaving(false);
             return;
         }
 
         if (!selectedRepo) {
             console.error("❌ No repository selected.");
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Creation Failed", "Please select a repository");
+            }
+            setIsSaving(false);
             return;
         }
 
         const installationId = Cookies.get("githubInstallationId");
         if (!installationId) {
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Creation Failed", "Github InstallationID not found");
+            }
             console.error("❌ No GitHub Installation ID found.");
+            setIsSaving(false);
             return;
         }
 
@@ -155,6 +169,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         console.log("📤 Sending game creation request:", newGame);
 
         try {
+            // Attempt to create the game via the Netlify function
             const response = await fetch("/.netlify/functions/createGame", {
                 method: "POST", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
@@ -162,18 +177,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create game.");
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Game Creation Failed", "Netlify did not respond.");
+                }
+                throw new Error("Failed to create game via Netlify.");
             }
 
             console.log("✅ Game created successfully:", newGame);
 
-            // Send the notification via main process.
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Game Created", "Your game was successfully created!"
-                );
-            }
-
-            await fetch("https://api.diabolical.studio/github-app/webhook", {
+            // Only notify GitHub if the Netlify step succeeded.
+            const githubWebhookResponse = await fetch("https://api.diabolical.studio/github-app/webhook", {
                 method: "POST", headers: {
                     "Content-Type": "application/json",
                 }, body: JSON.stringify({
@@ -184,10 +197,25 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 }),
             });
 
+            if (!githubWebhookResponse.ok) {
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Game Creation Failed", "Github App did not respond.");
+                }
+                throw new Error("Failed to notify GitHub App.");
+            }
+
             console.log("✅ GitHub App notified to create workflow.");
+
+            // Send the notification via main process.
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Created", "Your game was successfully created!");
+            }
+
             handleClose();
         } catch (err) {
             console.error("❌ Error creating game:", err);
+        } finally {
+            setIsSaving(false); // Re-enable the button regardless of outcome
         }
     };
 
@@ -196,15 +224,15 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         setSelectedTeam(selectedTeamName);
         const team = teams.find((team) => team.team_name === selectedTeamName);
         setTeamIconUrl(team ? team.team_icon_url : "");
-    }
+    };
 
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
-
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
-    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="create-game-dialog-title">
+    return (<StyledDialog open={open} container={document.getElementById("root")}
+                          onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <Stack className={"p-0 overflow-hidden"}>
             <Stack className={"dialog gap-5 p-5"} flexDirection={isMobile ? "column" : "row"} style={{
                 backgroundColor: colors.background, border: "1px solid" + colors.border,
@@ -226,7 +254,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         setGameDescription={setGameDescription}
                     />
                     <Stack className={"gap-5 w-full"} style={{margin: 0}}>
-
                         <Stack className={"gap-5"} direction={"row"}>
                             <TextField
                                 label="Game ID"
@@ -244,7 +271,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     },
                                 }}
                             />
-
                             {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
@@ -290,7 +316,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-
                         {/* Background Image URL Input Field */}
                         <TextField
                             label="Background Image URL"
@@ -313,7 +338,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         />
                     </Stack>
                 </Stack>
-
                 <Stack className={"items-end w-full gap-5 justify-between"}>
                     <Stack className={"gap-5 w-full"}>
                         {/* GitHub Repository Selection */}
@@ -342,14 +366,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     alt="GitHub"
                                     style={{aspectRatio: "1 / 1", width: "16px"}}
                                 />
-
                                 {/* Repository Name */}
                                 <p style={{
                                     color: colors.text, margin: 0, fontSize: "14px", flex: 1, paddingLeft: "8px"
                                 }}>
                                     {repo.full_name}
                                 </p>
-
                                 {/* Repo Visibility (Public/Private) */}
                                 <span
                                     style={{
@@ -358,19 +380,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                         fontWeight: "bold",
                                     }}
                                 >
-                    {repo.private ? "PRIVATE" : "PUBLIC"}
-                </span>
+                        {repo.private ? "PRIVATE" : "PUBLIC"}
+                      </span>
                             </Stack>)))}
                         </Stack>
-
                         {/* Link to authorize more repositories */}
                         <Link component="button" onClick={handleAuthorizeMoreRepos}
                               style={{color: "#00bcd4", textAlign: "center",}}>
                             Can't find your repo? Authorize more repositories.
                         </Link>
-
                     </Stack>
-
                     {/* Save Button */}
                     <Button
                         sx={{
@@ -384,8 +403,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         onClick={handleSave}
                         aria-label="save"
                         startIcon={<RocketLaunchIcon/>}
+                        disabled={isSaving}  // Disable button while saving
                     >
-                        Create and Deploy Game!
+                        {isSaving ? <CircularProgress size={20} color="inherit"/> : "Create and Deploy Game!"}
                     </Button>
                 </Stack>
             </Stack>

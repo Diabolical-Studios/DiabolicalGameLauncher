@@ -73,7 +73,7 @@ const GameInfoPanel = ({ game }) => {
         "Repository": game.github_repo ? (
             <Box
                 component="a"
-                href={`https://github.com/${game.github_repo}`}
+                onClick={() => window.electronAPI.openExternal(`https://github.com/${game.github_repo}`)}
                 target="_blank"
                 sx={{
                     display: "flex",
@@ -84,6 +84,7 @@ const GameInfoPanel = ({ game }) => {
                     border: `1px solid ${colors.success}`,
                     padding: "6px 12px",
                     borderRadius: "2px",
+                    cursor: "pointer",
                     "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" }
                 }}
             >

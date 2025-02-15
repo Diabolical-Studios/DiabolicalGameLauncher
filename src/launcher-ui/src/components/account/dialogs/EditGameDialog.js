@@ -8,10 +8,7 @@ import {colors} from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid" + colors.border,
-        borderRadius: "4px",
-        width: "60vw",
-        height: "fit-content",
+        border: "1px solid" + colors.border, borderRadius: "4px", width: "60vw", height: "fit-content",
     }
 }));
 
@@ -45,24 +42,23 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
 
         try {
             const response = await fetch("/.netlify/functions/updateGame", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID,
-                },
-                body: JSON.stringify(updatedGame),
+                method: "PUT", headers: {
+                    "Content-Type": "application/json", "sessionID": sessionID,
+                }, body: JSON.stringify(updatedGame),
             });
 
             if (!response.ok) {
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Edit Game Failed", "Please try again later");
+                }
                 throw new Error("Failed to update game.");
             }
 
             console.log("✅ Game updated successfully:", updatedGame);
-            
+
             // Send the notification via main process.
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Game Updated", "Your game was successfully updated!"
-                );
+                window.electronAPI.showCustomNotification("Game Updated", "Your game was successfully updated!");
             }
 
             onSave(updatedGame);
@@ -70,11 +66,13 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
             handleClose();
         } catch (err) {
             console.error("❌ Error updating game:", err);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Edit Game Failed", "Please try again later");
+            }
         }
     };
 
-    return (
-        <StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
+    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
             <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
                 <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
                     <Stack spacing={2} alignItems="center">
@@ -95,10 +93,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                     </Stack>
                     <Stack
                         style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            width: "-webkit-fill-available",
-                            gap: "24px"
+                            display: "flex", flexDirection: "column", width: "-webkit-fill-available", gap: "24px"
                         }}
                     >
                         {/* ✅ Background Image URL Input Field */}
@@ -120,14 +115,10 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                                 onChange={(e) => setGameBackgroundUrl(e.target.value)}
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
-                                        color: colors.text,
-                                        fontSize: "16px",
-                                    },
-                                    "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "1px solid" + colors.border + "!important",
-                                        borderRadius: "2px"
-                                    },
-                                    "& .MuiFormLabel-root": {
+                                        color: colors.text, fontSize: "16px",
+                                    }, "& .MuiOutlinedInput-notchedOutline": {
+                                        border: "1px solid" + colors.border + "!important", borderRadius: "2px"
+                                    }, "& .MuiFormLabel-root": {
                                         color: "#444444 !important",
                                     },
                                 }}
@@ -151,8 +142,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                     </Stack>
                 </Stack>
             </DialogContent>
-        </StyledDialog>
-    );
+        </StyledDialog>);
 };
 
 export default EditGameDialog;
