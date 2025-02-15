@@ -137,7 +137,6 @@ const Games = ({teams}) => {
         >
             {filterGames().map((game, index) => (<Zoom
                 key={game.game_id}
-                direction="up"
                 in={!loading}
                 timeout={300 + index * 100}
             >
