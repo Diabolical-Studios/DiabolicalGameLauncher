@@ -8,6 +8,8 @@ exports.handler = async function (event) {
     const API_KEY = process.env.API_KEY;
 
     const code = event.queryStringParameters.code;
+    // We’re re-using the `state` param from GitHub OAuth to store "electron" or "web"
+    const source = event.queryStringParameters.state || "web";
 
     if (!code) {
         return {
@@ -16,6 +18,7 @@ exports.handler = async function (event) {
     }
 
     try {
+        // Exchange the code for an access token
         const tokenResponse = await axios.post("https://github.com/login/oauth/access_token", {
             client_id: CLIENT_ID, client_secret: CLIENT_SECRET, code: code,
         }, {
@@ -24,6 +27,7 @@ exports.handler = async function (event) {
 
         const accessToken = tokenResponse.data.access_token;
 
+        // Get user data from GitHub
         const userResponse = await axios.get("https://api.github.com/user", {
             headers: {Authorization: `token ${accessToken}`},
         });
@@ -32,18 +36,26 @@ exports.handler = async function (event) {
 
         const sessionID = uuidv4();
 
-        console.log("Payload:", {github_id, username, email, sessionID});
-
         await axios.post(`${API_BASE_URL}/rest-api/users`, {github_id, username, email, session_id: sessionID}, {
             headers: {"x-api-key": API_KEY},
         });
 
-        return {
-            statusCode: 302, headers: {
-                Location: `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
-            },
-        };
-
+        // Decide how to redirect based on source
+        if (source === "electron") {
+            // Electron route
+            return {
+                statusCode: 302, headers: {
+                    Location: `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
+                },
+            };
+        } else {
+            // Web route
+            return {
+                statusCode: 302, headers: {
+                    Location: `https://launcher.diabolical.studio/account/login?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
+                },
+            };
+        }
     } catch (error) {
         return {
             statusCode: 500, body: JSON.stringify({error: error.response?.data || error.message}),

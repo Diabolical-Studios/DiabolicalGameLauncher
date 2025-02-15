@@ -6,12 +6,16 @@ const handleGitHubLogin = () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
     const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/github-auth");
 
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
+    // Add ?source=electron if we detect the app, else ?source=web
+    const source = window.api ? "electron" : "web";
+
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email&state=${source}`;
 
     if (window.api) {
         window.electronAPI.openExternal(authUrl);
-
-    } else window.open(authUrl);
+    } else {
+        window.open(authUrl, "_blank");
+    }
 };
 
 const LoginScreen = () => {
