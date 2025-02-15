@@ -5,12 +5,6 @@ exports.handler = async function (event) {
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, sessionid",
-                "Access-Control-Allow-Credentials": "true",
-            },
             body: "",
         };
     }
@@ -21,7 +15,6 @@ exports.handler = async function (event) {
         if (!sessionID) {
             return {
                 statusCode: 401,
-                headers: { "Access-Control-Allow-Origin": "*" },
                 body: JSON.stringify({ error: "Session ID missing." }),
             };
         }
@@ -37,7 +30,6 @@ exports.handler = async function (event) {
         if (!installationsRes.data || !installationsRes.data.github_installations) {
             return {
                 statusCode: 404,
-                headers: { "Access-Control-Allow-Origin": "*" },
                 body: JSON.stringify({ error: "No GitHub installations found." }),
             };
         }
@@ -48,8 +40,6 @@ exports.handler = async function (event) {
         return {
             statusCode: 200,
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": "true",
                 "Set-Cookie": `githubInstallations=${encodeURIComponent(JSON.stringify(githubInstallations))}; Path=/; HttpOnly; Secure; SameSite=Strict`,
                 "Content-Type": "application/json",
             },
@@ -60,7 +50,6 @@ exports.handler = async function (event) {
         console.error("❌ Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
             body: JSON.stringify({ error: error.response?.data || error.message }),
         };
     }

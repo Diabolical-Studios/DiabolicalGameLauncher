@@ -15,11 +15,6 @@ exports.handler = async (event) => {
     if (event.httpMethod === "OPTIONS") {
         return {
             statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "PUT, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, sessionID",
-            },
             body: "",
         };
     }
@@ -27,7 +22,6 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "PUT") {
         return {
             statusCode: 405,
-            headers: {"Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({error: "Method not allowed"}),
         };
     }
@@ -39,7 +33,6 @@ exports.handler = async (event) => {
         console.error("❌ Invalid JSON body:", error);
         return {
             statusCode: 400,
-            headers: {"Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({error: "Invalid JSON body"}),
         };
     }
@@ -49,7 +42,6 @@ exports.handler = async (event) => {
     if (!game_id) {
         return {
             statusCode: 400,
-            headers: {"Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({error: "Game ID is required"}),
         };
     }
@@ -63,7 +55,6 @@ exports.handler = async (event) => {
     if (Object.keys(updatedFields).length === 0) {
         return {
             statusCode: 400,
-            headers: {"Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({error: "No fields to update"}),
         };
     }
@@ -84,7 +75,6 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
             },
             body: JSON.stringify(response.data),
         };
@@ -92,7 +82,6 @@ exports.handler = async (event) => {
         console.error("❌ API Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            headers: {"Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }

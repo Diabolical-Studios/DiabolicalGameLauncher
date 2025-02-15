@@ -105,8 +105,9 @@ const AccountDashboard = ({username}) => {
         {/* Top Bar */}
         <div className={"flex justify-between align-center backdrop-blur p-3"} style={{
             backgroundColor: colors.transparent,
+            borderBottom: "1px solid" + colors.border,
         }}>
-            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+            <Stack direction="row" spacing={"12px"} justifyContent="center" alignItems="center">
                 <Avatar
                     alt="GitHub User"
                     src={githubAvatar || "/static/images/avatar/1.jpg"}
@@ -116,9 +117,7 @@ const AccountDashboard = ({username}) => {
             </Stack>
             <LogoutButton/>
         </div>
-
-        <Divider/>
-
+        
         {/* Main Content */}
         <div className={"w-full h-full flex overflow-hidden"}>
             {/* Sidebar Navigation */}

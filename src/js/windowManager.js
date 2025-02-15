@@ -26,7 +26,7 @@ async function createWindow() {
     });
 
     const startURL = isDev
-        ? "http://localhost:3000"
+        ? "http://localhost:8888"
         : "https://launcher.diabolical.studio";
 
     mainWindow.loadURL(startURL);
