@@ -1,12 +1,12 @@
+// AccountPage.js
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-const AccountPage = () => {
-    // We still store the username for display purposes,
-    // but we use isLoggedIn as our primary indicator of valid session.
+export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
     const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get("sessionID"));
     const [checkingSession, setCheckingSession] = useState(true);
@@ -18,27 +18,23 @@ const AccountPage = () => {
             setIsLoggedIn(false);
             return;
         }
-
         fetch("/.netlify/functions/verifySession", {
             method: "GET",
             headers: { sessionID },
         })
             .then((res) => {
                 if (!res.ok) {
-                    // Session is invalid, clear cookies and mark as not logged in
                     Cookies.remove("sessionID");
                     Cookies.remove("username");
                     setUsername("");
                     setIsLoggedIn(false);
                 } else {
-                    // Parse the response and update username and logged in state
                     res.json().then(() => {
                         setIsLoggedIn(true);
                     });
                 }
             })
-            .catch((err) => {
-                console.error("Session verification error:", err);
+            .catch(() => {
                 Cookies.remove("sessionID");
                 Cookies.remove("username");
                 setUsername("");
@@ -49,15 +45,10 @@ const AccountPage = () => {
             });
     }, []);
 
-    // Protocol data logic remains intact
     useEffect(() => {
         if (!window.api) return;
-
         window.electronAPI.onProtocolData((action, data) => {
-            console.log("Received Protocol Data:", action, data);
-
             if (action === "auth") {
-                console.log("✅ GitHub OAuth successful. Storing session data in cookies.");
                 if (window.electronAPI) {
                     window.electronAPI.showCustomNotification("GitHub OAuth", "Success! Logging user in...");
                 }
@@ -74,11 +65,9 @@ const AccountPage = () => {
                 setUsername(data.username);
                 setIsLoggedIn(true);
             }
-
             if (action === "github-app") {
-                console.log("✅ GitHub App Installation Successful.");
                 if (window.electronAPI) {
-                    window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized! Ready to deploy project.");
+                    window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized!");
                 }
                 Cookies.set("githubInstallationId", data.githubInstallationId, {
                     secure: true,
@@ -103,10 +92,29 @@ const AccountPage = () => {
     }
 
     return (
-        <Layout>
-            {isLoggedIn ? <AccountDashboard username={username} /> : <LoginScreen />}
-        </Layout>
+        <Routes>
+            <Route element={<Layout />}>
+                <Route
+                    index
+                    element={
+                        isLoggedIn ? (
+                            <AccountDashboard username={username} />
+                        ) : (
+                            <Navigate to="login" />
+                        )
+                    }
+                />
+                <Route
+                    path="login"
+                    element={
+                        isLoggedIn ? (
+                            <Navigate to="/account" />
+                        ) : (
+                            <LoginScreen />
+                        )
+                    }
+                />
+            </Route>
+        </Routes>
     );
-};
-
-export default AccountPage;
+}

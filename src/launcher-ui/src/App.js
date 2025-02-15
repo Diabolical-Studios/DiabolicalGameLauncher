@@ -41,7 +41,7 @@ function App() {
                         <ContentPanel>
                             <Routes>
                                 <Route path="/" element={<LandingPage />} />
-                                <Route path="/account" element={<AccountPage />} />
+                                <Route path="/account/*" element={<AccountPage />} />
                                 <Route path="/settings" element={<SettingsPage />} />
                                 <Route path="/changelog" element={<ChangelogPage />} />
                                 {/* Add more routes if needed */}
