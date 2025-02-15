@@ -63,6 +63,9 @@ const GameCard = ({
             {isEditing ? (<TextField
                 variant={"standard"}
                 fullWidth
+                multiline
+                minRows={1}
+                maxRows={2}
                 value={game.game_name}
                 placeholder={"Game Name"}
                 onChange={(e) => setGameName && setGameName(e.target.value)}
@@ -80,7 +83,8 @@ const GameCard = ({
                 fullWidth
                 multiline
                 placeholder={"Game Description lalalala"}
-                minRows={2}
+                minRows={1}
+                maxRows={4}
                 value={game.description}
                 onChange={(e) => setGameDescription && setGameDescription(e.target.value)}
                 sx={{

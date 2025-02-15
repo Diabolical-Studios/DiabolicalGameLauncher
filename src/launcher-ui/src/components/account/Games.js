@@ -102,7 +102,6 @@ const Games = ({teams}) => {
         >
             <Stack direction={"row"} className={"gap-3 flex-wrap items-center w-1/2"}>
                 {teams.map((team) => (<Chip
-                    icon={team.team_icon_url}
                     key={team.team_name}
                     label={team.team_name}
                     onClick={() => handleChipClick(team.team_name)}
