@@ -23,7 +23,7 @@
       <loc>https://launcher.diabolical.studio/changelog</loc>
       <lastmod>2025-02-15T18:42:28.971Z</lastmod>
       <changefreq>daily</changefreq>
-      <priority>0.8</priority>
+      <priority>0.8</priority> 
     </url>
     <url>
       <loc>https://launcher.diabolical.studio/settings</loc>

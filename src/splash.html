@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Splash</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+
+            width: 100vw;
+            height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.5;
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+
+            width: fit-content;
+            height: fit-content;
+
+            z-index: 2;
+        }
+
+        #loading-text {
+            font-size: 16px;
+        }
+
+        img {
+            max-width: 64px;
+        }
+    </style>
+</head>
+<body>
+<div style="width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.5); border-radius: 4px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative">
+    <canvas id="canvas"></canvas>
+
+    <!--    <div style="background: radial-gradient(circle, rgb(0 0 0 / 45%) 0%, rgb(0 0 0 / 0%) 100%); width: 100%; height: 100%; position: absolute; z-index: 2"></div>-->
+    <div id="content">
+        <img src="./launcher-ui/public/android-chrome-192x192.png" alt="Icon"/>
+        <!--        <div id="loading-text">Loading, please wait...</div>-->
+    </div>
+</div>
+
+<script>
+    // Set up the canvas background animation:
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // --- Simplex Noise Background Animation ---
+    function Grad(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    Grad.prototype.dot3 = function (x, y, z) {
+        return this.x * x + this.y * y + this.z * z;
+    };
+    const grad3 = [
+        new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0), new Grad(-1, -1, 0),
+        new Grad(1, 0, 1), new Grad(-1, 0, 1), new Grad(1, 0, -1), new Grad(-1, 0, -1),
+        new Grad(0, 1, 1), new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1)
+    ];
+    const perm = new Array(512), gradP = new Array(512);
+
+    function seedNoise(seed) {
+        if (seed > 0 && seed < 1) seed *= 65536;
+        seed = Math.floor(seed);
+        if (seed < 256) seed |= seed << 8;
+        for (let i = 0; i < 256; i++) {
+            let v = (i & 1) ? i ^ (seed & 255) : i ^ ((seed >> 8) & 255);
+            perm[i] = perm[i + 256] = v;
+            gradP[i] = gradP[i + 256] = grad3[v % 12];
+        }
+    }
+
+    seedNoise(0.5);
+    const F3 = 1 / 3, G3 = 1 / 6;
+
+    function simplex3(xin, yin, zin) {
+        let n0, n1, n2, n3;
+        let s = (xin + yin + zin) * F3;
+        let i = Math.floor(xin + s), j = Math.floor(yin + s), k = Math.floor(zin + s);
+        let t = (i + j + k) * G3;
+        let x0 = xin - i + t, y0 = yin - j + t, z0 = zin - k + t;
+        let i1, j1, k1, i2, j2, k2;
+        if (x0 >= y0) {
+            if (y0 >= z0) {
+                i1 = 1;
+                j1 = 0;
+                k1 = 0;
+                i2 = 1;
+                j2 = 1;
+                k2 = 0;
+            } else if (x0 >= z0) {
+                i1 = 1;
+                j1 = 0;
+                k1 = 0;
+                i2 = 1;
+                j2 = 0;
+                k2 = 1;
+            } else {
+                i1 = 0;
+                j1 = 0;
+                k1 = 1;
+                i2 = 1;
+                j2 = 0;
+                k2 = 1;
+            }
+        } else {
+            if (y0 < z0) {
+                i1 = 0;
+                j1 = 0;
+                k1 = 1;
+                i2 = 0;
+                j2 = 1;
+                k2 = 1;
+            } else if (x0 < z0) {
+                i1 = 0;
+                j1 = 1;
+                k1 = 0;
+                i2 = 0;
+                j2 = 1;
+                k2 = 1;
+            } else {
+                i1 = 0;
+                j1 = 1;
+                k1 = 0;
+                i2 = 1;
+                j2 = 1;
+                k2 = 0;
+            }
+        }
+        let x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+        let x2 = x0 - i2 + 2 * G3, y2 = y0 - j2 + 2 * G3, z2 = z0 - k2 + 2 * G3;
+        let x3 = x0 - 1 + 3 * G3, y3 = y0 - 1 + 3 * G3, z3 = z0 - 1 + 3 * G3;
+        i &= 255;
+        j &= 255;
+        k &= 255;
+        let gi0 = gradP[i + perm[j + perm[k]]];
+        let gi1 = gradP[i + i1 + perm[j + j1 + perm[k + k1]]];
+        let gi2 = gradP[i + i2 + perm[j + j2 + perm[k + k2]]];
+        let gi3 = gradP[i + 1 + perm[j + 1 + perm[k + 1]]];
+        let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+        n0 = t0 < 0 ? 0 : (t0 *= t0, t0 * t0 * gi0.dot3(x0, y0, z0));
+        let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+        n1 = t1 < 0 ? 0 : (t1 *= t1, t1 * t1 * gi1.dot3(x1, y1, z1));
+        let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+        n2 = t2 < 0 ? 0 : (t2 *= t2, t2 * t2 * gi2.dot3(x2, y2, z2));
+        let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+        n3 = t3 < 0 ? 0 : (t3 *= t3, t3 * t3 * gi3.dot3(x3, y3, z3));
+        return 32 * (n0 + n1 + n2 + n3);
+    }
+
+    let iVal = 0;
+    let globalHueSeed = Math.random() * 360;
+    let lastTime = performance.now();
+
+    function animate() {
+        const now = performance.now();
+        const deltaTime = (now - lastTime) / 1000;
+        lastTime = now;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        iVal += deltaTime * 0.05;
+        for (let x = 0; x < canvas.width; x += 10) {
+            for (let y = 0; y < canvas.height; y += 10) {
+                let point = Math.abs(simplex3(x / 900, y / 900, iVal * 2));
+                const baseHue = globalHueSeed + simplex3(x / 1000, y / 1000, iVal) * 60;
+                const hueVariation = 80 + simplex3(x / 500, y / 500, iVal) * 100;
+                const hue = (baseHue + point * hueVariation) % 360;
+                ctx.fillStyle = `hsla(${hue}, 70%, 50%, ${point})`;
+                ctx.beginPath();
+                ctx.arc(x, y, point * 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Listen for dynamic loading updates from Electron's main process:
+    const {ipcRenderer} = require("electron");
+    ipcRenderer.on("splash-update", (event, loadingText) => {
+        document.getElementById("loading-text").innerText = loadingText;
+    });
+</script>
+</body>
+</html>
