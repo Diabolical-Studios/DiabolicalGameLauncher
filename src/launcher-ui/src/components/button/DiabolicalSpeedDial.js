@@ -40,17 +40,15 @@ const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
     margin: 0,
 }));
 
-const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame, teams, setActiveTab}) => {
+const DiabolicalSpeedDial = ({onCreateTeam, onCreateGame, teams}) => {
     const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
     const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
     const handleCreateTeam = () => {
-        setActiveTab("teams");
         setOpenCreateTeamDialog(true);
     };
 
     const handleCreateGame = () => {
-        setActiveTab("games");
         setOpenCreateGameDialog(true);
     };
 

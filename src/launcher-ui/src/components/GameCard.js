@@ -41,11 +41,13 @@ const GameCard = ({
 
 
     const handleButtonClick = () => {
-        if (gameInstalled) {
-            window.electronAPI.openGame(game.game_id);
-        } else {
-            window.electronAPI.downloadGame(game.game_id);
-        }
+        if(window.api) {
+            if (gameInstalled) {
+                window.electronAPI.openGame(game.game_id);
+            } else {
+                window.electronAPI.downloadGame(game.game_id);
+            }
+        } else console.log("window.api is not available (running in the browser)");
     };
 
     return (<div
