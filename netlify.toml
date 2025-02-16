@@ -2,12 +2,12 @@
 base = "src/launcher-ui"
 command = "npm run build"
 publish = "build"
-edge_functions = "netlify/edge-functions"
 
 
 [dev]
 command = "npm start"
 functions = "netlify/functions"
+edge_functions = "netlify/edge-functions"
 port = 8888
 
 [[redirects]]
@@ -17,44 +17,44 @@ status = 200
 
 [[edge_functions]]
 function = "create-game"
-path = "/.netlify/functions/create-game"
+path = "/create-game"
 
 [[edge_functions]]
 function = "create-team"
-path = "/.netlify/functions/create-team"
+path = "/create-team"
 
 [[edge_functions]]
 function = "fetch-games"
-path = "/.netlify/functions/fetch-games"
+path = "/fetch-games"
 
 [[edge_functions]]
 function = "get-user-games"
-path = "/.netlify/functions/get-user-games"
+path = "/get-user-games"
 
 [[edge_functions]]
 function = "get-user-teams"
-path = "/.netlify/functions/get-user-teams"
+path = "/get-user-teams"
 
 [[edge_functions]]
 function = "github-app-auth"
-path = "/.netlify/functions/github-app-auth"
+path = "/github-app-auth"
 
 [[edge_functions]]
 function = "github-auth"
-path = "/.netlify/functions/github-auth"
+path = "/github-auth"
 
 [[edge_functions]]
 function = "update-game"
-path = "/.netlify/functions/update-game"
+path = "/update-game"
 
 [[edge_functions]]
 function = "update-team"
-path = "/.netlify/functions/update-team"
+path = "/update-team"
 
 [[edge_functions]]
 function = "verify-session"
-path = "/.netlify/functions/verify-session"
+path = "/verify-session"
 
 [[edge_functions]]
 function = "get-all-games"
-path = "/.netlify/functions/get-all-games"
+path = "/get-all-games"
