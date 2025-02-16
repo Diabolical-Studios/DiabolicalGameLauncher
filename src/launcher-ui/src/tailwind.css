@@ -1626,6 +1626,18 @@ body {
     justify-content: center;
 }
 
+.background {
+    background-color: var(--background);
+    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
+    background-position: 0 0, 0 0;
+    background-size: 200% 100%;
+    background-size: 20px 20px;
+    transition: 0.2s;
+    animation: 1.5s ease infinite alternate running shimmer;
+    animation: moveBackground 3s linear infinite;
+    overflow: hidden;
+}
+
 .game-button:hover {
     transform: rotate(-3deg) !important;
 }

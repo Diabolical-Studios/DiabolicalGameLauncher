@@ -29,7 +29,6 @@ function App() {
             <Router>
                 <AppLayout>
                     <BackgroundAnimation />
-
                     {/* NavBar with React Router Links */}
                     <NavBar />
 

@@ -7,9 +7,18 @@ const BackgroundAnimation = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // Function to set canvas size
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
 
+        resizeCanvas();
+
+        // Update canvas size on window resize
+        window.addEventListener("resize", resizeCanvas);
+
+        // Simplex noise module
         const noise = (function (global) {
             var module = {};
 
@@ -23,7 +32,7 @@ const BackgroundAnimation = () => {
                 return this.x * x + this.y * y + this.z * z;
             };
 
-            var grad3 = [new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0), new Grad(-1, -1, 0), new Grad(1, 0, 1), new Grad(-1, 0, 1), new Grad(1, 0, -1), new Grad(-1, 0, -1), new Grad(0, 1, 1), new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1)];
+            var grad3 = [new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0), new Grad(-1, -1, 0), new Grad(1, 0, 1), new Grad(-1, 0, 1), new Grad(1, 0, -1), new Grad(-1, 0, -1), new Grad(0, 1, 1), new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1),];
 
             var perm = new Array(512);
             var gradP = new Array(512);
@@ -161,27 +170,24 @@ const BackgroundAnimation = () => {
 
         noise.seed(Math.random());
 
-        let i = 0;
+        let animationTime = 0;
         let globalHueSeed = Math.random() * 360;
-
         let lastTime = performance.now();
 
         function animate() {
             const now = performance.now();
             const deltaTime = (now - lastTime) / 1000;
             lastTime = now;
+            animationTime += deltaTime * 0.05;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            i += deltaTime * 0.05;
 
             for (let x = 0; x < canvas.width; x += 15) {
                 for (let y = 0; y < canvas.height; y += 15) {
-                    let point = Math.abs(noise.simplex3(x / 900, y / 900, i * 2));
-
-                    const baseHue = globalHueSeed + noise.simplex3(x / 1000, y / 1000, i) * 60;
-                    const hueVariation = 80 + noise.simplex3(x / 500, y / 500, i) * 100;
+                    let point = Math.abs(noise.simplex3(x / 900, y / 900, animationTime * 2));
+                    const baseHue = globalHueSeed + noise.simplex3(x / 1000, y / 1000, animationTime) * 60;
+                    const hueVariation = 80 + noise.simplex3(x / 500, y / 500, animationTime) * 100;
                     const hue = (baseHue + point * hueVariation) % 360;
-
                     ctx.fillStyle = `hsla(${hue}, 70%, 50%, ${point})`;
                     ctx.beginPath();
                     ctx.arc(x, y, point * 6, 0, Math.PI * 2);
@@ -192,17 +198,25 @@ const BackgroundAnimation = () => {
         }
 
         animate();
+
+        return () => {
+            window.removeEventListener("resize", resizeCanvas);
+        };
     }, []);
 
-    return <canvas ref={canvasRef} style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: -1,
-        opacity: "0.5",
-    }}/>;
+    return (<canvas
+        ref={canvasRef}
+        style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: -1,
+            opacity: 0.5,
+            backgroundColor: "#000",
+        }}
+    />);
 };
 
 export default BackgroundAnimation;
