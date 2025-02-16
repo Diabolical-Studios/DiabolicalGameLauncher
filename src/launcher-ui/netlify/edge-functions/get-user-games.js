@@ -1,47 +1,65 @@
 export default async (request, context) => {
     console.log("=== Netlify Edge Function Triggered ===");
-    console.log("Received Headers:", JSON.stringify(Object.fromEntries(request.headers), null, 2));
-
-    // Normalize headers to lowercase keys
-    const headersObj = {};
-    for (const [key, value] of request.headers.entries()) {
-        headersObj[key.toLowerCase()] = value;
-    }
-    const sessionID = headersObj["sessionid"];
-    console.log("Extracted sessionID:", sessionID);
 
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
         return new Response("", { status: 200 });
     }
 
-    if (!sessionID) {
-        console.error("❌ No sessionID found in headers.");
-        return new Response(JSON.stringify({ error: "Unauthorized: No valid session ID" }), {
-            status: 401,
+    // Only allow GET requests
+    if (request.method !== "GET") {
+        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    // Extract the query parameter `team_name` from the URL
+    const url = new URL(request.url);
+    const teamName = url.searchParams.get("team_name");
+
+    if (!teamName) {
+        console.error("❌ Missing team_name in request.");
+        return new Response(JSON.stringify({ error: "Missing team_name parameter" }), {
+            status: 400,
             headers: { "Content-Type": "application/json" },
         });
     }
 
     try {
-        console.log("✅ Fetching teams from API...");
-        const apiRes = await fetch(
-            `${globalThis.ENV.API_BASE_URL}/rest-api/teams/session/${sessionID}`,
-            {
-                headers: { "x-api-key": globalThis.ENV.API_KEY },
-            }
-        );
+        console.log(`🎯 Fetching games for team: ${teamName}`);
 
-        if (!apiRes.ok) {
-            const errorText = await apiRes.text();
-            console.error("❌ API Fetch Error:", errorText);
-            return new Response(JSON.stringify({ error: errorText }), {
-                status: apiRes.status,
+        // Fetch the API using the environment variables
+        const apiBaseUrl = Netlify.env.get("API_BASE_URL");
+        const apiKey = Netlify.env.get("API_KEY");
+
+        if (!apiBaseUrl || !apiKey) {
+            console.error("❌ API configuration missing.");
+            return new Response(JSON.stringify({ error: "API configuration missing." }), {
+                status: 500,
                 headers: { "Content-Type": "application/json" },
             });
         }
 
-        const data = await apiRes.json();
+        const response = await fetch(
+            `${apiBaseUrl}/rest-api/games/team/${encodeURIComponent(teamName)}`,
+            {
+                headers: { "x-api-key": apiKey },
+            }
+        );
+
+        // Check if the response is okay
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ API Fetch Error:", errorText);
+            return new Response(JSON.stringify({ error: errorText }), {
+                status: response.status,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        // Parse the response data and send it back to the client
+        const data = await response.json();
         console.log("✅ API Response:", data);
 
         return new Response(JSON.stringify(data), {
@@ -49,7 +67,8 @@ export default async (request, context) => {
             headers: { "Content-Type": "application/json" },
         });
     } catch (error) {
-        console.error("❌ API Fetch Error:", error.message);
+        console.error("❌ API Fetch Error:", error);
+
         return new Response(
             JSON.stringify({ error: error.message || "Internal Server Error" }),
             {

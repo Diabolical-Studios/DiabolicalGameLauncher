@@ -42,10 +42,26 @@ export default async (request, context) => {
 
     try {
         console.log("✅ Sending request to update team...");
-        const apiRes = await fetch(`${globalThis.ENV.API_BASE_URL}/rest-api/teams`, {
+
+        // Access environment variables using Netlify.env.get() for Deno
+        const apiBaseUrl = Netlify.env.get("API_BASE_URL");
+        const apiKey = Netlify.env.get("API_KEY");
+
+        if (!apiBaseUrl || !apiKey) {
+            console.error("❌ API configuration missing.");
+            return new Response(
+                JSON.stringify({ error: "API configuration missing." }),
+                {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+        }
+
+        const apiRes = await fetch(`${apiBaseUrl}/rest-api/teams`, {
             method: "PUT",
             headers: {
-                "x-api-key": globalThis.ENV.API_KEY,
+                "x-api-key": apiKey,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(teamData),

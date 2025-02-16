@@ -13,11 +13,11 @@ export default async (request, context) => {
         );
     }
 
-    // Access environment variables via globalThis.ENV
-    const CLIENT_ID = globalThis.ENV.GITHUB_CLIENT_ID;
-    const CLIENT_SECRET = globalThis.ENV.GITHUB_CLIENT_SECRET;
-    const API_BASE_URL = globalThis.ENV.API_BASE_URL;
-    const API_KEY = globalThis.ENV.API_KEY;
+    // Access environment variables via Netlify.env.get() for Deno
+    const CLIENT_ID = Netlify.env.get("GITHUB_CLIENT_ID");
+    const CLIENT_SECRET = Netlify.env.get("GITHUB_CLIENT_SECRET");
+    const API_BASE_URL = Netlify.env.get("API_BASE_URL");
+    const API_KEY = Netlify.env.get("API_KEY");
 
     try {
         // Exchange the code for an access token using fetch

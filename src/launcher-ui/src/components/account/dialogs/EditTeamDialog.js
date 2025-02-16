@@ -76,7 +76,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
         console.log("📤 Sending team update request:", updatedTeam);
 
         try {
-            const response = await fetch("/.netlify/functions/updateTeam", {
+            const response = await fetch("/update-team", {
                 method: "PUT", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID
                 }, body: JSON.stringify(updatedTeam)

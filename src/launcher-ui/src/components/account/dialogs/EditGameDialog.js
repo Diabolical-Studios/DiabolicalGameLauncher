@@ -41,7 +41,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
         console.log("📤 Sending game update request:", updatedGame);
 
         try {
-            const response = await fetch("/.netlify/functions/updateGame", {
+            const response = await fetch("/update-game", {
                 method: "PUT", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 }, body: JSON.stringify(updatedGame),

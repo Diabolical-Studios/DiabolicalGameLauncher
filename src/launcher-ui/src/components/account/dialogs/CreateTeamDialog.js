@@ -40,7 +40,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
         console.log("📤 Sending team creation request:", newTeam);
 
         try {
-            const response = await fetch("/.netlify/functions/createTeam", {
+            const response = await fetch("/create-team", {
                 method: "POST", headers: {
                     "Content-Type": "application/json", sessionID: sessionID,
                 }, body: JSON.stringify(newTeam),

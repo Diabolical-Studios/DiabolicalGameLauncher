@@ -34,9 +34,21 @@ export default async (request, context) => {
     try {
         console.log("✅ Fetching teams from API...");
 
-        const apiRes = await fetch(`${globalThis.ENV.API_BASE_URL}/rest-api/teams/session/${sessionID}`, {
+        // Access environment variables using Netlify.env.get() for Deno
+        const apiBaseUrl = Netlify.env.get("API_BASE_URL");
+        const apiKey = Netlify.env.get("API_KEY");
+
+        if (!apiBaseUrl || !apiKey) {
+            console.error("❌ API_BASE_URL or API_KEY is missing.");
+            return new Response(JSON.stringify({ error: "API configuration missing." }), {
+                status: 500,
+                headers: { "content-type": "application/json" },
+            });
+        }
+
+        const apiRes = await fetch(`${apiBaseUrl}/rest-api/teams/session/${sessionID}`, {
             headers: {
-                "x-api-key": globalThis.ENV.API_KEY,
+                "x-api-key": apiKey,
             },
         });
 
@@ -57,7 +69,7 @@ export default async (request, context) => {
             headers: { "content-type": "application/json" },
         });
     } catch (error) {
-        console.error("❌ API Fetch Error:", error.response?.data || error.message);
+        console.error("❌ API Fetch Error:", error.message);
         return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
             status: 500,
             headers: { "content-type": "application/json" },

@@ -7,7 +7,7 @@ const GameButton = ({gameInstalled, downloadProgress, gameVersion, onClick}) => 
             onClick={onClick}
         >
             <img
-                src={gameInstalled ? "MenuIcons/play.png" : "MenuIcons/download.png"}
+                src={gameInstalled ? "/play.png" : "/download.png"}
                 alt={gameInstalled ? "Play" : "Download"}
             />
             <p style={{margin: "0", fontSize: "14px"}}>

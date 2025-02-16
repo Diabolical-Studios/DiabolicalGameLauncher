@@ -34,7 +34,7 @@ export default function AccountPage() {
             setIsLoggedIn(false);
             return;
         }
-        fetch("/.netlify/functions/verifySession", {
+        fetch("/verify-session", {
             method: "GET", headers: {sessionID},
         })
             .then((res) => {

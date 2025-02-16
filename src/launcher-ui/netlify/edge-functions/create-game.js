@@ -2,8 +2,8 @@ export default async (request, context) => {
     console.log("=== Netlify Edge Function Triggered ===");
 
     // Access environment variables via globalThis.ENV
-    const API_BASE_URL = globalThis.ENV.API_BASE_URL;
-    const API_KEY = globalThis.ENV.API_KEY;
+    const API_BASE_URL = Netlify.env.get("API_BASE_URL");
+    const API_KEY = Netlify.env.get("API_KEY");
 
     // Example: parse the "sessionid" header (case-insensitive in your original code)
     const sessionID = request.headers.get("sessionid");

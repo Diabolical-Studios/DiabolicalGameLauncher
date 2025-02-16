@@ -171,7 +171,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
         try {
             // Attempt to create the game via the Netlify function
-            const response = await fetch("/.netlify/functions/createGame", {
+            const response = await fetch("/create-game", {
                 method: "POST", headers: {
                     "Content-Type": "application/json", "sessionID": sessionID,
                 }, body: JSON.stringify(newGame),

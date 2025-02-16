@@ -17,9 +17,10 @@ export default async (request, context) => {
     }
 
     try {
-        const APP_ID = globalThis.ENV.GITHUB_APP_ID;
+        // Access environment variables using Netlify.env.get() for Deno
+        const APP_ID = Netlify.env.get("GITHUB_APP_ID");
         // Decode the base64 encoded private key
-        const PRIVATE_KEY = atob(globalThis.ENV.GITHUB_PRIVATE_KEY);
+        const PRIVATE_KEY = atob(Netlify.env.get("GITHUB_PRIVATE_KEY"));
         const now = Math.floor(Date.now() / 1000);
 
         // Import the private key as a CryptoKey using jose's helper

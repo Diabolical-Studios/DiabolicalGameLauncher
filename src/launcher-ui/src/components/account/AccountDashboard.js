@@ -29,7 +29,7 @@ export default function AccountDashboard({ username }) {
             return;
         }
         try {
-            const response = await fetch("/.netlify/functions/getUserTeams", {
+            const response = await fetch("/get-user-teams", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

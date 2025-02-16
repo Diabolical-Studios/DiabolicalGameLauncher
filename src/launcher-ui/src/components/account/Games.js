@@ -62,8 +62,8 @@ const Games = ({teams}) => {
 
                     console.log(`🎯 Fetching games for team: ${team.team_name}`);
 
-                    const response = await fetch(`/.netlify/functions/getUserGames?team_name=${encodeURIComponent(team.team_name)}`, {
-                        method: "GET", headers: {"Content-Type": "application/json"},
+                    const response = await fetch(`/get-user-games?team_name=${encodeURIComponent(team.team_name)}`, {
+                        method: "GET", headers: {"Content-Type": "application/json"}
                     });
 
                     if (!response.ok) {
@@ -84,6 +84,7 @@ const Games = ({teams}) => {
                 setLoading(false);
             }
         };
+
 
         fetchGames();
     }, [currentTeams]);
