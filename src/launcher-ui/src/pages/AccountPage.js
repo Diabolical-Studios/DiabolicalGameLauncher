@@ -12,11 +12,7 @@ export default function AccountPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const cookieOptions = useMemo(() => {
-        const options = { expires: 7 };
-        if (window.location.protocol === "https:") {
-            options.secure = true;
-            options.sameSite = "Strict";
-        }
+        const options = { expires: 7, secure: true, httpOnly: true, sameSite: "Strict" };
         return options;
     }, []);
 
