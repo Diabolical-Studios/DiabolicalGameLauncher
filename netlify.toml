@@ -2,6 +2,8 @@
 base = "src/launcher-ui"
 command = "npm run build"
 publish = "build"
+edge_functions = "netlify/edge-functions"
+
 
 [dev]
 command = "npm start"
