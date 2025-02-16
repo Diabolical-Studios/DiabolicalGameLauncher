@@ -12,3 +12,47 @@ port = 8888
 from = "/*"
 to = "/index.html"
 status = 200
+
+[[edge_functions]]
+function = "create-game"
+path = "/.netlify/functions/create-game"
+
+[[edge_functions]]
+function = "create-team"
+path = "/.netlify/functions/create-team"
+
+[[edge_functions]]
+function = "fetch-games"
+path = "/.netlify/functions/fetch-games"
+
+[[edge_functions]]
+function = "get-user-games"
+path = "/.netlify/functions/get-user-games"
+
+[[edge_functions]]
+function = "get-user-teams"
+path = "/.netlify/functions/get-user-teams"
+
+[[edge_functions]]
+function = "github-app-auth"
+path = "/.netlify/functions/github-app-auth"
+
+[[edge_functions]]
+function = "github-auth"
+path = "/.netlify/functions/github-auth"
+
+[[edge_functions]]
+function = "update-game"
+path = "/.netlify/functions/update-game"
+
+[[edge_functions]]
+function = "update-team"
+path = "/.netlify/functions/update-team"
+
+[[edge_functions]]
+function = "verify-session"
+path = "/.netlify/functions/verify-session"
+
+[[edge_functions]]
+function = "get-all-games"
+path = "/.netlify/functions/get-all-games"
