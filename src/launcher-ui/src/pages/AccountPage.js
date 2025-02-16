@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
@@ -12,8 +12,8 @@ export default function AccountPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const cookieOptions = {expires: 7, secure: true, sameSite: "Strict"};
-
+    const cookieOptions = useMemo(() => ({expires: 7, secure: true, sameSite: "Strict"}), []);
+    
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const sessionIDParam = params.get("sessionID");
