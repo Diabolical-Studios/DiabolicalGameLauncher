@@ -6,15 +6,11 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ImageButton from "./components/button/ImageButton";
 import DownloadIcon from '@mui/icons-material/Download';
-import {Title} from "@mui/icons-material";
 import {colors} from "./theme/colors";
-import BackgroundAnimation from "./components/BackgroundAnimation";
 
-// Mount your main app
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 
-// Conditionally mount the separate button if window.api is not defined
 if (!window.api) {
     const buttonRoot = ReactDOM.createRoot(document.getElementById('button-root'));
     buttonRoot.render(<ImageButton

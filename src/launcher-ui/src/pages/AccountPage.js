@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
-import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import {Routes, Route, Navigate, useLocation, useNavigate} from "react-router-dom";
 
 export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
@@ -11,10 +11,8 @@ export default function AccountPage() {
     const [checkingSession, setCheckingSession] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const cookieOptions = useMemo(() => {
-        const options = { expires: 7, secure: true, httpOnly: true, sameSite: "Strict" };
-        return options;
-    }, []);
+
+    const cookieOptions = {expires: 7, secure: true, sameSite: "Strict"};
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -25,7 +23,7 @@ export default function AccountPage() {
             Cookies.set("username", usernameParam, cookieOptions);
             setUsername(usernameParam);
             setIsLoggedIn(true);
-            navigate(location.pathname, { replace: true });
+            navigate(location.pathname, {replace: true});
         }
     }, [location.search, location.pathname, navigate, cookieOptions]);
 
@@ -37,8 +35,7 @@ export default function AccountPage() {
             return;
         }
         fetch("/.netlify/functions/verifySession", {
-            method: "GET",
-            headers: { sessionID },
+            method: "GET", headers: {sessionID},
         })
             .then((res) => {
                 if (!res.ok) {
@@ -87,20 +84,25 @@ export default function AccountPage() {
     }, [cookieOptions]);
 
     if (checkingSession) {
-        return (
-            <Layout>
-                <div>Loading...</div>
-            </Layout>
-        );
+        return (<Layout>
+            <div>Loading...</div>
+        </Layout>);
     }
 
-    return (
-        <Routes>
-            <Route element={<Layout />}>
-                <Route index element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />} />
-                <Route path="login" element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />} />
-                <Route path="dashboard/*" element={isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />} />
-            </Route>
-        </Routes>
-    );
+    return (<Routes>
+        <Route element={<Layout/>}>
+            <Route
+                index
+                element={isLoggedIn ? <Navigate to="/account/dashboard"/> : <Navigate to="/account/login"/>}
+            />
+            <Route
+                path="login"
+                element={isLoggedIn ? <Navigate to="/account/dashboard"/> : <LoginScreen/>}
+            />
+            <Route
+                path="dashboard/*"
+                element={isLoggedIn ? <AccountDashboard username={username}/> : <Navigate to="/account/login"/>}
+            />
+        </Route>
+    </Routes>);
 }
