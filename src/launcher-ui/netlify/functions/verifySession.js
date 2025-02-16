@@ -24,7 +24,7 @@ exports.handler = async (event) => {
     if (event.httpMethod !== "GET") {
         return {
             statusCode: 405,
-            body: JSON.stringify({ error: "Method not allowed" }),
+            body: JSON.stringify({error: "Method not allowed"}),
         };
     }
 
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
         console.error("❌ No sessionID found in headers.");
         return {
             statusCode: 401,
-            body: JSON.stringify({ error: "Unauthorized: No valid session ID" }),
+            body: JSON.stringify({error: "Unauthorized: No valid session ID"}),
         };
     }
 
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
         const response = await axios.get(
             `${process.env.API_BASE_URL}/rest-api/users/session/${sessionID}`,
             {
-                headers: { "x-api-key": process.env.API_KEY },
+                headers: {"x-api-key": process.env.API_KEY},
             }
         );
 
@@ -57,7 +57,7 @@ exports.handler = async (event) => {
         console.error("❌ API Error:", error.response?.data || error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.response?.data || error.message }),
+            body: JSON.stringify({error: error.response?.data || error.message}),
         };
     }
 };

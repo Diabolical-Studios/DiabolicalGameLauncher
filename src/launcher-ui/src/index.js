@@ -18,7 +18,13 @@ if (!window.api) {
         icon={DownloadIcon}
         onClick={() => window.open("https://github.com/Diabolical-Studios/DiabolicalGameLauncher/releases/latest", "_blank")}
         style={{
-            position: 'absolute', top: "12px", right: "12px", padding: "12px", cursor: "pointer", width: "fit-content", filter: "invert(1)"
+            position: 'absolute',
+            top: "12px",
+            right: "12px",
+            padding: "12px",
+            cursor: "pointer",
+            width: "fit-content",
+            filter: "invert(1)"
         }}
         className="game-button"
     />);

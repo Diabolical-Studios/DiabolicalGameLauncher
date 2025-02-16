@@ -1,7 +1,7 @@
 import React from "react";
-import { colors } from "../theme/colors";
+import {colors} from "../theme/colors";
 
-const AppLayout = ({ children }) => {
+const AppLayout = ({children}) => {
     const showBorder = typeof window !== "undefined" && !window.api;
     return (
         <div

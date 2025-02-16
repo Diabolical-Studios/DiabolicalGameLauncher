@@ -12,14 +12,14 @@ export default async (request, context) => {
 
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
-        return new Response("", { status: 200 });
+        return new Response("", {status: 200});
     }
 
     // Only allow POST
     if (request.method !== "POST") {
-        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        return new Response(JSON.stringify({error: "Method not allowed"}), {
             status: 405,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
@@ -28,9 +28,9 @@ export default async (request, context) => {
     try {
         body = await request.json();
     } catch (err) {
-        return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+        return new Response(JSON.stringify({error: "Invalid JSON body"}), {
             status: 400,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
@@ -46,16 +46,16 @@ export default async (request, context) => {
     } = body;
 
     if (!game_name || !game_id || !team_name) {
-        return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        return new Response(JSON.stringify({error: "Missing required fields"}), {
             status: 400,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
     if (!sessionID) {
-        return new Response(JSON.stringify({ error: "Unauthorized: No session ID" }), {
+        return new Response(JSON.stringify({error: "Unauthorized: No session ID"}), {
             status: 401,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
@@ -68,17 +68,17 @@ export default async (request, context) => {
         });
 
         if (!githubIdRes.ok) {
-            return new Response(JSON.stringify({ error: `Failed to verify session: ${githubIdRes.status}` }), {
+            return new Response(JSON.stringify({error: `Failed to verify session: ${githubIdRes.status}`}), {
                 status: githubIdRes.status,
-                headers: { "content-type": "application/json" },
+                headers: {"content-type": "application/json"},
             });
         }
 
-        const { github_id: sessionGithubId } = await githubIdRes.json();
+        const {github_id: sessionGithubId} = await githubIdRes.json();
         if (!sessionGithubId) {
-            return new Response(JSON.stringify({ error: "GitHub ID not found for session" }), {
+            return new Response(JSON.stringify({error: "GitHub ID not found for session"}), {
                 status: 404,
-                headers: { "content-type": "application/json" },
+                headers: {"content-type": "application/json"},
             });
         }
 
@@ -103,10 +103,10 @@ export default async (request, context) => {
 
         if (!gameUploadRes.ok) {
             return new Response(
-                JSON.stringify({ error: `Failed to create game: ${gameUploadRes.status}` }),
+                JSON.stringify({error: `Failed to create game: ${gameUploadRes.status}`}),
                 {
                     status: gameUploadRes.status,
-                    headers: { "content-type": "application/json" },
+                    headers: {"content-type": "application/json"},
                 }
             );
         }
@@ -115,19 +115,19 @@ export default async (request, context) => {
 
         // 3) Return success
         return new Response(
-            JSON.stringify({ message: "Game created successfully", game: gameData }),
+            JSON.stringify({message: "Game created successfully", game: gameData}),
             {
                 status: 201,
-                headers: { "content-type": "application/json" },
+                headers: {"content-type": "application/json"},
             }
         );
     } catch (error) {
         console.error("Edge Function Error:", error);
         return new Response(
-            JSON.stringify({ error: error.message || "Internal Server Error" }),
+            JSON.stringify({error: error.message || "Internal Server Error"}),
             {
                 status: 500,
-                headers: { "content-type": "application/json" },
+                headers: {"content-type": "application/json"},
             }
         );
     }

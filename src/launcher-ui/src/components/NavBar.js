@@ -1,16 +1,16 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-import { AccountIcon, ChangelogIcon, HomeIcon, SettingsIcon } from "./icons";
+import {NavLink} from "react-router-dom";
+import {AccountIcon, ChangelogIcon, HomeIcon, SettingsIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
-import { colors } from "../theme/colors";
+import {colors} from "../theme/colors";
 
 const NavBar = () => {
     const menuItems = [
-        { to: "/account", icon: AccountIcon, alt: "Account" },
-        { to: "/", icon: HomeIcon, alt: "Home" },
-        { to: "/settings", icon: SettingsIcon, alt: "Settings" },
-        { to: "/changelog", icon: ChangelogIcon, alt: "Changelog" },
+        {to: "/account", icon: AccountIcon, alt: "Account"},
+        {to: "/", icon: HomeIcon, alt: "Home"},
+        {to: "/settings", icon: SettingsIcon, alt: "Settings"},
+        {to: "/changelog", icon: ChangelogIcon, alt: "Changelog"},
     ];
 
     return (
@@ -29,18 +29,18 @@ const NavBar = () => {
                     <li key={item.to}>
                         <NavLink
                             to={item.to}
-                            className={({ isActive }) =>
+                            className={({isActive}) =>
                                 "dialog p-3 border rounded-xs w-fit flex align-center cursor-pointer justify-center backdrop-blur " +
                                 (isActive ? " active" : "")
                             }
-                            style={({ isActive }) => ({
+                            style={({isActive}) => ({
                                 borderColor: colors.border,
                                 backgroundColor: isActive ? "rgba(0,0,0,0.6)" : "transparent",
                                 transition: "background-color 0.3s ease",
                             })}
                         >
-                            {({ isActive }) => (
-                                <item.icon fill={isActive ? "#ffffff" : "#4b4b4b"} alt={item.alt} />
+                            {({isActive}) => (
+                                <item.icon fill={isActive ? "#ffffff" : "#4b4b4b"} alt={item.alt}/>
                             )}
                         </NavLink>
                     </li>

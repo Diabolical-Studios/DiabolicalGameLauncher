@@ -2,14 +2,14 @@ export default async (request, context) => {
     console.log("=== Netlify Edge Function Triggered ===");
 
     // Parse query parameters from the request URL
-    const { searchParams } = new URL(request.url);
+    const {searchParams} = new URL(request.url);
     const code = searchParams.get("code");
     const source = searchParams.get("state") || "web";
 
     if (!code) {
         return new Response(
-            JSON.stringify({ error: 'Missing "code" parameter' }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
+            JSON.stringify({error: 'Missing "code" parameter'}),
+            {status: 400, headers: {"Content-Type": "application/json"}}
         );
     }
 
@@ -37,8 +37,8 @@ export default async (request, context) => {
         if (!tokenRes.ok) {
             const errorText = await tokenRes.text();
             return new Response(
-                JSON.stringify({ error: errorText }),
-                { status: tokenRes.status, headers: { "Content-Type": "application/json" } }
+                JSON.stringify({error: errorText}),
+                {status: tokenRes.status, headers: {"Content-Type": "application/json"}}
             );
         }
 
@@ -56,8 +56,8 @@ export default async (request, context) => {
         if (!userRes.ok) {
             const errorText = await userRes.text();
             return new Response(
-                JSON.stringify({ error: errorText }),
-                { status: userRes.status, headers: { "Content-Type": "application/json" } }
+                JSON.stringify({error: errorText}),
+                {status: userRes.status, headers: {"Content-Type": "application/json"}}
             );
         }
 
@@ -76,14 +76,14 @@ export default async (request, context) => {
                 "x-api-key": API_KEY,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ github_id, username, email, session_id: sessionID })
+            body: JSON.stringify({github_id, username, email, session_id: sessionID})
         });
 
         if (!createUserRes.ok) {
             const errorText = await createUserRes.text();
             return new Response(
-                JSON.stringify({ error: errorText }),
-                { status: createUserRes.status, headers: { "Content-Type": "application/json" } }
+                JSON.stringify({error: errorText}),
+                {status: createUserRes.status, headers: {"Content-Type": "application/json"}}
             );
         }
 
@@ -95,12 +95,12 @@ export default async (request, context) => {
 
         return new Response("", {
             status: 302,
-            headers: { Location: redirectUrl }
+            headers: {Location: redirectUrl}
         });
     } catch (error) {
         return new Response(
-            JSON.stringify({ error: error.message || "Internal Server Error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
+            JSON.stringify({error: error.message || "Internal Server Error"}),
+            {status: 500, headers: {"Content-Type": "application/json"}}
         );
     }
 };

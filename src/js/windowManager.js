@@ -1,6 +1,6 @@
-const { BrowserWindow } = require("electron");
+const {BrowserWindow} = require("electron");
 const path = require("path");
-const { loadSettings, saveSettings } = require("./settings");
+const {loadSettings, saveSettings} = require("./settings");
 
 let mainWindow;
 let splash;
@@ -70,7 +70,7 @@ async function createWindow() {
         if (splash) {
             splash.webContents.send("splash-update", "Initializing modules...");
         }
-        const { initUpdater, startPeriodicChecks } = require("./updater");
+        const {initUpdater, startPeriodicChecks} = require("./updater");
         require("./updater").checkForUpdates();
         require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
         initUpdater();
@@ -83,7 +83,7 @@ async function createWindow() {
     }, 60000);
 
     mainWindow.on("close", () => {
-        const { width, height } = mainWindow.getContentBounds();
+        const {width, height} = mainWindow.getContentBounds();
         settings.windowSize = {
             width: Math.round(width / 10) * 10,
             height: Math.round(height / 10) * 10,

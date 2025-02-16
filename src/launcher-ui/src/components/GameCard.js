@@ -41,7 +41,7 @@ const GameCard = ({
 
 
     const handleButtonClick = () => {
-        if(window.api) {
+        if (window.api) {
             if (gameInstalled) {
                 window.electronAPI.openGame(game.game_id);
             } else {

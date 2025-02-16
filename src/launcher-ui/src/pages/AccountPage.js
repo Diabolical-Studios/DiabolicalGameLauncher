@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import Cookies from "js-cookie";
 import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
-import {Routes, Route, Navigate, useLocation, useNavigate} from "react-router-dom";
+import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router-dom";
 
 export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
@@ -13,7 +13,7 @@ export default function AccountPage() {
     const navigate = useNavigate();
 
     const cookieOptions = useMemo(() => ({expires: 7, secure: true, sameSite: "Strict"}), []);
-    
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const sessionIDParam = params.get("sessionID");

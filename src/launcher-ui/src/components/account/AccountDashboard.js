@@ -1,8 +1,8 @@
 // AccountDashboard.js
-import React, { useCallback, useEffect, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import React, {useCallback, useEffect, useState} from "react";
+import {Link, Route, Routes} from "react-router-dom";
 import Cookies from "js-cookie";
-import { Avatar, Stack } from "@mui/material";
+import {Avatar, Stack} from "@mui/material";
 import Teams from "./Teams";
 import Games from "./Games";
 import AccountName from "./AccountName";
@@ -13,9 +13,9 @@ import ImageButton from "../button/ImageButton";
 import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
-import { colors } from "../../theme/colors";
+import {colors} from "../../theme/colors";
 
-export default function AccountDashboard({ username }) {
+export default function AccountDashboard({username}) {
     const [teams, setTeams] = useState([]);
     const [loadingTeams, setLoadingTeams] = useState(true);
     const [errorTeams, setErrorTeams] = useState(null);
@@ -76,7 +76,8 @@ export default function AccountDashboard({ username }) {
                     secure: true,
                 });
             }
-        } catch {}
+        } catch {
+        }
     }, []);
 
     useEffect(() => {
@@ -87,7 +88,7 @@ export default function AccountDashboard({ username }) {
     const handleUpdateTeam = (updatedTeam) => {
         setTeams((prev) =>
             prev.map((team) =>
-                team.team_id === updatedTeam.team_id ? { ...team, ...updatedTeam } : team
+                team.team_id === updatedTeam.team_id ? {...team, ...updatedTeam} : team
             )
         );
     };
@@ -105,25 +106,25 @@ export default function AccountDashboard({ username }) {
                     <Avatar
                         alt="GitHub User"
                         src={githubAvatar || "/static/images/avatar/1.jpg"}
-                        sx={{ width: 32, height: 32, outline: "1px solid" + colors.border }}
+                        sx={{width: 32, height: 32, outline: "1px solid" + colors.border}}
                     />
-                    <AccountName username={username} />
+                    <AccountName username={username}/>
                 </Stack>
-                <LogoutButton />
+                <LogoutButton/>
             </div>
             <div className="w-full h-full flex overflow-hidden">
                 <ul className="flex flex-col gap-3 h-full w-1/5 p-3 m-0 justify-between">
                     <Stack direction="column" spacing="12px">
                         <Link to="/account/dashboard/teams">
-                            <ImageButton style={{width: "100%"}} text="Teams" icon={GroupsIcon} />
+                            <ImageButton style={{width: "100%"}} text="Teams" icon={GroupsIcon}/>
                         </Link>
                         <Link to="/account/dashboard/games">
-                            <ImageButton style={{width: "100%"}} text="Games" icon={VideogameAssetIcon} />
+                            <ImageButton style={{width: "100%"}} text="Games" icon={VideogameAssetIcon}/>
                         </Link>
                     </Stack>
-                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
+                    <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams}/>
                 </ul>
-                <Divider vertical />
+                <Divider vertical/>
                 <div className="flex flex-col gap-3 size-full mt-0">
                     <Routes>
                         <Route
@@ -156,7 +157,7 @@ export default function AccountDashboard({ username }) {
                             path="games"
                             element={
                                 <Grid>
-                                    <Games teams={teams} />
+                                    <Games teams={teams}/>
                                 </Grid>
                             }
                         />

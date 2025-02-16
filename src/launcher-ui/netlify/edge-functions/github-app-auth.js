@@ -1,18 +1,18 @@
-import { importPKCS8, SignJWT } from "https://deno.land/x/jose@v4.14.4/index.ts";
+import {importPKCS8, SignJWT} from "https://deno.land/x/jose@v4.14.4/index.ts";
 
 export default async (request, context) => {
     // Parse query parameters from the request URL
-    const { searchParams } = new URL(request.url);
+    const {searchParams} = new URL(request.url);
     const installation_id = searchParams.get("installation_id");
     const setup_action = searchParams.get("setup_action"); // Optional if needed
 
-    console.log("📥 GitHub Callback Received:", { installation_id, setup_action });
+    console.log("📥 GitHub Callback Received:", {installation_id, setup_action});
 
     if (!installation_id) {
         console.error("❌ Missing installation_id in GitHub redirect");
         return new Response(
-            JSON.stringify({ error: 'Missing "installation_id" parameter' }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
+            JSON.stringify({error: 'Missing "installation_id" parameter'}),
+            {status: 400, headers: {"Content-Type": "application/json"}}
         );
     }
 
@@ -33,7 +33,7 @@ export default async (request, context) => {
 
         // Generate JWT with RS256, valid for 10 minutes
         const jwtToken = await new SignJWT({})
-            .setProtectedHeader({ alg: "RS256" })
+            .setProtectedHeader({alg: "RS256"})
             .setIssuedAt(now)
             .setExpirationTime(now + 600)
             .setIssuer(APP_ID)
@@ -67,7 +67,7 @@ export default async (request, context) => {
 
         return new Response("", {
             status: 302,
-            headers: { Location: redirectUrl },
+            headers: {Location: redirectUrl},
         });
     } catch (error) {
         console.error(
@@ -75,8 +75,8 @@ export default async (request, context) => {
             error.message
         );
         return new Response(
-            JSON.stringify({ error: error.message || "Internal Server Error" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
+            JSON.stringify({error: error.message || "Internal Server Error"}),
+            {status: 500, headers: {"Content-Type": "application/json"}}
         );
     }
 };
