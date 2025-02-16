@@ -1,31 +1,24 @@
 const {BrowserWindow} = require("electron");
 const path = require("path");
 const {loadSettings, saveSettings} = require("./settings");
-
 let mainWindow;
 let splash;
 let allowResize = false;
+let periodicChecksStarted = false;
 
 async function createWindow() {
     const isDev = (await import("electron-is-dev")).default;
     const settings = loadSettings();
-
-    // Create splash window with nodeIntegration enabled for IPC in splash
+    
+    //Creates the splash window while the launcher loads
     splash = new BrowserWindow({
-        width: 300,
-        height: 200,
-        frame: false,
-        transparent: true,
-        alwaysOnTop: true,
-        center: true,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
+        width: 300, height: 200, frame: false, transparent: true, alwaysOnTop: true, center: true, webPreferences: {
+            nodeIntegration: true, contextIsolation: false
+        }
     });
     await splash.loadFile(path.join(__dirname, "../splash.html"));
-
-    // Create the main window but hide it until ready
+    
+    //Creates the main window and hides it until its ready
     mainWindow = new BrowserWindow({
         width: settings.windowSize.width,
         height: settings.windowSize.height,
@@ -36,18 +29,17 @@ async function createWindow() {
             contextIsolation: true,
             nodeIntegration: true,
             enableRemoteModule: false,
-            preload: path.join(__dirname, "../preload.js"),
+            preload: path.join(__dirname, "../preload.js")
         },
         resizable: false,
-        show: false,
+        show: false
     });
-
-    const startURL = isDev
-        ? "http://localhost:8888"
-        : "https://launcher.diabolical.studio";
-
+    
+    //Dev mode = localhost
+    const startURL = isDev ? "http://localhost:8888" : "https://launcher.diabolical.studio";
     mainWindow.loadURL(startURL);
-
+    
+    //Close splash window and enable main window
     mainWindow.once("ready-to-show", () => {
         if (splash) {
             splash.close();
@@ -55,7 +47,6 @@ async function createWindow() {
         }
         mainWindow.show();
     });
-
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
@@ -65,28 +56,30 @@ async function createWindow() {
             e.preventDefault();
         }
     });
+    
     mainWindow.webContents.on("did-finish-load", async () => {
-        // Example: send an update to splash (if it were still open)
         if (splash) {
             splash.webContents.send("splash-update", "Initializing modules...");
         }
-        const {initUpdater, startPeriodicChecks} = require("./updater");
-        require("./updater").checkForUpdates();
+        const {initUpdater, startPeriodicChecks, checkForUpdates} = require("./updater");
+        checkForUpdates();
         require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
         initUpdater();
-        startPeriodicChecks(mainWindow);
-        showMessage(`Checking For Updates... `);
+        if (!periodicChecksStarted) {
+            startPeriodicChecks(mainWindow);
+            periodicChecksStarted = true;
+        }
+        showMessage("Checking For Updates... ");
     });
-
+    
+    //Display database health
     setInterval(() => {
         require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
     }, 60000);
-
     mainWindow.on("close", () => {
         const {width, height} = mainWindow.getContentBounds();
         settings.windowSize = {
-            width: Math.round(width / 10) * 10,
-            height: Math.round(height / 10) * 10,
+            width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10
         };
         saveSettings(settings);
     });
@@ -103,8 +96,4 @@ function getMainWindow() {
     return mainWindow;
 }
 
-module.exports = {
-    createWindow,
-    showMessage,
-    getMainWindow,
-};
+module.exports = {createWindow, showMessage, getMainWindow};

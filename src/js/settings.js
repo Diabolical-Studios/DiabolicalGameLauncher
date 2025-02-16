@@ -2,23 +2,18 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const diabolicalLauncherPath = path.join(
-    os.homedir(),
-    "AppData",
-    "Local",
-    "Diabolical Launcher"
-);
-
+//Absolute paths of the launcher
+const diabolicalLauncherPath = path.join(os.homedir(), "AppData", "Local", "Diabolical Launcher");
+const settingsFilePath = path.join(diabolicalLauncherPath, "settings.json");
 const versionFilePath = (gameId) => path.join(diabolicalLauncherPath, `${gameId}-version.json`);
 
-const settingsFilePath = path.join(diabolicalLauncherPath, "settings.json");
 
+//This will be made into a better logic
 const defaultSettings = {
-    windowSize: {width: 1280, height: 720},
-    theme: "light",
-    language: "en",
+    windowSize: {width: 1280, height: 720}, theme: "dark", language: "en",
 };
 
+//Create or use the save file logic
 function initSettings() {
     if (!fs.existsSync(diabolicalLauncherPath)) {
         fs.mkdirSync(diabolicalLauncherPath, {recursive: true});
@@ -29,6 +24,7 @@ function initSettings() {
     }
 }
 
+//Load from the save file
 function loadSettings() {
     try {
         if (fs.existsSync(settingsFilePath)) {
@@ -41,6 +37,7 @@ function loadSettings() {
     return defaultSettings;
 }
 
+//Save current settings
 function saveSettings(settings) {
     try {
         fs.writeFileSync(settingsFilePath, JSON.stringify(settings, null, 2));
@@ -50,10 +47,5 @@ function saveSettings(settings) {
 }
 
 module.exports = {
-    initSettings,
-    loadSettings,
-    saveSettings,
-    versionFilePath,
-    diabolicalLauncherPath,
-    settingsFilePath,
+    initSettings, loadSettings, saveSettings, versionFilePath, diabolicalLauncherPath, settingsFilePath,
 };

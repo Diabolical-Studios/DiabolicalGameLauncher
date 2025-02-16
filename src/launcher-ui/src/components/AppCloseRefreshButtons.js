@@ -9,7 +9,7 @@ const AppCloseRefreshButtons = () => {
     };
 
     const handleReload = () => {
-        window.location.reload();
+        window.electronAPI.reloadWindow();
     };
 
     return (

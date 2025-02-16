@@ -14,14 +14,14 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
     flexDirection: "column-reverse",
 
     "& .MuiFab-primary": {
-        borderRadius: 2,
+        borderRadius: "2px",
         backgroundColor: colors.background + "!important",
         outline: "1px solid" + colors.border + "!important",
         width: "-webkit-fill-available",
     },
 
     "& .MuiSpeedDial-actions": {
-        borderRadius: 2,
+        borderRadius: "2px",
         width: "-webkit-fill-available",
         margin: 0,
         padding: 0,
@@ -31,7 +31,7 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
 }));
 
 const StyledSpeedDialAction = styled(SpeedDialAction)(({theme}) => ({
-    borderRadius: 2,
+    borderRadius: "2px",
     width: "-webkit-fill-available",
     backgroundColor: colors.background + "!important",
     outline: "1px solid" + colors.border,

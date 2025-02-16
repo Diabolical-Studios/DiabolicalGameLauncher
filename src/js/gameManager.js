@@ -5,6 +5,7 @@ const {Menu, shell, BrowserWindow} = require("electron");
 const {downloadGame} = require("./downloadManager");
 const {diabolicalLauncherPath} = require("./settings");
 
+//Get a list of game_ids which are currently installed
 function getInstalledGames() {
     try {
         if (!fs.existsSync(diabolicalLauncherPath)) {
@@ -24,6 +25,7 @@ function getInstalledGames() {
     }
 }
 
+//Display a menu where the user can manage the game.
 function showContextMenu(event, gameId, position) {
     const gamePath = path.join(diabolicalLauncherPath, gameId);
     const isGameInstalled = fs.existsSync(gamePath);
@@ -31,34 +33,27 @@ function showContextMenu(event, gameId, position) {
     const template = [];
 
     if (isGameInstalled) {
-        template.push(
-            {
-                label: "Open Game Location",
-                click: () => {
-                    const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
-                    shell.showItemInFolder(executablePath);
-                },
+        template.push({
+            label: "Open Game Location", click: () => {
+                const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
+                shell.showItemInFolder(executablePath);
             },
-            {
-                label: "Uninstall Game",
-                click: () => {
-                    uninstallGame(gameId);
-                    event.sender.send("game-uninstalled", gameId);
-                },
-            }
-        );
+        }, {
+            label: "Uninstall Game", click: () => {
+                uninstallGame(gameId);
+                event.sender.send("game-uninstalled", gameId);
+            },
+        });
     } else {
         template.push({
-            label: "Download Game",
-            click: () => {
+            label: "Download Game", click: () => {
                 downloadGame(event, gameId);
             },
         });
     }
 
     template.push({
-        label: "Cancel",
-        role: "cancel",
+        label: "Cancel", role: "cancel",
     });
 
     const menu = Menu.buildFromTemplate(template);
@@ -66,7 +61,7 @@ function showContextMenu(event, gameId, position) {
     menu.popup({window: win, x: position.x, y: position.y});
 }
 
-
+//Handles uninstalling game files
 function uninstallGame(gameId) {
     const gamePath = path.join(diabolicalLauncherPath, gameId);
     if (fs.existsSync(gamePath)) {
@@ -78,7 +73,5 @@ function uninstallGame(gameId) {
 }
 
 module.exports = {
-    uninstallGame,
-    getInstalledGames,
-    showContextMenu
+    uninstallGame, getInstalledGames, showContextMenu
 };

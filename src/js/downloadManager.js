@@ -7,6 +7,7 @@ const {diabolicalLauncherPath, versionFilePath} = require("./settings");
 const {getMainWindow} = require("./windowManager");
 const {getLatestGameVersion} = require("./versionChecker");
 
+//Extract zip content after download
 async function extractZip(zipPath, gameId, event) {
     const extractPath = path.join(diabolicalLauncherPath, gameId);
     try {
@@ -21,6 +22,7 @@ async function extractZip(zipPath, gameId, event) {
     }
 }
 
+//Initiate game download
 async function downloadGame(event, gameId) {
     try {
         const {latestVersion, latestVersionUrl} = await getLatestGameVersion(gameId);
@@ -32,25 +34,19 @@ async function downloadGame(event, gameId) {
         const gameUrl = latestVersionUrl;
 
         const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
-            directory: diabolicalLauncherPath,
-            onProgress: (progress) => {
+            directory: diabolicalLauncherPath, onProgress: (progress) => {
                 event.sender.send("download-progress", {
-                    gameId: gameId,
-                    percentage: progress.percent,
+                    gameId: gameId, percentage: progress.percent,
                 });
             },
         });
 
         await extractZip(dl.getSavePath(), gameId, event);
 
-        fs.writeFileSync(
-            versionFilePath(gameId),
-            JSON.stringify({version: latestVersion})
-        );
+        fs.writeFileSync(versionFilePath(gameId), JSON.stringify({version: latestVersion}));
 
         getMainWindow().webContents.send("update-available", {
-            gameId,
-            updateAvailable: false,
+            gameId, updateAvailable: false,
         });
 
     } catch (error) {

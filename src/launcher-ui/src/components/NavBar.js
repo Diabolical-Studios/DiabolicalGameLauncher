@@ -6,6 +6,7 @@ import OpenExternalLink from "./link/OpenExternalLink";
 import {colors} from "../theme/colors";
 
 const NavBar = () => {
+    //Where we declare routes
     const menuItems = [
         {to: "/account", icon: AccountIcon, alt: "Account"},
         {to: "/", icon: HomeIcon, alt: "Home"},

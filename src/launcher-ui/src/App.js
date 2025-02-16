@@ -24,35 +24,30 @@ function App() {
         applyFontsToCSS();
     }, []);
 
-    return (
-        <ThemeProvider theme={themeFont}>
-            <Router>
-                <AppLayout>
-                    <BackgroundAnimation/>
-                    {/* NavBar with React Router Links */}
-                    <NavBar/>
+    return (<ThemeProvider theme={themeFont}>
+        <Router>
+            <AppLayout>
+                <BackgroundAnimation/>
+                <NavBar/>
+                <StatusBarAndContentPanel>
+                    <HorizontalFlex>
+                        <StatusBar/>
+                        <AppCloseRefreshButtons/>
+                    </HorizontalFlex>
 
-                    <StatusBarAndContentPanel>
-                        <HorizontalFlex>
-                            <StatusBar/>
-                            <AppCloseRefreshButtons/>
-                        </HorizontalFlex>
-
-                        <ContentPanel>
-                            <Routes>
-                                <Route path="/" element={<LandingPage/>}/>
-                                <Route path="/account/*" element={<AccountPage/>}/>
-                                <Route path="/settings" element={<SettingsPage/>}/>
-                                <Route path="/changelog" element={<ChangelogPage/>}/>
-                                {/* Add more routes if needed */}
-                            </Routes>
-                        </ContentPanel>
-                    </StatusBarAndContentPanel>
-                </AppLayout>
-                <Toaster/>
-            </Router>
-        </ThemeProvider>
-    );
+                    <ContentPanel>
+                        <Routes>
+                            <Route path="/" element={<LandingPage/>}/>
+                            <Route path="/account/*" element={<AccountPage/>}/>
+                            <Route path="/settings" element={<SettingsPage/>}/>
+                            <Route path="/changelog" element={<ChangelogPage/>}/>
+                        </Routes>
+                    </ContentPanel>
+                </StatusBarAndContentPanel>
+            </AppLayout>
+            <Toaster/>
+        </Router>
+    </ThemeProvider>);
 }
 
 export default App;

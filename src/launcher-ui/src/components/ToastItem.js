@@ -43,19 +43,13 @@ const ToastItem = ({toast, timeout = 300, autoDismiss = 3000, onDownload, onDism
     return (
         <Slide direction="left" in={show} timeout={timeout} onExited={handleExited}>
             <div
-                className="relative rounded-sm shadow-lg transition-all duration-500 dialog"
+                className="background relative rounded-sm shadow-lg transition-all duration-500 dialog w-fit outline justify-between"
                 style={{
-                    width: "fit-content",
-                    height: "70px", // Fixed height for the toaster
-                    outline: "solid 1px var(--border)",
-                    justifyContent: "space-between",
                     padding: 0,
-                    backgroundColor: "var(--background)",
-                    backgroundImage:
-                        "radial-gradient(rgba(87,87,87,0.3) 1px, transparent 1px), radial-gradient(rgba(87,87,87,0.3) 1px, transparent 1px)",
-                    backgroundPosition: "0 0, 0 0",
-                    backgroundSize: "20px 20px",
-                    color: "var(--text)",
+                    height: "70px",
+                    outlineColor: colors.border,
+                    backgroundColor: colors.background,
+                    color: colors.text,
                 }}
             >
                 <div className="flex items-center justify-between h-full gap-3">

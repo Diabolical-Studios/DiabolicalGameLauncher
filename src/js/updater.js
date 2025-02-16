@@ -1,18 +1,16 @@
 const {autoUpdater} = require("electron-updater");
-const {showMessage} = require("./windowManager");
-const {BrowserWindow} = require("electron");
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
-const {downloadGame} = require("./downloadManager");
 const {getLatestGameVersion} = require("./versionChecker");
 const {getInstalledGames} = require("./gameManager");
-
+const {showMessage} = require("./windowManager");
 
 let mainWindow = null;
 
 const versionDirectory = path.join(os.homedir(), "AppData", "Local", "Diabolical Launcher");
 
+//Launcher auto update logic
 function initUpdater() {
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
@@ -36,7 +34,11 @@ function initUpdater() {
         showMessage(`Launcher update error: ${info}`);
     });
 }
+function checkForUpdates() {
+    autoUpdater.checkForUpdates();
+}
 
+//Show the toaster so the user can download the update for the game
 function showCustomNotification(mainWindow, title, body, gameId) {
     console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
     if (mainWindow && mainWindow.webContents) {
@@ -46,6 +48,7 @@ function showCustomNotification(mainWindow, title, body, gameId) {
     }
 }
 
+//Checks the games current and most recent version to determine if there are updates
 async function checkGameUpdates(gameId, currentVersion) {
     try {
         const {latestVersion} = await getLatestGameVersion(gameId);
@@ -62,10 +65,7 @@ async function checkGameUpdates(gameId, currentVersion) {
     }
 }
 
-function checkForUpdates() {
-    autoUpdater.checkForUpdates();
-}
-
+//Current version of the installed game
 function getCurrentGameVersion(gameId) {
     const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
     try {
@@ -78,7 +78,8 @@ function getCurrentGameVersion(gameId) {
     }
 }
 
-function periodicallyCheckGameVersions(gameIds, interval = 600000) {
+//Check for updates every minute
+function periodicallyCheckGameVersions(gameIds, interval = 60000) {
     gameIds.forEach((gameId) => {
         const currentVersion = getCurrentGameVersion(gameId);
         if (currentVersion) {
@@ -95,8 +96,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 600000) {
         });
     }, interval);
 }
-
-function startPeriodicChecks(window, interval = 600000) {
+function startPeriodicChecks(window, interval = 60000) {
     mainWindow = window;
 
     const gameIds = getInstalledGames();
@@ -109,7 +109,6 @@ function startPeriodicChecks(window, interval = 600000) {
     periodicallyCheckGameVersions(gameIds, interval);
 }
 
-
 module.exports = {
-    initUpdater, checkGameUpdates, startPeriodicChecks, checkForUpdates, getLatestGameVersion
+    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion
 };
