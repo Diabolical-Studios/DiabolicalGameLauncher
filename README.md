@@ -1,53 +1,67 @@
 # Diabolical Launcher
 
-![Diabolical Launcher Logo](https://repository-images.githubusercontent.com/792842580/16442e04-f598-4024-b5b7-1cd3de882534)
+![Diabolical Launcher Landing Page](https://github.com/user-attachments/assets/7937eec6-a1cd-4ee3-b225-43ca83035f3e)
 
-Diabolical Launcher is a highly customizable game launcher designed for indie developers. Built on Electron, it supports
-auto-updates, integration with cloud storage solutions, and a dynamic UI for displaying game titles available for
-download.
+**Diabolical Launcher** is a highly customizable game launcher made for indie developers. Built with **Electron**, it offers **auto-updates**, **CI/CD pipeline creation**, and **cloud storage integration** for game deployment. Games can be uploaded directly from **GitHub repositories** and downloaded and played from the launcher once uploaded.
 
 ## Features
 
 ### 🚀 Auto Updates
 
-The launcher uses GitHub Actions and releases to automatically update clients to the latest version upon launch,
-ensuring all users have the latest features and security updates.
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    The launcher uses GitHub Actions and releases to automatically update clients to the latest version upon launch, ensuring all users have the latest features and security updates.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="Auto Updates" style="max-width: 45%;">
+</div>
 
 ### 🎮 Dynamic Game Addition
 
-Games can be added and updated through a database backend, with changes reflecting immediately in the launcher. Game
-cards are automatically created in the UI, complete with download buttons based on unique game IDs.
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    Games can be added and updated through a database backend, with changes reflecting immediately in the launcher. Game cards are automatically created in the UI, complete with download buttons based on unique game IDs.
+  </div>
+  <div style="display: flex; justify-content: space-between; width: 50%;">
+    <img src="https://github.com/user-attachments/assets/2ee2370a-2c17-4418-8df3-b4e49ee89d23" width="48%" />
+    <img src="https://github.com/user-attachments/assets/d36cce86-bdbd-4ef6-b1bb-5093ab5f48ef" width="48%" />
+  </div>
+</div>
 
 ### 🔄 CI/CD Integration
 
-Support for continuous integration and delivery with GitHub Actions for Unity projects. Automatically builds and uploads
-game files to Oracle Cloud buckets, facilitating seamless updates and distribution.
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    Support for continuous integration and delivery with GitHub Actions for Unity projects. Automatically builds and uploads game files to Oracle Cloud buckets, facilitating seamless updates and distribution.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="CI/CD Integration" style="max-width: 45%;">
+</div>
 
 ### 💾 Flexible Storage Solutions
 
-While the launcher integrates seamlessly with Oracle Cloud for storing game builds, it also allows manual uploads to any
-cloud storage service, offering flexibility for different deployment needs.
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    While the launcher integrates seamlessly with Oracle Cloud for storing game builds, it also allows manual uploads to any cloud storage service, offering flexibility for different deployment needs.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="Flexible Storage Solutions" style="max-width: 45%;">
+</div>
 
 ### 🎨 Customizable UI
 
-The UI is designed to be highly customizable, allowing developers to tailor the launcher to match their branding and
-aesthetic preferences.
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    The UI is designed to be highly customizable, allowing developers to tailor the launcher to match their branding and aesthetic preferences.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="Customizable UI" style="max-width: 45%;">
+</div>
 
 ## Installation
 
-Provide detailed step-by-step installation instructions.
+To get started with **Diabolical Launcher**, follow the instructions below.
+
+[Download the Latest Release Here](https://github.com/Diabolical-Studios/DiabolicalGameLauncher/releases/latest)
+
+### Clone the Repo
 
 ```bash
 # Example command to clone the repo
 git clone https://github.com/Diabolical-Studios/DiabolicalGameLauncher.git
-```
-
-```bash
-# Installing dependencies
-npm install
-```
-
-```bash
-# Running the application
-npm start
-```
