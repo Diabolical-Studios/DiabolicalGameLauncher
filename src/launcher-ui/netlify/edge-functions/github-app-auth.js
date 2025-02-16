@@ -4,7 +4,7 @@ export default async (request, context) => {
     // Parse query parameters from the request URL
     const { searchParams } = new URL(request.url);
     const installation_id = searchParams.get("installation_id");
-    const setup_action = searchParams.get("setup_action"); // if needed
+    const setup_action = searchParams.get("setup_action"); // Optional if needed
 
     console.log("📥 GitHub Callback Received:", { installation_id, setup_action });
 
@@ -19,12 +19,17 @@ export default async (request, context) => {
     try {
         // Access environment variables using Netlify.env.get() for Deno
         const APP_ID = Netlify.env.get("GITHUB_APP_ID");
-        // Decode the base64 encoded private key
-        const PRIVATE_KEY = atob(Netlify.env.get("GITHUB_PRIVATE_KEY"));
+
+        // Decode the base64 encoded private key from the environment variable
+        const PRIVATE_KEY = Netlify.env.get("GITHUB_PRIVATE_KEY");
+
+        // Ensure PRIVATE_KEY is properly base64 decoded (PKCS#8)
+        const privateKeyBuffer = new TextEncoder().encode(atob(PRIVATE_KEY));
+
         const now = Math.floor(Date.now() / 1000);
 
         // Import the private key as a CryptoKey using jose's helper
-        const privateKey = await importPKCS8(PRIVATE_KEY, "RS256");
+        const privateKey = await importPKCS8(privateKeyBuffer, "RS256");
 
         // Generate JWT with RS256, valid for 10 minutes
         const jwtToken = await new SignJWT({})

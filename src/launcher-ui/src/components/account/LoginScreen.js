@@ -4,7 +4,7 @@ import {colors} from "../../theme/colors";
 
 const handleGitHubLogin = () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
-    const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/.netlify/functions/githubAuth");
+    const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/github-auth");
 
     // Add ?source=electron if we detect the app, else ?source=web
     const source = window.api ? "electron" : "web";
