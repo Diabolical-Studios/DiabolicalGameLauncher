@@ -40,7 +40,14 @@
       "target": "nsis",
       "icon": "icons/icon.ico",
       "artifactName": "${productName} Setup.${ext}",
-      "oneClick": true
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
     },
     "mac": {
       "target": "dmg",
