@@ -39,7 +39,7 @@
     "win": {
       "target": "nsis",
       "icon": "icons/icon.ico",
-      "artifactName": "${productName} Setup.${ext}",
+      "artifactName": "${productName} Setup.${ext}"
     },
     "nsis": {
       "oneClick": true,
