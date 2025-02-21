@@ -47,7 +47,7 @@
       "perMachine": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "runAfterFinish": true
+      "runAfterFinish": false
     },
     "mac": {
       "target": "dmg",
