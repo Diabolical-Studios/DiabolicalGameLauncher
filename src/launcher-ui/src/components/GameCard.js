@@ -4,10 +4,11 @@ import GameButton from "./button/GameButton";
 import {colors} from "../theme/colors";
 
 const GameCard = ({
-                      game, isInstalled, isEditing = false, setGameName, setGameDescription, style = {}
+                      game, isInstalled, isEditing = false, setGameName, setGameDescription, style = {},
                   }) => {
     const [downloadProgress, setDownloadProgress] = React.useState(null);
     const [gameInstalled, setGameInstalled] = React.useState(isInstalled);
+    const [localVersion, setLocalVersion] = React.useState(null);
 
     React.useEffect(() => {
         const handleDownloadProgress = (progressData) => {
@@ -20,12 +21,26 @@ const GameCard = ({
             if (gameId === game.game_id) {
                 setGameInstalled(true);
                 setDownloadProgress(null);
+                fetchLocalVersion();
             }
         };
 
         const handleGameUninstalled = (gameId) => {
             if (gameId === game.game_id) {
                 setGameInstalled(false);
+                setLocalVersion(null);
+            }
+        };
+
+        const fetchLocalVersion = async () => {
+            if (window.electronAPI) {
+                try {
+                    const version = await window.electronAPI.getCurrentGameVersion(game.game_id);
+                    setLocalVersion(version || "Not Installed");
+                } catch (error) {
+                    console.error("Error fetching local game version:", error);
+                    setLocalVersion("Not Installed");
+                }
             }
         };
 
@@ -37,8 +52,9 @@ const GameCard = ({
             console.log("window.api is not available (running in the browser)");
         }
 
-    }, [game.game_id]);
+        fetchLocalVersion(); // Fetch version when component mounts
 
+    }, [game.game_id]);
 
     const handleButtonClick = () => {
         if (window.api) {
@@ -57,7 +73,9 @@ const GameCard = ({
         }}
         onContextMenu={(e) => {
             e.preventDefault();
-            window.electronAPI.showContextMenu(game.game_id, {x: e.pageX, y: e.pageY});
+            window.electronAPI.showContextMenu(game.game_id, {
+                x: e.pageX, y: e.pageY,
+            });
         }}
     >
         {/* Editable Fields if Editing Mode is Enabled */}
@@ -76,7 +94,7 @@ const GameCard = ({
                         border: "none",
                     }, "& .MuiInputBase-input": {
                         color: colors.text, fontSize: "18px", textTransform: "uppercase", fontWeight: 600,
-                    }
+                    },
                 }}
             />) : (<h3>{game.game_name.toUpperCase()}</h3>)}
 
@@ -94,9 +112,14 @@ const GameCard = ({
                         border: "none",
                     }, "& .MuiInputBase-input": {
                         color: "#8e8e8e", fontSize: "14px", lineHeight: "normal",
-                    }
+                    },
                 }}
             />) : (<p>{game.description}</p>)}
+
+            {/* Display Latest Version */}
+            <p style={{fontSize: "14px", color: colors.success}}>
+                Latest Version: {game.version || "Not Installed"}
+            </p>
         </div>
 
         {/* Controls */}
@@ -104,7 +127,7 @@ const GameCard = ({
             <GameButton
                 gameInstalled={gameInstalled}
                 downloadProgress={downloadProgress}
-                gameVersion={game.version}
+                gameVersion={localVersion || "Not Installed"}
                 onClick={handleButtonClick}
             />
         </Stack>

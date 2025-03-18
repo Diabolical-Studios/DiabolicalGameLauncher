@@ -6,6 +6,7 @@ const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
 const {getInstalledGames, showContextMenu, uninstallGame} = require("./gameManager");
+const {getCurrentGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 
 function initIPCHandlers() {
@@ -14,6 +15,10 @@ function initIPCHandlers() {
     ipcMain.handle("get-installed-games", async () => {
         return getInstalledGames();
     });
+    ipcMain.handle("get-current-game-version", async (event, gameId) => {
+        return getCurrentGameVersion(gameId);
+    });
+
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
         const executablePath = path.join(gamePath, "StandaloneWindows64.exe");

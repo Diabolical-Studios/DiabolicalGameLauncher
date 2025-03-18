@@ -110,5 +110,5 @@ function startPeriodicChecks(window, interval = 60000) {
 }
 
 module.exports = {
-    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion
+    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion, getCurrentGameVersion
 };

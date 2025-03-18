@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     downloadGame: (gameId) => ipcRenderer.send("download-game", gameId),
     openGame: (gameId) => ipcRenderer.send("open-game", gameId),
     getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
+    getCurrentGameVersion: (gameId) => ipcRenderer.invoke("get-current-game-version", gameId),
     onDownloadProgress: (callback) => {
         ipcRenderer.on("download-progress", (event, {gameId, percentage}) => {
             callback({gameId, percentage});
