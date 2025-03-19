@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Box, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography} from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
@@ -99,6 +99,11 @@ const GameInfoPanel = ({game}) => {
         }
     };
 
+    const handleAuthorizeMoreRepos = () => {
+        const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
+        window.electronAPI.openExternal(githubAppAuthUrl);
+    };
+
 
     const gameDetails = {
         "Game Name": game.game_name,
@@ -119,49 +124,75 @@ const GameInfoPanel = ({game}) => {
                 padding: "6px 12px",
                 borderRadius: "2px",
                 cursor: "pointer",
-                "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"}
-            }}
-        >
-            <OpenInNewIcon fontSize="small" sx={{marginRight: 1}}/>
-            {game.github_repo}
-        </Box>) : "No Repo Linked",
-        "Deploy Status": game.github_repo ? (<Box
-            sx={{
-                display: "flex", alignItems: "center", color: getWorkflowStatus(deployStatus).color, fontWeight: "bold"
-            }}
-        >
-            {getWorkflowStatus(deployStatus).icon}
-            <Typography variant="body2" sx={{marginLeft: 1}}>
-                {deployStatus.toUpperCase()}
-            </Typography>
-        </Box>) : "No Repo Linked",
-    };
-
-    const githubAppDetails = {
-        "App Name": "Diabolical Launcher Integration",
-        "Team": "Diabolical Studios",
-        "REINITIALIZE": game.github_repo ? (<Box
-            component="button"
-            onClick={handleRepoClick}
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                color: colors.success,
-                fontWeight: "bold",
-                textDecoration: "none",
-                border: `1px solid ${colors.success}`,
-                padding: "6px 12px",
-                borderRadius: "2px",
-                cursor: "pointer",
-                background: "none",
-                outline: "none",
                 "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"},
             }}
         >
             <OpenInNewIcon fontSize="small" sx={{marginRight: 1}}/>
             {game.github_repo}
         </Box>) : "No Repo Linked",
+        "Deploy Status": game.github_repo ? (deployStatus === "unknown" ? (// Show reauth button when deploy status is unknown
+            <Button
+                variant="outlined"
+                onClick={handleAuthorizeMoreRepos}
+                sx={{
+                    color: colors.warning,
+                    borderColor: colors.warning,
+                    fontWeight: "bold",
+                    textTransform: "none",
+                    "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"},
+                }}
+            >
+                Reauthorize GitHub App
+            </Button>) : (<Box
+            sx={{
+                display: "flex", alignItems: "center", color: getWorkflowStatus(deployStatus).color, fontWeight: "bold",
+            }}
+        >
+            {getWorkflowStatus(deployStatus).icon}
+            <Typography variant="body2" sx={{marginLeft: 1}}>
+                {deployStatus.toUpperCase()}
+            </Typography>
+        </Box>)) : "No Repo Linked",
     };
+
+    const githubAppDetails = {
+        "App Name": "Diabolical Launcher Integration",
+        "Team": "Diabolical Studios",
+        "REINITIALIZE": game.github_repo ? (
+            <Box sx={{display: "flex", flexDirection: "column", alignItems: "flex-end", width: "100%", gap: "12px"}}>
+                {/* Reinitialize Button */}
+                <Box
+                    component="button"
+                    onClick={handleRepoClick}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: colors.error,
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                        border: `1px solid ${colors.error}`,
+                        padding: "6px 12px",
+                        borderRadius: "2px",
+                        cursor: "pointer",
+                        background: "none",
+                        outline: "none",
+                        "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"},
+                    }}
+                >
+                    <OpenInNewIcon fontSize="small" sx={{marginRight: 1}}/>
+                    {game.github_repo}
+                </Box>
+                <Typography
+                    variant="caption"
+                    sx={{
+                        display: "block", width: "50%", color: colors.warning, fontSize: "12px", textAlign: "center",
+                    }}
+                >
+                    ⚠️ Reinitialization will recreate the secrets and workflow file! Be sure before proceeding.
+                </Typography>
+            </Box>) : "No Repo Linked",
+    };
+
 
     return (<Stack
         sx={{
