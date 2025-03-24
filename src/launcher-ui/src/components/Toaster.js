@@ -12,7 +12,11 @@ const Toaster = () => {
                         return prev;
                     }
                     const newToast = {
-                        id: Date.now(), title: data.title, body: data.body, gameId: data.gameId,
+                        id: Date.now(),
+                        title: data.title,
+                        body: data.body,
+                        gameId: data.gameId,
+                        duration: data.duration || 5000 // fallback to 5000ms if not provided
                     };
                     return [...prev, newToast];
                 });
@@ -39,7 +43,7 @@ const Toaster = () => {
             key={toast.id}
             toast={toast}
             timeout={300}
-            autoDismiss={5000}
+            autoDismiss={toast.duration}
             onDownload={handleDownload}
             onDismiss={dismissToaster}
         />))}

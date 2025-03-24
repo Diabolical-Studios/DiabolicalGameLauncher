@@ -22,10 +22,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     openGame: (gameId) => ipcRenderer.send("open-game", gameId),
     getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
     getCurrentGameVersion: (gameId) => ipcRenderer.invoke("get-current-game-version", gameId),
+    getLatestGameVersion: (gameId) => ipcRenderer.invoke("get-latest-game-version", gameId),
     onDownloadProgress: (callback) => {
         ipcRenderer.on("download-progress", (event, {gameId, percentage}) => {
             callback({gameId, percentage});
         });
+    },
+    removeDownloadProgressListener: (callback) => {
+        ipcRenderer.removeListener("download-progress", callback);
     },
     onDownloadComplete: (callback) => {
         ipcRenderer.on("download-complete", (event, gameId, installPath) => {
@@ -40,6 +44,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     showContextMenu: (gameId, position) => {
         ipcRenderer.send("show-context-menu", gameId, position);
     },
+    getCachedGames: () => ipcRenderer.invoke("get-cached-games"),
+    cacheGamesLocally: (games) => ipcRenderer.invoke("cache-games-locally", games),
+
 
     //Window
     closeWindow: () => ipcRenderer.send("close-window"),

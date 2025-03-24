@@ -1,6 +1,6 @@
 import React from "react";
 import {NavLink} from "react-router-dom";
-import {AccountIcon, ChangelogIcon, HomeIcon, SettingsIcon} from "./icons";
+import {AccountIcon, ChangelogIcon, HomeIcon, LibraryIcon, SettingsIcon} from "./icons";
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 import {colors} from "../theme/colors";
@@ -9,6 +9,7 @@ const NavBar = () => {
     //Where we declare routes
     const menuItems = [
         {to: "/account", icon: AccountIcon, alt: "Account"},
+        {to: "/library", icon: LibraryIcon, alt: "Library"},
         {to: "/", icon: HomeIcon, alt: "Home"},
         {to: "/settings", icon: SettingsIcon, alt: "Settings"},
         {to: "/changelog", icon: ChangelogIcon, alt: "Changelog"},

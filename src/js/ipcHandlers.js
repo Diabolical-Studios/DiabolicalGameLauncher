@@ -6,8 +6,9 @@ const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
 const {getInstalledGames, showContextMenu, uninstallGame} = require("./gameManager");
-const {getCurrentGameVersion} = require("./updater");
+const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
+const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
 
 function initIPCHandlers() {
     //Game Actions
@@ -17,6 +18,10 @@ function initIPCHandlers() {
     });
     ipcMain.handle("get-current-game-version", async (event, gameId) => {
         return getCurrentGameVersion(gameId);
+    });
+
+    ipcMain.handle("get-latest-game-version", async (event, gameId) => {
+        return await getLatestGameVersion(gameId);
     });
 
     ipcMain.on("open-game", (event, gameId) => {
@@ -47,6 +52,14 @@ function initIPCHandlers() {
     });
     ipcMain.on("uninstall-game", (event, gameId) => {
         uninstallGame(gameId);
+    });
+
+    ipcMain.handle("get-cached-games", () => {
+        return readCachedGames();
+    });
+
+    ipcMain.handle("cache-games-locally", (event, games) => {
+        cacheGamesLocally(games);
     });
 
     //Launcher Actions

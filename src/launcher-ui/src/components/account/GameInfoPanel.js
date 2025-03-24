@@ -83,11 +83,13 @@ const GameInfoPanel = ({game}) => {
                 }),
             });
 
-            const responseData = await response.json();
+            // Check if response is JSON before parsing
+            const contentType = response.headers.get("content-type");
+            const responseData = contentType && contentType.includes("application/json") ? await response.json() : await response.text(); // Fallback to text
 
             if (!response.ok) {
-                console.error(`❌ GitHub workflow re-trigger failed: ${responseData.message}`);
-                window.electronAPI?.showCustomNotification("Reinitialized Unsuccessful", responseData.message || "Something went wrong!");
+                console.error(`❌ GitHub workflow re-trigger failed: ${responseData.message || responseData}`);
+                window.electronAPI?.showCustomNotification("Reinitialized Unsuccessful", responseData.message || responseData || "Something went wrong!");
                 return;
             }
 
@@ -98,6 +100,7 @@ const GameInfoPanel = ({game}) => {
             window.electronAPI?.showCustomNotification("Reinitialized Unsuccessful", "An unexpected error occurred. Check your internet connection and try again.");
         }
     };
+
 
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";

@@ -17,6 +17,7 @@ import HorizontalFlex from "./components/layout/HorizontalFlex";
 import {applyColorsToCSS} from "./theme/colors";
 import {applyFontsToCSS, themeFont} from "./theme/fonts";
 import {ThemeProvider} from "@mui/material";
+import LibraryPage from "./pages/LibraryPage";
 
 function App() {
     useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
                     <ContentPanel>
                         <Routes>
                             <Route path="/" element={<LandingPage/>}/>
+                            <Route path="/library" element={<LibraryPage/>}/>
                             <Route path="/account/*" element={<AccountPage/>}/>
                             <Route path="/settings" element={<SettingsPage/>}/>
                             <Route path="/changelog" element={<ChangelogPage/>}/>

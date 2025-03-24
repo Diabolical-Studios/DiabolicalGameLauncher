@@ -2,6 +2,7 @@
 module.exports = [
     '/',
     '/landing',
+    '/library',
     '/account',
     '/account/login',
     '/account/dashboard',

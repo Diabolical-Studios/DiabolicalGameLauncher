@@ -34,19 +34,21 @@ function initUpdater() {
         showMessage(`Launcher update error: ${info}`);
     });
 }
+
 function checkForUpdates() {
     autoUpdater.checkForUpdates();
 }
 
 //Show the toaster so the user can download the update for the game
-function showCustomNotification(mainWindow, title, body, gameId) {
+function showCustomNotification(mainWindow, title, body, gameId, duration = 5000) {
     console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
-    if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('show-notification', {title, body, gameId});
-    } else {
-        console.log('mainWindow or webContents is not available.');
+    if (mainWindow?.webContents) {
+        mainWindow.webContents.send("show-notification", {
+            title, body, gameId, duration // 👈 send custom duration
+        });
     }
 }
+
 
 //Checks the games current and most recent version to determine if there are updates
 async function checkGameUpdates(gameId, currentVersion) {
@@ -96,6 +98,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 60000) {
         });
     }, interval);
 }
+
 function startPeriodicChecks(window, interval = 60000) {
     mainWindow = window;
 
