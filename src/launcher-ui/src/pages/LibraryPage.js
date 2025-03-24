@@ -174,7 +174,7 @@ const LibraryPage = () => {
                                         borderRadius: "2px",
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "16px",
+                                        gap: "12px",
                                     }}
                                 >
                                     {selectedGame.team_icon_url && (
@@ -185,7 +185,7 @@ const LibraryPage = () => {
                             </div>
 
                             {/* Details */}
-                            <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                            <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                                     <ImageButton
                                         text={buttonLabel}
@@ -215,6 +215,12 @@ const LibraryPage = () => {
                                             <div>10.9 hours</div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Game Description Below */}
+                                <div style={{ fontSize: "14px", color: "#ddd", width: "40%", padding: "12px", display: "flex", flexDirection: "column", gap: "12px", backgroundColor: colors.transparent, outline: "1px solid", outlineColor: colors.border, borderRadius: "2px"}}>
+                                    <h3 style={{fontSize: "18px", color: "#666"}}>Description:</h3>
+                                    <p>{selectedGame.description || "No description available"}</p>
                                 </div>
                             </div>
                         </>
