@@ -28,13 +28,7 @@ const StatusBar = () => {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 3000); // Optional: timeout after 3s
-
-                    const response = await fetch(url, {
-                        method: "HEAD", // just checks if it's alive
-                        mode: "no-cors", // avoids CORS errors for public endpoints
-                        signal: controller.signal,
-                    });
-
+                    
                     clearTimeout(timeoutId);
                     return true; // If we reach here, it's considered up
                 } catch {
