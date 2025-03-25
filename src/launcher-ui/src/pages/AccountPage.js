@@ -65,7 +65,7 @@ export default function AccountPage() {
             window.electronAPI.onProtocolData((action, data) => {
                 if (action === "auth") {
                     if (window.electronAPI) {
-                        window.electronAPI.showCustomNotification("GitHub OAuth", "Success! Logging user in...");
+                        window.electronAPI.showCustomNotification("GitHub OAuth", "Success! You are logged in");
                     }
                     Cookies.set("sessionID", data.sessionID, cookieOptions);
                     Cookies.set("username", data.username, cookieOptions);

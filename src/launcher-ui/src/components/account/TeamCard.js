@@ -71,14 +71,11 @@ const TeamCard = ({team, onUpdateTeam}) => {
     }, []);
 
     const listStyle = {
-        aspectRatio: isMobile ? false : "1",
-        backgroundColor: colors.background,
-        borderColor: colors.border,
+        aspectRatio: isMobile ? false : "1", backgroundColor: colors.background, borderColor: colors.border,
 
     };
 
-    return (
-        <li className={"gap-3 flex flex-col justify-between border rounded-xs"} style={listStyle}>
+    return (<li className={"gap-3 flex flex-col justify-between border rounded-xs"} style={listStyle}>
             <Stack className={"h-full gap-3 p-3 justify-between flex-col flex"}>
                 {/* Team Header */}
                 <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
@@ -95,21 +92,24 @@ const TeamCard = ({team, onUpdateTeam}) => {
                 </Stack>
 
                 {/* Infinite Scrolling Games */}
-                {loadingGames ? (
-                    <InfiniteGameSkeleton/>
-                ) : errorGames ? (
-                    <p style={{color: "red", textAlign: "center"}}>{errorGames}</p>
-                ) : (
-                    <InfiniteGameScroller games={games}/>
-                )}
+                {loadingGames ? (<InfiniteGameSkeleton/>) : errorGames ? (
+                    <p style={{color: "red", textAlign: "center"}}>{errorGames}</p>) : (
+                    <InfiniteGameScroller games={games}/>)}
 
                 {/* Team Members - GitHub Profile Pictures */}
                 <Stack flexDirection={"row-reverse"}>
                     <AvatarGroup max={4}
-                                 sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
+                                 sx={{
+                                     "& .MuiAvatar-root": {
+                                         width: 32, height: 32, borderColor: colors.border,
+                                     }, "& .MuiAvatarGroup-avatar": {
+                                         backgroundColor: colors.background, // 👈 Change this to your desired color
+                                         color: colors.text, // Text color
+                                         fontSize: "14px"
+                                     }
+                                 }}>
                         {githubAvatars.map(member => (
-                            <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>
-                        ))}
+                            <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>))}
                     </AvatarGroup>
                 </Stack>
             </Stack>
@@ -121,8 +121,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
                 team={team}
                 onSave={handleSaveTeamChanges}
             />
-        </li>
-    );
+        </li>);
 };
 
 export default TeamCard;

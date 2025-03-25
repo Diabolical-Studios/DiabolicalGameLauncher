@@ -1,14 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    Avatar,
-    AvatarGroup,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    IconButton,
-    Stack,
-    TextField
+    Avatar, AvatarGroup, Button, Dialog, DialogActions, DialogContent, IconButton, Stack, TextField
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
@@ -20,8 +12,7 @@ import {colors} from "../../../theme/colors";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid" + colors.border,
-        borderRadius: "4px",
+        border: "1px solid" + colors.border, borderRadius: "4px",
     }
 }));
 
@@ -96,15 +87,11 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
 
             // Send the notification via main process.
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Team Updated", "Your team was successfully updated!"
-                );
+                window.electronAPI.showCustomNotification("Team Updated", "Your team was successfully updated!");
             }
 
             onSave({
-                ...team,
-                team_name: teamName,
-                team_icon_url: teamIconUrl,
-                github_ids: [...githubIds]
+                ...team, team_name: teamName, team_icon_url: teamIconUrl, github_ids: [...githubIds]
             });
             handleClose();
         } catch (err) {
@@ -133,8 +120,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         borderRadius: "8px",
 
                         "& .MuiOutlinedInput-root": {
-                            backgroundColor: colors.background,
-                            color: colors.text, border: "none",
+                            backgroundColor: colors.background, color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
@@ -156,8 +142,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                     onChange={(e) => setTeamIconUrl(e.target.value)}
                     sx={{
                         borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                            backgroundColor: colors.background,
-                            color: colors.text, border: "none",
+                            backgroundColor: colors.background, color: colors.text, border: "none",
                         }, "& .MuiOutlinedInput-notchedOutline": {
                             border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                         }, "& .MuiFormLabel-root": {
@@ -179,8 +164,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                         onChange={(e) => setNewMember(e.target.value)}
                         sx={{
                             borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: colors.background,
-                                color: colors.text, border: "none",
+                                backgroundColor: colors.background, color: colors.text, border: "none",
                             }, "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid" + colors.border + "!important", borderRadius: "2px"
                             }, "& .MuiFormLabel-root": {
@@ -201,17 +185,26 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 </Stack>
 
                 <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup max={4}
-                                 sx={{"& .MuiAvatar-root": {width: 32, height: 32, borderColor: colors.border}}}>
-                        {githubIds.map(id => (
-                            <Avatar
-                                key={id}
-                                alt={`GitHub User ${githubUsers[id] || id}`}
-                                src={`https://avatars.githubusercontent.com/u/${id}`}
-                                title={`${githubUsers[id] || "Loading..."}`}
-                            />
-                        ))}
+                    <AvatarGroup
+                        max={4}
+                        sx={{
+                            "& .MuiAvatar-root": {
+                                width: 32, height: 32, borderColor: colors.border,
+                            }, "& .MuiAvatarGroup-avatar": {
+                                backgroundColor: colors.background, // 👈 Change this to your desired color
+                                color: colors.text, // Text color
+                                fontSize: "14px"
+                            }
+                        }}
+                    >
+                        {githubIds.map(id => (<Avatar
+                            key={id}
+                            alt={`GitHub User ${githubUsers[id] || id}`}
+                            src={`https://avatars.githubusercontent.com/u/${id}`}
+                            title={`${githubUsers[id] || "Loading..."}`}
+                        />))}
                     </AvatarGroup>
+
                 </Stack>
 
             </Stack>

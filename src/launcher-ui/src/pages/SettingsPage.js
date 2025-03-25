@@ -5,9 +5,11 @@ const SettingsPage = () => {
 
     const [resolution, setResolution] = useState("");
     useEffect(() => {
-        window.electronAPI.getWindowSize().then((size) => {
-            setResolution(`${size.width}x${size.height}`);
-        });
+        if (window.api) {
+            window.electronAPI.getWindowSize().then((size) => {
+                setResolution(`${size.width}x${size.height}`);
+            });
+        } else console.log("window.api is not available (running in the browser)");
     }, []);
 
     const handleResolutionChange = (event) => {
@@ -16,7 +18,10 @@ const SettingsPage = () => {
 
     const applyResolutionChange = () => {
         const [width, height] = resolution.split("x").map(Number);
-        window.electronAPI.setWindowSize(width, height);
+        if (window.api) {
+            window.electronAPI.setWindowSize(width, height);
+        } else console.log("window.api is not available (running in the browser)");
+
     };
 
     return (<div>

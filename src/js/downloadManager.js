@@ -28,6 +28,12 @@ async function downloadGame(event, gameId) {
         const {latestVersion, latestVersionUrl} = await getLatestGameVersion(gameId);
 
         if (!latestVersion || !latestVersionUrl) {
+            const mainWindow = getMainWindow();
+            if (mainWindow && mainWindow.webContents) {
+                mainWindow.webContents.send("show-notification", {
+                    title: "Game Unavailable", body: "Please try again later", duration: 5000 // Optional
+                });
+            }
             throw new Error("Latest version information is missing.");
         }
 

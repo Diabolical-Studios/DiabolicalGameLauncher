@@ -213,7 +213,7 @@ const GameInfoPanel = ({game}) => {
             value={activeTab}
             onChange={(e, newValue) => setActiveTab(newValue)}
             sx={{
-                marginBottom: 2, borderBottom: `1px solid ${colors.border}`
+                marginBottom: 1, borderBottom: `1px solid ${colors.border}`
             }}
         >
             <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>

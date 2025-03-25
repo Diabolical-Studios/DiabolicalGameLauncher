@@ -72,7 +72,7 @@ const ToastItem = ({toast, timeout = 300, autoDismiss = 3000, onDownload, onDism
                             className="relative h-full p-3 rounded-r-sm border-none transition-all duration-200 cursor-pointer whitespace-nowrap overflow-hidden bg-[var(--background)] text-[var(--text)] toaster-button hover:backdrop-invert hover:bg-[var(--text)] hover:text-[var(--background)]"
                             onClick={handleClose}
                         >
-                            CLOSE
+                            DISMISS
                         </button>
                     )}
                 </div>

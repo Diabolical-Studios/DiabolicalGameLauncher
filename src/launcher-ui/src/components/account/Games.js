@@ -62,29 +62,34 @@ const Games = ({teams}) => {
 
                     console.log(`🎯 Fetching games for team: ${team.team_name}`);
 
-                    const response = await fetch(`/get-user-games?team_name=${encodeURIComponent(team.team_name)}`, {
-                        method: "GET", headers: {"Content-Type": "application/json"}
-                    });
+                    try {
+                        const response = await fetch(`/get-user-games?team_name=${encodeURIComponent(team.team_name)}`, {
+                            method: "GET", headers: {"Content-Type": "application/json"}
+                        });
 
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch games for team ${team.team_name}.`);
+                        if (!response.ok) {
+                            console.warn(`⚠️ No games found or failed request for team ${team.team_name}. Status: ${response.status}`);
+                            continue; // Skip this team
+                        }
+
+                        const data = await response.json();
+                        console.log(`✅ Games for ${team.team_name}:`, data);
+
+                        allGames = [...allGames, ...data];
+                    } catch (teamErr) {
+                        console.error(`❌ Failed to load games for team ${team.team_name}:`, teamErr);
+                        continue; // Skip just this team
                     }
-
-                    const data = await response.json();
-                    console.log(`✅ Games for ${team.team_name}:`, data);
-
-                    allGames = [...allGames, ...data];
                 }
 
                 setGames(allGames);
             } catch (err) {
-                console.error("❌ Error fetching games:", err);
-                setError("Failed to load games.");
+                console.error("❌ General error in fetchGames:", err);
+                setError("Something went wrong while loading games.");
             } finally {
                 setLoading(false);
             }
         };
-
 
         fetchGames();
     }, [currentTeams]);
