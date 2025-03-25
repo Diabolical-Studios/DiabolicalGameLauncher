@@ -228,6 +228,7 @@ const GameInfoPanel = ({game}) => {
                 key={key}
                 sx={{
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "space-between",
                     padding: "8px 0",
                     borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
@@ -246,6 +247,7 @@ const GameInfoPanel = ({game}) => {
                 key={key}
                 sx={{
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "space-between",
                     padding: "8px 0",
                     borderBottom: "1px solid rgba(255, 255, 255, 0.1)",

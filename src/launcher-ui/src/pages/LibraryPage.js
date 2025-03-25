@@ -127,7 +127,7 @@ const LibraryPage = () => {
     return (
         <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
             {/* Left Panel */}
-            <div style={{ width: "25%", backgroundColor: "#121212", padding: "12px", overflowY: "auto", borderRight: "1px solid #333" }}>
+            <div style={{ minWidth: "25%", backgroundColor: "#121212", padding: "12px", overflowY: "auto", borderRight: "1px solid #333" }}>
                 <h2>Your Games</h2>
                 <ul style={{ listStyleType: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
                     {installedGameObjects.map((game) => (
@@ -205,20 +205,29 @@ const LibraryPage = () => {
                                         }}
                                     />
 
-                                    <div style={{ color: "#aaa", fontSize: "14px", display: "flex", gap: "32px" }}>
-                                        <div style={{ marginBottom: "4px" }}>
-                                            <span style={{ fontSize: "12px", color: "#666" }}>LAST PLAYED</span>
+                                    <div style={{color: "#aaa", fontSize: "14px", display: "flex", gap: "32px"}}>
+                                        <div style={{marginBottom: "4px"}}>
+                                            <span style={{fontSize: "12px", color: "#666"}}>LAST PLAYED</span>
                                             <div>Today</div>
                                         </div>
                                         <div>
-                                            <span style={{ fontSize: "12px", color: "#666" }}>PLAY TIME</span>
+                                            <span style={{fontSize: "12px", color: "#666"}}>PLAY TIME</span>
                                             <div>10.9 hours</div>
+                                        </div>
+                                        <div>
+                                            <span style={{fontSize: "12px", color: "#666"}}>ACHIEVEMENTS</span>
+                                            <div>4/12</div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Game Description Below */}
-                                <div style={{ fontSize: "14px", color: "#ddd", width: "40%", padding: "12px", display: "flex", flexDirection: "column", gap: "12px", backgroundColor: colors.transparent, outline: "1px solid", outlineColor: colors.border, borderRadius: "2px"}}>
+                                <div style={{
+                                    fontSize: "14px",
+                                    color: "#ddd",
+                                    width: "50%",
+                                    padding: "12px",
+                                    display: "flex", flexDirection: "column", gap: "12px", backgroundColor: colors.transparent, outline: "1px solid", outlineColor: colors.border, borderRadius: "2px"}}>
                                     <h3 style={{fontSize: "18px", color: "#666"}}>Description:</h3>
                                     <p>{selectedGame.description || "No description available"}</p>
                                 </div>

@@ -63,7 +63,6 @@ async function createWindow() {
         }
         const {initUpdater, startPeriodicChecks, checkForUpdates} = require("./updater");
         checkForUpdates();
-        require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
         initUpdater();
         if (!periodicChecksStarted) {
             startPeriodicChecks(mainWindow);
@@ -72,10 +71,6 @@ async function createWindow() {
         showMessage("Checking For Updates... ");
     });
     
-    //Display database health
-    setInterval(() => {
-        require("./database").pingDatabase("https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/");
-    }, 60000);
     mainWindow.on("close", () => {
         const {width, height} = mainWindow.getContentBounds();
         settings.windowSize = {
