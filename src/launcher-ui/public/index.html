@@ -45,10 +45,21 @@
     <link crossorigin href="https://fonts.googleapis.com" rel="preconnect"/>
     <link crossorigin href="https://diabolical.studio" rel="preconnect"/>
     <link crossorigin href="https://api.github.com" rel="preconnect"/>
+    <link crossorigin href="https://api.diabolical.studio" rel="preconnect"/>
+
 
     <!-- Manifest and other config -->
     <link href="%PUBLIC_URL%/manifest.json" rel="manifest"/>
     <link href="%PUBLIC_URL%/android-chrome-192x192.png" rel="apple-touch-icon"/>
+    <style>
+        @media screen and (max-width: 768px) {
+            html body .button-root,
+            html body .title-root {
+                display: none !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="background">
@@ -67,8 +78,8 @@
 >
 
 </div>
-<div id="button-root"></div>
-<div id="title-root"></div>
+<div id="button-root" class="button-root"></div>
+<div id="title-root" class="title-root"></div>
 
 </body>
 </html>
