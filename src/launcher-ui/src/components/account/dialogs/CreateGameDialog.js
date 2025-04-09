@@ -18,6 +18,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import UploadIcon from '@mui/icons-material/Upload';
+import SaveIcon from '@mui/icons-material/Save';
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -26,13 +27,13 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
 }));
 
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
-    const [gameName, setGameName] = useState();
-    const [gameId, setGameId] = useState();
+    const [gameName, setGameName] = useState("");
+    const [gameId, setGameId] = useState("");
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("");
-    const [gameDescription, setGameDescription] = useState();
-    const [gameVersion] = useState("0.0.1");
-    const [selectedTeam, setSelectedTeam] = useState();
-    const [teamIconUrl, setTeamIconUrl] = useState();
+    const [gameDescription, setGameDescription] = useState("");
+    const [gameVersion, setGameVersion] = useState("");
+    const [selectedTeam, setSelectedTeam] = useState("");
+    const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubRepos, setGithubRepos] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState("");
     const [loadingRepos, setLoadingRepos] = useState(false);
@@ -41,6 +42,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [isSaving, setIsSaving] = useState(false);
     const [hasRequiredFields, setHasRequiredFields] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef();
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -302,11 +304,30 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         setCurrentPage(1);
     }, [searchQuery]);
 
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handleFileUpload(file);
+        }
+    };
+
     return (<StyledDialog open={open} container={document.getElementById("root")}
                           onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <Stack className={"p-6 overflow-hidden"}>
             <Stack className={"dialog gap-6 p-4"} flexDirection={isMobile ? "column" : "row"} style={{
-                backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px"
+                backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px", padding: "24px"
             }}>
                 <Stack width={"min-content"} alignItems="center" className={"gap-6 justify-between rounded-xs"} style={{
                     gap: "24px"
@@ -389,22 +410,23 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-                        {/* Background Image Upload Button */}
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            startIcon={uploading ? <CircularProgress size={16} /> : <UploadIcon />}
-                            sx={{
-                                color: colors.text,
-                                borderColor: colors.border,
-                                backgroundColor: colors.background,
-                                textTransform: "none",
-                                padding: "12px",
+                        {/* Drag and Drop Area */}
+                        <Stack
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            style={{
+                                height: '120px',
+                                alignItems: "center",
+                                justifyContent: "center",
                                 borderRadius: "4px",
+                                border: `2px dashed ${isDragging ? colors.button : colors.border}`,
+                                backgroundColor: isDragging ? `${colors.button}20` : colors.background,
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
                             }}
-                            disabled={uploading}
+                            onClick={() => fileInputRef.current?.click()}
                         >
-                            {uploading ? "Uploading..." : gameBackgroundUrl ? "Background Uploaded ✅" : "Upload Background Image"}
                             <input
                                 hidden
                                 type="file"
@@ -415,7 +437,25 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     if (file) handleFileUpload(file);
                                 }}
                             />
-                        </Button>
+                            {uploading ? (
+                                <Stack alignItems="center" gap={1}>
+                                    <CircularProgress size={24} />
+                                    <span style={{ color: colors.text }}>Uploading...</span>
+                                </Stack>
+                            ) : gameBackgroundUrl ? (
+                                <Stack alignItems="center" gap={1}>
+                                    <UploadIcon style={{ color: colors.button }} />
+                                    <span style={{ color: colors.text }}>Background Uploaded ✅</span>
+                                    <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
+                                </Stack>
+                            ) : (
+                                <Stack alignItems="center" gap={1}>
+                                    <UploadIcon style={{ color: colors.border }} />
+                                    <span style={{ color: colors.text }}>Upload</span>
+                                    <span style={{ color: colors.border, fontSize: "12px" }}>Supports PNG, JPG, GIF, WEBP</span>
+                                </Stack>
+                            )}
+                        </Stack>
                     </Stack>
                 </Stack>
                 <Stack className={"items-end w-full gap-6 justify-between"}>
