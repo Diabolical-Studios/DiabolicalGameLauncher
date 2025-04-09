@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const os = require("os");
 const {Menu, shell, BrowserWindow} = require("electron");
 const {downloadGame} = require("./downloadManager");
 const {diabolicalLauncherPath} = require("./settings");
@@ -34,31 +33,37 @@ function showContextMenu(event, gameId, position) {
 
     if (isGameInstalled) {
         template.push({
-            label: "Open Game Location", click: () => {
+            label: "Open Game Location", 
+            click: () => {
                 const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
                 shell.showItemInFolder(executablePath);
             },
         }, {
-            label: "Uninstall Game", click: () => {
+            label: "Uninstall Game", 
+            click: () => {
                 uninstallGame(gameId);
                 event.sender.send("game-uninstalled", gameId);
             },
         });
     } else {
         template.push({
-            label: "Download Game", click: () => {
+            label: "Download Game", 
+            click: () => {
                 downloadGame(event, gameId);
             },
         });
     }
 
     template.push({
-        label: "Cancel", role: "cancel",
+        label: "Cancel", 
+        role: "cancel",
     });
 
     const menu = Menu.buildFromTemplate(template);
     const win = BrowserWindow.fromWebContents(event.sender);
-    menu.popup({window: win, x: position.x, y: position.y});
+    if (win) {
+        menu.popup({window: win, x: position.x, y: position.y});
+    }
 }
 
 //Handles uninstalling game files
@@ -73,5 +78,7 @@ function uninstallGame(gameId) {
 }
 
 module.exports = {
-    uninstallGame, getInstalledGames, showContextMenu
+    uninstallGame, 
+    getInstalledGames, 
+    showContextMenu
 };

@@ -19,6 +19,7 @@ async function extractZip(zipPath, gameId, event) {
     } catch (error) {
         console.error("Extraction error:", error);
         event.sender.send("download-error", gameId, "Extraction failed");
+        throw error;
     }
 }
 
@@ -33,7 +34,9 @@ async function downloadGame(event, gameId) {
             const mainWindow = getMainWindow();
             if (mainWindow && mainWindow.webContents) {
                 mainWindow.webContents.send("show-notification", {
-                    title: "Game Unavailable", body: "Please try again later", duration: 5000 // Optional
+                    title: "Game Unavailable", 
+                    body: "Please try again later", 
+                    duration: 5000
                 });
             }
             throw new Error("Latest version information is missing.");
@@ -42,12 +45,19 @@ async function downloadGame(event, gameId) {
         const gameUrl = latestVersionUrl;
         console.log(`Attempting to download from URL: ${gameUrl}`);
 
-        const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
+        // Use the main window if no focused window is available
+        const window = BrowserWindow.getFocusedWindow() || getMainWindow();
+        if (!window) {
+            throw new Error("No active window found");
+        }
+
+        const dl = await download(window, gameUrl, {
             directory: diabolicalLauncherPath, 
             onProgress: (progress) => {
                 console.log(`Download progress for ${gameId}: ${progress.percent}%`);
                 event.sender.send("download-progress", {
-                    gameId: gameId, percentage: progress.percent,
+                    gameId: gameId, 
+                    percentage: progress.percent,
                 });
             },
         });
@@ -58,16 +68,22 @@ async function downloadGame(event, gameId) {
         console.log(`Writing version file for ${gameId}: ${latestVersion}`);
         fs.writeFileSync(versionFilePath(gameId), JSON.stringify({version: latestVersion}));
 
-        getMainWindow().webContents.send("update-available", {
-            gameId, updateAvailable: false,
-        });
+        const mainWindow = getMainWindow();
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send("update-available", {
+                gameId, 
+                updateAvailable: false,
+            });
+        }
 
     } catch (error) {
         console.error("Download or Extraction error:", error);
         event.sender.send("download-error", gameId, error.message);
+        throw error;
     }
 }
 
 module.exports = {
-    downloadGame
+    downloadGame,
+    extractZip
 };

@@ -5,7 +5,7 @@ require('dotenv').config();
 
 //Ping the game storage bucket to see health
 function pingDatabase(url) {
-    axios
+    return axios
         .get(url)
         .then((response) => {
             if (response.status >= 200 && response.status < 300) {
@@ -18,7 +18,10 @@ function pingDatabase(url) {
         })
         .catch((error) => {
             console.error(`Error checking ${url}: ${error}`);
-            getMainWindow().webContents.send("db-status", "red");
+            const mainWindow = getMainWindow();
+            if (mainWindow && mainWindow.webContents) {
+                mainWindow.webContents.send("db-status", "red");
+            }
         });
 }
 
