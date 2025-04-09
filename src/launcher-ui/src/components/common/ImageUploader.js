@@ -11,7 +11,16 @@ const ImageUploader = ({onUpload, currentImageUrl, uploading, setUploading}) => 
         setUploading(true);
 
         try {
-            const res = await fetch(`/generate-upload-url?fileExt=${file.name.split('.').pop()}&contentType=${file.type}`);
+            const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fileExt: file.name.split('.').pop(),
+                    contentType: file.type
+                })
+            });
             const { url, key } = await res.json();
 
             await fetch(url, {

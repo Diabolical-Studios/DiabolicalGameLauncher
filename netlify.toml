@@ -58,7 +58,3 @@ path = "/verify-session"
 [[edge_functions]]
 function = "get-all-games"
 path = "/get-all-games"
-
-[[edge_functions]]
-function = "generate-upload-url"
-path = "/generate-upload-url"
