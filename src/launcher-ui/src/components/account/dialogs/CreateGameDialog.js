@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Button,
     CircularProgress,
@@ -16,7 +16,6 @@ import GameCard from "../../GameCard";
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; 
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
-import UploadIcon from '@mui/icons-material/Upload';
 import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
@@ -41,8 +40,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [isSaving, setIsSaving] = useState(false);
     const [hasRequiredFields, setHasRequiredFields] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const fileInputRef = useRef();
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const reposPerPage = 6;
@@ -260,35 +257,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
-    const handleFileUpload = async (file) => {
-        setUploading(true);
-
-        try {
-            const res = await fetch(`/generate-upload-url?fileExt=${file.name.split('.').pop()}&contentType=${file.type}`);
-            const { url, key } = await res.json();
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            setGameBackgroundUrl(`https://diabolical.services/${key}`);
-
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Complete", "Your background image was uploaded.");
-            }
-
-        } catch (err) {
-            console.error("❌ Upload failed:", err);
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your image.");
-            }
-        } finally {
-            setUploading(false);
-        }
-    };
-
     // Calculate pagination with search filter
     const filteredRepos = githubRepos.filter(repo => 
         repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -302,25 +270,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery]);
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handleFileUpload(file);
-        }
-    };
 
     return (<StyledDialog open={open} container={document.getElementById("root")}
                           onClose={handleClose} aria-labelledby="create-game-dialog-title">

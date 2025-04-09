@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Avatar,
     AvatarGroup,
@@ -9,11 +9,9 @@ import {
     IconButton,
     Stack,
     TextField,
-    CircularProgress
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
-import UploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -34,7 +32,6 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     const [githubUsers, setGithubUsers] = useState({});
     const [uploading, setUploading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
-    const fileInputRef = useRef();
     const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url);
 
     useEffect(() => {
@@ -70,33 +67,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         }
     };
 
-    const handleFileUpload = async (file) => {
-        const existingKey = teamIconUrl.replace("https://diabolical.services/", "");
-        setUploading(true);
 
-        try {
-            const res = await fetch(`/generate-upload-url?fileExt=${file.name.split('.').pop()}&contentType=${file.type}&overwriteKey=${existingKey}`);
-            const { url } = await res.json();
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Complete", "Your team icon was updated.");
-            }
-
-        } catch (err) {
-            console.error("❌ Upload failed:", err);
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your image.");
-            }
-        } finally {
-            setUploading(false);
-        }
-    };
 
     const handleSave = async () => {
         const sessionID = Cookies.get("sessionID");

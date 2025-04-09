@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Cookies from "js-cookie";
 import {
     Button,
@@ -8,11 +8,9 @@ import {
     Stack,
     TextField,
     Typography,
-    CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
-import UploadIcon from "@mui/icons-material/CloudUpload";
 import { colors } from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
 
@@ -29,43 +27,6 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
     const [githubIds, setGithubIds] = useState([]);
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const [hasRequiredFields, setHasRequiredFields] = useState(false);
-    const fileInputRef = useRef();
-
-    const handleFileUpload = async (file) => {
-        try {
-            setUploading(true);
-            const res = await fetch(
-                `/generate-upload-url?fileExt=${file.name.split(".").pop()}&contentType=${file.type}`
-            );
-            const { url, key } = await res.json();
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            setTeamIconUrl(`https://diabolical.services/${key}`);
-
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification(
-                    "Upload Complete",
-                    "Your icon has been uploaded."
-                );
-            }
-        } catch (err) {
-            console.error("❌ Upload failed:", err);
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification(
-                    "Upload Failed",
-                    "Could not upload your image."
-                );
-            }
-        } finally {
-            setUploading(false);
-        }
-    };
 
     const handleCreate = async () => {
         if (teamName.trim() === "") {
@@ -180,7 +141,6 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                     <ImageUploader
                         onUpload={(url) => {
                             setTeamIconUrl(url);
-                            setHasRequiredFields(true);
                         }}
                         currentImageUrl={teamIconUrl}
                         uploading={uploading}
