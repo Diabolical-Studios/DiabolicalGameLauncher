@@ -1,8 +1,28 @@
 import React, {useEffect, useState} from "react";
 import "../settings.css";
 import ImageButton from "../components/button/ImageButton";
+import {
+    Box,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Divider,
+    Button,
+    LinearProgress,
+    Grid,
+    Paper,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+} from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DownloadIcon from "@mui/icons-material/Download";
+import UpdateIcon from "@mui/icons-material/Update";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {colors} from "../theme/colors";
 
 const LibraryPage = () => {
@@ -12,16 +32,12 @@ const LibraryPage = () => {
     const [activeDownloads, setActiveDownloads] = useState({}); // { [gameId]: { percentage, speed } }
     const [downloadingGameId, setDownloadingGameId] = useState(null); // Track which game is actively downloading
     const [hasUpdate, setHasUpdate] = useState(false);
-
-    const downloadingGame = activeDownloads[selectedGame?.game_id];
-    const isDownloading = !!downloadingGame;
-    const buttonLabel = isDownloading ? `Downloading ${downloadingGame.percentageString}` : hasUpdate ? "Update" : "Play";
-    const buttonIcon = isDownloading || hasUpdate ? DownloadIcon : PlayArrowIcon;
+    const [uninstallDialogOpen, setUninstallDialogOpen] = useState(false);
 
     // Set up download listeners
     useEffect(() => {
         const handleDownloadProgress = (progressData) => {
-            if (!progressData?.gameId) return;
+            if (!progressData?.gameId) return; 
 
             const percent = Math.round(progressData.percentage * 100);
             setDownloadingGameId(progressData.gameId);
@@ -118,205 +134,359 @@ const LibraryPage = () => {
         fetchLocalVersion(game.game_id);
     };
 
-    const installedGameObjects = installedGameIds.map((id) => cachedGames.find((g) => g.game_id === id) || {
-        game_id: id, game_name: id
-    });
+    const installedGameObjects = installedGameIds.map((id) => 
+        cachedGames.find((g) => g.game_id === id) || { game_id: id, game_name: id }
+    );
 
     const groupedGames = {
-        Favorites: installedGameObjects.filter(g => g.favorite), // or use a custom tag
+        Favorites: installedGameObjects.filter(g => g.favorite),
         Uncategorized: installedGameObjects.filter(g => !g.favorite),
     };
 
+    const downloadingGame = activeDownloads[selectedGame?.game_id];
+    const isDownloading = !!downloadingGame;
+    const buttonLabel = isDownloading ? `Downloading ${downloadingGame.percentageString}` : hasUpdate ? "Update Available" : "Play";
+    const buttonIcon = isDownloading ? <DownloadIcon /> : hasUpdate ? <UpdateIcon /> : <PlayArrowIcon />;
 
-    return (<div style={{display: "flex", height: "100%", overflow: "hidden"}}>
-        {/* Left Panel */}
-        <div style={{
-            minWidth: "25%",
-            backgroundColor: colors.transparent,
-            overflowY: "auto",
-            borderRight: "1px solid #333",
-        }}>
-            {Object.entries(groupedGames).map(([groupName, games]) => (
-                <div key={groupName} style={{marginBottom: "16px"}}>
-                    <div
-                        style={{
-                            color: "#aaa",
-                            fontSize: "12px",
-                            fontWeight: "bold",
-                            padding: "8px",
-                            borderBottom: "1px solid #333",
-                        }}
-                    >
-                        — {groupName.toUpperCase()} ({games.length})
-                    </div>
-                    <ul style={{
-                        listStyleType: "none",
-                        padding: 0,
-                        margin: 0,
-                        display: "flex",
-                        flexDirection: "column",
-                    }}>
-                        {games.map((game) => (<li
-                            key={game.game_id}
-                            onClick={() => handleSelectGame(game)}
-                            style={{
-                                padding: "8px",
-                                backgroundColor: selectedGame?.game_id === game.game_id ? "#1f1f1f" : colors.transparent,
-                                cursor: "pointer",
-                                borderRadius: "2px",
-                                color: "white",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px"
-                            }}
-                        >
-                            {game.team_icon_url && (<img src={game.team_icon_url} alt="Game Icon"
-                                                         style={{width: 16, height: "auto"}}/>)}
-                            {game.game_name || game.game_id}
-                        </li>))}
-                    </ul>
-                </div>))}
-        </div>
+    const handleUninstallGame = async () => {
+        try {
+            // Call the uninstall function
+            await window.electronAPI.uninstallGame(selectedGame.game_id);
+            
+            // Update installed games list
+            setInstalledGameIds(prev => prev.filter(id => id !== selectedGame.game_id));
+            
+            // If the uninstalled game is currently selected, clear the selection
+            if (selectedGame?.game_id === selectedGame?.game_id) {
+                setSelectedGame(null);
+            }
+            
+            // Close the dialog
+            setUninstallDialogOpen(false);
+            
+            // Remove from active downloads if it's downloading
+            setActiveDownloads(prev => {
+                const newDownloads = { ...prev };
+                delete newDownloads[selectedGame.game_id];
+                return newDownloads;
+            });
+            
+            // Clear downloading state if it's the current game
+            if (downloadingGameId === selectedGame.game_id) {
+                setDownloadingGameId(null);
+            }
+            
+            // Reset update status
+            setHasUpdate(false);
+        } catch (error) {
+            console.error('Error uninstalling game:', error);
+            // You might want to show an error message to the user here
+        }
+    };
 
-
-        {/* Right Panel */}
-        <div style={{
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            backgroundColor: colors.transparent
-        }}>
-            <div style={{flexGrow: 1, overflowY: "auto"}}>
-                {selectedGame ? (<>
-                    {/* Banner */}
-                    <div
-                        style={{
-                            backgroundImage: `url(${selectedGame.background_image_url || ""})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            height: "300px",
-                            display: "flex",
-                            alignItems: "flex-end",
-                            padding: "12px",
-                            borderBottom: "1px solid #222",
-                        }}
-                    >
-                        <div
-                            style={{
-                                backgroundColor: "rgba(0,0,0,0.6)",
-                                padding: "12px",
-                                borderRadius: "2px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                            }}
-                        >
-                            {selectedGame.team_icon_url && (
-                                <img src={selectedGame.team_icon_url} alt="Team Icon"
-                                     style={{width: "32px", height: "32px"}}/>)}
-                            <h1 style={{margin: 0}}>{selectedGame.game_name || selectedGame.game_id}</h1>
-                        </div>
-                    </div>
-
-                    {/* Details */}
-                    <div style={{padding: "12px", display: "flex", flexDirection: "column", gap: "12px"}}>
-                        <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
-                            <ImageButton
-                                text={buttonLabel}
-                                icon={buttonIcon}
-                                onClick={() => {
-                                    if (isDownloading) return;
-                                    if (hasUpdate) {
-                                        window.electronAPI.downloadGame(selectedGame.game_id);
-                                    } else {
-                                        window.electronAPI.openGame(selectedGame.game_id);
-                                    }
-                                }}
-                                style={{
-                                    padding: "12px 24px", flexDirection: "row-reverse", justifyContent: "left",
-                                }}
-                            />
-
-                            <div style={{color: "#aaa", fontSize: "14px", display: "flex", gap: "32px"}}>
-                                <div style={{marginBottom: "4px"}}>
-                                    <span style={{fontSize: "12px", color: "#666"}}>LAST PLAYED</span>
-                                    <div>Today</div>
-                                </div>
-                                <div>
-                                    <span style={{fontSize: "12px", color: "#666"}}>PLAY TIME</span>
-                                    <div>10.9 hours</div>
-                                </div>
-                                <div>
-                                    <span style={{fontSize: "12px", color: "#666"}}>ACHIEVEMENTS</span>
-                                    <div>4/12</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Game Description Below */}
-                        <div style={{
-                            fontSize: "14px",
-                            color: "#ddd",
-                            width: "50%",
-                            padding: "12px",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "12px",
-                            backgroundColor: colors.transparent,
-                            outline: "1px solid",
-                            outlineColor: colors.border,
-                            borderRadius: "2px"
-                        }}>
-                            <h3 style={{fontSize: "18px", color: "#666"}}>Description:</h3>
-                            <p>{selectedGame.description || "No description available"}</p>
-                        </div>
-                    </div>
-                </>) : (<div style={{padding: "12px"}}>
-                    <p>No game selected</p>
-                </div>)}
-            </div>
-
-            {/* Sticky Download Bar */}
-            {downloadingGameId && activeDownloads[downloadingGameId] && (<div
-                style={{
-                    position: "sticky",
-                    bottom: 0,
-                    backgroundColor: "#111",
-                    padding: "8px 12px",
-                    borderTop: "1px solid #222",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "4px",
-                    zIndex: 999,
+    return (
+        <Box sx={{ display: "flex", height: "100%", overflow: "hidden", gap: 2, p: 2 }}>
+            {/* Left Panel - Game List */}
+            <Paper 
+                elevation={0}
+                sx={{ 
+                    width: 280,
+                    bgcolor: 'rgba(0, 0, 0, 0.2)',
+                    border: `1px solid ${colors.border}`,
+                    overflow: 'auto',
                 }}
             >
-                <div
-                    style={{display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#aaa"}}>
-                    <span>{cachedGames.find((g) => g.game_id === downloadingGameId)?.game_name || downloadingGameId}</span>
-                    <span>{activeDownloads[downloadingGameId].speed ? `${activeDownloads[downloadingGameId].speed} MB/s` : "..."}</span>
-                </div>
-                <div
-                    style={{
-                        width: "100%",
-                        height: "6px",
-                        backgroundColor: "#222",
-                        borderRadius: "3px",
-                        overflow: "hidden",
-                    }}
-                >
-                    <div
-                        style={{
-                            width: `${activeDownloads[downloadingGameId].percent}%`,
-                            height: "100%",
-                            backgroundColor: "#0078d7",
-                            transition: "width 0.2s ease",
+                {Object.entries(groupedGames).map(([groupName, games]) => (
+                    <Box key={groupName}>
+                        <Typography
+                            variant="subtitle2"
+                            sx={{
+                                color: colors.text,
+                                px: 2,
+                                py: 1,
+                                opacity: 0.7,
+                            }}
+                        >
+                            {groupName} ({games.length})
+                        </Typography>
+                        <List disablePadding>
+                            {games.map((game) => (
+                                <ListItem
+                                    key={game.game_id}
+                                    selected={selectedGame?.game_id === game.game_id}
+                                    onClick={() => handleSelectGame(game)}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        '&.Mui-selected': {
+                                            bgcolor: 'rgba(255, 255, 255, 0.08)',
+                                        },
+                                        '&:hover': {
+                                            bgcolor: 'rgba(255, 255, 255, 0.04)',
+                                        },
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ minWidth: 40 }}>
+                                        {game.team_icon_url ? (
+                                            <Box
+                                                component="img"
+                                                src={game.team_icon_url}
+                                                alt=""
+                                                sx={{ width: 24, height: 24 }}
+                                            />
+                                        ) : (
+                                            <SportsEsportsIcon sx={{ color: colors.text }} />
+                                        )}
+                                    </ListItemIcon>
+                                    <ListItemText 
+                                        primary={game.game_name || game.game_id}
+                                        sx={{ color: colors.text }}
+                                    />
+                                    {activeDownloads[game.game_id] && (
+                                        <Typography variant="caption" sx={{ color: colors.text }}>
+                                            {activeDownloads[game.game_id].percentageString}
+                                        </Typography>
+                                    )}
+                                </ListItem>
+                            ))}
+                        </List>
+                        <Divider sx={{ borderColor: colors.border }} />
+                    </Box>
+                ))}
+            </Paper>
+
+            {/* Right Panel - Game Details */}
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+                {selectedGame ? (
+                    <>
+                        {/* Game Banner */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                height: 200,
+                                bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                border: `1px solid ${colors.border}`,
+                                position: 'relative',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <Box
+                                component="img"
+                                src={selectedGame.background_image_url || ""}
+                                alt=""
+                                sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    opacity: 0.4,
+                                }}
+                            />
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    p: 2,
+                                    bgcolor: 'rgba(0, 0, 0, 0.6)',
+                                }}
+                            >
+                                <Typography variant="h5" sx={{ color: colors.text }}>
+                                    {selectedGame.game_name || selectedGame.game_id}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: colors.text, opacity: 0.7 }}>
+                                    Version {selectedGame.version || "1.0.0"}
+                                </Typography>
+                            </Box>
+                        </Paper>
+
+                        {/* Action Buttons */}
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                border: `1px solid ${colors.border}`,
+                            }}
+                        >
+                            <Grid container spacing={2} alignItems="center">
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        startIcon={buttonIcon}
+                                        disabled={isDownloading}
+                                        onClick={() => {
+                                            if (isDownloading) return;
+                                            if (hasUpdate) {
+                                                window.electronAPI.downloadGame(selectedGame.game_id);
+                                            } else {
+                                                window.electronAPI.openGame(selectedGame.game_id);
+                                            }
+                                        }}
+                                        sx={{
+                                            bgcolor: colors.button,
+                                            color: colors.text,
+                                            '&:hover': {
+                                                bgcolor: colors.buttonHover,
+                                            },
+                                        }}
+                                    >
+                                        {buttonLabel}
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<DeleteIcon />}
+                                        onClick={() => setUninstallDialogOpen(true)}
+                                        sx={{
+                                            color: colors.text,
+                                            borderColor: colors.border,
+                                            '&:hover': {
+                                                borderColor: colors.text,
+                                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                            },
+                                        }}
+                                    >
+                                        Uninstall
+                                    </Button>
+                                </Grid>
+                                {isDownloading && (
+                                    <Grid item xs>
+                                        <Box sx={{ width: '100%' }}>
+                                            <LinearProgress 
+                                                variant="determinate" 
+                                                value={downloadingGame.percent}
+                                                sx={{
+                                                    bgcolor: 'rgba(255,255,255,0.1)',
+                                                    '& .MuiLinearProgress-bar': {
+                                                        bgcolor: colors.button
+                                                    }
+                                                }}
+                                            />
+                                            <Typography variant="caption" sx={{ color: colors.text, mt: 0.5 }}>
+                                                {downloadingGame.speed ? `${downloadingGame.speed} MB/s` : 'Calculating...'}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Paper>
+
+                        {/* Game Stats */}
+                        <Grid container spacing={2}>
+                            <Grid item xs={4}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 2,
+                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                        border: `1px solid ${colors.border}`,
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" sx={{ color: colors.text, opacity: 0.7 }}>
+                                        Last Played
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: colors.text }}>
+                                        Today
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 2,
+                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                        border: `1px solid ${colors.border}`,
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" sx={{ color: colors.text, opacity: 0.7 }}>
+                                        Play Time
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: colors.text }}>
+                                        10.9 hours
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 2,
+                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                        border: `1px solid ${colors.border}`,
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" sx={{ color: colors.text, opacity: 0.7 }}>
+                                        Achievements
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: colors.text }}>
+                                        4/12
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    </>
+                ) : (
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                         }}
-                    />
-                </div>
-            </div>)}
-        </div>
-    </div>);
+                    >
+                        <Typography variant="h6" sx={{ color: colors.text, opacity: 0.5 }}>
+                            Select a game to view details
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+
+            {/* Uninstall Confirmation Dialog */}
+            <Dialog
+                open={uninstallDialogOpen}
+                onClose={() => setUninstallDialogOpen(false)}
+                PaperProps={{
+                    sx: {
+                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                        border: `1px solid ${colors.border}`,
+                        backdropFilter: 'blur(10px)',
+                    }
+                }}
+            >
+                <DialogTitle sx={{ color: colors.text }}>
+                    Uninstall Game
+                </DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ color: colors.text }}>
+                        Are you sure you want to uninstall {selectedGame?.game_name || selectedGame?.game_id}?
+                        This will remove all game files from your computer.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => setUninstallDialogOpen(false)}
+                        sx={{ color: colors.text }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleUninstallGame}
+                        startIcon={<DeleteIcon />}
+                        sx={{
+                            color: 'red',
+                            '&:hover': {
+                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                            },
+                        }}
+                    >
+                        Uninstall
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
 };
 
 export default LibraryPage;

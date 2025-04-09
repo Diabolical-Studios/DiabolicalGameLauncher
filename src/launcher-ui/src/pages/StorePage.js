@@ -185,8 +185,9 @@ const FeaturedContent = styled(Box)(({ animate }) => ({
     transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
 }));
 
-const GameCardComponent = ({ game, size, onDownload }) => {
+const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) => {
     if (!game) return null;
+    const isInstalled = installedGames.includes(game.game_id);
 
     return (
         <GameCard size={size}>
@@ -214,9 +215,9 @@ const GameCardComponent = ({ game, size, onDownload }) => {
                     className="add-library-button"
                     size="small"
                     variant="contained"
-                    onClick={() => onDownload(game.game_id)}
+                    onClick={() => isInstalled ? onPlay(game.game_id) : onDownload(game.game_id)}
                 >
-                    Add to Library
+                    {isInstalled ? "Play" : "Download"}
                 </StyledButton>
             </CardOverlay>
         </GameCard>
@@ -370,9 +371,11 @@ const StorePage = () => {
                                     <StyledButton
                                         className="featured-button"
                                         variant="contained"
-                                        onClick={() => handleDownloadGame(featuredGames[featuredIndex].game_id)}
+                                        onClick={() => installedGames.includes(featuredGames[featuredIndex].game_id) 
+                                            ? handlePlayGame(featuredGames[featuredIndex].game_id)
+                                            : handleDownloadGame(featuredGames[featuredIndex].game_id)}
                                     >
-                                        Add to Library
+                                        {installedGames.includes(featuredGames[featuredIndex].game_id) ? "Play" : "Download"}
                                     </StyledButton>
                                 </FeaturedContent>
                             </CardOverlay>
@@ -413,6 +416,8 @@ const StorePage = () => {
                                 game={specialOffers[0]}
                                 size="large"
                                 onDownload={handleDownloadGame}
+                                onPlay={handlePlayGame}
+                                installedGames={installedGames}
                             />
                         )}
                     </Grid>
@@ -436,6 +441,8 @@ const StorePage = () => {
                                             game={game}
                                             size="small"
                                             onDownload={handleDownloadGame}
+                                            onPlay={handlePlayGame}
+                                            installedGames={installedGames}
                                         />
                                     </Grid>
                                 )
@@ -460,6 +467,8 @@ const StorePage = () => {
                             <GameCardComponent
                                 game={game}
                                 onDownload={handleDownloadGame}
+                                onPlay={handlePlayGame}
+                                installedGames={installedGames}
                             />
                         </Grid>
                     ))}
