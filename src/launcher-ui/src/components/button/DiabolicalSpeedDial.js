@@ -18,6 +18,7 @@ const StyledSpeedDial = styled(SpeedDial)(({theme}) => ({
         backgroundColor: colors.background + "!important",
         outline: "1px solid" + colors.border + "!important",
         width: "-webkit-fill-available",
+        color: colors.text,
     },
 
     "& .MuiSpeedDial-actions": {
