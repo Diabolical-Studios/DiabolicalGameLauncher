@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -14,8 +14,6 @@ import {
     Paper,
     Container,
     Divider,
-    Popper,
-    Fade,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -40,14 +38,16 @@ const FeaturedCard = styled(Card)({
 
 const GameCard = styled(Card)(({ size = 'normal' }) => ({
     position: 'relative',
-    height: size === 'large' ? '300px' : size === 'small' ? '150px' : '200px',
+    height: size === 'large' ? '400px' : size === 'small' ? '190px' : '200px',
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
     border: `1px solid ${colors.border}`,
-    transition: 'all 0.3s ease-in-out',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     overflow: 'hidden',
+    transformOrigin: 'center center',
     '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)',
+        transform: 'scale(1.03)',
+        zIndex: 1,
+        boxShadow: '0 0 30px rgba(0, 0, 0, 0.5)',
         '& .MuiCardMedia-root': {
             transform: 'scale(1.05)',
         },
@@ -146,217 +146,80 @@ const CarouselButton = styled(IconButton)({
     },
 });
 
-const InfoPopper = styled(Popper)({
-    zIndex: 1300,
-    width: '380px',
-    pointerEvents: 'none',
-    '&[data-popper-placement*="right"] .MuiPaper-root': {
-        marginLeft: '24px',
-        transform: 'translateX(8px)',
-    },
-    '&[data-popper-placement*="left"] .MuiPaper-root': {
-        marginRight: '24px',
-        transform: 'translateX(-8px)',
-    }
+const ProgressIndicator = styled(Box)({
+    position: 'absolute',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    gap: '8px',
+    zIndex: 2,
 });
 
-const PopperContent = styled(Paper)({
-    backgroundColor: 'rgba(0, 0, 0, 0.98)',
-    backdropFilter: 'blur(10px)',
-    border: `1px solid ${colors.border}`,
+const IndicatorDot = styled(Box)(({ active, progress }) => ({
+    width: '40px',
+    height: '4px',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: '2px',
-    color: colors.text,
+    cursor: 'pointer',
+    position: 'relative',
     overflow: 'hidden',
-});
-
-const PopperHeader = styled(Box)({
-    padding: '16px',
-    borderBottom: `1px solid ${colors.border}`,
-});
-
-const PopperBody = styled(Box)({
-    padding: '16px',
-});
-
-const ReviewSection = styled(Box)({
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: '12px',
-    marginTop: '12px',
-    borderRadius: '2px',
-});
-
-const TagChip = styled(Chip)({
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    color: colors.text,
-    height: '22px',
-    fontSize: '0.75rem',
-    margin: '0 4px 4px 0',
     '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
     },
-});
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        height: '100%',
+        width: `${progress}%`,
+        backgroundColor: colors.text,
+        transition: 'width 0.1s linear',
+    },
+}));
 
-const ScreenshotImage = styled('img')({
-    width: '100%',
-    height: '150px',
-    objectFit: 'cover',
-    borderRadius: '4px',
-    marginBottom: '8px',
-});
-
-const GameInfoPopup = ({ game, anchorEl, open, placement }) => {
-    return (
-        <InfoPopper
-            open={open}
-            anchorEl={anchorEl}
-            placement={placement}
-            transition
-        >
-            {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={200}>
-                    <PopperContent>
-                        <PopperHeader>
-                            <Typography variant="h6" gutterBottom>
-                                {game.game_name}
-                            </Typography>
-                            {game.release_date && (
-                                <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                                    Release Date: {game.release_date}
-                                </Typography>
-                            )}
-                        </PopperHeader>
-                        <PopperBody>
-                            {/* Main Screenshot */}
-                            {game.screenshots && game.screenshots[0] && (
-                                <Box sx={{ mb: 2 }}>
-                                    <ScreenshotImage
-                                        src={game.screenshots[0]}
-                                        alt={`${game.game_name} screenshot`}
-                                    />
-                                </Box>
-                            )}
-
-                            {/* Description */}
-                            <Typography variant="body2" sx={{ opacity: 0.9, mb: 2 }}>
-                                {game.description}
-                            </Typography>
-
-                            {/* Reviews Section */}
-                            <ReviewSection>
-                                <Typography variant="subtitle2" gutterBottom sx={{ color: '#66c0f4' }}>
-                                    Overall User Reviews:
-                                </Typography>
-                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                    {game.reviews_count ? `${game.reviews_count} user reviews` : 'No reviews yet'}
-                                </Typography>
-                            </ReviewSection>
-
-                            {/* Tags */}
-                            <Box sx={{ mt: 2 }}>
-                                <Typography variant="subtitle2" gutterBottom sx={{ opacity: 0.7 }}>
-                                    Popular user-defined tags for this product:
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                    {game.categories?.map(category => (
-                                        <TagChip
-                                            key={category}
-                                            label={category}
-                                            size="small"
-                                        />
-                                    ))}
-                                </Box>
-                            </Box>
-
-                            {/* Game Details */}
-                            <Stack spacing={1} sx={{ mt: 2 }}>
-                                {game.developer && (
-                                    <Typography variant="body2">
-                                        <span style={{ opacity: 0.7 }}>Developer: </span>
-                                        <span style={{ color: '#66c0f4' }}>{game.developer}</span>
-                                    </Typography>
-                                )}
-                                {game.publisher && (
-                                    <Typography variant="body2">
-                                        <span style={{ opacity: 0.7 }}>Publisher: </span>
-                                        <span style={{ color: '#66c0f4' }}>{game.publisher}</span>
-                                    </Typography>
-                                )}
-                            </Stack>
-                        </PopperBody>
-                    </PopperContent>
-                </Fade>
-            )}
-        </InfoPopper>
-    );
-};
+const FeaturedContent = styled(Box)(({ animate }) => ({
+    opacity: animate ? 0 : 1,
+    transform: animate ? 'translateY(20px)' : 'translateY(0)',
+    transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
+}));
 
 const GameCardComponent = ({ game, size, onDownload }) => {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [showPopper, setShowPopper] = useState(false);
-    const [popperPlacement, setPopperPlacement] = useState('right-start');
-    const cardRef = useRef(null);
-
-    const handleCardMouseEnter = (event) => {
-        const card = cardRef.current;
-        if (card) {
-            const rect = card.getBoundingClientRect();
-            const windowWidth = window.innerWidth;
-            // Check if there's enough space on the right (380px for popup width + 32px for margin)
-            const hasSpaceOnRight = rect.right + 412 <= windowWidth;
-            setPopperPlacement(hasSpaceOnRight ? 'right-start' : 'left-start');
-        }
-        setAnchorEl(event.currentTarget);
-        setShowPopper(true);
-    };
-
-    const handleCardMouseLeave = () => {
-        setShowPopper(false);
-    };
+    if (!game) return null;
 
     return (
-        <Box
-            ref={cardRef}
-            onMouseEnter={handleCardMouseEnter}
-            onMouseLeave={handleCardMouseLeave}
-        >
-            <GameCard size={size}>
-                {game.version && (
-                    <VersionChip label={`v${game.version}`} />
-                )}
-                <StyledCardMedia
-                    component="img"
-                    image={game.background_image_url || ""}
-                    alt={game.game_name}
-                />
-                <CardOverlay>
-                    <GameTitle
-                        className="game-title"
-                        variant="h6"
-                        sx={{ 
-                            color: colors.text,
-                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                            fontWeight: 600
-                        }}
-                    >
-                        {game.game_name}
-                    </GameTitle>
-                    <StyledButton
-                        className="add-library-button"
-                        size="small"
-                        variant="contained"
-                        onClick={() => onDownload(game.game_id)}
-                    >
-                        Add to Library
-                    </StyledButton>
-                </CardOverlay>
-            </GameCard>
-            <GameInfoPopup
-                game={game}
-                anchorEl={anchorEl}
-                open={showPopper}
-                placement={popperPlacement}
+        <GameCard size={size}>
+            {game.version && (
+                <VersionChip label={`v${game.version}`} />
+            )}
+            <StyledCardMedia
+                component="img"
+                image={game.background_image_url || ""}
+                alt={game.game_name}
             />
-        </Box>
+            <CardOverlay>
+                <GameTitle
+                    className="game-title"
+                    variant="h6"
+                    sx={{ 
+                        color: colors.text,
+                        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                        fontWeight: 600
+                    }}
+                >
+                    {game.game_name}
+                </GameTitle>
+                <StyledButton
+                    className="add-library-button"
+                    size="small"
+                    variant="contained"
+                    onClick={() => onDownload(game.game_id)}
+                >
+                    Add to Library
+                </StyledButton>
+            </CardOverlay>
+        </GameCard>
     );
 };
 
@@ -365,6 +228,38 @@ const StorePage = () => {
     const [installedGames, setInstalledGames] = useState([]);
     const [activeDownloads, setActiveDownloads] = useState({});
     const [featuredIndex, setFeaturedIndex] = useState(0);
+    const [featuredGames, setFeaturedGames] = useState([]);
+    const [progress, setProgress] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    // Function to handle featured game change with animation
+    const changeFeaturedGame = (newIndex) => {
+        setIsAnimating(true);
+        setTimeout(() => {
+            setFeaturedIndex(newIndex);
+            setTimeout(() => {
+                setIsAnimating(false);
+            }, 50);
+        }, 300);
+    };
+
+    // Auto-switch featured game with progress
+    useEffect(() => {
+        if (!featuredGames || featuredGames.length === 0) return;
+        
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    const nextIndex = (featuredIndex + 1) % featuredGames.length;
+                    changeFeaturedGame(nextIndex);
+                    return 0;
+                }
+                return prev + 1;
+            });
+        }, 50); // Update progress every 50ms for smooth animation
+
+        return () => clearInterval(interval);
+    }, [featuredGames, featuredIndex]);
 
     useEffect(() => {
         const loadGames = async () => {
@@ -373,10 +268,16 @@ const StorePage = () => {
                     window.electronAPI.getCachedGames(),
                     window.electronAPI.getInstalledGames()
                 ]);
-                setGames(cachedGames);
-                setInstalledGames(installedIds);
+                // Shuffle games on load
+                const shuffledGames = cachedGames || [];
+                setGames(shuffledGames);
+                setFeaturedGames(shuffledGames.slice(0, 3));
+                setInstalledGames(installedIds || []);
             } catch (err) {
                 console.error("Error loading games:", err);
+                setGames([]);
+                setFeaturedGames([]);
+                setInstalledGames([]);
             }
         };
         loadGames();
@@ -428,68 +329,68 @@ const StorePage = () => {
         }
     };
 
-    const featuredGames = games.slice(0, 3);
-    const specialOffers = games.slice(3, 7);
-    const newReleases = games.slice(7);
+    const specialOffers = games.slice(3, 8); // Get 5 games for special offers
+    const newReleases = games.slice(8);
 
     return (
         <Box sx={{ height: '100%', overflow: 'auto' }}>
             <Container maxWidth="xl" sx={{ py: 3 }}>
                 {/* Featured Games Carousel */}
                 <Box sx={{ position: 'relative', mb: 4 }}>
-                    {featuredGames.length > 0 && (
+                    {featuredGames[featuredIndex] && (
                         <FeaturedCard>
-                            {featuredGames[featuredIndex]?.version && (
+                            {featuredGames[featuredIndex].version && (
                                 <VersionChip
                                     label={`v${featuredGames[featuredIndex].version}`}
                                 />
                             )}
                             <StyledCardMedia
                                 component="img"
-                                image={featuredGames[featuredIndex]?.background_image_url || ""}
-                                alt={featuredGames[featuredIndex]?.game_name}
+                                image={featuredGames[featuredIndex].background_image_url || ""}
+                                alt={featuredGames[featuredIndex].game_name}
                             />
                             <CardOverlay className="card-overlay">
-                                <Typography variant="h3" sx={{ 
-                                    color: colors.text, 
-                                    mb: 1,
-                                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                                    fontWeight: 600
-                                }}>
-                                    {featuredGames[featuredIndex]?.game_name}
-                                </Typography>
-                                <Typography variant="body1" sx={{ 
-                                    color: colors.text, 
-                                    mb: 2,
-                                    maxWidth: '600px',
-                                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                                }}>
-                                    {featuredGames[featuredIndex]?.description}
-                                </Typography>
-                                <StyledButton
-                                    className="featured-button"
-                                    variant="contained"
-                                    onClick={() => handleDownloadGame(featuredGames[featuredIndex]?.game_id)}
-                                >
-                                    Add to Library
-                                </StyledButton>
+                                <FeaturedContent animate={isAnimating}>
+                                    <Typography variant="h3" sx={{ 
+                                        color: colors.text, 
+                                        mb: 1,
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                        fontWeight: 600
+                                    }}>
+                                        {featuredGames[featuredIndex].game_name}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ 
+                                        color: colors.text, 
+                                        mb: 2,
+                                        maxWidth: '600px',
+                                        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                    }}>
+                                        {featuredGames[featuredIndex].description}
+                                    </Typography>
+                                    <StyledButton
+                                        className="featured-button"
+                                        variant="contained"
+                                        onClick={() => handleDownloadGame(featuredGames[featuredIndex].game_id)}
+                                    >
+                                        Add to Library
+                                    </StyledButton>
+                                </FeaturedContent>
                             </CardOverlay>
-                            <CarouselButton
-                                sx={{ left: 16 }}
-                                onClick={() => setFeaturedIndex(prev => 
-                                    prev === 0 ? featuredGames.length - 1 : prev - 1
-                                )}
-                            >
-                                <ChevronLeftIcon />
-                            </CarouselButton>
-                            <CarouselButton
-                                sx={{ right: 16 }}
-                                onClick={() => setFeaturedIndex(prev => 
-                                    prev === featuredGames.length - 1 ? 0 : prev + 1
-                                )}
-                            >
-                                <ChevronRightIcon />
-                            </CarouselButton>
+                            <ProgressIndicator>
+                                {featuredGames.map((_, index) => (
+                                    <IndicatorDot
+                                        key={index}
+                                        active={index === featuredIndex}
+                                        progress={index === featuredIndex ? progress : 0}
+                                        onClick={() => {
+                                            if (index !== featuredIndex) {
+                                                changeFeaturedGame(index);
+                                                setProgress(0);
+                                            }
+                                        }}
+                                    />
+                                ))}
+                            </ProgressIndicator>
                         </FeaturedCard>
                     )}
                 </Box>
@@ -505,15 +406,42 @@ const StorePage = () => {
                     Special Offers
                 </Typography>
                 <Grid container spacing={2} sx={{ mb: 4 }}>
-                    {specialOffers.map((game, index) => (
-                        <Grid item xs={12} sm={index === 0 ? 12 : 6} md={index === 0 ? 6 : 3} key={game.game_id}>
+                    {/* Main Special Offer */}
+                    <Grid item xs={12} md={6}>
+                        {specialOffers[0] && (
                             <GameCardComponent
-                                game={game}
-                                size={index === 0 ? 'large' : 'normal'}
+                                game={specialOffers[0]}
+                                size="large"
                                 onDownload={handleDownloadGame}
                             />
+                        )}
+                    </Grid>
+                    {/* Grid of 4 games */}
+                    <Grid item xs={12} md={6}>
+                        <Grid 
+                            container 
+                            spacing={2} 
+                            sx={{ 
+                                height: '-webkit-fill-available',
+                                minHeight: '400px',
+                                '& .MuiGrid-item': {
+                                    height: 'calc(50% - 8px)',
+                                }
+                            }}
+                        >
+                            {specialOffers.slice(1, 5).map((game) => (
+                                game && (
+                                    <Grid item xs={6} key={game.game_id}>
+                                        <GameCardComponent
+                                            game={game}
+                                            size="small"
+                                            onDownload={handleDownloadGame}
+                                        />
+                                    </Grid>
+                                )
+                            ))}
                         </Grid>
-                    ))}
+                    </Grid>
                 </Grid>
 
                 {/* New Releases */}
