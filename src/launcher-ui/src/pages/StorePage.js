@@ -6,20 +6,10 @@ import {
     Button,
     Card,
     CardMedia,
-    CardContent,
     Chip,
-    Stack,
-    LinearProgress,
-    IconButton,
-    Paper,
     Container,
-    Divider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import DownloadIcon from "@mui/icons-material/Download";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { colors } from "../theme/colors";
 import axios from "axios";
 
@@ -128,25 +118,6 @@ const StyledButton = styled(Button)({
     },
 });
 
-const ProgressWrapper = styled(Box)({
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: '10px',
-    padding: '8px',
-    backdropFilter: 'blur(5px)',
-});
-
-const CarouselButton = styled(IconButton)({
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: colors.text,
-    '&:hover': {
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    },
-});
-
 const ProgressIndicator = styled(Box)({
     position: 'absolute',
     bottom: '20px',
@@ -228,12 +199,10 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
 const StorePage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
-    const [activeDownloads, setActiveDownloads] = useState({});
     const [featuredIndex, setFeaturedIndex] = useState(0);
     const [featuredGames, setFeaturedGames] = useState([]);
     const [progress, setProgress] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     // Function to handle featured game change with animation
     const changeFeaturedGame = (newIndex) => {
@@ -245,24 +214,6 @@ const StorePage = () => {
             }, 50);
         }, 300);
     };
-
-    // Auto-switch featured game with progress
-    useEffect(() => {
-        if (!featuredGames || featuredGames.length === 0) return;
-        
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 100) {
-                    const nextIndex = (featuredIndex + 1) % featuredGames.length;
-                    changeFeaturedGame(nextIndex);
-                    return 0;
-                }
-                return prev + 1;
-            });
-        }, 50); // Update progress every 50ms for smooth animation
-
-        return () => clearInterval(interval);
-    }, [featuredGames, featuredIndex]);
 
     useEffect(() => {
         const loadGames = async () => {
@@ -282,7 +233,6 @@ const StorePage = () => {
                     const shuffledGames = cachedGames;
                     setGames(shuffledGames);
                     setFeaturedGames(shuffledGames.slice(0, 3));
-                    setLoading(false); // Let UI load fast but accurately
                 }
             }
 
@@ -298,42 +248,10 @@ const StorePage = () => {
             } catch (error) {
                 console.error("❌ Error fetching games:", error);
                 window.electronAPI?.showCustomNotification("Error Fetching Games", "The database is down! Showing offline games.");
-            } finally {
-                setLoading(false);
             }
         };
 
         loadGames();
-    }, []);
-
-    useEffect(() => {
-        const handleDownloadProgress = (progressData) => {
-            if (!progressData?.gameId) return;
-            const percent = Math.round(progressData.percentage * 100);
-            setActiveDownloads((prev) => ({
-                ...prev,
-                [progressData.gameId]: {
-                    percent,
-                    percentageString: `${percent}%`,
-                },
-            }));
-        };
-
-        const handleDownloadComplete = ({gameId}) => {
-            setActiveDownloads((prev) => {
-                const updated = {...prev};
-                delete updated[gameId];
-                return updated;
-            });
-            setInstalledGames(prev => [...prev, gameId]);
-        };
-
-        window.electronAPI?.onDownloadProgress(handleDownloadProgress);
-        window.electronAPI?.onDownloadComplete(handleDownloadComplete);
-
-        return () => {
-            // Cleanup
-        };
     }, []);
 
     const handlePlayGame = async (gameId) => {

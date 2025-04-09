@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import "../settings.css";
-import ImageButton from "../components/button/ImageButton";
 import {
     Box,
     Typography,
@@ -10,7 +9,6 @@ import {
     ListItemIcon,
     Divider,
     Button,
-    LinearProgress,
     Grid,
     Paper,
     Dialog,
@@ -161,7 +159,7 @@ const LibraryPage = () => {
             setInstalledGameIds(prev => prev.filter(id => id !== selectedGame.game_id));
             
             // If the uninstalled game is currently selected, clear the selection
-            if (selectedGame?.game_id === selectedGame?.game_id) {
+            if (selectedGame) {
                 setSelectedGame(null);
             }
             
