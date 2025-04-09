@@ -10,18 +10,15 @@ import Toaster from "./components/Toaster";
 import SettingsPage from "./pages/SettingsPage";
 import ChangelogPage from "./pages/ChangelogPage";
 import AccountPage from "./pages/AccountPage";
-import LandingPage from "./pages/LandingPage";
 import AppLayout from "./components/AppLayout";
 import StatusBarAndContentPanel from "./components/StatusBarAndContentPanel";
 import HorizontalFlex from "./components/layout/HorizontalFlex";
 import { applyColorsToCSS } from "./theme/colors";
-import { applyFontsToCSS, themeFont } from "./theme/fonts";
 import { ThemeProvider, createTheme } from "@mui/material";
 import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
 
 const App = () => {
-  const [theme, setTheme] = useState("dark");
   const [muiTheme, setMuiTheme] = useState(
     createTheme({
       palette: {
@@ -75,14 +72,12 @@ const App = () => {
     // Load initial theme from settings
     if (window.electronAPI) {
       window.electronAPI.getSettings().then((settings) => {
-        setTheme(settings.theme);
         applyColorsToCSS(settings.theme);
         updateMuiTheme(settings.theme);
       });
 
       // Listen for theme changes
       window.electronAPI.onThemeChanged((newTheme) => {
-        setTheme(newTheme);
         applyColorsToCSS(newTheme);
         updateMuiTheme(newTheme);
       });
