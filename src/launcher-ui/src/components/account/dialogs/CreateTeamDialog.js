@@ -147,7 +147,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                 Create a New Team
             </DialogTitle>
             <Stack className="dialog backdrop-invert">
-                <Stack className={"gap-5"}>
+                <Stack className={"gap-3"}>
                     {/* Team Name Field */}
                     <TextField
                         label="Team Name"
@@ -184,6 +184,8 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                             borderColor: colors.border,
                             backgroundColor: colors.background,
                             textTransform: "none",
+                            padding: "12px",
+                            borderRadius: "2px",
                         }}
                     >
                         {uploading ? "Uploading..." : teamIconUrl ? "Icon Uploaded ✅" : "Upload Team Icon"}
@@ -208,13 +210,14 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                 </Stack>
             </Stack>
 
-            <DialogActions className="dialog">
+            <DialogActions className="dialog" sx={{ padding: "12px" }}>
                 <Button
                     sx={{
                         color: colors.text,
-                        backgroundColor: colors.button,
+                        backgroundColor: colors.background,
                         outline: "1px solid" + colors.border,
                         borderRadius: "2px",
+                        padding: "12px",
                     }}
                     onClick={handleCreate}
                     className={"size-full rounded-xs"}

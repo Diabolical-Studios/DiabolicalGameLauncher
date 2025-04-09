@@ -33,7 +33,15 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
     const [githubUsers, setGithubUsers] = useState({});
     const [uploading, setUploading] = useState(false);
+    const [hasChanges, setHasChanges] = useState(false);
     const fileInputRef = useRef();
+
+    useEffect(() => {
+        const hasNameChanged = teamName !== team.team_name;
+        const hasIconChanged = teamIconUrl !== (team.team_icon_url || "");
+        const hasMembersChanged = JSON.stringify(githubIds) !== JSON.stringify(team.github_ids);
+        setHasChanges(hasNameChanged || hasIconChanged || hasMembersChanged);
+    }, [teamName, teamIconUrl, githubIds, team]);
 
     useEffect(() => {
         const fetchGitHubUsernames = async () => {
@@ -183,7 +191,9 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                             color: colors.text,
                             borderColor: colors.border,
                             backgroundColor: colors.background,
-                            textTransform: "none"
+                            textTransform: "none",
+                            padding: "12px",
+                            borderRadius: "2px",
                         }}
                         disabled={uploading}
                     >
@@ -266,20 +276,27 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                 </Stack>
             </DialogContent>
 
-            <DialogActions className="dialog" style={{ padding: "12px" }}>
+            <DialogActions className="dialog" sx={{ padding: "12px" }}>
                 <Button
                     sx={{
                         color: "#fff !important",
                         backgroundColor: colors.button,
                         outline: "1px solid" + colors.border,
                         borderRadius: "2px",
+                        padding: "12px",
+                        opacity: !hasChanges || uploading ? 0.5 : 1,
+                        transition: "opacity 0.2s ease-in-out",
+                        "&:hover": {
+                            opacity: !hasChanges || uploading ? 0.5 : 0.8,
+                            backgroundColor: colors.button
+                        }
                     }}
                     onClick={handleSave}
                     style={{ width: "100%" }}
                     aria-label="save"
                     color="primary"
                     startIcon={<SaveIcon />}
-                    disabled={uploading}
+                    disabled={uploading || !hasChanges}
                 >
                     Save
                 </Button>

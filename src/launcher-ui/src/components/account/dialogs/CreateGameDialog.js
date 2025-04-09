@@ -36,7 +36,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [loadingRepos, setLoadingRepos] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [refreshRepos, setRefreshRepos] = useState(false);
-    const [isSaving, setIsSaving] = useState(false); // New state for saving status
+    const [isSaving, setIsSaving] = useState(false);
+    const [hasRequiredFields, setHasRequiredFields] = useState(false);
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -54,6 +55,15 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    useEffect(() => {
+        const hasAllRequiredFields = 
+            gameName?.trim() && 
+            gameId?.trim() && 
+            selectedTeam && 
+            selectedRepo;
+        setHasRequiredFields(!!hasAllRequiredFields);
+    }, [gameName, gameId, selectedTeam, selectedRepo]);
 
     const fetchGithubRepos = async () => {
         const installationId = Cookies.get("githubInstallationId");
@@ -404,16 +414,23 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     <Button
                         sx={{
                             color: "#fff !important",
+                            backgroundColor: colors.button,
                             outline: "1px solid" + colors.border,
                             borderRadius: "4px",
                             justifyContent: "space-between",
                             padding: "12px",
-                            width: "fit-content"
+                            width: "fit-content",
+                            opacity: !hasRequiredFields || isSaving ? 0.5 : 1,
+                            transition: "opacity 0.2s ease-in-out",
+                            "&:hover": {
+                                opacity: !hasRequiredFields || isSaving ? 0.5 : 0.8,
+                                backgroundColor: colors.button
+                            }
                         }}
                         onClick={handleSave}
                         aria-label="save"
                         startIcon={<RocketLaunchIcon/>}
-                        disabled={isSaving}  // Disable button while saving
+                        disabled={isSaving || !hasRequiredFields}
                     >
                         {isSaving ? <CircularProgress size={20} color="inherit"/> : "Create and Deploy Game!"}
                     </Button>
