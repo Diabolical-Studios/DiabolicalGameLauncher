@@ -18,6 +18,7 @@ import { styled } from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { colors } from "../../../theme/colors";
+import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -34,6 +35,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     const [uploading, setUploading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const fileInputRef = useRef();
+    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url);
 
     useEffect(() => {
         const hasNameChanged = teamName !== team.team_name;
@@ -69,7 +71,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     };
 
     const handleFileUpload = async (file) => {
-        const existingKey = team.team_icon_url.replace("https://diabolical.services/", "");
+        const existingKey = teamIconUrl.replace("https://diabolical.services/", "");
         setUploading(true);
 
         try {
@@ -106,7 +108,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         const updatedTeam = {
             team_id: team.team_id,
             team_name: teamName.trim(),
-            team_icon_url: team.team_icon_url,
+            team_icon_url: teamIconUrl,
             github_ids: githubIds.map(id => String(id))
         };
 
@@ -139,7 +141,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
             onSave({
                 ...team,
                 team_name: teamName,
-                team_icon_url: team.team_icon_url,
+                team_icon_url: teamIconUrl,
                 github_ids: [...githubIds]
             });
 
@@ -181,32 +183,16 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                         }}
                     />
 
-                    <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={uploading ? <CircularProgress size={16} /> : <UploadIcon />}
-                        sx={{
-                            color: colors.text,
-                            borderColor: colors.border,
-                            backgroundColor: colors.background,
-                            textTransform: "none",
-                            padding: "12px",
-                            borderRadius: "2px",
+                    {/* Image Uploader */}
+                    <ImageUploader
+                        onUpload={(url) => {
+                            setTeamIconUrl(url);
+                            setHasChanges(true);
                         }}
-                        disabled={uploading}
-                    >
-                        {uploading ? "Uploading..." : "Replace Team Icon"}
-                        <input
-                            hidden
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.gif,.webp"
-                            ref={fileInputRef}
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) handleFileUpload(file);
-                            }}
-                        />
-                    </Button>
+                        currentImageUrl={teamIconUrl}
+                        uploading={uploading}
+                        setUploading={setUploading}
+                    />
 
                     <Stack direction="row" spacing={2} alignItems="center">
                         <TextField

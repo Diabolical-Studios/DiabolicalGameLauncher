@@ -17,6 +17,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import UploadIcon from '@mui/icons-material/Upload';
+import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -408,52 +409,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-                        {/* Drag and Drop Area */}
-                        <Stack
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            style={{
-                                height: '120px',
-                                alignItems: "center",
-                                justifyContent: "center",
-                                borderRadius: "4px",
-                                border: `2px dashed ${isDragging ? colors.button : colors.border}`,
-                                backgroundColor: isDragging ? `${colors.button}20` : colors.background,
-                                cursor: "pointer",
-                                transition: "all 0.2s ease",
+                        {/* Image Uploader */}
+                        <ImageUploader
+                            onUpload={(url) => {
+                                setGameBackgroundUrl(url);
+                                setHasRequiredFields(true);
                             }}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <input
-                                hidden
-                                type="file"
-                                accept=".png,.jpg,.jpeg,.gif,.webp"
-                                ref={fileInputRef}
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) handleFileUpload(file);
-                                }}
-                            />
-                            {uploading ? (
-                                <Stack alignItems="center" gap={1}>
-                                    <CircularProgress size={24} />
-                                    <span style={{ color: colors.text }}>Uploading...</span>
-                                </Stack>
-                            ) : gameBackgroundUrl ? (
-                                <Stack alignItems="center" gap={1}>
-                                    <UploadIcon style={{ color: colors.button }} />
-                                    <span style={{ color: colors.text }}>Background Uploaded ✅</span>
-                                    <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
-                                </Stack>
-                            ) : (
-                                <Stack alignItems="center" gap={1}>
-                                    <UploadIcon style={{ color: colors.border }} />
-                                    <span style={{ color: colors.text }}>Upload</span>
-                                    <span style={{ color: colors.border, fontSize: "12px" }}>Supports PNG, JPG, GIF, WEBP</span>
-                                </Stack>
-                            )}
-                        </Stack>
+                            currentImageUrl={gameBackgroundUrl}
+                            uploading={uploading}
+                            setUploading={setUploading}
+                        />
                     </Stack>
                 </Stack>
                 <Stack className={"items-end w-full gap-6 justify-between"}>

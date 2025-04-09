@@ -14,6 +14,7 @@ import { styled } from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
 import UploadIcon from "@mui/icons-material/CloudUpload";
 import { colors } from "../../../theme/colors";
+import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -28,6 +29,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
     const [githubIds, setGithubIds] = useState([]);
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [hasRequiredFields, setHasRequiredFields] = useState(false);
     const fileInputRef = useRef();
 
     const handleFileUpload = async (file) => {
@@ -174,32 +176,16 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                         }}
                     />
 
-                    {/* Upload Icon Button */}
-                    <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={uploading ? <CircularProgress size={16} /> : <UploadIcon />}
-                        sx={{
-                            color: colors.text,
-                            borderColor: colors.border,
-                            backgroundColor: colors.background,
-                            textTransform: "none",
-                            padding: "12px",
-                            borderRadius: "2px",
+                    {/* Image Uploader */}
+                    <ImageUploader
+                        onUpload={(url) => {
+                            setTeamIconUrl(url);
+                            setHasRequiredFields(true);
                         }}
-                    >
-                        {uploading ? "Uploading..." : teamIconUrl ? "Icon Uploaded ✅" : "Upload Team Icon"}
-                        <input
-                            hidden
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.gif,.webp"
-                            ref={fileInputRef}
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) handleFileUpload(file);
-                            }}
-                        />
-                    </Button>
+                        currentImageUrl={teamIconUrl}
+                        uploading={uploading}
+                        setUploading={setUploading}
+                    />
 
                     {/* Show Error Message */}
                     {error && (

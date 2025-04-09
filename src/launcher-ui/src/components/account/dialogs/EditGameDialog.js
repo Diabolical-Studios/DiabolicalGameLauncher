@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Button,
     CircularProgress,
@@ -11,7 +11,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
-import UploadIcon from '@mui/icons-material/Upload';
+import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -28,8 +28,6 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const fileInputRef = useRef();
 
     useEffect(() => {
         setGameName(game.game_name);
@@ -91,57 +89,8 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
         }
     };
 
-    const handleFileUpload = async (file) => {
-        setUploading(true);
-
-        try {
-            const res = await fetch(`/generate-upload-url?fileExt=${file.name.split('.').pop()}&contentType=${file.type}`);
-            const { url, key } = await res.json();
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            setGameBackgroundUrl(`https://diabolical.services/${key}`);
-            setHasChanges(true);
-
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Complete", "Your background image was uploaded.");
-            }
-
-        } catch (err) {
-            console.error("❌ Upload failed:", err);
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your image.");
-            }
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handleFileUpload(file);
-        }
-    };
-
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
-        <DialogContent style={{padding: "24px", border: "1px solid" + colors.border}}>
+        <DialogContent style={{padding: "24px", width: "50vw", border: "1px solid" + colors.border}}>
             <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
                 <Stack spacing={2} alignItems="center">
                     {/* Render Editable Game Card */}
@@ -166,52 +115,16 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                         display: "flex", flexDirection: "column", width: "-webkit-fill-available", gap: "24px"
                     }}
                 >
-                    {/* Drag and Drop Area */}
-                    <Stack
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        style={{
-                            height: '120px',
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "4px",
-                            border: `2px dashed ${isDragging ? colors.button : colors.border}`,
-                            backgroundColor: isDragging ? `${colors.button}20` : colors.background,
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
+                    {/* Image Uploader */}
+                    <ImageUploader
+                        onUpload={(url) => {
+                            setGameBackgroundUrl(url);
+                            setHasChanges(true);
                         }}
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <input
-                            hidden
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.gif,.webp"
-                            ref={fileInputRef}
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) handleFileUpload(file);
-                            }}
-                        />
-                        {uploading ? (
-                            <Stack alignItems="center" gap={1}>
-                                <CircularProgress size={24} />
-                                <span style={{ color: colors.text }}>Uploading...</span>
-                            </Stack>
-                        ) : gameBackgroundUrl ? (
-                            <Stack alignItems="center" gap={1}>
-                                <UploadIcon style={{ color: colors.button }} />
-                                <span style={{ color: colors.text }}>Background Uploaded ✅</span>
-                                <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
-                            </Stack>
-                        ) : (
-                            <Stack alignItems="center" gap={1}>
-                                <UploadIcon style={{ color: colors.border }} />
-                                <span style={{ color: colors.text }}>Upload</span>
-                                <span style={{ color: colors.border, fontSize: "12px" }}>Supports PNG, JPG, GIF, WEBP</span>
-                            </Stack>
-                        )}
-                    </Stack>
+                        currentImageUrl={gameBackgroundUrl}
+                        uploading={uploading}
+                        setUploading={setUploading}
+                    />
 
                     {/* Save Button */}
                     <Button
