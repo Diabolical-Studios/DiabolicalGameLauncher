@@ -81,7 +81,7 @@ const TeamCard = ({team, onUpdateTeam}) => {
                 <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
                     <Stack flexDirection="row" alignItems="center" gap="12px">
                         <Avatar
-                            src={team.team_icon_url}
+                            src={`${team.team_icon_url}?t=${Date.now()}`}
                             alt={team.team_name}
                             variant="square"
                             sx={{width: 32, height: 32, "& img": {objectFit: "scale-down"}}}
