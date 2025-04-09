@@ -18,6 +18,7 @@ import { applyColorsToCSS } from "./theme/colors";
 import { applyFontsToCSS, themeFont } from "./theme/fonts";
 import { ThemeProvider, createTheme } from "@mui/material";
 import LibraryPage from "./pages/LibraryPage";
+import StorePage from "./pages/StorePage";
 
 const App = () => {
   const [theme, setTheme] = useState("dark");
@@ -152,7 +153,7 @@ const App = () => {
             </HorizontalFlex>
             <ContentPanel>
               <Routes>
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={<StorePage />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/account/*" element={<AccountPage />} />
                 <Route path="/settings" element={<SettingsPage />} />

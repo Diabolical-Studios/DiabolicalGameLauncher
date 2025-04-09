@@ -1,5 +1,41 @@
-import React, {useEffect, useState} from "react";
-import {colors} from "../theme/colors";
+import React, { useEffect, useState } from "react";
+import { colors } from "../theme/colors";
+import { Box, Typography, CircularProgress, Alert, Paper, Chip, Link, Divider } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import GitHubIcon from '@mui/icons-material/GitHub';
+import DownloadIcon from '@mui/icons-material/Download';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import UpdateIcon from '@mui/icons-material/Update';
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+    padding: "20px",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    border: "1px solid" + colors.border,
+    marginBottom: "16px",
+}));
+
+const ReleaseHeader = styled(Box)({
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "16px",
+});
+
+const ReleaseInfo = styled(Box)({
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+    marginBottom: "8px",
+});
+
+const TagChip = styled(Chip)({
+    backgroundColor: colors.button,
+    color: colors.text,
+    '&:hover': {
+        backgroundColor: colors.buttonHover,
+    },
+});
 
 const ChangelogPage = () => {
     const [releases, setReleases] = useState([]);
@@ -25,50 +61,210 @@ const ChangelogPage = () => {
         fetchReleases();
     }, []);
 
+    const formatDate = (dateString) => {
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const parseReleaseNotes = (body) => {
+        if (!body) return { features: [], fixes: [], updates: [] };
+
+        const sections = {
+            features: [],
+            fixes: [],
+            updates: []
+        };
+
+        const lines = body.split('\r\n');
+        let currentSection = null;
+
+        lines.forEach(line => {
+            if (line.toLowerCase().includes('features:')) {
+                currentSection = 'features';
+            } else if (line.toLowerCase().includes('fixes:')) {
+                currentSection = 'fixes';
+            } else if (line.toLowerCase().includes('updates:')) {
+                currentSection = 'updates';
+            } else if (line.trim() && currentSection) {
+                sections[currentSection].push(line.trim().replace(/^[•-]\s*/, ''));
+            }
+        });
+
+        return sections;
+    };
+
     return (
-        <div style={{
-            overflowX: 'auto', padding: "12px", overscrollBehavior: "contain",
-            scrollSnapType: "x mandatory",
-            scrollSnapAlign: "start",
-            scrollbarWidth: "thin",
-            scrollbarColor: "#1f1e1e transparent",
+        <Box sx={{ 
+            padding: "24px",
+            height: 'calc(100vh - 48px)',
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+                width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+                background: colors.background,
+            },
+            '&::-webkit-scrollbar-thumb': {
+                background: colors.border,
+                borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+                background: colors.button,
+            }
         }}>
-            <h1 style={{margin: 0}}>Change Log</h1>
-            {loading && <p>Loading releases...</p>}
-            {error && <p style={{color: "red"}}>Error: {error}</p>}
-            {!loading && !error && (
-                <ul style={{padding: 0, listStyleType: "none", display: "flex", flexDirection: "column", gap: "12px"}}>
-                    {releases.map((release) => (
-                        <li key={release.id}
-                            style={{
-                                padding: "12px",
-                                gap: "12px",
-                                backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                border: "1px solid" + colors.border,
-                                display: "flex", flexDirection: "row", justifyContent: "space-between",
-                            }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ color: colors.text }}>
+                Changelog
+            </Typography>
 
-                            <div style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "12px",
-                                width: "-webkit-fill-available",
-                            }}><h1 style={{margin: 0}}>{release.name || release.tag_name}</h1>
-                                <p style={{fontSize: "14px", color: "#aaa", margin: 0}}>Released
-                                    on: {new Date(release.published_at).toLocaleDateString()}</p>
-                                <a href={release.html_url} target="_blank" rel="noopener noreferrer"
-                                   style={{color: "#0078d7", textDecoration: "underline"}}>
-                                    View on GitHub
-                                </a></div>
-
-                            <div style={{width: "-webkit-fill-available",}}><p style={{margin: 0}}
-                                                                               dangerouslySetInnerHTML={{__html: release.body.replace(/\r\n/g, "<br>")}}></p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+            {loading && (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                    <CircularProgress sx={{ color: colors.button }} />
+                </Box>
             )}
-        </div>
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
+
+            {!loading && !error && releases.map((release) => {
+                const notes = parseReleaseNotes(release.body);
+                const isPrerelease = release.prerelease;
+                const isDraft = release.draft;
+
+                return (
+                    <StyledPaper key={release.id} elevation={3}>
+                        <ReleaseHeader>
+                            <Box>
+                                <Typography variant="h5" sx={{ color: colors.text, mb: 1 }}>
+                                    {release.name || release.tag_name}
+                                </Typography>
+                                <ReleaseInfo>
+                                    <TagChip 
+                                        size="small" 
+                                        label={release.tag_name}
+                                        icon={<NewReleasesIcon />}
+                                    />
+                                    {isPrerelease && (
+                                        <Chip 
+                                            size="small" 
+                                            label="Pre-release"
+                                            sx={{ backgroundColor: '#ff9800', color: '#000' }}
+                                        />
+                                    )}
+                                    {isDraft && (
+                                        <Chip 
+                                            size="small" 
+                                            label="Draft"
+                                            sx={{ backgroundColor: '#795548', color: '#fff' }}
+                                        />
+                                    )}
+                                </ReleaseInfo>
+                                <Typography variant="body2" sx={{ color: '#aaa' }}>
+                                    Released on {formatDate(release.published_at)}
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Link
+                                    href={release.html_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        color: colors.button,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        textDecoration: 'none',
+                                        '&:hover': {
+                                            color: colors.buttonHover,
+                                        }
+                                    }}
+                                >
+                                    <GitHubIcon /> View on GitHub
+                                </Link>
+                            </Box>
+                        </ReleaseHeader>
+
+                        <Divider sx={{ my: 2, borderColor: colors.border }} />
+
+                        <Box sx={{ color: colors.text }}>
+                            {notes.features.length > 0 && (
+                                <Box mb={2}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                        <NewReleasesIcon /> New Features
+                                    </Typography>
+                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                        {notes.features.map((feature, index) => (
+                                            <li key={index}>{feature}</li>
+                                        ))}
+                                    </ul>
+                                </Box>
+                            )}
+
+                            {notes.fixes.length > 0 && (
+                                <Box mb={2}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                        <BugReportIcon /> Bug Fixes
+                                    </Typography>
+                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                        {notes.fixes.map((fix, index) => (
+                                            <li key={index}>{fix}</li>
+                                        ))}
+                                    </ul>
+                                </Box>
+                            )}
+
+                            {notes.updates.length > 0 && (
+                                <Box mb={2}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                        <UpdateIcon /> Updates
+                                    </Typography>
+                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                        {notes.updates.map((update, index) => (
+                                            <li key={index}>{update}</li>
+                                        ))}
+                                    </ul>
+                                </Box>
+                            )}
+
+                            {release.assets.length > 0 && (
+                                <Box mt={2}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                        <DownloadIcon /> Downloads
+                                    </Typography>
+                                    {release.assets.map(asset => (
+                                        <Link
+                                            key={asset.id}
+                                            href={asset.browser_download_url}
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                color: colors.button,
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    color: colors.buttonHover,
+                                                }
+                                            }}
+                                        >
+                                            <DownloadIcon />
+                                            {asset.name} ({Math.round(asset.size / 1024 / 1024)}MB)
+                                        </Link>
+                                    ))}
+                                </Box>
+                            )}
+                        </Box>
+                    </StyledPaper>
+                );
+            })}
+        </Box>
     );
 };
 
