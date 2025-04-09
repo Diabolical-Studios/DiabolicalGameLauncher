@@ -1,37 +1,49 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-    Avatar, AvatarGroup, Button, Dialog, DialogActions, DialogContent, IconButton, Stack, TextField
+    Avatar,
+    AvatarGroup,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    IconButton,
+    Stack,
+    TextField,
+    CircularProgress
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
-import {styled} from "@mui/material/styles";
+import UploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
-import {colors} from "../../../theme/colors";
+import { colors } from "../../../theme/colors";
 
-
-const StyledDialog = styled(Dialog)(({theme}) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid" + colors.border, borderRadius: "4px",
-    }
+        border: "1px solid" + colors.border,
+        borderRadius: "4px",
+    },
 }));
 
-const EditTeamDialog = ({open, handleClose, team, onSave}) => {
+const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     const [teamName, setTeamName] = useState(team.team_name);
     const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || "");
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
     const [githubUsers, setGithubUsers] = useState({});
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef();
 
     useEffect(() => {
         const fetchGitHubUsernames = async () => {
             const userPromises = githubIds.map(async (id) => {
                 try {
                     const response = await axios.get(`https://api.diabolical.studio/rest-api/users/github/${id}`);
-                    return {id, username: response.data.username};
+                    return { id, username: response.data.username };
                 } catch (error) {
                     console.error(`Error fetching GitHub username for ID ${id}:`, error);
-                    return {id, username: `Unknown-${id}`};
+                    return { id, username: `Unknown-${id}` };
                 }
             });
 
@@ -47,6 +59,34 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
         if (newMember.trim() !== "" && !githubIds.includes(newMember)) {
             setGithubIds([...githubIds, newMember]);
             setNewMember("");
+        }
+    };
+
+    const handleFileUpload = async (file) => {
+        const existingKey = teamIconUrl.replace("https://diabolical.services/", "");
+        setUploading(true);
+
+        try {
+            const res = await fetch(`/generate-upload-url?fileExt=${file.name.split('.').pop()}&contentType=${file.type}&overwriteKey=${existingKey}`);
+            const { url } = await res.json();
+
+            await fetch(url, {
+                method: "PUT",
+                headers: { "Content-Type": file.type },
+                body: file,
+            });
+
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Complete", "Your team icon was updated.");
+            }
+
+        } catch (err) {
+            console.error("❌ Upload failed:", err);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your image.");
+            }
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -68,9 +108,12 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
 
         try {
             const response = await fetch("/update-team", {
-                method: "PUT", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID
-                }, body: JSON.stringify(updatedTeam)
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "sessionID": sessionID
+                },
+                body: JSON.stringify(updatedTeam)
             });
 
             const data = await response.json();
@@ -83,16 +126,17 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 throw new Error("Failed to update team.");
             }
 
-            console.log("✅ Team updated successfully:", data);
-
-            // Send the notification via main process.
             if (window.electronAPI) {
                 window.electronAPI.showCustomNotification("Team Updated", "Your team was successfully updated!");
             }
 
             onSave({
-                ...team, team_name: teamName, team_icon_url: teamIconUrl, github_ids: [...githubIds]
+                ...team,
+                team_name: teamName,
+                team_icon_url: teamIconUrl,
+                github_ids: [...githubIds]
             });
+
             handleClose();
         } catch (err) {
             console.error("❌ Error updating team:", err);
@@ -102,127 +146,146 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
         }
     };
 
-    return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-team-dialog-title">
-        {/*<DialogTitle className={"dialog"} id="edit-team-dialog-title">Edit Team: {team.team_name}</DialogTitle>*/}
-        <DialogContent className={"dialog"} style={{padding: "12px", backdropFilter: "invert(1)"}}>
-            <Stack spacing={"12px"}>
-                {/* Edit Team Name - MUI TextField */}
-                <TextField
-                    label="Team Name"
-                    color="secondary"
-                    focused
-                    fullWidth
-                    placeholder="Very Cool Team Name"
-
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    sx={{
-                        borderRadius: "8px",
-
-                        "& .MuiOutlinedInput-root": {
-                            backgroundColor: colors.background, color: colors.text, border: "none",
-                        }, "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                        }, "& .MuiFormLabel-root": {
-                            color: "#444444 !important",
-                        }
-                    }}
-                />
-
-
-                {/* ✅ Edit Team Icon URL Field */}
-                <TextField
-                    label="Team Icon URL"
-                    color="secondary"
-                    focused
-                    multiline
-                    fullWidth
-                    placeholder="example.com/image.png"
-                    value={teamIconUrl}
-                    onChange={(e) => setTeamIconUrl(e.target.value)}
-                    sx={{
-                        borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                            backgroundColor: colors.background, color: colors.text, border: "none",
-                        }, "& .MuiOutlinedInput-notchedOutline": {
-                            border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                        }, "& .MuiFormLabel-root": {
-                            color: "#444444 !important",
-                        }
-                    }}
-                />
-
-                {/* Add GitHub Member - MUI TextField with Button */}
-                <Stack direction="row" spacing={"12px"} alignItems="center">
+    return (
+        <StyledDialog open={open} onClose={handleClose}>
+            <DialogContent className="dialog" style={{ padding: "12px", backdropFilter: "invert(1)" }}>
+                <Stack spacing={2}>
                     <TextField
-                        label="GitHub ID"
+                        label="Team Name"
                         color="secondary"
                         focused
                         fullWidth
-                        placeholder="151235"
-
-                        value={newMember}
-                        onChange={(e) => setNewMember(e.target.value)}
+                        placeholder="Very Cool Team Name"
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
                         sx={{
-                            borderRadius: "8px", "& .MuiOutlinedInput-root": {
-                                backgroundColor: colors.background, color: colors.text, border: "none",
-                            }, "& .MuiOutlinedInput-notchedOutline": {
-                                border: "1px solid" + colors.border + "!important", borderRadius: "2px"
-                            }, "& .MuiFormLabel-root": {
+                            borderRadius: "8px",
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: colors.background,
+                                color: colors.text,
+                                border: "none",
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                border: "1px solid" + colors.border + "!important",
+                                borderRadius: "2px"
+                            },
+                            "& .MuiFormLabel-root": {
                                 color: "#444444 !important",
                             }
                         }}
                     />
-                    <IconButton sx={{
+
+                    <Button
+                        variant="outlined"
+                        component="label"
+                        startIcon={uploading ? <CircularProgress size={16} /> : <UploadIcon />}
+                        sx={{
+                            color: colors.text,
+                            borderColor: colors.border,
+                            backgroundColor: colors.background,
+                            textTransform: "none"
+                        }}
+                        disabled={uploading}
+                    >
+                        {uploading ? "Uploading..." : "Replace Team Icon"}
+                        <input
+                            hidden
+                            type="file"
+                            accept=".png,.jpg,.jpeg,.gif,.webp"
+                            ref={fileInputRef}
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) handleFileUpload(file);
+                            }}
+                        />
+                    </Button>
+
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <TextField
+                            label="GitHub ID"
+                            color="secondary"
+                            focused
+                            fullWidth
+                            placeholder="151235"
+                            value={newMember}
+                            onChange={(e) => setNewMember(e.target.value)}
+                            sx={{
+                                borderRadius: "8px",
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: colors.background,
+                                    color: colors.text,
+                                    border: "none",
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "1px solid" + colors.border + "!important",
+                                    borderRadius: "2px"
+                                },
+                                "& .MuiFormLabel-root": {
+                                    color: "#444444 !important",
+                                }
+                            }}
+                        />
+                        <IconButton
+                            sx={{
+                                color: "#fff !important",
+                                backgroundColor: colors.button,
+                                outline: "1px solid" + colors.border,
+                                borderRadius: "2px"
+                            }}
+                            onClick={handleAddMember}
+                            style={{ height: "100%" }}
+                            aria-label="add"
+                            color="primary"
+                        >
+                            <AddIcon />
+                        </IconButton>
+                    </Stack>
+
+                    <Stack flexDirection="row-reverse">
+                        <AvatarGroup max={4}
+                                     sx={{
+                                         "& .MuiAvatar-root": {
+                                             width: 32,
+                                             height: 32,
+                                             borderColor: colors.border,
+                                         },
+                                         "& .MuiAvatarGroup-avatar": {
+                                             backgroundColor: colors.background,
+                                             color: colors.text,
+                                             fontSize: "14px"
+                                         }
+                                     }}>
+                            {githubIds.map(id => (
+                                <Avatar key={id}
+                                        alt={`GitHub User ${githubUsers[id] || id}`}
+                                        src={`https://avatars.githubusercontent.com/u/${id}`}
+                                        title={`${githubUsers[id] || "Loading..."}`} />
+                            ))}
+                        </AvatarGroup>
+                    </Stack>
+                </Stack>
+            </DialogContent>
+
+            <DialogActions className="dialog" style={{ padding: "12px" }}>
+                <Button
+                    sx={{
                         color: "#fff !important",
                         backgroundColor: colors.button,
                         outline: "1px solid" + colors.border,
-                        borderRadius: "2px "
-                    }} onClick={handleAddMember}
-                                style={{height: "100%", borderRadius: "2px",}} aria-label="add"
-                                color="primary">
-                        <AddIcon/>
-                    </IconButton>
-                </Stack>
-
-                <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup
-                        max={4}
-                        sx={{
-                            "& .MuiAvatar-root": {
-                                width: 32, height: 32, borderColor: colors.border,
-                            }, "& .MuiAvatarGroup-avatar": {
-                                backgroundColor: colors.background, // 👈 Change this to your desired color
-                                color: colors.text, // Text color
-                                fontSize: "14px"
-                            }
-                        }}
-                    >
-                        {githubIds.map(id => (<Avatar
-                            key={id}
-                            alt={`GitHub User ${githubUsers[id] || id}`}
-                            src={`https://avatars.githubusercontent.com/u/${id}`}
-                            title={`${githubUsers[id] || "Loading..."}`}
-                        />))}
-                    </AvatarGroup>
-
-                </Stack>
-
-            </Stack>
-        </DialogContent>
-        <DialogActions className={"dialog"} style={{padding: "12px"}}>
-            {/*<Button onClick={handleClose}>Cancel</Button>*/}
-            <Button sx={{
-                color: "#fff !important",
-                backgroundColor: colors.button,
-                outline: "1px solid" + colors.border,
-                borderRadius: "2px",
-            }} onClick={handleSave}
-                    style={{height: "100%", borderRadius: "2px", width: "-webkit-fill-available",}} aria-label="add"
-                    color="primary" startIcon={<SaveIcon/>}>
-                Save
-            </Button>
-        </DialogActions>
-    </StyledDialog>);
+                        borderRadius: "2px",
+                    }}
+                    onClick={handleSave}
+                    style={{ width: "100%" }}
+                    aria-label="save"
+                    color="primary"
+                    startIcon={<SaveIcon />}
+                    disabled={uploading}
+                >
+                    Save
+                </Button>
+            </DialogActions>
+        </StyledDialog>
+    );
 };
 
 export default EditTeamDialog;
