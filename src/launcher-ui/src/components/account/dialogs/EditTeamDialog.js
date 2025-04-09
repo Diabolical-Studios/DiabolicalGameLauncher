@@ -28,7 +28,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     const [teamName, setTeamName] = useState(team.team_name);
-    const [teamIconUrl, setTeamIconUrl] = useState(team.team_icon_url || "");
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
     const [githubUsers, setGithubUsers] = useState({});
@@ -38,10 +37,9 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
 
     useEffect(() => {
         const hasNameChanged = teamName !== team.team_name;
-        const hasIconChanged = teamIconUrl !== (team.team_icon_url || "");
         const hasMembersChanged = JSON.stringify(githubIds) !== JSON.stringify(team.github_ids);
-        setHasChanges(hasNameChanged || hasIconChanged || hasMembersChanged);
-    }, [teamName, teamIconUrl, githubIds, team]);
+        setHasChanges(hasNameChanged || hasMembersChanged);
+    }, [teamName, githubIds, team]);
 
     useEffect(() => {
         const fetchGitHubUsernames = async () => {
@@ -71,7 +69,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
     };
 
     const handleFileUpload = async (file) => {
-        const existingKey = teamIconUrl.replace("https://diabolical.services/", "");
+        const existingKey = team.team_icon_url.replace("https://diabolical.services/", "");
         setUploading(true);
 
         try {
@@ -108,7 +106,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         const updatedTeam = {
             team_id: team.team_id,
             team_name: teamName.trim(),
-            team_icon_url: teamIconUrl.trim(),
+            team_icon_url: team.team_icon_url,
             github_ids: githubIds.map(id => String(id))
         };
 
@@ -141,7 +139,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
             onSave({
                 ...team,
                 team_name: teamName,
-                team_icon_url: teamIconUrl,
+                team_icon_url: team.team_icon_url,
                 github_ids: [...githubIds]
             });
 

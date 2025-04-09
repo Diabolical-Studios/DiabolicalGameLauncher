@@ -4,61 +4,42 @@ import {
     CircularProgress,
     Dialog,
     DialogContent,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     Stack,
-    TextField,
-    Pagination
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import UploadIcon from '@mui/icons-material/Upload';
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        border: "1px solid" + colors.border, borderRadius: "4px", width: "60vw", height: "fit-content",
+        maxHeight: "none", maxWidth: "none", background: colors.background, boxShadow: "none", margin: 0,
     }
 }));
 
-const EditGameDialog = ({open, handleClose, game, onSave, teams = []}) => {
+const EditGameDialog = ({open, handleClose, game, onSave}) => {
     const [gameName, setGameName] = useState(game.game_name);
     const [gameId, setGameId] = useState(game.game_id);
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState(game.background_image_url || "");
     const [gameDescription, setGameDescription] = useState(game.description || "");
     const [gameVersion, setGameVersion] = useState(game.version || "");
-    const [selectedTeam, setSelectedTeam] = useState(game.team_name);
-    const [teamIconUrl, setTeamIconUrl] = useState(game.team_icon_url);
-    const [githubRepos, setGithubRepos] = useState([]);
-    const [selectedRepo, setSelectedRepo] = useState(game.github_repo);
-    const [loadingRepos, setLoadingRepos] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [refreshRepos, setRefreshRepos] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const reposPerPage = 6;
 
     useEffect(() => {
         setGameName(game.game_name);
         setGameBackgroundUrl(game.background_image_url || "");
         setGameDescription(game.description || "");
         setGameVersion(game.version || "");
-        setSelectedTeam(game.team_name);
-        setTeamIconUrl(game.team_icon_url);
-        setSelectedRepo(game.github_repo);
     }, [game]);
 
     const handleSave = async () => {
+        setIsSaving(true);
         const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
@@ -71,18 +52,18 @@ const EditGameDialog = ({open, handleClose, game, onSave, teams = []}) => {
             background_image_url: gameBackgroundUrl.trim(),
             description: gameDescription.trim(),
             version: gameVersion.trim(),
-            team_name: selectedTeam,
-            team_icon_url: teamIconUrl,
-            github_repo: selectedRepo,
         };
 
         console.log("📤 Sending game update request:", updatedGame);
 
         try {
             const response = await fetch("/update-game", {
-                method: "PUT", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID,
-                }, body: JSON.stringify(updatedGame),
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "sessionID": sessionID,
+                },
+                body: JSON.stringify(updatedGame),
             });
 
             if (!response.ok) {
@@ -94,19 +75,19 @@ const EditGameDialog = ({open, handleClose, game, onSave, teams = []}) => {
 
             console.log("✅ Game updated successfully:", updatedGame);
 
-            // Send the notification via main process.
             if (window.electronAPI) {
                 window.electronAPI.showCustomNotification("Game Updated", "Your game was successfully updated!");
             }
 
             onSave(updatedGame);
-
             handleClose();
         } catch (err) {
             console.error("❌ Error updating game:", err);
             if (window.electronAPI) {
                 window.electronAPI.showCustomNotification("Edit Game Failed", "Please try again later");
             }
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -160,7 +141,7 @@ const EditGameDialog = ({open, handleClose, game, onSave, teams = []}) => {
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
-        <DialogContent style={{padding: "24px", backdropFilter: "invert(1)"}}>
+        <DialogContent style={{padding: "24px", border: "1px solid" + colors.border}}>
             <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
                 <Stack spacing={2} alignItems="center">
                     {/* Render Editable Game Card */}
@@ -239,13 +220,18 @@ const EditGameDialog = ({open, handleClose, game, onSave, teams = []}) => {
                             backgroundColor: colors.button,
                             outline: "1px solid" + colors.border,
                             borderRadius: "2px",
-                            padding: "12px 16px"
+                            padding: "12px 16px",
+                            opacity: hasChanges ? 1 : 0.5,
+                            "&:hover": {
+                                opacity: hasChanges ? 0.8 : 0.5,
+                            },
                         }}
                         onClick={handleSave}
                         aria-label="save"
-                        startIcon={<SaveIcon/>}
+                        startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                        disabled={!hasChanges || isSaving}
                     >
-                        Save
+                        {isSaving ? "Saving..." : "Save"}
                     </Button>
                 </Stack>
             </Stack>

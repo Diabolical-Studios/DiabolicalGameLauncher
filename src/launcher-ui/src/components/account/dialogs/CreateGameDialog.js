@@ -5,7 +5,6 @@ import {
     Dialog,
     FormControl,
     InputLabel,
-    Link,
     MenuItem,
     Select,
     Stack,
@@ -14,11 +13,10 @@ import {
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; 
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import UploadIcon from '@mui/icons-material/Upload';
-import SaveIcon from '@mui/icons-material/Save';
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -31,7 +29,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameId, setGameId] = useState("");
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("");
     const [gameDescription, setGameDescription] = useState("");
-    const [gameVersion, setGameVersion] = useState("");
+    const [gameVersion] = useState("0.0.1");
     const [selectedTeam, setSelectedTeam] = useState("");
     const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubRepos, setGithubRepos] = useState([]);
