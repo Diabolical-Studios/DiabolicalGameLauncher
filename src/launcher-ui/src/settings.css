@@ -81,35 +81,87 @@
 }
 
 .settingsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    padding: 12px;
-}
-
-.grid-item {
-    background-color: #f8f9fa;
-    /* Light gray background */
-    border: 1px solid #dee2e6;
-    /* Light gray border */
-    padding: 20px;
-    /* Padding inside each grid item */
-    text-align: center;
-    /* Center-align text inside grid items */
-    /* Font style for the text */
-    font-size: 16px;
-    /* Font size for the text */
-}
-
-.resolutionSetting {
-    width: max-content;
     display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 12px;
-    padding: 12px;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.settingsSection {
     background-color: var(--background);
     border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    gap: 24px;
+}
+
+.settingsSection h6 {
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.settingsButton {
+    background-color: var(--button);
+    color: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settingsButton:hover {
+    opacity: 0.8;
+}
+
+.settingsButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.settingsSelect {
+    background-color: var(--background);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 16px;
+    width: 100%;
+}
+
+.settingsSelect option {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+.settingsTextField {
+    background-color: var(--background);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.settingsSwitch {
+    color: var(--button);
+}
+
+.settingsSwitch .MuiSwitch-track {
+    background-color: var(--border);
+}
+
+.settingsSwitch .MuiSwitch-thumb {
+    background-color: var(--button);
+}
+
+@keyframes moveBackground {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 20px 20px;
+    }
 }
 
 .checkUpdateText {

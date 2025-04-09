@@ -47,6 +47,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     getCachedGames: () => ipcRenderer.invoke("get-cached-games"),
     cacheGamesLocally: (games) => ipcRenderer.invoke("cache-games-locally", games),
 
+    //Settings
+    getSettings: () => ipcRenderer.invoke("get-settings"),
+    updateSettings: (settings) => ipcRenderer.invoke("update-settings", settings),
+    onThemeChanged: (callback) => {
+        ipcRenderer.on("theme-changed", (event, theme) => callback(theme));
+        return () => {
+            ipcRenderer.removeAllListeners("theme-changed");
+        };
+    },
 
     //Window
     closeWindow: () => ipcRenderer.send("close-window"),

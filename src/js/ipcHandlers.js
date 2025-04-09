@@ -82,11 +82,54 @@ function initIPCHandlers() {
         require("./updater").checkForUpdates();
     });
     ipcMain.handle("get-settings", () => {
-        return loadSettings();
+        const settings = loadSettings();
+        return {
+            windowSize: `${settings.windowSize.width}x${settings.windowSize.height}`,
+            theme: settings.theme || "dark",
+            language: settings.language || "en",
+            autoUpdate: settings.autoUpdate !== false,
+            notifications: settings.notifications !== false,
+            minimizeToTray: settings.minimizeToTray !== false,
+            launchOnStartup: settings.launchOnStartup || false,
+            downloadPath: settings.downloadPath || "",
+            maxConcurrentDownloads: settings.maxConcurrentDownloads || 3,
+            cacheSize: settings.cacheSize || "5GB"
+        };
     });
     ipcMain.handle("update-settings", (event, newSettings) => {
-        const settings = {...loadSettings(), ...newSettings};
-        saveSettings(settings);
+        const currentSettings = loadSettings();
+        const updatedSettings = { ...currentSettings };
+
+        // Handle window size separately
+        if (newSettings.windowSize) {
+            const [width, height] = newSettings.windowSize.split("x").map(Number);
+            updatedSettings.windowSize = { width, height };
+            const mainWindow = require("./windowManager").getMainWindow();
+            if (mainWindow) {
+                mainWindow.setContentSize(width, height);
+                mainWindow.center();
+            }
+        }
+
+        // Handle theme change
+        if (newSettings.theme && newSettings.theme !== currentSettings.theme) {
+            updatedSettings.theme = newSettings.theme;
+            // Notify the renderer process about theme change
+            const mainWindow = require("./windowManager").getMainWindow();
+            if (mainWindow) {
+                mainWindow.webContents.send("theme-changed", newSettings.theme);
+            }
+        }
+
+        // Update other settings
+        Object.keys(newSettings).forEach(key => {
+            if (key !== "windowSize" && key !== "theme") {
+                updatedSettings[key] = newSettings[key];
+            }
+        });
+
+        saveSettings(updatedSettings);
+        return updatedSettings;
     });
     ipcMain.handle("get-window-size", () => {
         const mainWindow = require("./windowManager").getMainWindow();

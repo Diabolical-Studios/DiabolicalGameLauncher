@@ -1,29 +1,42 @@
-const colors = {
-    primary: "#07d400",        // Cyan
-    secondary: "#ff4081",      // Pink
-    background: "#000000",     // Dark Theme Background
-    button: "#121212",
-    border: "#444444",         // Gray Border
-    text: "#ededed",           // White Text
-    error: "#ff5252",          // Red for Errors
-    success: "#07d400",        // Green for Success
-    warning: "#ff9800",        // Orange for Warnings
-    buttonHover: "#1f1f1f",    // Darker Gray
+const darkTheme = {
+    background: "#000000",
+    text: "#ffffff",
+    border: "#444444",
+    button: "#333333",
+    primary: "#07d400",
+    secondary: "#ff4081",
+    error: "#ff5252",
+    success: "#07d400",
+    warning: "#ff9800",
+    buttonHover: "#1f1f1f",
     transparent: "transparent",
 };
 
-/**
- * Injects colors into the CSS root as variables.
- */
-const applyColorsToCSS = () => {
+const lightTheme = {
+    background: "#ffffff",
+    text: "#000000",
+    border: "#cccccc",
+    button: "#f5f5f5",
+    primary: "#07d400",
+    secondary: "#ff4081",
+    error: "#ff5252",
+    success: "#07d400",
+    warning: "#ff9800",
+    buttonHover: "#e0e0e0",
+    transparent: "transparent",
+};
+
+export const colors = darkTheme;
+
+export const applyColorsToCSS = (theme = "dark") => {
+    const themeColors = theme === "dark" ? darkTheme : lightTheme;
+    Object.assign(colors, themeColors);
+
     const root = document.documentElement;
-    Object.keys(colors).forEach((key) => {
-        root.style.setProperty(`--${key}`, colors[key]);
-        console.log(`✅ Set --${key} to ${colors[key]}`);
+    Object.entries(themeColors).forEach(([key, value]) => {
+        root.style.setProperty(`--${key}`, value);
     });
 };
 
 // Automatically apply colors when the script runs
 applyColorsToCSS();
-
-export {colors, applyColorsToCSS};
