@@ -25,7 +25,9 @@ async function extractZip(zipPath, gameId, event) {
 //Initiate game download
 async function downloadGame(event, gameId) {
     try {
+        console.log(`Starting download process for game: ${gameId}`);
         const {latestVersion, latestVersionUrl} = await getLatestGameVersion(gameId);
+        console.log(`Got version info - Latest: ${latestVersion}, URL: ${latestVersionUrl}`);
 
         if (!latestVersion || !latestVersionUrl) {
             const mainWindow = getMainWindow();
@@ -38,17 +40,22 @@ async function downloadGame(event, gameId) {
         }
 
         const gameUrl = latestVersionUrl;
+        console.log(`Attempting to download from URL: ${gameUrl}`);
 
         const dl = await download(BrowserWindow.getFocusedWindow(), gameUrl, {
-            directory: diabolicalLauncherPath, onProgress: (progress) => {
+            directory: diabolicalLauncherPath, 
+            onProgress: (progress) => {
+                console.log(`Download progress for ${gameId}: ${progress.percent}%`);
                 event.sender.send("download-progress", {
                     gameId: gameId, percentage: progress.percent,
                 });
             },
         });
 
+        console.log(`Download completed, starting extraction for ${gameId}`);
         await extractZip(dl.getSavePath(), gameId, event);
 
+        console.log(`Writing version file for ${gameId}: ${latestVersion}`);
         fs.writeFileSync(versionFilePath(gameId), JSON.stringify({version: latestVersion}));
 
         getMainWindow().webContents.send("update-available", {

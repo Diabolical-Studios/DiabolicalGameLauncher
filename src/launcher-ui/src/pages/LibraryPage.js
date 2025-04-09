@@ -33,6 +33,8 @@ const LibraryPage = () => {
     const [downloadingGameId, setDownloadingGameId] = useState(null); // Track which game is actively downloading
     const [hasUpdate, setHasUpdate] = useState(false);
     const [uninstallDialogOpen, setUninstallDialogOpen] = useState(false);
+    const [currentVersion, setCurrentVersion] = useState(null);
+    const [latestVersion, setLatestVersion] = useState(null);
 
     // Set up download listeners
     useEffect(() => {
@@ -120,11 +122,13 @@ const LibraryPage = () => {
 
     const fetchLocalVersion = async (gameId) => {
         try {
-            const currentVersion = await window.electronAPI.getCurrentGameVersion(gameId);
-            const {latestVersion} = await window.electronAPI.getLatestGameVersion(gameId);
-            setHasUpdate(currentVersion !== latestVersion);
+            const current = await window.electronAPI.getCurrentGameVersion(gameId);
+            const {latestVersion: latest} = await window.electronAPI.getLatestGameVersion(gameId);
+            setCurrentVersion(current);
+            setLatestVersion(latest);
+            setHasUpdate(current !== latest);
         } catch (err) {
-            console.error("Error fetching local game version:", err);
+            console.error("Error fetching game versions:", err);
             setHasUpdate(false);
         }
     };
@@ -334,6 +338,14 @@ const LibraryPage = () => {
                                     </Button>
                                 </Grid>
                                 <Grid item>
+                                    <Typography variant="body2" sx={{ color: colors.text }}>
+                                        Installed Version: {currentVersion || "Not Installed"}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: colors.text }}>
+                                        Latest Version: {latestVersion || "Not Available"}
+                                    </Typography>
+                                </Grid>
+                                <Grid item>
                                     <Button
                                         variant="outlined"
                                         startIcon={<DeleteIcon />}
@@ -350,25 +362,6 @@ const LibraryPage = () => {
                                         Uninstall
                                     </Button>
                                 </Grid>
-                                {isDownloading && (
-                                    <Grid item xs>
-                                        <Box sx={{ width: '100%' }}>
-                                            <LinearProgress 
-                                                variant="determinate" 
-                                                value={downloadingGame.percent}
-                                                sx={{
-                                                    bgcolor: 'rgba(255,255,255,0.1)',
-                                                    '& .MuiLinearProgress-bar': {
-                                                        bgcolor: colors.button
-                                                    }
-                                                }}
-                                            />
-                                            <Typography variant="caption" sx={{ color: colors.text, mt: 0.5 }}>
-                                                {downloadingGame.speed ? `${downloadingGame.speed} MB/s` : 'Calculating...'}
-                                            </Typography>
-                                        </Box>
-                                    </Grid>
-                                )}
                             </Grid>
                         </Paper>
 

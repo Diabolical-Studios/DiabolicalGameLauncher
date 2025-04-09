@@ -1,31 +1,23 @@
 async function getLatestGameVersion(gameId) {
-    const fetch = (await import('node-fetch')).default;
-    const apiUrl = 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/';
-
     try {
-        console.log(`Checking for new version of game: ${gameId}`);
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
+        // Get the cached games data
+        const cachedGames = require('./cacheManager').readCachedGames();
+        const game = cachedGames.find(g => g.game_id === gameId);
+        
+        if (!game || !game.version) {
+            throw new Error(`No version information found for game ${gameId}`);
         }
-        const data = await response.json();
 
-        const versions = data.objects
-            .map(obj => obj.name)
-            .filter(name => name.startsWith(`${gameId}/Versions/Build-StandaloneWindows64-`))
-            .map(name => {
-                const versionMatch = name.match(/Build-StandaloneWindows64-(\d+\.\d+\.\d+)\.zip$/);
-                return versionMatch ? versionMatch[1] : null;
-            })
-            .filter(Boolean)
-            .sort((a, b) => b.localeCompare(a, undefined, {numeric: true}));
-
-        const latestVersion = versions[0];
-        const latestVersionUrl = `https://objectstorage.eu-frankfurt-1.oraclecloud.com/p/gusB9LXo4v8-qUja7OPfq1BSteoEnzVIrUprDXuBV5EznaV-IEIlE9uuikYnde4x/n/frks8kdvmjog/b/DiabolicalGamesStorage/o/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+        const latestVersion = game.version;
+        console.log(`Using cached version for ${gameId}: ${latestVersion}`);
+        
+        // Construct the R2 URL directly
+        const latestVersionUrl = `https://diabolical.services/R2/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+        console.log(`Constructed download URL: ${latestVersionUrl}`);
 
         return {latestVersion, latestVersionUrl};
     } catch (error) {
-        console.error(`Failed to fetch the latest game version for ${gameId}:`, error);
+        console.error(`Failed to get game version for ${gameId}:`, error);
         throw error;
     }
 }

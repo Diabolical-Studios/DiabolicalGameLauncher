@@ -21,6 +21,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { colors } from "../theme/colors";
+import axios from "axios";
 
 const FeaturedCard = styled(Card)({
     position: 'relative',
@@ -232,6 +233,7 @@ const StorePage = () => {
     const [featuredGames, setFeaturedGames] = useState([]);
     const [progress, setProgress] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Function to handle featured game change with animation
     const changeFeaturedGame = (newIndex) => {
@@ -264,23 +266,43 @@ const StorePage = () => {
 
     useEffect(() => {
         const loadGames = async () => {
+            // 1. Load installed games FIRST
             try {
-                const [cachedGames, installedIds] = await Promise.all([
-                    window.electronAPI.getCachedGames(),
-                    window.electronAPI.getInstalledGames()
-                ]);
-                // Shuffle games on load
-                const shuffledGames = cachedGames || [];
-                setGames(shuffledGames);
-                setFeaturedGames(shuffledGames.slice(0, 3));
-                setInstalledGames(installedIds || []);
+                const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
+                setInstalledGames(fetchedInstalledGames);
             } catch (err) {
-                console.error("Error loading games:", err);
-                setGames([]);
-                setFeaturedGames([]);
+                console.error("Error fetching installed games:", err);
                 setInstalledGames([]);
             }
+
+            // 2. Show cached games early (but AFTER installed games are known)
+            if (window.electronAPI?.getCachedGames) {
+                const cachedGames = await window.electronAPI.getCachedGames();
+                if (cachedGames.length > 0) {
+                    const shuffledGames = cachedGames;
+                    setGames(shuffledGames);
+                    setFeaturedGames(shuffledGames.slice(0, 3));
+                    setLoading(false); // Let UI load fast but accurately
+                }
+            }
+
+            // 3. Try live API
+            try {
+                const response = await axios.get("/get-all-games");
+                const freshGames = response.data;
+                setGames(freshGames);
+                setFeaturedGames(freshGames.slice(0, 3));
+                if (window.electronAPI?.cacheGamesLocally) {
+                    window.electronAPI.cacheGamesLocally(freshGames);
+                }
+            } catch (error) {
+                console.error("❌ Error fetching games:", error);
+                window.electronAPI?.showCustomNotification("Error Fetching Games", "The database is down! Showing offline games.");
+            } finally {
+                setLoading(false);
+            }
         };
+
         loadGames();
     }, []);
 
