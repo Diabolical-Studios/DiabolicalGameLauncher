@@ -16,6 +16,7 @@
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
     "gsap": "^3.12.7",
+    "jose": "^6.0.10",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "perlin-noise": "^0.0.1",
