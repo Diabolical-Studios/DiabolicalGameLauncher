@@ -20,7 +20,6 @@ import {
     Stack,
     Chip,
     IconButton,
-    Tooltip,
     Select,
     FormControl,
     InputLabel,
@@ -31,14 +30,11 @@ import UpdateIcon from "@mui/icons-material/Update";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import StorageIcon from '@mui/icons-material/Storage';
-import CodeIcon from '@mui/icons-material/Code';
 import TextField from '@mui/material/TextField';
 import SaveIcon from '@mui/icons-material/Save';
-import LanguageIcon from '@mui/icons-material/Language';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { colors } from "../theme/colors";
 
@@ -47,16 +43,14 @@ const LibraryPage = () => {
     const [cachedGames, setCachedGames] = useState([]);
     const [selectedGame, setSelectedGame] = useState(null);
     const [activeDownloads, setActiveDownloads] = useState({});
-    const [downloadingGameId, setDownloadingGameId] = useState(null);
     const [hasUpdate, setHasUpdate] = useState(false);
     const [uninstallDialogOpen, setUninstallDialogOpen] = useState(false);
     const [currentVersion, setCurrentVersion] = useState(null);
     const [latestVersion, setLatestVersion] = useState(null);
     const [contextMenu, setContextMenu] = useState(null);
-    const [selectedBranch, setSelectedBranch] = useState('latest');
-    const [playTime, setPlayTime] = useState('0 hours');
-    const [achievements, setAchievements] = useState({ completed: 0, total: 0 });
-    const [diskUsage, setDiskUsage] = useState('0 MB');
+    const [playTime] = useState('0 hours');
+    const [achievements] = useState({ completed: 0, total: 0 });
+    const [diskUsage] = useState('0 MB');
     const [propertiesDialogOpen, setPropertiesDialogOpen] = useState(false);
     const [gameProperties, setGameProperties] = useState({
         branch: 'latest',
@@ -71,8 +65,6 @@ const LibraryPage = () => {
             if (!progressData?.gameId) return;
 
             const percent = Math.round(progressData.percentage * 100);
-            setDownloadingGameId(progressData.gameId);
-
             setActiveDownloads((prev) => ({
                 ...prev,
                 [progressData.gameId]: {
@@ -89,7 +81,6 @@ const LibraryPage = () => {
                 delete updated[gameId];
                 return updated;
             });
-            setDownloadingGameId(null);
             if (gameId === selectedGame?.game_id) {
                 setHasUpdate(false);
                 fetchLocalVersion(gameId);
