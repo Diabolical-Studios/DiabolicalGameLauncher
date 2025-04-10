@@ -9,7 +9,9 @@ import {
     Select,
     Stack,
     TextField,
-    Pagination
+    Pagination,
+    Typography,
+    Chip
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -43,6 +45,10 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const reposPerPage = 6;
+    const [githubInstallations, setGithubInstallations] = useState([]);
+    const [currentInstallation, setCurrentInstallation] = useState(null);
+    const [installationRepos, setInstallationRepos] = useState({});
+    const [connectedAccounts, setConnectedAccounts] = useState([]);
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -71,8 +77,25 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         setHasRequiredFields(!!hasAllRequiredFields);
     }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl]);
 
-    const fetchGithubRepos = async () => {
-        const installationId = Cookies.get("githubInstallationId");
+    useEffect(() => {
+        const loadInstallations = () => {
+            const installationsCookie = Cookies.get("githubInstallations");
+            if (installationsCookie) {
+                // Extract installation IDs by removing the URL encoding markers
+                const cleanedString = installationsCookie
+                    .replace("%5B%22", "")          // Remove start marker
+                    .replace("%22%5D", "")          // Remove end marker
+                    .split("%22%2C%22");            // Split by the middle marker
+                
+                // Fetch repos for each installation
+                cleanedString.forEach(id => fetchGithubRepos(id));
+            }
+        };
+
+        loadInstallations();
+    }, []);
+
+    const fetchGithubRepos = async (installationId) => {
         const accessToken = Cookies.get("githubAccessToken");
 
         if (!installationId || !accessToken) {
@@ -82,18 +105,33 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
         setLoadingRepos(true);
         try {
-            const response = await fetch(`https://api.github.com/installation/repositories`, {
-                method: "GET", headers: {
-                    Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json",
+            // Use the installation access token directly to fetch repositories
+            const reposResponse = await fetch(`https://api.github.com/installation/repositories`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Accept: "application/vnd.github+json",
                 },
             });
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch repositories. Status: ${response.status}`);
+            if (!reposResponse.ok) {
+                throw new Error(`Failed to fetch repositories. Status: ${reposResponse.status}`);
             }
 
-            const data = await response.json();
-            setGithubRepos(data.repositories);
+            const data = await reposResponse.json();
+            
+            // Get account info
+            if (data.repositories.length > 0) {
+                const accountName = data.repositories[0].owner.login;
+                setConnectedAccounts(prev => [...prev.filter(acc => acc.id !== installationId), {
+                    id: installationId,
+                    name: accountName,
+                    type: data.repositories[0].owner.type
+                }]);
+            }
+
+            // Add repos to the list
+            setGithubRepos(prev => [...prev, ...data.repositories]);
         } catch (error) {
             console.error("❌ Error fetching repositories:", error);
         } finally {
@@ -102,44 +140,45 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     };
 
     useEffect(() => {
-        fetchGithubRepos();
-    }, [refreshRepos]);
-
-    useEffect(() => {
         const handleProtocolData = (action, data) => {
             console.log("🔄 Handling Protocol Data:", action, data);
 
             if (action === "github-app") {
-                console.log("✅ GitHub App Authentication Successful. Storing credentials in cookies.");
-
-                Cookies.set("githubInstallationId", data.githubInstallationId, {
-                    secure: true, sameSite: "Strict", expires: 7
-                });
+                console.log("✅ GitHub App Authentication Successful");
+                
+                // Store the access token - this is already an installation token
                 Cookies.set("githubAccessToken", data.githubAccessToken, {
-                    secure: true, sameSite: "Strict", expires: 7
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 7
                 });
 
-                console.log("✅ Confirmed in cookies:", {
-                    installationId: Cookies.get("githubInstallationId"), accessToken: Cookies.get("githubAccessToken"),
-                });
-
-                setTimeout(() => {
-                    setRefreshRepos(prev => !prev);
-                }, 1000);
+                // Fetch repos for the new installation
+                fetchGithubRepos(data.githubInstallationId);
             }
         };
 
-        if (window.api) {
+        if (window.electronAPI) {
             window.electronAPI.onProtocolData(handleProtocolData);
-
-
             return () => {
                 window.electronAPI.onProtocolData(null);
             };
-        } else {
-            console.log("window.api is not available (running in the browser)");
         }
     }, []);
+
+    // Calculate pagination with search filter
+    const filteredRepos = githubRepos.filter(repo => 
+        repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    const indexOfLastRepo = currentPage * reposPerPage;
+    const indexOfFirstRepo = indexOfLastRepo - reposPerPage;
+    const currentRepos = filteredRepos.slice(indexOfFirstRepo, indexOfLastRepo);
+    const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
+
+    // Reset to first page when search query changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     const handleSave = async () => {
         setIsSaving(true); // Disable the button while processing
@@ -257,20 +296,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
-    // Calculate pagination with search filter
-    const filteredRepos = githubRepos.filter(repo => 
-        repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const indexOfLastRepo = currentPage * reposPerPage;
-    const indexOfFirstRepo = indexOfLastRepo - reposPerPage;
-    const currentRepos = filteredRepos.slice(indexOfFirstRepo, indexOfLastRepo);
-    const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
-
-    // Reset to first page when search query changes
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery]);
-
     return (<StyledDialog open={open} container={document.getElementById("root")}
                           onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <Stack className={"p-6 overflow-hidden"}>
@@ -372,6 +397,54 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 </Stack>
                 <Stack className={"items-end w-full gap-6 justify-between"}>
                     <Stack className={"gap-6 w-full flex-1"} style={{gap: "12px"}}>
+                        {/* Connected Accounts Display */}
+                        {connectedAccounts.length > 0 && (
+                            <Stack 
+                                direction="row" 
+                                spacing={2} 
+                                sx={{
+                                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                    borderRadius: '4px',
+                                    padding: '12px',
+                                    border: `1px solid ${colors.border}`
+                                }}
+                            >
+                                <img 
+                                    src="/github.png" 
+                                    alt="GitHub" 
+                                    style={{width: "24px", height: "24px"}}
+                                />
+                                <Stack spacing={1}>
+                                    <Typography variant="subtitle2" sx={{ color: colors.text }}>
+                                        Connected GitHub Accounts
+                                    </Typography>
+                                    {connectedAccounts.map(account => (
+                                        <Typography 
+                                            key={account.id}
+                                            variant="body2" 
+                                            sx={{ 
+                                                color: colors.text,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1
+                                            }}
+                                        >
+                                            {account.name}
+                                            <Chip 
+                                                label={account.type} 
+                                                size="small"
+                                                sx={{ 
+                                                    backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                                                    color: '#00bcd4',
+                                                    height: '20px'
+                                                }}
+                                            />
+                                        </Typography>
+                                    ))}
+                                </Stack>
+                            </Stack>
+                        )}
+
                         {/* Search Bar */}
                         <TextField
                             placeholder="Search repositories..."
