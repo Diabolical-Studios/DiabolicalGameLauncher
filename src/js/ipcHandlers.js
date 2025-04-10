@@ -26,27 +26,14 @@ function initIPCHandlers() {
 
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
-        const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
-
-        if (!fs.existsSync(executablePath)) {
-            console.error(`Executable not found at path: ${executablePath}`);
-            event.sender.send("game-launch-error", `Executable not found at path: ${executablePath}`);
-            return;
-        }
-
-        console.log(`Launching game from path: ${executablePath}`);
-
-        exec(`"${executablePath}"`, {cwd: gamePath, env: process.env}, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Failed to open game: ${error.message}`);
-                console.error(`stdout: ${stdout}`);
-                console.error(`stderr: ${stderr}`);
-                event.sender.send("game-launch-error", `Failed to open game: ${error.message}`);
-            } else {
-                console.log("Game launched successfully");
-            }
-        });
+        exec(`start "" "${gamePath}"`);
     });
+
+    ipcMain.on("open-install-location", (event, gameId) => {
+        const gamePath = path.join(diabolicalLauncherPath, gameId);
+        exec(`explorer "${gamePath}"`);
+    });
+
     ipcMain.on("show-context-menu", (event, gameId, position) => {
         showContextMenu(event, gameId, position);
     });

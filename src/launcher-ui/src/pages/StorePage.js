@@ -158,8 +158,39 @@ const FeaturedContent = styled(Box)(({ animate }) => ({
 }));
 
 const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) => {
+    const [downloadProgress, setDownloadProgress] = useState(null);
+    const [isInstalled, setIsInstalled] = useState(installedGames.includes(game.game_id));
+
+    useEffect(() => {
+        const handleDownloadProgress = (progressData) => {
+            if (progressData.gameId === game.game_id) {
+                setDownloadProgress(`${Math.round(progressData.percentage * 100)}%`);
+            }
+        };
+
+        const handleDownloadComplete = ({ gameId }) => {
+            if (gameId === game.game_id) {
+                setDownloadProgress(null);
+                setIsInstalled(true);
+            }
+        };
+
+        const handleGameUninstalled = (uninstalledGameId) => {
+            if (uninstalledGameId === game.game_id) {
+                setIsInstalled(false);
+            }
+        };
+
+        window.electronAPI?.onDownloadProgress(handleDownloadProgress);
+        window.electronAPI?.onDownloadComplete(handleDownloadComplete);
+        window.electronAPI?.onGameUninstalled(handleGameUninstalled);
+
+        return () => {
+            window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
+        };
+    }, [game.game_id]);
+
     if (!game) return null;
-    const isInstalled = installedGames.includes(game.game_id);
 
     return (
         <GameCard size={size}>
@@ -189,7 +220,7 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
                     variant="contained"
                     onClick={() => isInstalled ? onPlay(game.game_id) : onDownload(game.game_id)}
                 >
-                    {isInstalled ? "Play" : "Download"}
+                    {downloadProgress || (isInstalled ? "Play" : "Download")}
                 </StyledButton>
             </CardOverlay>
         </GameCard>
@@ -230,7 +261,7 @@ const StorePage = () => {
             if (window.electronAPI?.getCachedGames) {
                 const cachedGames = await window.electronAPI.getCachedGames();
                 if (cachedGames.length > 0) {
-                    const shuffledGames = cachedGames;
+                    const shuffledGames = [...cachedGames].sort(() => Math.random() - 0.5);
                     setGames(shuffledGames);
                     setFeaturedGames(shuffledGames.slice(0, 3));
                 }
@@ -240,8 +271,9 @@ const StorePage = () => {
             try {
                 const response = await axios.get("/get-all-games");
                 const freshGames = response.data;
-                setGames(freshGames);
-                setFeaturedGames(freshGames.slice(0, 3));
+                const shuffledGames = [...freshGames].sort(() => Math.random() - 0.5);
+                setGames(shuffledGames);
+                setFeaturedGames(shuffledGames.slice(0, 3));
                 if (window.electronAPI?.cacheGamesLocally) {
                     window.electronAPI.cacheGamesLocally(freshGames);
                 }

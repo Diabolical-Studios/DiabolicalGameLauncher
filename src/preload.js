@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     downloadGame: (gameId) => ipcRenderer.send("download-game", gameId),
     openGame: (gameId) => ipcRenderer.send("open-game", gameId),
     uninstallGame: (gameId) => ipcRenderer.send("uninstall-game", gameId),
+    openInstallLocation: (gameId) => ipcRenderer.send("open-install-location", gameId),
     getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
     getCurrentGameVersion: (gameId) => ipcRenderer.invoke("get-current-game-version", gameId),
     getLatestGameVersion: (gameId) => ipcRenderer.invoke("get-latest-game-version", gameId),
