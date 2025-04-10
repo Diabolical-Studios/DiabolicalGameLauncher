@@ -86,6 +86,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [currentInstallation, setCurrentInstallation] = useState(null);
     const [installationRepos, setInstallationRepos] = useState({});
     const [connectedAccounts, setConnectedAccounts] = useState([]);
+    const [ownerAvatars, setOwnerAvatars] = useState({});
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -164,14 +165,22 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             const data = await reposResponse.json();
             
-            // Get account info
+            // Get account info and store avatar URLs
             if (data.repositories.length > 0) {
                 const accountName = data.repositories[0].owner.login;
+                const avatarUrl = data.repositories[0].owner.avatar_url;
                 setConnectedAccounts(prev => [...prev.filter(acc => acc.id !== installationId), {
                     id: installationId,
                     name: accountName,
-                    type: data.repositories[0].owner.type
+                    type: data.repositories[0].owner.type,
+                    avatarUrl: avatarUrl
                 }]);
+
+                // Store avatar URL for this owner
+                setOwnerAvatars(prev => ({
+                    ...prev,
+                    [accountName]: avatarUrl
+                }));
             }
 
             // Add repos to the list
@@ -478,37 +487,45 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     border: `1px solid ${colors.border}`
                                 }}
                             >
-                                <img 
-                                    src="/github.png" 
-                                    alt="GitHub" 
-                                    style={{width: "24px", height: "24px"}}
-                                />
+                  
                                 <Stack spacing={1}>
                                     <Typography variant="subtitle2" sx={{ color: colors.text }}>
                                         Connected GitHub Accounts
                                     </Typography>
                                     {connectedAccounts.map(account => (
-                                        <Typography 
-                                            key={account.id}
-                                            variant="body2" 
-                                            sx={{ 
-                                                color: colors.text,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1
-                                            }}
-                                        >
-                                            {account.name}
-                                            <Chip 
-                                                label={account.type} 
-                                                size="small"
-                                                sx={{ 
-                                                    backgroundColor: 'rgba(0, 188, 212, 0.1)',
-                                                    color: '#00bcd4',
-                                                    height: '20px'
+                                        <Stack direction="row" alignItems="center" gap={1}>
+                                            <img 
+                                                src={account.avatarUrl} 
+                                                alt={account.name}
+                                                style={{
+                                                    width: "24px", 
+                                                    height: "24px",
+                                                    borderRadius: "50%",
+                                                    objectFit: "cover"
                                                 }}
                                             />
-                                        </Typography>
+                                            <Typography 
+                                                key={account.id}
+                                                variant="body2" 
+                                                sx={{ 
+                                                    color: colors.text,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                {account.name}
+                                                <Chip 
+                                                    label={account.type} 
+                                                    size="small"
+                                                    sx={{ 
+                                                        backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                                                        color: '#00bcd4',
+                                                        height: '20px'
+                                                    }}
+                                                />
+                                            </Typography>
+                                        </Stack>
                                     ))}
                                 </Stack>
                             </Stack>
@@ -538,15 +555,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     padding: "10px 14px",
                                 },
                             }}
-                            InputProps={{
-                                startAdornment: (
-                                    <img 
-                                        src="/github.png" 
-                                        alt="Search" 
-                                        style={{width: "16px", height: "16px", marginRight: "8px"}} 
-                                    />
-                                ),
-                            }}
+                            
                         />
                         
                         {/* GitHub Repository Selection */}
@@ -596,11 +605,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                                         onMouseEnter={(e) => (e.currentTarget.style.background = "#222")}
                                                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                                                     >
-                                                        {/* Custom GitHub Icon */}
+                                                        {/* Owner Avatar */}
                                                         <img
-                                                            src="/github.png"
-                                                            alt="GitHub"
-                                                            style={{aspectRatio: "1 / 1", width: "16px"}}
+                                                            src={ownerAvatars[repo.owner.login] || "/github.png"}
+                                                            alt={repo.owner.login}
+                                                            style={{
+                                                                aspectRatio: "1 / 1",
+                                                                width: "16px",
+                                                                borderRadius: "50%",
+                                                                objectFit: "cover"
+                                                            }}
                                                         />
                                                         {/* Repository Name */}
                                                         <p style={{
