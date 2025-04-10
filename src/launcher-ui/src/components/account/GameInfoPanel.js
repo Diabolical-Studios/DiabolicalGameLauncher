@@ -16,30 +16,67 @@ const GameInfoPanel = ({game}) => {
     const [activeTab, setActiveTab] = useState("gameInfo");
     const [logPopupOpen, setLogPopupOpen] = useState(false);
     const [deployStatus, setDeployStatus] = useState("unknown");
-    const accessToken = Cookies.get("githubAccessToken");
+    const [currentAccessToken, setCurrentAccessToken] = useState(null);
+
+    // Find the correct installation ID and access token for this game's repo
+    const findGameCredentials = async () => {
+        let count = 1;
+        while (true) {
+            const installationId = Cookies.get(`githubInstallationId${count}`);
+            const accessToken = Cookies.get(`githubAccessToken${count}`);
+            
+            if (!installationId || !accessToken) break;
+
+            try {
+                // Check if this installation has access to the game's repo
+                const response = await fetch(`https://api.github.com/repos/${game.github_repo}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Accept: "application/vnd.github+json",
+                    },
+                });
+
+                if (response.ok) {
+                    setCurrentAccessToken(accessToken);
+                    return installationId;
+                }
+            } catch (err) {
+                console.error(`Error checking repo access for installation ${count}:`, err);
+            }
+
+            count++;
+        }
+        return null;
+    };
 
     const fetchWorkflows = useCallback(async () => {
-        if (!game.github_repo || !accessToken) return;
+        if (!game.github_repo) return;
 
-        const runs = await window.githubAPI.fetchWorkflows(game.github_repo, accessToken);
+        const installationId = await findGameCredentials();
+        if (!installationId || !currentAccessToken) {
+            console.log("❌ No valid GitHub credentials found for this repository");
+            return;
+        }
+
+        const runs = await window.githubAPI.fetchWorkflows(game.github_repo, currentAccessToken);
         setWorkflows(runs);
 
         if (runs.length > 0) {
             const latestRun = runs[0];
-            const status = latestRun.conclusion || latestRun.status; // Use `conclusion` for final status
+            const status = latestRun.conclusion || latestRun.status;
             setDeployStatus(status || "unknown");
         }
-    }, [game.github_repo, accessToken]);
+    }, [game.github_repo, currentAccessToken]);
 
     useEffect(() => {
         fetchWorkflows();
     }, [fetchWorkflows]);
 
     const fetchLogs = async (runId) => {
-        if (!runId) return;
+        if (!runId || !currentAccessToken) return;
         setLoadingLogs(true);
 
-        const logData = await window.githubAPI.fetchLogs(game.github_repo, runId, accessToken);
+        const logData = await window.githubAPI.fetchLogs(game.github_repo, runId, currentAccessToken);
 
         setLoadingLogs(false);
         setLogs(logData);
@@ -66,16 +103,18 @@ const GameInfoPanel = ({game}) => {
     const handleRepoClick = async () => {
         if (!game.github_repo) return;
 
-        const installationId = Cookies.get("githubInstallationId");
+        const installationId = await findGameCredentials();
         if (!installationId) {
-            console.error("❌ Installation ID not found in cookies.");
-            window.electronAPI?.showCustomNotification("Reinitialized Unsuccessful", "Installation ID is missing. Try re-authorizing the GitHub app.");
+            console.error("❌ No valid installation ID found for this repository.");
+            window.electronAPI?.showCustomNotification("Reinitialized Unsuccessful", "No valid GitHub installation found. Try re-authorizing the GitHub app.");
             return;
         }
 
         try {
             const response = await fetch("https://api.diabolical.studio/github-app/webhook", {
-                method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                method: "POST", 
+                headers: {"Content-Type": "application/json"}, 
+                body: JSON.stringify({
                     event: "game_created",
                     repository: game.github_repo,
                     game_id: game.game_id.trim(),
@@ -83,9 +122,8 @@ const GameInfoPanel = ({game}) => {
                 }),
             });
 
-            // Check if response is JSON before parsing
             const contentType = response.headers.get("content-type");
-            const responseData = contentType && contentType.includes("application/json") ? await response.json() : await response.text(); // Fallback to text
+            const responseData = contentType && contentType.includes("application/json") ? await response.json() : await response.text();
 
             if (!response.ok) {
                 console.error(`❌ GitHub workflow re-trigger failed: ${responseData.message || responseData}`);
@@ -101,12 +139,10 @@ const GameInfoPanel = ({game}) => {
         }
     };
 
-
     const handleAuthorizeMoreRepos = () => {
         const githubAppAuthUrl = "https://github.com/apps/diabolical-launcher-integration/installations/select_target";
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
-
 
     const gameDetails = {
         "Game Name": game.game_name,
@@ -196,7 +232,6 @@ const GameInfoPanel = ({game}) => {
             </Box>) : "No Repo Linked",
     };
 
-
     return (<Stack
         sx={{
             width: "100%",
@@ -219,7 +254,6 @@ const GameInfoPanel = ({game}) => {
             <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>
             <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>
             <Tab value="githubApp" label="Github App" sx={{color: colors.text}}/>
-
         </Tabs>
 
         {/* Game Info Tab */}

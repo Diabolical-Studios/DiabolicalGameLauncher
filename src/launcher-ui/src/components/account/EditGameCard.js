@@ -5,7 +5,7 @@ import {Stack} from "@mui/material";
 import EditGameDialog from "./dialogs/EditGameDialog";
 import GameButton from "../button/GameButton";
 
-const EditGameCard = ({game, onUpdateGame}) => {
+const EditGameCard = ({game, isInstalled, onUpdateGame, deploymentStatus}) => {
     const [editOpen, setEditOpen] = useState(false);
 
     const handleSaveGameChanges = (updatedGame) => {
@@ -16,6 +16,20 @@ const EditGameCard = ({game, onUpdateGame}) => {
         }
     };
 
+    const getDeploymentStatusColor = () => {
+        switch (deploymentStatus?.status) {
+            case 'success':
+                return '#4caf50';
+            case 'pending':
+                return '#ff9800';
+            case 'error':
+                return '#f44336';
+            case 'not_deployed':
+                return '#9e9e9e';
+            default:
+                return '#9e9e9e';
+        }
+    };
 
     return (<Stack className={"game-banner flex flex-col justify-between items-end p-3 w-auto aspect-63/88"}
                    style={{
@@ -45,6 +59,29 @@ const EditGameCard = ({game, onUpdateGame}) => {
                     },]}
                 />*/}
             </Stack>
+            {deploymentStatus && (
+                <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                }}>
+                    <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: getDeploymentStatusColor()
+                    }} />
+                    <span style={{color: '#fff', fontSize: '12px'}}>
+                        {deploymentStatus.message}
+                    </span>
+                </div>
+            )}
         </Stack>
 
         <EditGameDialog
