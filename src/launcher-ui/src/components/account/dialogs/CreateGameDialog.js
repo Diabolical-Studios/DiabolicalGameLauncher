@@ -79,16 +79,14 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
     useEffect(() => {
         const loadInstallations = () => {
-            const installationsCookie = Cookies.get("githubInstallations");
-            if (installationsCookie) {
-                // Extract installation IDs by removing the URL encoding markers
-                const cleanedString = installationsCookie
-                    .replace("%5B%22", "")          // Remove start marker
-                    .replace("%22%5D", "")          // Remove end marker
-                    .split("%22%2C%22");            // Split by the middle marker
-                
-                // Fetch repos for each installation
-                cleanedString.forEach(id => fetchGithubRepos(id));
+            const installationId = Cookies.get("githubInstallationId");
+            const accessToken = Cookies.get("githubAccessToken");
+            
+            if (installationId && accessToken) {
+                console.log("✅ Found existing GitHub installation and access token");
+                fetchGithubRepos(installationId);
+            } else {
+                console.log("❌ Missing GitHub installation ID or access token");
             }
         };
 
@@ -146,8 +144,15 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             if (action === "github-app") {
                 console.log("✅ GitHub App Authentication Successful");
                 
-                // Store the access token - this is already an installation token
+                // Store the access token
                 Cookies.set("githubAccessToken", data.githubAccessToken, {
+                    secure: true,
+                    sameSite: "Strict",
+                    expires: 7
+                });
+
+                // Store the installation ID
+                Cookies.set("githubInstallationId", data.githubInstallationId, {
                     secure: true,
                     sameSite: "Strict",
                     expires: 7
