@@ -19,7 +19,7 @@ const GameInfoPanel = ({game}) => {
     const [currentAccessToken, setCurrentAccessToken] = useState(null);
 
     // Find the correct installation ID and access token for this game's repo
-    const findGameCredentials = async () => {
+    const findGameCredentials = useCallback(async () => {
         let count = 1;
         while (true) {
             const installationId = Cookies.get(`githubInstallationId${count}`);
@@ -47,7 +47,7 @@ const GameInfoPanel = ({game}) => {
             count++;
         }
         return null;
-    };
+    }, [game.github_repo]);
 
     const fetchWorkflows = useCallback(async () => {
         if (!game.github_repo) return;
@@ -66,7 +66,7 @@ const GameInfoPanel = ({game}) => {
             const status = latestRun.conclusion || latestRun.status;
             setDeployStatus(status || "unknown");
         }
-    }, [game.github_repo, currentAccessToken]);
+    }, [game.github_repo, currentAccessToken, findGameCredentials]);
 
     useEffect(() => {
         fetchWorkflows();

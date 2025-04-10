@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import {
     Button,
     CircularProgress,
@@ -9,7 +9,6 @@ import {
     Select,
     Stack,
     TextField,
-    Pagination,
     Typography,
     Chip
 } from "@mui/material";
@@ -75,16 +74,10 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [selectedRepo, setSelectedRepo] = useState("");
     const [loadingRepos, setLoadingRepos] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [refreshRepos, setRefreshRepos] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [hasRequiredFields, setHasRequiredFields] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const reposPerPage = 6;
-    const [githubInstallations, setGithubInstallations] = useState([]);
-    const [currentInstallation, setCurrentInstallation] = useState(null);
-    const [installationRepos, setInstallationRepos] = useState({});
     const [connectedAccounts, setConnectedAccounts] = useState([]);
     const [ownerAvatars, setOwnerAvatars] = useState({});
 
@@ -115,35 +108,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         setHasRequiredFields(!!hasAllRequiredFields);
     }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl]);
 
-    useEffect(() => {
-        const loadInstallations = () => {
-            const pairs = [];
-            let count = 1;
-            
-            // Get all installation pairs
-            while (true) {
-                const installationId = Cookies.get(`githubInstallationId${count}`);
-                const accessToken = Cookies.get(`githubAccessToken${count}`);
-                
-                if (!installationId || !accessToken) break;
-                
-                pairs.push({ installationId, accessToken });
-                count++;
-            }
-            
-            if (pairs.length > 0) {
-                console.log("✅ Found existing GitHub installations");
-                // Start with the first pair
-                fetchGithubRepos(pairs[0].installationId, pairs[0].accessToken);
-            } else {
-                console.log("❌ No GitHub installations found");
-            }
-        };
-
-        loadInstallations();
-    }, []);
-
-    const fetchGithubRepos = async (installationId, accessToken) => {
+    const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
         if (!installationId || !accessToken) {
             console.log("❌ Missing GitHub Installation ID or Access Token.");
             return;
@@ -212,7 +177,35 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         } finally {
             setLoadingRepos(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        const loadInstallations = () => {
+            const pairs = [];
+            let count = 1;
+            
+            // Get all installation pairs
+            while (true) {
+                const installationId = Cookies.get(`githubInstallationId${count}`);
+                const accessToken = Cookies.get(`githubAccessToken${count}`);
+                
+                if (!installationId || !accessToken) break;
+                
+                pairs.push({ installationId, accessToken });
+                count++;
+            }
+            
+            if (pairs.length > 0) {
+                console.log("✅ Found existing GitHub installations");
+                // Start with the first pair
+                fetchGithubRepos(pairs[0].installationId, pairs[0].accessToken);
+            } else {
+                console.log("❌ No GitHub installations found");
+            }
+        };
+
+        loadInstallations();
+    }, [fetchGithubRepos]);
 
     useEffect(() => {
         const handleProtocolData = (action, data) => {
@@ -242,17 +235,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 window.electronAPI.onProtocolData(null);
             };
         }
-    }, []);
+    }, [fetchGithubRepos]);
 
     // Calculate filtered repos
     const filteredRepos = githubRepos.filter(repo => 
         repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    // Remove pagination effect
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery]);
 
     const handleSave = async () => {
         setIsSaving(true); // Disable the button while processing
