@@ -26,6 +26,43 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
     }
 }));
 
+const saveInstallationPair = (installationId, accessToken) => {
+    // Find the next available number
+    let count = 1;
+    while (Cookies.get(`githubInstallationId${count}`)) {
+        count++;
+    }
+
+    // Save the new pair
+    Cookies.set(`githubInstallationId${count}`, installationId, {
+        secure: true,
+        sameSite: "Strict",
+        expires: 7
+    });
+    Cookies.set(`githubAccessToken${count}`, accessToken, {
+        secure: true,
+        sameSite: "Strict",
+        expires: 7
+    });
+};
+
+const getAllInstallationPairs = () => {
+    const pairs = [];
+    let count = 1;
+    
+    while (true) {
+        const installationId = Cookies.get(`githubInstallationId${count}`);
+        const accessToken = Cookies.get(`githubAccessToken${count}`);
+        
+        if (!installationId || !accessToken) break;
+        
+        pairs.push({ installationId, accessToken });
+        count++;
+    }
+    
+    return pairs;
+};
+
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameName, setGameName] = useState("");
     const [gameId, setGameId] = useState("");
@@ -79,23 +116,33 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
     useEffect(() => {
         const loadInstallations = () => {
-            const installationId = Cookies.get("githubInstallationId");
-            const accessToken = Cookies.get("githubAccessToken");
+            const pairs = [];
+            let count = 1;
             
-            if (installationId && accessToken) {
-                console.log("✅ Found existing GitHub installation and access token");
-                fetchGithubRepos(installationId);
+            // Get all installation pairs
+            while (true) {
+                const installationId = Cookies.get(`githubInstallationId${count}`);
+                const accessToken = Cookies.get(`githubAccessToken${count}`);
+                
+                if (!installationId || !accessToken) break;
+                
+                pairs.push({ installationId, accessToken });
+                count++;
+            }
+            
+            if (pairs.length > 0) {
+                console.log("✅ Found existing GitHub installations");
+                // Start with the first pair
+                fetchGithubRepos(pairs[0].installationId, pairs[0].accessToken);
             } else {
-                console.log("❌ Missing GitHub installation ID or access token");
+                console.log("❌ No GitHub installations found");
             }
         };
 
         loadInstallations();
     }, []);
 
-    const fetchGithubRepos = async (installationId) => {
-        const accessToken = Cookies.get("githubAccessToken");
-
+    const fetchGithubRepos = async (installationId, accessToken) => {
         if (!installationId || !accessToken) {
             console.log("❌ Missing GitHub Installation ID or Access Token.");
             return;
@@ -103,7 +150,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
         setLoadingRepos(true);
         try {
-            // Use the installation access token directly to fetch repositories
             const reposResponse = await fetch(`https://api.github.com/installation/repositories`, {
                 method: "GET",
                 headers: {
@@ -130,6 +176,28 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             // Add repos to the list
             setGithubRepos(prev => [...prev, ...data.repositories]);
+
+            // Find the next pair to process
+            let nextCount = 1;
+            let foundCurrent = false;
+            while (true) {
+                const nextInstallationId = Cookies.get(`githubInstallationId${nextCount}`);
+                const nextAccessToken = Cookies.get(`githubAccessToken${nextCount}`);
+                
+                if (!nextInstallationId || !nextAccessToken) break;
+                
+                if (foundCurrent) {
+                    // Process the next pair
+                    fetchGithubRepos(nextInstallationId, nextAccessToken);
+                    break;
+                }
+                
+                if (nextInstallationId === installationId) {
+                    foundCurrent = true;
+                }
+                
+                nextCount++;
+            }
         } catch (error) {
             console.error("❌ Error fetching repositories:", error);
         } finally {
@@ -144,22 +212,18 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             if (action === "github-app") {
                 console.log("✅ GitHub App Authentication Successful");
                 
-                // Store the access token
-                Cookies.set("githubAccessToken", data.githubAccessToken, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7
-                });
-
-                // Store the installation ID
-                Cookies.set("githubInstallationId", data.githubInstallationId, {
-                    secure: true,
-                    sameSite: "Strict",
-                    expires: 7
-                });
-
-                // Fetch repos for the new installation
-                fetchGithubRepos(data.githubInstallationId);
+                // Check if this installation already exists
+                const pairs = getAllInstallationPairs();
+                const exists = pairs.some(pair => pair.installationId === data.githubInstallationId);
+                
+                if (!exists) {
+                    // Save the new pair
+                    saveInstallationPair(data.githubInstallationId, data.githubAccessToken);
+                    // Fetch repos for the new installation
+                    fetchGithubRepos(data.githubInstallationId, data.githubAccessToken);
+                } else {
+                    console.log("⚠️ Installation already exists, skipping...");
+                }
             }
         };
 

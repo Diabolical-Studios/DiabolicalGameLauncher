@@ -5,6 +5,26 @@ import AccountDashboard from "../components/account/AccountDashboard";
 import LoginScreen from "../components/account/LoginScreen";
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router-dom";
 
+const saveInstallationPair = (installationId, accessToken) => {
+    // Find the next available number
+    let count = 1;
+    while (Cookies.get(`githubInstallationId${count}`)) {
+        count++;
+    }
+
+    // Save the new pair
+    Cookies.set(`githubInstallationId${count}`, installationId, {
+        secure: true,
+        sameSite: "Strict",
+        expires: 7
+    });
+    Cookies.set(`githubAccessToken${count}`, accessToken, {
+        secure: true,
+        sameSite: "Strict",
+        expires: 7
+    });
+};
+
 export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
     const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get("sessionID"));
@@ -76,8 +96,20 @@ export default function AccountPage() {
                     if (window.electronAPI) {
                         window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized!");
                     }
-                    Cookies.set("githubInstallationId", data.githubInstallationId, cookieOptions);
-                    Cookies.set("githubAccessToken", data.githubAccessToken, cookieOptions);
+                    // Check if this installation already exists
+                    let exists = false;
+                    let count = 1;
+                    while (Cookies.get(`githubInstallationId${count}`)) {
+                        if (Cookies.get(`githubInstallationId${count}`) === data.githubInstallationId) {
+                            exists = true;
+                            break;
+                        }
+                        count++;
+                    }
+
+                    if (!exists) {
+                        saveInstallationPair(data.githubInstallationId, data.githubAccessToken);
+                    }
                 }
             });
         }
