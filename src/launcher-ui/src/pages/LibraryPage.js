@@ -333,27 +333,6 @@ const LibraryPage = () => {
                                             sx={{ color: colors.text }}
                                         />
                                     )}
-                                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                                        <InputLabel sx={{ color: colors.text }}>Branch</InputLabel>
-                                        <Select
-                                            value={selectedBranch}
-                                            label="Branch"
-                                            onChange={(e) => setSelectedBranch(e.target.value)}
-                                            sx={{
-                                                color: colors.text,
-                                                '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: colors.border,
-                                                },
-                                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: colors.text,
-                                                },
-                                            }}
-                                        >
-                                            <MenuItem value="latest">Latest</MenuItem>
-                                            <MenuItem value="dev">Development</MenuItem>
-                                            <MenuItem value="debug">Debug</MenuItem>
-                                        </Select>
-                                    </FormControl>
                                 </Stack>
                             </Box>
                         </Paper>
