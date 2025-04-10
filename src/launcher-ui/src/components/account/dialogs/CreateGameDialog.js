@@ -244,16 +244,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         }
     }, []);
 
-    // Calculate pagination with search filter
+    // Calculate filtered repos
     const filteredRepos = githubRepos.filter(repo => 
         repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    const indexOfLastRepo = currentPage * reposPerPage;
-    const indexOfFirstRepo = indexOfLastRepo - reposPerPage;
-    const currentRepos = filteredRepos.slice(indexOfFirstRepo, indexOfLastRepo);
-    const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
 
-    // Reset to first page when search query changes
+    // Remove pagination effect
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery]);
@@ -288,12 +284,40 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
-        const installationId = Cookies.get("githubInstallationId");
+        // Find the correct installation ID for this repository
+        let installationId = null;
+        let count = 1;
+        while (true) {
+            const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
+            const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
+            
+            if (!currentInstallationId || !currentAccessToken) break;
+
+            try {
+                // Check if this installation has access to the selected repo
+                const response = await fetch(`https://api.github.com/repos/${selectedRepo}`, {
+                    headers: {
+                        Authorization: `Bearer ${currentAccessToken}`,
+                        Accept: "application/vnd.github+json",
+                    },
+                });
+
+                if (response.ok) {
+                    installationId = currentInstallationId;
+                    break;
+                }
+            } catch (err) {
+                console.error(`Error checking repo access for installation ${count}:`, err);
+            }
+
+            count++;
+        }
+
         if (!installationId) {
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Game Creation Failed", "Github InstallationID not found");
+                window.electronAPI.showCustomNotification("Game Creation Failed", "No GitHub installation found with access to this repository");
             }
-            console.error("❌ No GitHub Installation ID found.");
+            console.error("❌ No GitHub Installation ID found with access to the selected repository.");
             setIsSaving(false);
             return;
         }
@@ -566,13 +590,17 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 borderRadius: "4px",
                                 overflow: "hidden",
                                 minHeight: "200px",
+                                border: `1px solid ${colors.border}`,
                             }}
                         >
                             <Stack 
                                 className={"gap-2"} 
                                 style={{
-                                    height: "100%",
+                                    height: "250px",
                                     padding: "8px",
+                                    overflowY: "auto",
+                                    scrollbarWidth: "thin",
+                                    scrollbarColor: `${colors.border} transparent`,
                                 }}
                             >
                                 {loadingRepos ? (
@@ -584,7 +612,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     </Stack>
                                 ) : (
                                     <>
-                                        {currentRepos.length === 0 ? (
+                                        {filteredRepos.length === 0 ? (
                                             <Stack alignItems="center" justifyContent="center" style={{ height: "100%" }}>
                                                 <p style={{color: colors.text, fontSize: "14px"}}>
                                                     {searchQuery ? "No repositories found" : "No repositories available"}
@@ -592,7 +620,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                             </Stack>
                                         ) : (
                                             <>
-                                                {currentRepos.map((repo) => (
+                                                {filteredRepos.map((repo) => (
                                                     <Stack
                                                         key={repo.id}
                                                         direction="row"
@@ -627,45 +655,19 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                                             {repo.full_name}
                                                         </p>
                                                         {/* Repo Visibility (Public/Private) */}
-                                                        <span
-                                                            style={{
+                                                        <Chip
+                                                            label={repo.private ? "Private" : "Public"}
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: repo.private ? "rgba(255, 64, 129, 0.1)" : "rgba(0, 230, 118, 0.1)",
                                                                 color: repo.private ? "#ff4081" : "#00e676",
+                                                                height: "20px",
                                                                 fontSize: "12px",
                                                                 fontWeight: "bold",
                                                             }}
-                                                        >
-                                                            {repo.private ? "PRIVATE" : "PUBLIC"}
-                                                        </span>
-                                                    </Stack>
-                                                ))}
-                                                {filteredRepos.length > reposPerPage && (
-                                                    <Stack 
-                                                        direction="row" 
-                                                        justifyContent="center" 
-                                                        alignItems="center"
-                                                        sx={{ 
-                                                            mt: 2,
-                                                            "& .MuiPaginationItem-root": {
-                                                                color: colors.text,
-                                                                "&.Mui-selected": {
-                                                                    backgroundColor: "#00bcd4",
-                                                                    color: "#fff",
-                                                                },
-                                                                "&:hover": {
-                                                                    backgroundColor: "rgba(0, 188, 212, 0.1)",
-                                                                }
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Pagination
-                                                            count={totalPages}
-                                                            page={currentPage}
-                                                            onChange={(e, page) => setCurrentPage(page)}
-                                                            size="small"
-                                                            color="primary"
                                                         />
                                                     </Stack>
-                                                )}
+                                                ))}
                                             </>
                                         )}
                                     </>
