@@ -26,7 +26,8 @@ function initIPCHandlers() {
 
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
-        exec(`start "" "${gamePath}"`);
+        const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
+        exec(`start "" "${executablePath}"`);
     });
 
     ipcMain.on("open-install-location", (event, gameId) => {

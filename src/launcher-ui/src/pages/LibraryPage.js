@@ -339,23 +339,6 @@ const LibraryPage = () => {
 
                         {/* Game Info and Actions */}
                         <Grid container spacing={2}>
-                            <Grid item xs={12} md={8}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
-                                        border: `1px solid ${colors.border}`,
-                                    }}
-                                >
-                                    <Typography variant="h6" sx={{ color: colors.text, mb: 2 }}>
-                                        About
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ color: colors.text, opacity: 0.8 }}>
-                                        {selectedGame.description || "No description available"}
-                                    </Typography>
-                                </Paper>
-                            </Grid>
                             <Grid item xs={12} md={4}>
                                 <Paper
                                     elevation={0}
@@ -421,6 +404,23 @@ const LibraryPage = () => {
                                             </Typography>
                                         </Stack>
                                     </Stack>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} md={8}>
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        p: 2,
+                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                                        border: `1px solid ${colors.border}`,
+                                    }}
+                                >
+                                    <Typography variant="h6" sx={{ color: colors.text, mb: 2 }}>
+                                        About
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: colors.text, opacity: 0.8 }}>
+                                        {selectedGame.description || "No description available"}
+                                    </Typography>
                                 </Paper>
                             </Grid>
                         </Grid>
