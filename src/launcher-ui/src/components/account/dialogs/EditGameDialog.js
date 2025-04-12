@@ -36,6 +36,13 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
         setGameVersion(game.version || "");
     }, [game]);
 
+    useEffect(() => {
+        const hasNameChanged = gameName !== game.game_name;
+        const hasDescriptionChanged = gameDescription !== (game.description || "");
+        const hasBackgroundChanged = gameBackgroundUrl !== (game.background_image_url || "");
+        setHasChanges(hasNameChanged || hasDescriptionChanged || hasBackgroundChanged);
+    }, [gameName, gameDescription, gameBackgroundUrl, game]);
+
     const handleSave = async () => {
         setIsSaving(true);
         const sessionID = Cookies.get("sessionID");
@@ -45,6 +52,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
         }
 
         const updatedGame = {
+            session_id: sessionID,
             game_id: gameId,
             game_name: gameName.trim(),
             background_image_url: gameBackgroundUrl.trim(),
@@ -58,8 +66,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
             const response = await fetch("/update-game", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(updatedGame),
             });

@@ -2,14 +2,6 @@ export default async (request, context) => {
     console.log("=== Netlify Edge Function Triggered: Update Game ===");
     console.log("Received Headers:", JSON.stringify(Object.fromEntries(request.headers), null, 2));
 
-    // Normalize headers to lowercase keys
-    const headersObj = {};
-    for (const [key, value] of request.headers.entries()) {
-        headersObj[key.toLowerCase()] = value;
-    }
-    const sessionID = headersObj["sessionid"];
-    console.log("Extracted sessionID:", sessionID);
-
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
         return new Response("", {status: 200});
@@ -28,6 +20,13 @@ export default async (request, context) => {
     } catch (error) {
         console.error("❌ Invalid JSON body:", error);
         return new Response(JSON.stringify({error: "Invalid JSON body"}), {
+            status: 400,
+            headers: {"Content-Type": "application/json"},
+        });
+    }
+
+    if (!gameData.session_id) {
+        return new Response(JSON.stringify({error: "Session ID is required"}), {
             status: 400,
             headers: {"Content-Type": "application/json"},
         });
@@ -79,7 +78,10 @@ export default async (request, context) => {
                 "x-api-key": apiKey,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updatedFields),
+            body: JSON.stringify({
+                ...updatedFields,
+                session_id: gameData.session_id
+            }),
         });
 
         if (!apiRes.ok) {
