@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import OpenExternalLink from "./link/OpenExternalLink";
 import {colors} from "../theme/colors";
-import {Tooltip, Box, Stack} from "@mui/material";
+import {Tooltip, Box, Stack, Zoom} from "@mui/material";
 
 const StatusBar = () => {
     const [appVersion, setAppVersion] = useState("");
@@ -70,64 +70,78 @@ const StatusBar = () => {
     if (allUp) mainColor = "green"; else if (allDown) mainColor = "red"; else mainColor = "yellow";
 
 
-    return (<OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
-            <div
-                className={"flex position-relative align-center items-center h-fit p-3 border rounded-xs gap-3 w-fit cursor-pointer backdrop-blur"}
-                style={{borderColor: colors.border}}>
-                <div id="message" style={{whiteSpace: "nowrap", color: colors.text}}>{message}</div>
+    return (
+        <Zoom 
+            in={true} 
+            timeout={200}
+            style={{ 
+                transitionDelay: '150ms'
+            }}
+        >
+            <div>
+                <OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
+                    <div
+                        className={"flex position-relative align-center items-center h-fit p-3 border rounded-xs gap-3 w-fit cursor-pointer backdrop-blur"}
+                        style={{
+                            borderColor: colors.border
+                        }}>
+                        <div id="message" style={{whiteSpace: "nowrap", color: colors.text}}>{message}</div>
 
-                <Tooltip
-                    title={<Stack spacing={1} sx={{padding: 1}}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Box width={10} height={10} borderRadius="50%"
-                                 bgcolor={statuses.diabolicalOracleBucket}/>
-                            <span>Oracle Bucket</span>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalApi}/>
-                            <span>Diabolical Api</span>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalLauncher}/>
-                            <span>Diabolical Launcher</span>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalGithub}/>
-                            <span>Diabolical Github</span>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Box width={10} height={10} borderRadius="50%"
-                                 bgcolor={statuses.diabolicalCloudflareBucket}/>
-                            <span>Cloudflare Bucket</span>
-                        </Box>
-                    </Stack>}
-                    placement="top"
-                    arrow
-                    componentsProps={{
-                        tooltip: {
-                            sx: {
-                                backgroundColor: "#212121", // ← your custom background
-                                color: "#ffffff",           // ← optional: text color
-                                border: "1px solid #333",   // ← optional: border
-                                fontSize: "14px",
-                            },
-                        }, arrow: {
-                            sx: {
-                                color: "#212121",
-                            },
-                        },
-                    }}
-                >
-                    <div className={"w-3 h-3 rounded-xl"} style={{
-                        backgroundColor: mainColor,
-                        animation: "blink 2s infinite",
-                        boxShadow: `0 0 12px ${mainColor}`,
-                    }}></div>
-                </Tooltip>
+                        <Tooltip
+                            title={<Stack spacing={1} sx={{padding: 1}}>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Box width={10} height={10} borderRadius="50%"
+                                         bgcolor={statuses.diabolicalOracleBucket}/>
+                                    <span>Oracle Bucket</span>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalApi}/>
+                                    <span>Diabolical Api</span>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalLauncher}/>
+                                    <span>Diabolical Launcher</span>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalGithub}/>
+                                    <span>Diabolical Github</span>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Box width={10} height={10} borderRadius="50%"
+                                         bgcolor={statuses.diabolicalCloudflareBucket}/>
+                                    <span>Cloudflare Bucket</span>
+                                </Box>
+                            </Stack>}
+                            placement="top"
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#212121", // ← your custom background
+                                        color: "#ffffff",           // ← optional: text color
+                                        border: "1px solid #333",   // ← optional: border
+                                        fontSize: "14px",
+                                    },
+                                }, arrow: {
+                                    sx: {
+                                        color: "#212121",
+                                    },
+                                },
+                            }}
+                        >
+                            <div className={"w-3 h-3 rounded-xl"} style={{
+                                backgroundColor: mainColor,
+                                animation: "blink 2s infinite",
+                                boxShadow: `0 0 12px ${mainColor}`,
+                            }}></div>
+                        </Tooltip>
 
-                <span style={{color: colors.text}} id="launcher-version-number">{appVersion}</span>
+                        <span style={{color: colors.text}} id="launcher-version-number">{appVersion}</span>
+                    </div>
+                </OpenExternalLink>
             </div>
-        </OpenExternalLink>);
+        </Zoom>
+    );
 };
 
 export default StatusBar;
