@@ -1,11 +1,12 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography, TextField, CircularProgress} from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import UploadIcon from '@mui/icons-material/Upload';
 import {colors} from "../../theme/colors";
 import Cookies from "js-cookie";
 
@@ -17,6 +18,12 @@ const GameInfoPanel = ({game}) => {
     const [logPopupOpen, setLogPopupOpen] = useState(false);
     const [deployStatus, setDeployStatus] = useState("unknown");
     const [currentAccessToken, setCurrentAccessToken] = useState(null);
+    const [manualVersion, setManualVersion] = useState("");
+    const [versionError, setVersionError] = useState("");
+    const [gameFile, setGameFile] = useState(null);
+    const [gameFileName, setGameFileName] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Find the correct installation ID and access token for this game's repo
     const findGameCredentials = useCallback(async () => {
@@ -144,6 +151,89 @@ const GameInfoPanel = ({game}) => {
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
+    const handleGameFileSelect = (file) => {
+        if (file && file.name.endsWith('.zip')) {
+            setGameFile(file);
+            setGameFileName(file.name);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("File Selected", "Your game file is ready to be uploaded.");
+            }
+        } else {
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Invalid File", "Please select a ZIP file.");
+            }
+        }
+    };
+
+    const validateVersion = (version) => {
+        const versionRegex = /^\d+\.\d+\.\d+$/;
+        return versionRegex.test(version);
+    };
+
+    const handleVersionChange = (e) => {
+        const newVersion = e.target.value;
+        setManualVersion(newVersion);
+        
+        if (newVersion && !validateVersion(newVersion)) {
+            setVersionError("Version must be in format X.Y.Z (e.g., 1.0.0)");
+        } else {
+            setVersionError("");
+        }
+    };
+
+    const handleManualUpload = async () => {
+        if (versionError || !manualVersion || !gameFile) {
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fileExt: gameFile.name.split('.').pop(),
+                    contentType: gameFile.type,
+                    isGameUpload: true,
+                    gameId: game.game_id.trim(),
+                    version: manualVersion
+                })
+            });
+            const { url } = await res.json();
+
+            const xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const progress = (event.loaded / event.total) * 100;
+                    setUploadProgress(progress);
+                }
+            });
+
+            await new Promise((resolve, reject) => {
+                xhr.onload = resolve;
+                xhr.onerror = reject;
+                xhr.open('PUT', url);
+                xhr.setRequestHeader('Content-Type', gameFile.type);
+                xhr.send(gameFile);
+            });
+
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Successful", "Your game build has been uploaded successfully.");
+            }
+        } catch (err) {
+            console.error("❌ Upload failed:", err);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
+            }
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const gameDetails = {
         "Game Name": game.game_name,
         "Team": game.team_name,
@@ -252,8 +342,9 @@ const GameInfoPanel = ({game}) => {
             }}
         >
             <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>
-            <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>
-            <Tab value="githubApp" label="Github App" sx={{color: colors.text}}/>
+            {!game.github_repo && <Tab value="manualUpload" label="Manual Upload" sx={{color: colors.text}}/>}
+            {game.github_repo && <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>}
+            {game.github_repo && <Tab value="githubApp" label="Github App" sx={{color: colors.text}}/>}
         </Tabs>
 
         {/* Game Info Tab */}
@@ -274,6 +365,113 @@ const GameInfoPanel = ({game}) => {
                 {value}
             </Box>))}
         </Stack>)}
+
+        {/* Manual Upload Tab */}
+        {activeTab === "manualUpload" && (
+            <Stack spacing={2} sx={{ padding: 2, height: "100%" }}>
+                <Stack direction="row" spacing={1} alignItems="start">
+                    <TextField
+                        label="Version"
+                        value={manualVersion}
+                        onChange={handleVersionChange}
+                        error={!!versionError}
+                        helperText={versionError || "Enter version in format X.Y.Z (e.g., 1.0.0)"}
+                        fullWidth
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                color: colors.text,
+                                '& fieldset': {
+                                    borderColor: colors.border,
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: colors.primary,
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: colors.textSecondary,
+                            },
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        onClick={handleManualUpload}
+                        disabled={!!versionError || !manualVersion || !gameFile || isUploading}
+                        sx={{
+                            minWidth: '48px',
+                            height: '56px',
+                            backgroundColor: colors.primary,
+                            color: colors.text,
+                            '&:hover': {
+                                backgroundColor: colors.primaryDark,
+                            },
+                        }}
+                    >
+                        {isUploading ? <CircularProgress size={24} /> : <UploadIcon />}
+                    </Button>
+                </Stack>
+
+                <Stack
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.style.borderColor = colors.button;
+                        e.currentTarget.style.backgroundColor = `${colors.button}20`;
+                    }}
+                    onDragLeave={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.style.borderColor = colors.border;
+                        e.currentTarget.style.backgroundColor = colors.background;
+                    }}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.style.borderColor = colors.border;
+                        e.currentTarget.style.backgroundColor = colors.background;
+                        const file = e.dataTransfer.files[0];
+                        handleGameFileSelect(file);
+                    }}
+                    onClick={() => document.getElementById('game-file-upload')?.click()}
+                    style={{
+                        height: '100%',
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "4px",
+                        border: `2px dashed ${colors.border}`,
+                        backgroundColor: colors.background,
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                    }}
+                >
+                    <input
+                        id="game-file-upload"
+                        hidden
+                        type="file"
+                        accept=".zip"
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            handleGameFileSelect(file);
+                        }}
+                    />
+                    {isUploading ? (
+                        <Stack alignItems="center" gap={1}>
+                            <CircularProgress size={24} />
+                            <span style={{ color: colors.text }}>Uploading... {Math.round(uploadProgress)}%</span>
+                        </Stack>
+                    ) : gameFile ? (
+                        <Stack alignItems="center" gap={1}>
+                            <UploadIcon style={{ color: colors.button }} />
+                            <span style={{ color: colors.text }}>Game File Selected ✅</span>
+                            <span style={{ color: colors.border, fontSize: "12px" }}>{gameFileName}</span>
+                            <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
+                        </Stack>
+                    ) : (
+                        <Stack alignItems="center" gap={1}>
+                            <UploadIcon style={{ color: colors.border }} />
+                            <span style={{ color: colors.text }}>Upload Game File</span>
+                            <span style={{ color: colors.border, fontSize: "12px" }}>Supports ZIP files only</span>
+                        </Stack>
+                    )}
+                </Stack>
+            </Stack>
+        )}
 
         {/* githubApp Info Tab */}
         {activeTab === "githubApp" && (<Stack>

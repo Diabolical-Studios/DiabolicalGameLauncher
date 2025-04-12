@@ -47,7 +47,7 @@ const Games = ({teams}) => {
         let accessToken = null;
         let count = 1;
 
-        while (true) {
+        /* while (true) {
             const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
             const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
             
@@ -72,7 +72,7 @@ const Games = ({teams}) => {
             }
 
             count++;
-        }
+        } */
 
         if (!installationId || !accessToken) {
             setDeploymentStatuses(prev => ({
