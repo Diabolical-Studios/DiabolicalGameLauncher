@@ -397,7 +397,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                           onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <Stack className={"p-6 overflow-hidden"}>
             <Stack className={"dialog gap-6 p-4"} flexDirection={"column"} style={{
-                backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px", padding: "24px"
+                backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px", padding: "0 24px 24px 24px"
             }}>
                 {/* Tabs at the top */}
                 <Stack width="100%" sx={{ borderBottom: 1, borderColor: colors.border }}>

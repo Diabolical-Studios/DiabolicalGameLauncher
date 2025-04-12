@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
     Box,
     Typography,
@@ -8,6 +8,7 @@ import {
     CardMedia,
     Chip,
     Container,
+    Grow,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { colors } from "../theme/colors";
@@ -234,52 +235,52 @@ const StorePage = () => {
     const [featuredGames, setFeaturedGames] = useState([]);
     const [progress, setProgress] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Function to handle featured game change with animation
-    const changeFeaturedGame = (newIndex) => {
-        setIsAnimating(true);
-        setTimeout(() => {
-            setFeaturedIndex(newIndex);
-            setTimeout(() => {
-                setIsAnimating(false);
-            }, 50);
-        }, 300);
-    };
+    // Memoize the shuffled games to prevent re-randomization on re-renders
+    const shuffledGames = useMemo(() => {
+        if (games.length > 0) {
+            return [...games].sort(() => Math.random() - 0.5);
+        }
+        return [];
+    }, [games]);
+
+    // Memoize the featured games to prevent re-randomization
+    const memoizedFeaturedGames = useMemo(() => {
+        return shuffledGames.slice(0, 3);
+    }, [shuffledGames]);
 
     useEffect(() => {
         const loadGames = async () => {
-            // 1. Load installed games FIRST
+            setIsLoading(true);
             try {
+                // 1. Load installed games FIRST
                 const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
                 setInstalledGames(fetchedInstalledGames);
+
+                // 2. Try live API first
+                try {
+                    const response = await axios.get("/get-all-games");
+                    const freshGames = response.data;
+                    setGames(freshGames);
+                    if (window.electronAPI?.cacheGamesLocally) {
+                        window.electronAPI.cacheGamesLocally(freshGames);
+                    }
+                } catch (error) {
+                    console.error("❌ Error fetching games from API:", error);
+                    // 3. Fallback to cached games if API fails
+                    if (window.electronAPI?.getCachedGames) {
+                        const cachedGames = await window.electronAPI.getCachedGames();
+                        if (cachedGames.length > 0) {
+                            setGames(cachedGames);
+                            window.electronAPI?.showCustomNotification("Offline Mode", "Showing cached games. Some features may be limited.");
+                        }
+                    }
+                }
             } catch (err) {
-                console.error("Error fetching installed games:", err);
-                setInstalledGames([]);
-            }
-
-            // 2. Show cached games early (but AFTER installed games are known)
-            if (window.electronAPI?.getCachedGames) {
-                const cachedGames = await window.electronAPI.getCachedGames();
-                if (cachedGames.length > 0) {
-                    const shuffledGames = [...cachedGames].sort(() => Math.random() - 0.5);
-                    setGames(shuffledGames);
-                    setFeaturedGames(shuffledGames.slice(0, 3));
-                }
-            }
-
-            // 3. Try live API
-            try {
-                const response = await axios.get("/get-all-games");
-                const freshGames = response.data;
-                const shuffledGames = [...freshGames].sort(() => Math.random() - 0.5);
-                setGames(shuffledGames);
-                setFeaturedGames(shuffledGames.slice(0, 3));
-                if (window.electronAPI?.cacheGamesLocally) {
-                    window.electronAPI.cacheGamesLocally(freshGames);
-                }
-            } catch (error) {
-                console.error("❌ Error fetching games:", error);
-                window.electronAPI?.showCustomNotification("Error Fetching Games", "The database is down! Showing offline games.");
+                console.error("Error in loadGames:", err);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -302,71 +303,73 @@ const StorePage = () => {
         }
     };
 
-    const specialOffers = games.slice(3, 8); // Get 5 games for special offers
-    const newReleases = games.slice(8);
+    const specialOffers = shuffledGames.slice(3, 8);
+    const newReleases = shuffledGames.slice(8);
 
     return (
         <Box sx={{ height: '100%', overflow: 'auto' }}>
             <Container maxWidth="xl" sx={{ py: 3 }}>
                 {/* Featured Games Carousel */}
                 <Box sx={{ position: 'relative', mb: 4 }}>
-                    {featuredGames[featuredIndex] && (
-                        <FeaturedCard>
-                            {featuredGames[featuredIndex].version && (
-                                <VersionChip
-                                    label={`v${featuredGames[featuredIndex].version}`}
-                                />
-                            )}
-                            <StyledCardMedia
-                                component="img"
-                                image={featuredGames[featuredIndex].background_image_url || ""}
-                                alt={featuredGames[featuredIndex].game_name}
-                            />
-                            <CardOverlay className="card-overlay">
-                                <FeaturedContent animate={isAnimating}>
-                                    <Typography variant="h3" sx={{ 
-                                        color: colors.text, 
-                                        mb: 1,
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                                        fontWeight: 600
-                                    }}>
-                                        {featuredGames[featuredIndex].game_name}
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ 
-                                        color: colors.text, 
-                                        mb: 2,
-                                        maxWidth: '600px',
-                                        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                                    }}>
-                                        {featuredGames[featuredIndex].description}
-                                    </Typography>
-                                    <StyledButton
-                                        className="featured-button"
-                                        variant="contained"
-                                        onClick={() => installedGames.includes(featuredGames[featuredIndex].game_id) 
-                                            ? handlePlayGame(featuredGames[featuredIndex].game_id)
-                                            : handleDownloadGame(featuredGames[featuredIndex].game_id)}
-                                    >
-                                        {installedGames.includes(featuredGames[featuredIndex].game_id) ? "Play" : "Download"}
-                                    </StyledButton>
-                                </FeaturedContent>
-                            </CardOverlay>
-                            <ProgressIndicator>
-                                {featuredGames.map((_, index) => (
-                                    <IndicatorDot
-                                        key={index}
-                                        active={index === featuredIndex}
-                                        progress={index === featuredIndex ? progress : 0}
-                                        onClick={() => {
-                                            if (index !== featuredIndex) {
-                                                changeFeaturedGame(index);
-                                                setProgress(0);
-                                            }
-                                        }}
+                    {memoizedFeaturedGames[featuredIndex] && (
+                        <Grow in={!isAnimating} timeout={500}>
+                            <FeaturedCard>
+                                {memoizedFeaturedGames[featuredIndex].version && (
+                                    <VersionChip
+                                        label={`v${memoizedFeaturedGames[featuredIndex].version}`}
                                     />
-                                ))}
-                            </ProgressIndicator>
-                        </FeaturedCard>
+                                )}
+                                <StyledCardMedia
+                                    component="img"
+                                    image={memoizedFeaturedGames[featuredIndex].background_image_url || ""}
+                                    alt={memoizedFeaturedGames[featuredIndex].game_name}
+                                />
+                                <CardOverlay className="card-overlay">
+                                    <FeaturedContent animate={isAnimating}>
+                                        <Typography variant="h3" sx={{ 
+                                            color: colors.text, 
+                                            mb: 1,
+                                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                            fontWeight: 600
+                                        }}>
+                                            {memoizedFeaturedGames[featuredIndex].game_name}
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ 
+                                            color: colors.text, 
+                                            mb: 2,
+                                            maxWidth: '600px',
+                                            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                        }}>
+                                            {memoizedFeaturedGames[featuredIndex].description}
+                                        </Typography>
+                                        <StyledButton
+                                            className="featured-button"
+                                            variant="contained"
+                                            onClick={() => installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) 
+                                                ? handlePlayGame(memoizedFeaturedGames[featuredIndex].game_id)
+                                                : handleDownloadGame(memoizedFeaturedGames[featuredIndex].game_id)}
+                                        >
+                                            {installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) ? "Play" : "Download"}
+                                        </StyledButton>
+                                    </FeaturedContent>
+                                </CardOverlay>
+                                <ProgressIndicator>
+                                    {memoizedFeaturedGames.map((_, index) => (
+                                        <IndicatorDot
+                                            key={index}
+                                            active={index === featuredIndex}
+                                            progress={index === featuredIndex ? progress : 0}
+                                            onClick={() => {
+                                                if (index !== featuredIndex) {
+                                                    setFeaturedIndex(index);
+                                                    setProgress(0);
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                </ProgressIndicator>
+                            </FeaturedCard>
+                        </Grow>
                     )}
                 </Box>
 
@@ -384,13 +387,17 @@ const StorePage = () => {
                     {/* Main Special Offer */}
                     <Grid item xs={12} md={6}>
                         {specialOffers[0] && (
-                            <GameCardComponent
-                                game={specialOffers[0]}
-                                size="large"
-                                onDownload={handleDownloadGame}
-                                onPlay={handlePlayGame}
-                                installedGames={installedGames}
-                            />
+                            <Grow in={true} timeout={600}>
+                                <Box>
+                                    <GameCardComponent
+                                        game={specialOffers[0]}
+                                        size="large"
+                                        onDownload={handleDownloadGame}
+                                        onPlay={handlePlayGame}
+                                        installedGames={installedGames}
+                                    />
+                                </Box>
+                            </Grow>
                         )}
                     </Grid>
                     {/* Grid of 4 games */}
@@ -406,16 +413,20 @@ const StorePage = () => {
                                 }
                             }}
                         >
-                            {specialOffers.slice(1, 5).map((game) => (
+                            {specialOffers.slice(1, 5).map((game, index) => (
                                 game && (
                                     <Grid item xs={6} key={game.game_id}>
-                                        <GameCardComponent
-                                            game={game}
-                                            size="small"
-                                            onDownload={handleDownloadGame}
-                                            onPlay={handlePlayGame}
-                                            installedGames={installedGames}
-                                        />
+                                        <Grow in={true} timeout={700 + (index * 100)}>
+                                            <Box>
+                                                <GameCardComponent
+                                                    game={game}
+                                                    size="small"
+                                                    onDownload={handleDownloadGame}
+                                                    onPlay={handlePlayGame}
+                                                    installedGames={installedGames}
+                                                />
+                                            </Box>
+                                        </Grow>
                                     </Grid>
                                 )
                             ))}
@@ -434,14 +445,18 @@ const StorePage = () => {
                     New Releases
                 </Typography>
                 <Grid container spacing={2}>
-                    {newReleases.map((game) => (
+                    {newReleases.map((game, index) => (
                         <Grid item xs={12} sm={6} md={3} key={game.game_id}>
-                            <GameCardComponent
-                                game={game}
-                                onDownload={handleDownloadGame}
-                                onPlay={handlePlayGame}
-                                installedGames={installedGames}
-                            />
+                            <Grow in={true} timeout={800 + (index * 100)}>
+                                <Box>
+                                    <GameCardComponent
+                                        game={game}
+                                        onDownload={handleDownloadGame}
+                                        onPlay={handlePlayGame}
+                                        installedGames={installedGames}
+                                    />
+                                </Box>
+                            </Grow>
                         </Grid>
                     ))}
                 </Grid>

@@ -59,6 +59,7 @@ const LibraryPage = () => {
         launchOptions: '',
         notes: ''
     });
+    const [gameUpdates, setGameUpdates] = useState({});
 
     useEffect(() => {
         const handleDownloadProgress = (progressData) => {
@@ -85,6 +86,12 @@ const LibraryPage = () => {
                 setHasUpdate(false);
                 fetchLocalVersion(gameId);
             }
+            // Remove the game from gameUpdates when download is complete
+            setGameUpdates(prev => {
+                const updated = { ...prev };
+                delete updated[gameId];
+                return updated;
+            });
         };
 
         window.electronAPI?.onDownloadProgress(handleDownloadProgress);
@@ -103,6 +110,21 @@ const LibraryPage = () => {
 
                 const metadata = await window.electronAPI.getCachedGames();
                 setCachedGames(metadata);
+
+                // Check for updates for all installed games
+                const updates = {};
+                for (const id of ids) {
+                    try {
+                        const current = await window.electronAPI.getCurrentGameVersion(id);
+                        const { latestVersion: latest } = await window.electronAPI.getLatestGameVersion(id);
+                        if (current !== latest) {
+                            updates[id] = { current, latest };
+                        }
+                    } catch (err) {
+                        console.error(`Error checking updates for game ${id}:`, err);
+                    }
+                }
+                setGameUpdates(updates);
 
                 if (ids.length > 0) {
                     const first = metadata.find(g => g.game_id === ids[0]) || { game_id: ids[0] };
@@ -229,42 +251,74 @@ const LibraryPage = () => {
                             {groupName} ({games.length})
                         </Typography>
                         <List>
-                            {games.map((game) => (
-                                <ListItem
-                                    key={game.game_id}
-                                    selected={selectedGame?.game_id === game.game_id}
-                                    onClick={() => handleSelectGame(game)}
-                                    onContextMenu={(e) => handleContextMenu(e, game)}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        '&.Mui-selected': {
-                                            bgcolor: 'rgba(255, 255, 255, 0.08)',
-                                        },
-                                        '&:hover': {
-                                            bgcolor: 'rgba(255, 255, 255, 0.04)',
-                                        },
-                                        gap: "12px"
-                                    }}
-                                >
-                                    <ListItemIcon sx={{ minWidth: 0 }}>
-                                        {game.team_icon_url ? (
-                                            <Box
-                                                component="img"
-                                                src={game.team_icon_url}
-                                                alt=""
-                                                sx={{ width: 18 }}
-                                            />
-                                        ) : (
-                                            <SportsEsportsIcon sx={{ color: colors.text }} />
-                                        )}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={game.game_name || game.game_id}
-                                        secondary={activeDownloads[game.game_id]?.percentageString}
-                                        sx={{ color: colors.text }}
-                                    />
-                                </ListItem>
-                            ))}
+                            {games.map((game) => {
+                                const hasUpdate = gameUpdates[game.game_id];
+                                const isDownloading = activeDownloads[game.game_id];
+                                return (
+                                    <ListItem
+                                        key={game.game_id}
+                                        selected={selectedGame?.game_id === game.game_id}
+                                        onClick={() => handleSelectGame(game)}
+                                        onContextMenu={(e) => handleContextMenu(e, game)}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            '&.Mui-selected': {
+                                                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                                            },
+                                            '&:hover': {
+                                                bgcolor: 'rgba(255, 255, 255, 0.04)',
+                                            },
+                                            gap: "12px",
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        <ListItemIcon sx={{ minWidth: 0 }}>
+                                            {game.team_icon_url ? (
+                                                <Box
+                                                    component="img"
+                                                    src={game.team_icon_url}
+                                                    alt=""
+                                                    sx={{ width: 18 }}
+                                                />
+                                            ) : (
+                                                <SportsEsportsIcon sx={{ color: colors.text }} />
+                                            )}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Typography sx={{ color: colors.text }}>
+                                                        {game.game_name || game.game_id}
+                                                    </Typography>
+                                                    {hasUpdate && (
+                                                        <Chip
+                                                            label="Update"
+                                                            size="small"
+                                                            color="primary"
+                                                            sx={{
+                                                                height: '20px',
+                                                                fontSize: '0.7rem',
+                                                                bgcolor: colors.button,
+                                                                color: colors.text,
+                                                            }}
+                                                        />
+                                                    )}
+                                                </Box>
+                                            }
+                                            secondary={
+                                                <Typography variant="caption" sx={{ color: colors.text, opacity: 0.7 }}>
+                                                    {isDownloading 
+                                                        ? `Downloading: ${isDownloading.percentageString}`
+                                                        : hasUpdate 
+                                                            ? `v${hasUpdate.current} → v${hasUpdate.latest}`
+                                                            : ''}
+                                                </Typography>
+                                            }
+                                            sx={{ color: colors.text }}
+                                        />
+                                    </ListItem>
+                                );
+                            })}
                         </List>
                         <Divider sx={{ borderColor: colors.border }} />
                     </Box>
