@@ -167,19 +167,57 @@ const GameInfoPanel = ({game}) => {
 
     const validateVersion = (version) => {
         const versionRegex = /^\d+\.\d+\.\d+$/;
-        return versionRegex.test(version);
+        if (!versionRegex.test(version)) {
+            return false;
+        }
+
+        // Split current and new version into parts
+        const currentParts = game.version.split('.').map(Number);
+        const newParts = version.split('.').map(Number);
+
+        // Compare each part
+        for (let i = 0; i < 3; i++) {
+            if (newParts[i] > currentParts[i]) {
+                return true;
+            } else if (newParts[i] < currentParts[i]) {
+                return false;
+            }
+        }
+
+        // If we get here, versions are equal
+        return false;
     };
 
     const handleVersionChange = (e) => {
         const newVersion = e.target.value;
         setManualVersion(newVersion);
         
-        if (newVersion && !validateVersion(newVersion)) {
-            setVersionError("Version must be in format X.Y.Z (e.g., 1.0.0)");
+        if (newVersion) {
+            if (!/^\d+\.\d+\.\d+$/.test(newVersion)) {
+                setVersionError("Version must be in format X.Y.Z (e.g., 1.0.0)");
+            } else if (!validateVersion(newVersion)) {
+                setVersionError(`Version must be higher than current version (${game.version})`);
+            } else {
+                setVersionError("");
+            }
         } else {
             setVersionError("");
         }
     };
+
+    const incrementVersion = (version) => {
+        const parts = version.split('.').map(Number);
+        parts[2] += 1; // Increment patch version
+        return parts.join('.');
+    };
+
+    useEffect(() => {
+        if (activeTab === "manualUpload" && game.version) {
+            const nextVersion = incrementVersion(game.version);
+            setManualVersion(nextVersion);
+            setVersionError(""); // Clear any previous errors
+        }
+    }, [activeTab, game.version]);
 
     const handleManualUpload = async () => {
         if (versionError || !manualVersion || !gameFile) {
@@ -400,6 +438,7 @@ const GameInfoPanel = ({game}) => {
                         error={!!versionError}
                         helperText={versionError || "Enter version in format X.Y.Z (e.g., 1.0.0)"}
                         fullWidth
+                        disabled={isUploading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 color: colors.text,
@@ -412,6 +451,9 @@ const GameInfoPanel = ({game}) => {
                             },
                             '& .MuiInputLabel-root': {
                                 color: colors.textSecondary,
+                            },
+                            '&.Mui-disabled': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
                             },
                         }}
                     />
