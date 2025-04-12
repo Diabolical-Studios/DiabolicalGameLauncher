@@ -15,7 +15,7 @@ exports.handler = async function(event, context) {
     try {
         // Parse the request body
         const body = JSON.parse(event.body);
-        const { contentType = "image/png", fileExt = "png", overwriteKey } = body;
+        const { contentType = "image/png", fileExt = "png", overwriteKey, gameId, isGameUpload } = body;
 
         // Get R2 credentials from environment variables
         const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
@@ -39,8 +39,13 @@ exports.handler = async function(event, context) {
             },
         });
 
-        // Generate a unique key if not provided
-        const key = overwriteKey || `user-uploads/${uuidv4()}.${fileExt}`;
+        // Generate key based on whether it's a game upload or not
+        let key;
+        if (isGameUpload && gameId) {
+            key = `R2/${gameId}/Versions/Build-StandaloneWindows64-0.0.1.zip`;
+        } else {
+            key = overwriteKey || `user-uploads/${uuidv4()}.${fileExt}`;
+        }
 
         // Create the command for presigned URL
         const command = new PutObjectCommand({

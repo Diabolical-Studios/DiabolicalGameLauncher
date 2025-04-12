@@ -10,11 +10,15 @@ import {
     Stack,
     TextField,
     Typography,
-    Chip
+    Chip,
+    Tabs,
+    Tab,
+    Box
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; 
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import UploadIcon from '@mui/icons-material/Upload';
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
@@ -22,7 +26,7 @@ import { getAllInstallationPairs } from "../../../pages/AccountPage";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        maxHeight: "none", maxWidth: "none", background: "transparent", boxShadow: "none", margin: 0,
+        maxHeight: "none", minWidth: "80%", background: "transparent", boxShadow: "none", margin: 0,
     }
 }));
 
@@ -64,6 +68,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [connectedAccounts, setConnectedAccounts] = useState([]);
     const [ownerAvatars, setOwnerAvatars] = useState({});
+    const [activeTab, setActiveTab] = useState(0);
+    const [gameFileUrl, setGameFileUrl] = useState("");
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -87,10 +93,10 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             gameName?.trim() && 
             gameId?.trim() && 
             selectedTeam && 
-            selectedRepo &&
+            ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFileUrl)) &&
             gameBackgroundUrl;
         setHasRequiredFields(!!hasAllRequiredFields);
-    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl]);
+    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFileUrl]);
 
     const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
         if (!installationId || !accessToken) {
@@ -331,13 +337,92 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         window.electronAPI.openExternal(githubAppAuthUrl);
     };
 
+    const handleTabChange = (event, newValue) => {
+        setActiveTab(newValue);
+    };
+
+    const handleGameFileUpload = async (file) => {
+        setUploading(true);
+
+        try {
+            const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fileExt: file.name.split('.').pop(),
+                    contentType: file.type,
+                    isGameUpload: true,
+                    gameId: gameId.trim()
+                })
+            });
+            const { url, key } = await res.json();
+
+            await fetch(url, {
+                method: "PUT",
+                headers: { "Content-Type": file.type },
+                body: file,
+            });
+
+            const fileUrl = `https://diabolical.services/${key}`;
+            setGameFileUrl(fileUrl);
+
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Complete", "Your game file was uploaded.");
+            }
+
+        } catch (err) {
+            console.error("❌ Upload failed:", err);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
+            }
+        } finally {
+            setUploading(false);
+        }
+    };
+
     return (<StyledDialog open={open} container={document.getElementById("root")}
                           onClose={handleClose} aria-labelledby="create-game-dialog-title">
         <Stack className={"p-6 overflow-hidden"}>
-            <Stack className={"dialog gap-6 p-4"} flexDirection={isMobile ? "column" : "row"} style={{
+            <Stack className={"dialog gap-6 p-4"} flexDirection={"column"} style={{
                 backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px", padding: "24px"
             }}>
-                <Stack width={"min-content"} alignItems="center" className={"gap-6 justify-between rounded-xs"} style={{
+                {/* Tabs at the top */}
+                <Stack width="100%" sx={{ borderBottom: 1, borderColor: colors.border }}>
+                    <Tabs 
+                        value={activeTab} 
+                        onChange={handleTabChange}
+                        sx={{
+                            '& .MuiTabs-indicator': {
+                                backgroundColor: colors.button,
+                            },
+                        }}
+                    >
+                        <Tab 
+                            label="Deploy from GitHub" 
+                            sx={{
+                                color: colors.text,
+                                '&.Mui-selected': {
+                                    color: colors.button,
+                                },
+                            }}
+                        />
+                        <Tab 
+                            label="Manual Upload" 
+                            sx={{
+                                color: colors.text,
+                                '&.Mui-selected': {
+                                    color: colors.button,
+                                },
+                            }}
+                        />
+                    </Tabs>
+                </Stack>
+
+                <div style={{display: "flex", flexDirection: "row", gap: "24px"}}>
+{/* Left side - Game Card */}
+<Stack width={"min-content"} alignItems="center" className={"gap-6 justify-between rounded-xs"} style={{
                     gap: "24px"
                 }}>
                     <GameCard
@@ -373,7 +458,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                     },
                                 }}
                             />
-                            {/* Team Selection Dropdown */}
                             <FormControl fullWidth sx={{
                                 "& .MuiSelect-select": {
                                     border: "1px solid" + colors.border + "!important",
@@ -418,7 +502,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-                        {/* Image Uploader */}
                         <ImageUploader
                             onUpload={(url) => {
                                 setGameBackgroundUrl(url);
@@ -430,204 +513,268 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         />
                     </Stack>
                 </Stack>
+
+                {/* Right side - Upload Method */}
                 <Stack className={"items-end w-full gap-6 justify-between"}>
                     <Stack className={"gap-6 w-full flex-1"} style={{gap: "12px"}}>
-                        {/* Connected Accounts Display */}
-                        {connectedAccounts.length > 0 && (
-                            <Stack 
-                                direction="row" 
-                                spacing={2} 
-                                sx={{
-                                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                                    borderRadius: '4px',
-                                    padding: '12px',
-                                    border: `1px solid ${colors.border}`
-                                }}
-                            >
-                  
-                                <Stack spacing={1}>
-                                    <Typography variant="subtitle2" sx={{ color: colors.text }}>
-                                        Connected GitHub Accounts
-                                    </Typography>
-                                    {connectedAccounts.map(account => (
-                                        <Stack direction="row" alignItems="center" gap={1}>
-                                            <img 
-                                                src={account.avatarUrl} 
-                                                alt={account.name}
-                                                style={{
-                                                    width: "24px", 
-                                                    height: "24px",
-                                                    borderRadius: "50%",
-                                                    objectFit: "cover"
-                                                }}
-                                            />
-                                            <Typography 
-                                                key={account.id}
-                                                variant="body2" 
-                                                sx={{ 
-                                                    color: colors.text,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1
-                                                }}
-                                            >
-                                                {account.name}
-                                                <Chip 
-                                                    label={account.type} 
-                                                    size="small"
-                                                    sx={{ 
-                                                        backgroundColor: 'rgba(0, 188, 212, 0.1)',
-                                                        color: '#00bcd4',
-                                                        height: '20px'
-                                                    }}
-                                                />
+                        {activeTab === 0 ? (
+                            // GitHub Deployment Tab
+                            <>
+                                {connectedAccounts.length > 0 && (
+                                    <Stack 
+                                        direction="row" 
+                                        spacing={2} 
+                                        sx={{
+                                            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                            borderRadius: '4px',
+                                            padding: '12px',
+                                            border: `1px solid ${colors.border}`,
+                                        }}
+                                    >
+                                        <Stack spacing={1}>
+                                            <Typography variant="subtitle2" sx={{ color: colors.text }}>
+                                                Connected GitHub Accounts
                                             </Typography>
+                                            {connectedAccounts.map(account => (
+                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                    <img 
+                                                        src={account.avatarUrl} 
+                                                        alt={account.name}
+                                                        style={{
+                                                            width: "24px", 
+                                                            height: "24px",
+                                                            borderRadius: "50%",
+                                                            objectFit: "cover"
+                                                        }}
+                                                    />
+                                                    <Typography 
+                                                        key={account.id}
+                                                        variant="body2" 
+                                                        sx={{ 
+                                                            color: colors.text,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: 1
+                                                        }}
+                                                    >
+                                                        {account.name}
+                                                        <Chip 
+                                                            label={account.type} 
+                                                            size="small"
+                                                            sx={{ 
+                                                                backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                                                                color: '#00bcd4',
+                                                                height: '20px'
+                                                            }}
+                                                        />
+                                                    </Typography>
+                                                </Stack>
+                                            ))}
                                         </Stack>
-                                    ))}
-                                </Stack>
-                            </Stack>
-                        )}
-
-                        {/* Search Bar */}
-                        <TextField
-                            placeholder="Search repositories..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    color: colors.text,
-                                    fontSize: "14px",
-                                    backgroundColor: "#161616",
-                                    "& fieldset": {
-                                        borderColor: colors.border,
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: "#00bcd4",
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#00bcd4",
-                                    },
-                                },
-                                "& .MuiInputBase-input": {
-                                    padding: "10px 14px",
-                                },
-                            }}
-                            
-                        />
-                        
-                        {/* GitHub Repository Selection */}
-                        <Stack 
-                            className={"gap-2 flex-1"} 
-                            style={{
-                                backgroundColor: "#161616",
-                                borderRadius: "4px",
-                                overflow: "hidden",
-                                minHeight: "200px",
-                                border: `1px solid ${colors.border}`,
-                            }}
-                        >
-                            <Stack 
-                                className={"gap-2"} 
-                                style={{
-                                    height: "250px",
-                                    padding: "8px",
-                                    overflowY: "auto",
-                                    scrollbarWidth: "thin",
-                                    scrollbarColor: `${colors.border} transparent`,
-                                }}
-                            >
-                                {loadingRepos ? (
-                                    <Stack alignItems="center" justifyContent="center" style={{ height: "100%" }}>
-                                        <CircularProgress size={20}/>
-                                        <p style={{color: colors.text, fontSize: "14px", margin: "8px 0 0"}}>
-                                            Loading Repositories...
-                                        </p>
                                     </Stack>
-                                ) : (
-                                    <>
-                                        {filteredRepos.length === 0 ? (
+                                )}
+
+                                <TextField
+                                    placeholder="Search repositories..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            color: colors.text,
+                                            fontSize: "14px",
+                                            backgroundColor: "#161616",
+                                            "& fieldset": {
+                                                borderColor: colors.border,
+                                            },
+                                            "&:hover fieldset": {
+                                                borderColor: "#00bcd4",
+                                            },
+                                            "&.Mui-focused fieldset": {
+                                                borderColor: "#00bcd4",
+                                            },
+                                        },
+                                        "& .MuiInputBase-input": {
+                                            padding: "10px 14px",
+                                        },
+                                    }}
+                                />
+                                
+                                <Stack 
+                                    className={"gap-2 flex-1"} 
+                                    style={{
+                                        backgroundColor: "#161616",
+                                        borderRadius: "4px",
+                                        overflow: "hidden",
+                                        minHeight: "200px",
+                                        border: `1px solid ${colors.border}`,
+                                    }}
+                                >
+                                    <Stack 
+                                        className={"gap-2"} 
+                                        style={{
+                                            height: "250px",
+                                            padding: "8px",
+                                            overflowY: "auto",
+                                            scrollbarWidth: "thin",
+                                            scrollbarColor: `${colors.border} transparent`,
+                                        }}
+                                    >
+                                        {loadingRepos ? (
                                             <Stack alignItems="center" justifyContent="center" style={{ height: "100%" }}>
-                                                <p style={{color: colors.text, fontSize: "14px"}}>
-                                                    {searchQuery ? "No repositories found" : "No repositories available"}
+                                                <CircularProgress size={20}/>
+                                                <p style={{color: colors.text, fontSize: "14px", margin: "8px 0 0"}}>
+                                                    Loading Repositories...
                                                 </p>
                                             </Stack>
                                         ) : (
                                             <>
-                                                {filteredRepos.map((repo) => (
-                                                    <Stack
-                                                        key={repo.id}
-                                                        direction="row"
-                                                        className={"justify-between items-center p-2 rounded-xs cursor-pointer"}
-                                                        style={{
-                                                            transition: "background 0.2s",
-                                                            border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "transparent",
-                                                        }}
-                                                        onClick={() => setSelectedRepo(repo.full_name)}
-                                                        onMouseEnter={(e) => (e.currentTarget.style.background = "#222")}
-                                                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                                                    >
-                                                        {/* Owner Avatar */}
-                                                        <img
-                                                            src={ownerAvatars[repo.owner.login] || "/github.png"}
-                                                            alt={repo.owner.login}
-                                                            style={{
-                                                                aspectRatio: "1 / 1",
-                                                                width: "16px",
-                                                                borderRadius: "50%",
-                                                                objectFit: "cover"
-                                                            }}
-                                                        />
-                                                        {/* Repository Name */}
-                                                        <p style={{
-                                                            color: colors.text, 
-                                                            margin: 0, 
-                                                            fontSize: "14px", 
-                                                            flex: 1, 
-                                                            paddingLeft: "8px"
-                                                        }}>
-                                                            {repo.full_name}
+                                                {filteredRepos.length === 0 ? (
+                                                    <Stack alignItems="center" justifyContent="center" style={{ height: "100%" }}>
+                                                        <p style={{color: colors.text, fontSize: "14px"}}>
+                                                            {searchQuery ? "No repositories found" : "No repositories available"}
                                                         </p>
-                                                        {/* Repo Visibility (Public/Private) */}
-                                                        <Chip
-                                                            label={repo.private ? "Private" : "Public"}
-                                                            size="small"
-                                                            sx={{
-                                                                backgroundColor: repo.private ? "rgba(255, 64, 129, 0.1)" : "rgba(0, 230, 118, 0.1)",
-                                                                color: repo.private ? "#ff4081" : "#00e676",
-                                                                height: "20px",
-                                                                fontSize: "12px",
-                                                                fontWeight: "bold",
-                                                            }}
-                                                        />
                                                     </Stack>
-                                                ))}
+                                                ) : (
+                                                    <>
+                                                        {filteredRepos.map((repo) => (
+                                                            <Stack
+                                                                key={repo.id}
+                                                                direction="row"
+                                                                className={"justify-between items-center p-2 rounded-xs cursor-pointer"}
+                                                                style={{
+                                                                    transition: "background 0.2s",
+                                                                    border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "transparent",
+                                                                }}
+                                                                onClick={() => setSelectedRepo(repo.full_name)}
+                                                                onMouseEnter={(e) => (e.currentTarget.style.background = "#222")}
+                                                                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                                                            >
+                                                                <img
+                                                                    src={ownerAvatars[repo.owner.login] || "/github.png"}
+                                                                    alt={repo.owner.login}
+                                                                    style={{
+                                                                        aspectRatio: "1 / 1",
+                                                                        width: "16px",
+                                                                        borderRadius: "50%",
+                                                                        objectFit: "cover"
+                                                                    }}
+                                                                />
+                                                                <p style={{
+                                                                    color: colors.text, 
+                                                                    margin: 0, 
+                                                                    fontSize: "14px", 
+                                                                    flex: 1, 
+                                                                    paddingLeft: "8px"
+                                                                }}>
+                                                                    {repo.full_name}
+                                                                </p>
+                                                                <Chip
+                                                                    label={repo.private ? "Private" : "Public"}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        backgroundColor: repo.private ? "rgba(255, 64, 129, 0.1)" : "rgba(0, 230, 118, 0.1)",
+                                                                        color: repo.private ? "#ff4081" : "#00e676",
+                                                                        height: "20px",
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "bold",
+                                                                    }}
+                                                                />
+                                                            </Stack>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </>
                                         )}
-                                    </>
-                                )}
-                            </Stack>
-                        </Stack>
+                                    </Stack>
+                                </Stack>
 
-                        {/* Link to authorize more repositories */}
-                        <Button
-                            variant="outlined"
-                            onClick={handleAuthorizeMoreRepos}
-                            sx={{
-                                color: "#00bcd4",
-                                borderColor: "#00bcd4",
-                                backgroundColor: "transparent",
-                                textTransform: "none",
-                                padding: "10px",
-                                borderRadius: "4px",
-                                "&:hover": {
-                                    backgroundColor: "rgba(0, 188, 212, 0.1)",
-                                    borderColor: "#00bcd4",
-                                }
-                            }}
-                        >
-                            Can't find your repo? Authorize more repositories
-                        </Button>
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleAuthorizeMoreRepos}
+                                    sx={{
+                                        color: "#00bcd4",
+                                        borderColor: "#00bcd4",
+                                        backgroundColor: "transparent",
+                                        textTransform: "none",
+                                        padding: "10px",
+                                        borderRadius: "4px",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(0, 188, 212, 0.1)",
+                                            borderColor: "#00bcd4",
+                                        }
+                                    }}
+                                >
+                                    Can't find your repo? Authorize more repositories
+                                </Button>
+                            </>
+                        ) : (
+                            // Manual Upload Tab
+                            <Stack spacing={2}>
+                                <Stack
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.style.borderColor = colors.button;
+                                        e.currentTarget.style.backgroundColor = `${colors.button}20`;
+                                    }}
+                                    onDragLeave={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.style.borderColor = colors.border;
+                                        e.currentTarget.style.backgroundColor = colors.background;
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.style.borderColor = colors.border;
+                                        e.currentTarget.style.backgroundColor = colors.background;
+                                        const file = e.dataTransfer.files[0];
+                                        if (file && file.name.endsWith('.zip')) {
+                                            handleGameFileUpload(file);
+                                        }
+                                    }}
+                                    onClick={() => document.getElementById('game-file-upload')?.click()}
+                                    style={{
+                                        height: '120px',
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        borderRadius: "4px",
+                                        border: `2px dashed ${colors.border}`,
+                                        backgroundColor: colors.background,
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                    }}
+                                >
+                                    <input
+                                        id="game-file-upload"
+                                        hidden
+                                        type="file"
+                                        accept=".zip"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) handleGameFileUpload(file);
+                                        }}
+                                    />
+                                    {uploading ? (
+                                        <Stack alignItems="center" gap={1}>
+                                            <CircularProgress size={24} />
+                                            <span style={{ color: colors.text }}>Uploading...</span>
+                                        </Stack>
+                                    ) : gameFileUrl ? (
+                                        <Stack alignItems="center" gap={1}>
+                                            <UploadIcon style={{ color: colors.button }} />
+                                            <span style={{ color: colors.text }}>Game File Uploaded ✅</span>
+                                            <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
+                                        </Stack>
+                                    ) : (
+                                        <Stack alignItems="center" gap={1}>
+                                            <UploadIcon style={{ color: colors.border }} />
+                                            <span style={{ color: colors.text }}>Upload Game File</span>
+                                            <span style={{ color: colors.border, fontSize: "12px" }}>Supports ZIP files only</span>
+                                        </Stack>
+                                    )}
+                                </Stack>
+                            </Stack>
+                        )}
                     </Stack>
+
                     {/* Save Button */}
                     <Button
                         sx={{
@@ -652,7 +799,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     >
                         {isSaving ? <CircularProgress size={20} color="inherit"/> : "Create and Deploy Game!"}
                     </Button>
-                </Stack>
+                </Stack>                </div>
             </Stack>
         </Stack>
     </StyledDialog>);
