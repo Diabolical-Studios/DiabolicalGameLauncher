@@ -54,36 +54,9 @@ export default function AccountDashboard({username}) {
         }
     }, []);
 
-    const fetchGitHubInstallations = useCallback(async () => {
-        const sessionID = Cookies.get("sessionID");
-        if (!sessionID) return;
-        try {
-            const response = await fetch("/.netlify/functions/getGithubAccessToken", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    sessionID: sessionID,
-                },
-                credentials: "include",
-            });
-            if (!response.ok) {
-                throw new Error("Failed to fetch installations");
-            }
-            const data = await response.json();
-            if (data.githubInstallations) {
-                Cookies.set("githubInstallations", JSON.stringify(data.githubInstallations), {
-                    expires: 1,
-                    secure: true,
-                });
-            }
-        } catch {
-        }
-    }, []);
-
     useEffect(() => {
         fetchTeams();
-        fetchGitHubInstallations();
-    }, [fetchTeams, fetchGitHubInstallations]);
+    }, [fetchTeams]);
 
     const handleUpdateTeam = (updatedTeam) => {
         setTeams((prev) =>
