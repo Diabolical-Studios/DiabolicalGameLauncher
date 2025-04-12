@@ -18,6 +18,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
+import { getAllInstallationPairs } from "../../../pages/AccountPage";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -43,23 +44,6 @@ const saveInstallationPair = (installationId, accessToken) => {
         sameSite: "Strict",
         expires: 7
     });
-};
-
-const getAllInstallationPairs = () => {
-    const pairs = [];
-    let count = 1;
-    
-    while (true) {
-        const installationId = Cookies.get(`githubInstallationId${count}`);
-        const accessToken = Cookies.get(`githubAccessToken${count}`);
-        
-        if (!installationId || !accessToken) break;
-        
-        pairs.push({ installationId, accessToken });
-        count++;
-    }
-    
-    return pairs;
 };
 
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
@@ -114,7 +98,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
-        setLoadingRepos(true);
         try {
             const reposResponse = await fetch(`https://api.github.com/installation/repositories`, {
                 method: "GET",
@@ -150,62 +133,35 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             // Add repos to the list
             setGithubRepos(prev => [...prev, ...data.repositories]);
-
-            // Find the next pair to process
-            let nextCount = 1;
-            let foundCurrent = false;
-            while (true) {
-                const nextInstallationId = Cookies.get(`githubInstallationId${nextCount}`);
-                const nextAccessToken = Cookies.get(`githubAccessToken${nextCount}`);
-                
-                if (!nextInstallationId || !nextAccessToken) break;
-                
-                if (foundCurrent) {
-                    // Process the next pair
-                    fetchGithubRepos(nextInstallationId, nextAccessToken);
-                    break;
-                }
-                
-                if (nextInstallationId === installationId) {
-                    foundCurrent = true;
-                }
-                
-                nextCount++;
-            }
         } catch (error) {
             console.error("❌ Error fetching repositories:", error);
-        } finally {
-            setLoadingRepos(false);
         }
     }, []);
 
     useEffect(() => {
-        const loadInstallations = () => {
-            const pairs = [];
-            let count = 1;
-            
-            // Get all installation pairs
-            while (true) {
-                const installationId = Cookies.get(`githubInstallationId${count}`);
-                const accessToken = Cookies.get(`githubAccessToken${count}`);
-                
-                if (!installationId || !accessToken) break;
-                
-                pairs.push({ installationId, accessToken });
-                count++;
-            }
+        const loadRepositories = async () => {
+            const pairs = getAllInstallationPairs();
             
             if (pairs.length > 0) {
-                console.log("✅ Found existing GitHub installations");
-                // Start with the first pair
-                fetchGithubRepos(pairs[0].installationId, pairs[0].accessToken);
+                console.log("✅ Found existing GitHub installations:", pairs);
+                setLoadingRepos(true);
+                setGithubRepos([]); // Clear existing repos
+                
+                // Process all installations
+                for (const pair of pairs) {
+                    await fetchGithubRepos(pair.installationId, pair.accessToken);
+                }
+                
+                setLoadingRepos(false);
             } else {
                 console.log("❌ No GitHub installations found");
             }
         };
 
-        loadInstallations();
-    }, [fetchGithubRepos]);
+        if (open) {
+            loadRepositories();
+        }
+    }, [open, fetchGithubRepos]);
 
     useEffect(() => {
         const handleProtocolData = (action, data) => {
@@ -213,19 +169,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             if (action === "github-app") {
                 console.log("✅ GitHub App Authentication Successful");
-                
-                // Check if this installation already exists
-                const pairs = getAllInstallationPairs();
-                const exists = pairs.some(pair => pair.installationId === data.githubInstallationId);
-                
-                if (!exists) {
-                    // Save the new pair
-                    saveInstallationPair(data.githubInstallationId, data.githubAccessToken);
-                    // Fetch repos for the new installation
-                    fetchGithubRepos(data.githubInstallationId, data.githubAccessToken);
-                } else {
-                    console.log("⚠️ Installation already exists, skipping...");
-                }
+                // Fetch repos for the new installation
+                fetchGithubRepos(data.githubInstallationId, data.githubAccessToken);
             }
         };
 

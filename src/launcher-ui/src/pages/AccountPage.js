@@ -25,6 +25,23 @@ const saveInstallationPair = (installationId, accessToken) => {
     });
 };
 
+export const getAllInstallationPairs = () => {
+    const pairs = [];
+    let count = 1;
+    
+    while (true) {
+        const installationId = Cookies.get(`githubInstallationId${count}`);
+        const accessToken = Cookies.get(`githubAccessToken${count}`);
+        
+        if (!installationId || !accessToken) break;
+        
+        pairs.push({ installationId, accessToken });
+        count++;
+    }
+    
+    return pairs;
+};
+
 export default function AccountPage() {
     const [username, setUsername] = useState(Cookies.get("username") || "");
     const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get("sessionID"));
