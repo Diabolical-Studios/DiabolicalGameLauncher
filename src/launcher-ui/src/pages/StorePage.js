@@ -294,9 +294,9 @@ const StorePage = () => {
                     }, 300);
                     return 100;
                 }
-                return prev + 1;
+                return prev + 0.5;
             });
-        }, 50);
+        }, 100);
 
         return () => clearInterval(interval);
     }, [memoizedFeaturedGames.length]);
