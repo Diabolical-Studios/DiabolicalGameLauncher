@@ -34,7 +34,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameId, setGameId] = useState("");
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("");
     const [gameDescription, setGameDescription] = useState("");
-    const [gameVersion] = useState("0.0.1");
+    const [gameVersion, setGameVersion] = useState("0.0.1");
     const [selectedTeam, setSelectedTeam] = useState("");
     const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubRepos, setGithubRepos] = useState([]);
@@ -49,6 +49,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [activeTab, setActiveTab] = useState(0);
     const [gameFile, setGameFile] = useState(null);
     const [gameFileName, setGameFileName] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -63,9 +65,9 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             gameId?.trim() && 
             selectedTeam && 
             gameBackgroundUrl &&
-            ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFile));
+            ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFile && validateVersion(gameVersion)));
         setHasRequiredFields(!!hasAllRequiredFields);
-    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFile]);
+    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFile, gameVersion]);
 
     const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
         if (!installationId || !accessToken) {
@@ -176,6 +178,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         }
     };
 
+    const validateVersion = (version) => {
+        const versionRegex = /^\d+\.\d+\.\d+$/;
+        return versionRegex.test(version);
+    };
+
+    const handleVersionChange = (e) => {
+        const newVersion = e.target.value;
+        setGameVersion(newVersion);
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         const sessionID = Cookies.get("sessionID");
@@ -197,8 +209,18 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
+        if (activeTab === 1 && !validateVersion(gameVersion)) {
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Invalid Version", "Version must be in format X.Y.Z (e.g., 1.0.0)");
+            }
+            setIsSaving(false);
+            return;
+        }
+
         // Handle file upload if in manual upload mode
         if (activeTab === 1 && gameFile) {
+            setIsUploading(true);
+            setUploadProgress(0);
             try {
                 const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
                     method: 'POST',
@@ -209,15 +231,26 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         fileExt: gameFile.name.split('.').pop(),
                         contentType: gameFile.type,
                         isGameUpload: true,
-                        gameId: gameId.trim()
+                        gameId: gameId.trim(),
+                        version: gameVersion
                     })
                 });
                 const { url } = await res.json();
 
-                await fetch(url, {
-                    method: "PUT",
-                    headers: { "Content-Type": gameFile.type },
-                    body: gameFile,
+                const xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const progress = (event.loaded / event.total) * 100;
+                        setUploadProgress(progress);
+                    }
+                });
+
+                await new Promise((resolve, reject) => {
+                    xhr.onload = resolve;
+                    xhr.onerror = reject;
+                    xhr.open('PUT', url);
+                    xhr.setRequestHeader('Content-Type', gameFile.type);
+                    xhr.send(gameFile);
                 });
 
             } catch (err) {
@@ -226,7 +259,10 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                     window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
                 }
                 setIsSaving(false);
+                setIsUploading(false);
                 return;
+            } finally {
+                setIsUploading(false);
             }
         }
 
@@ -685,6 +721,29 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                         ) : (
                             // Manual Upload Tab
                             <Stack spacing={2}>
+                                <TextField
+                                    label="Version"
+                                    value={gameVersion}
+                                    onChange={handleVersionChange}
+                                    error={!validateVersion(gameVersion)}
+                                    helperText={!validateVersion(gameVersion) ? "Version must be in format X.Y.Z (e.g., 1.0.0)" : ""}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            color: colors.text,
+                                            fontSize: "14px",
+                                            backgroundColor: "#161616",
+                                            "& fieldset": {
+                                                borderColor: colors.border,
+                                            },
+                                            "&:hover fieldset": {
+                                                borderColor: "#00bcd4",
+                                            },
+                                            "&.Mui-focused fieldset": {
+                                                borderColor: "#00bcd4",
+                                            },
+                                        },
+                                    }}
+                                />
                                 <Stack
                                     onDragOver={(e) => {
                                         e.preventDefault();
@@ -725,7 +784,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                             handleGameFileSelect(file);
                                         }}
                                     />
-                                    {gameFile ? (
+                                    {isUploading ? (
+                                        <Stack alignItems="center" gap={1}>
+                                            <CircularProgress size={24} />
+                                            <span style={{ color: colors.text }}>Uploading... {Math.round(uploadProgress)}%</span>
+                                        </Stack>
+                                    ) : gameFile ? (
                                         <Stack alignItems="center" gap={1}>
                                             <UploadIcon style={{ color: colors.button }} />
                                             <span style={{ color: colors.text }}>Game File Selected ✅</span>
