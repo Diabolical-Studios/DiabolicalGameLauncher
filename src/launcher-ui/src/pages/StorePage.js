@@ -251,26 +251,40 @@ const StorePage = () => {
     useEffect(() => {
         const loadGames = async () => {
             try {
-                // 1. Load installed games FIRST
-                const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
-                setInstalledGames(fetchedInstalledGames);
+                // 1. Load installed games FIRST (only in desktop environment)
+                if (window.electronAPI) {
+                    try {
+                        const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
+                        setInstalledGames(fetchedInstalledGames);
+                    } catch (err) {
+                        console.error("Error fetching installed games:", err);
+                        setInstalledGames([]);
+                    }
+                }
 
                 // 2. Try live API first
                 try {
                     const response = await axios.get("/get-all-games");
                     const freshGames = response.data;
                     setGames(freshGames);
+                    
+                    // Cache games locally only in desktop environment
                     if (window.electronAPI?.cacheGamesLocally) {
                         window.electronAPI.cacheGamesLocally(freshGames);
                     }
                 } catch (error) {
                     console.error("❌ Error fetching games from API:", error);
-                    // 3. Fallback to cached games if API fails
+                    
+                    // 3. Fallback to cached games if API fails (only in desktop environment)
                     if (window.electronAPI?.getCachedGames) {
-                        const cachedGames = await window.electronAPI.getCachedGames();
-                        if (cachedGames.length > 0) {
-                            setGames(cachedGames);
-                            window.electronAPI?.showCustomNotification("Offline Mode", "Showing cached games. Some features may be limited.");
+                        try {
+                            const cachedGames = await window.electronAPI.getCachedGames();
+                            if (cachedGames.length > 0) {
+                                setGames(cachedGames);
+                                window.electronAPI?.showCustomNotification("Offline Mode", "Showing cached games. Some features may be limited.");
+                            }
+                        } catch (cacheErr) {
+                            console.error("Error loading cached games:", cacheErr);
                         }
                     }
                 }

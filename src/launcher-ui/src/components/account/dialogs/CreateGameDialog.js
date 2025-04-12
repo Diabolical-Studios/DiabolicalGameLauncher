@@ -25,7 +25,7 @@ import { getAllInstallationPairs } from "../../../pages/AccountPage";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        maxHeight: "none", minWidth: "80%", background: "transparent", boxShadow: "none", margin: 0,
+        maxHeight: "none", minWidth: "800px", background: "transparent", boxShadow: "none", margin: 0,
     }
 }));
 
