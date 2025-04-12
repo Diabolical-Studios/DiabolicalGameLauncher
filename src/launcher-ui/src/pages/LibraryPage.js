@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
     Box,
     Typography,
@@ -62,6 +62,21 @@ const LibraryPage = () => {
     });
     const [gameUpdates, setGameUpdates] = useState({});
 
+    const fetchLocalVersion = useCallback(async (gameId) => {
+        try {
+            const current = await window.electronAPI.getCurrentGameVersion(gameId);
+            // Get the latest version from the cached games instead of making another API call
+            const gameInfo = cachedGames.find(g => g.game_id === gameId);
+            const latest = gameInfo?.version;
+            setCurrentVersion(current);
+            setLatestVersion(latest);
+            setHasUpdate(current !== latest);
+        } catch (err) {
+            console.error("Error fetching game versions:", err);
+            setHasUpdate(false);
+        }
+    }, [cachedGames]);
+
     useEffect(() => {
         const handleDownloadProgress = (progressData) => {
             if (!progressData?.gameId) return;
@@ -101,7 +116,7 @@ const LibraryPage = () => {
         return () => {
             window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
         };
-    }, [selectedGame]);
+    }, [selectedGame, fetchLocalVersion]);
 
     useEffect(() => {
         const loadGames = async () => {
@@ -137,7 +152,7 @@ const LibraryPage = () => {
                 if (ids.length > 0) {
                     const first = metadata.find(g => g.game_id === ids[0]) || { game_id: ids[0] };
                     setSelectedGame(first);
-                    fetchLocalVersion(first.game_id);
+                    // Don't call fetchLocalVersion here, it will be called by the selectedGame effect
                 }
             } catch (err) {
                 console.error("Error loading library:", err);
@@ -156,26 +171,17 @@ const LibraryPage = () => {
         const updateInterval = setInterval(loadGames, 300000); // Check every 5 minutes
 
         return () => clearInterval(updateInterval);
-    }, []);
+    }, []); // Remove fetchLocalVersion dependency
 
-    const fetchLocalVersion = async (gameId) => {
-        try {
-            const current = await window.electronAPI.getCurrentGameVersion(gameId);
-            // Get the latest version from the cached games instead of making another API call
-            const gameInfo = cachedGames.find(g => g.game_id === gameId);
-            const latest = gameInfo?.version;
-            setCurrentVersion(current);
-            setLatestVersion(latest);
-            setHasUpdate(current !== latest);
-        } catch (err) {
-            console.error("Error fetching game versions:", err);
-            setHasUpdate(false);
+    useEffect(() => {
+        if (selectedGame) {
+            fetchLocalVersion(selectedGame.game_id);
         }
-    };
+    }, [selectedGame, fetchLocalVersion]);
 
     const handleSelectGame = async (game) => {
         setSelectedGame(game);
-        fetchLocalVersion(game.game_id);
+        // Don't call fetchLocalVersion here, it will be called by the selectedGame effect
     };
 
     const handleContextMenu = (event, game) => {

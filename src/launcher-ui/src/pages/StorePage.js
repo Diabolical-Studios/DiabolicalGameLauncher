@@ -232,10 +232,8 @@ const StorePage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
     const [featuredIndex, setFeaturedIndex] = useState(0);
-    const [featuredGames, setFeaturedGames] = useState([]);
     const [progress, setProgress] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
 
     // Memoize the shuffled games to prevent re-randomization on re-renders
     const shuffledGames = useMemo(() => {
@@ -252,7 +250,6 @@ const StorePage = () => {
 
     useEffect(() => {
         const loadGames = async () => {
-            setIsLoading(true);
             try {
                 // 1. Load installed games FIRST
                 const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
@@ -279,13 +276,30 @@ const StorePage = () => {
                 }
             } catch (err) {
                 console.error("Error in loadGames:", err);
-            } finally {
-                setIsLoading(false);
             }
         };
 
         loadGames();
     }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    setIsAnimating(true);
+                    setTimeout(() => {
+                        setFeaturedIndex(prevIndex => (prevIndex + 1) % memoizedFeaturedGames.length);
+                        setProgress(0);
+                        setIsAnimating(false);
+                    }, 300);
+                    return 100;
+                }
+                return prev + 1;
+            });
+        }, 50);
+
+        return () => clearInterval(interval);
+    }, [memoizedFeaturedGames.length]);
 
     const handlePlayGame = async (gameId) => {
         try {
