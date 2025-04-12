@@ -190,6 +190,7 @@ const GameInfoPanel = ({game}) => {
         setUploadProgress(0);
 
         try {
+            // First, upload the game file
             const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
                 method: 'POST',
                 headers: {
@@ -221,13 +222,35 @@ const GameInfoPanel = ({game}) => {
                 xhr.send(gameFile);
             });
 
+            // After successful upload, update the game version in the database
+            const sessionID = Cookies.get("sessionID");
+            if (!sessionID) {
+                throw new Error("No session ID found");
+            }
+
+            const updateResponse = await fetch("/update-game", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "sessionID": sessionID,
+                },
+                body: JSON.stringify({
+                    game_id: game.game_id,
+                    version: manualVersion
+                }),
+            });
+
+            if (!updateResponse.ok) {
+                throw new Error("Failed to update game version");
+            }
+
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Successful", "Your game build has been uploaded successfully.");
+                window.electronAPI.showCustomNotification("Upload Successful", "Your game build has been uploaded and version updated successfully.");
             }
         } catch (err) {
             console.error("❌ Upload failed:", err);
             if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
+                window.electronAPI.showCustomNotification("Upload Failed", err.message || "Could not upload your game file.");
             }
         } finally {
             setIsUploading(false);
