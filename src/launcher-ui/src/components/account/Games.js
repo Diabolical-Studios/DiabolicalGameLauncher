@@ -5,7 +5,6 @@ import Divider from "../Divider";
 import GameCardsSkeleton from "../skeleton/GameCardsSkeleton";
 import {colors} from "../../theme/colors";
 import GameInfoPanel from "./GameInfoPanel";
-import Cookies from "js-cookie";
 
 const Games = ({teams}) => {
     const [games, setGames] = useState([]);
@@ -45,7 +44,7 @@ const Games = ({teams}) => {
         // Find the installation ID and access token for this game's owner
         let installationId = null;
         let accessToken = null;
-        let count = 1;
+        //let count = 1;
 
         /* while (true) {
             const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
