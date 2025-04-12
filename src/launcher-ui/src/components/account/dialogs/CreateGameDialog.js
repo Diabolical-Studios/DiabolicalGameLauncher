@@ -32,6 +32,7 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameName, setGameName] = useState("");
     const [gameId, setGameId] = useState("");
+    const [gameIdError, setGameIdError] = useState(false);
     const [gameBackgroundUrl, setGameBackgroundUrl] = useState("");
     const [gameDescription, setGameDescription] = useState("");
     const [gameVersion, setGameVersion] = useState("0.0.1");
@@ -189,6 +190,16 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     };
 
     const handleSave = async () => {
+        // Validate game ID before saving
+        if (!/^[a-z0-9]{1,20}$/.test(gameId)) {
+            setGameIdError(true);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Invalid Game ID", "Game ID must contain only lowercase letters and numbers, with no spaces, and be 20 characters or less");
+            }
+            return;
+        }
+        setGameIdError(false);
+        
         setIsSaving(true);
         const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
@@ -459,6 +470,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                 fullWidth
                                 value={gameId}
                                 onChange={(e) => setGameId(e.target.value)}
+                                error={gameIdError}
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
                                         color: colors.text, fontSize: "16px",
