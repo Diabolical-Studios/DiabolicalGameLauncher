@@ -67,8 +67,6 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         }
     };
 
-
-
     const handleSave = async () => {
         const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
@@ -77,6 +75,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
         }
 
         const updatedTeam = {
+            session_id: sessionID,
             team_id: team.team_id,
             team_name: teamName.trim(),
             team_icon_url: teamIconUrl,
@@ -89,8 +88,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
             const response = await fetch("/update-team", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(updatedTeam)
             });

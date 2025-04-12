@@ -2,14 +2,6 @@ export default async (request, context) => {
     console.log("=== Netlify Edge Function Triggered ===");
     console.log("Received Headers:", JSON.stringify(Object.fromEntries(request.headers), null, 2));
 
-    // Normalize headers to lowercase keys
-    const headersObj = {};
-    for (const [key, value] of request.headers.entries()) {
-        headersObj[key.toLowerCase()] = value;
-    }
-    const sessionID = headersObj["sessionid"];
-    console.log("Extracted sessionID:", sessionID);
-
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
         return new Response("", {status: 200});
@@ -33,7 +25,7 @@ export default async (request, context) => {
         });
     }
 
-    if (!teamData.team_id || !teamData.team_name || !teamData.team_icon_url) {
+    if (!teamData.session_id || !teamData.team_id || !teamData.team_name || !teamData.team_icon_url) {
         return new Response(JSON.stringify({error: "Missing required fields"}), {
             status: 400,
             headers: {"Content-Type": "application/json"},
