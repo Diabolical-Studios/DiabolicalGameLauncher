@@ -15,7 +15,7 @@ import ImageUploader from "../../common/ImageUploader";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
-        maxHeight: "none", maxWidth: "none", background: colors.background, boxShadow: "none", margin: 0,
+        maxHeight: "none", minWidth: "800px", background: colors.background, boxShadow: "none", margin: 0,
     }
 }));
 
@@ -97,7 +97,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
     };
 
     return (<StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
-        <DialogContent style={{padding: "24px", width: "50vw", border: "1px solid" + colors.border}}>
+        <DialogContent style={{padding: "24px", width: "100%", border: "1px solid" + colors.border}}>
             <Stack display={"flex"} flexDirection={"row"} gap={"24px"}>
                 <Stack spacing={2} alignItems="center">
                     {/* Render Editable Game Card */}
