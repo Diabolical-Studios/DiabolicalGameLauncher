@@ -37,6 +37,7 @@ import TextField from '@mui/material/TextField';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { colors } from "../theme/colors";
+import axios from "axios";
 
 const LibraryPage = () => {
     const [installedGameIds, setInstalledGameIds] = useState([]);
@@ -105,10 +106,13 @@ const LibraryPage = () => {
     useEffect(() => {
         const loadGames = async () => {
             try {
+                // Get installed games
                 const ids = await window.electronAPI.getInstalledGames();
                 setInstalledGameIds(ids);
 
-                const metadata = await window.electronAPI.getCachedGames();
+                // Load game metadata directly from the API
+                const response = await axios.get("/get-all-games");
+                const metadata = response.data;
                 setCachedGames(metadata);
 
                 // Check for updates for all installed games
@@ -116,9 +120,13 @@ const LibraryPage = () => {
                 for (const id of ids) {
                     try {
                         const current = await window.electronAPI.getCurrentGameVersion(id);
-                        const { latestVersion: latest } = await window.electronAPI.getLatestGameVersion(id);
-                        if (current !== latest) {
-                            updates[id] = { current, latest };
+                        // Get the latest version from the API response instead of using cached version
+                        const gameInfo = metadata.find(g => g.game_id === id);
+                        if (gameInfo && gameInfo.version !== current) {
+                            updates[id] = { 
+                                current, 
+                                latest: gameInfo.version 
+                            };
                         }
                     } catch (err) {
                         console.error(`Error checking updates for game ${id}:`, err);
@@ -133,16 +141,29 @@ const LibraryPage = () => {
                 }
             } catch (err) {
                 console.error("Error loading library:", err);
+                // Fallback to cached games if API fails
+                try {
+                    const cached = await window.electronAPI.getCachedGames();
+                    setCachedGames(cached);
+                } catch (cacheErr) {
+                    console.error("Error loading cached games:", cacheErr);
+                }
             }
         };
 
         loadGames();
+        // Set up periodic update check
+        const updateInterval = setInterval(loadGames, 300000); // Check every 5 minutes
+
+        return () => clearInterval(updateInterval);
     }, []);
 
     const fetchLocalVersion = async (gameId) => {
         try {
             const current = await window.electronAPI.getCurrentGameVersion(gameId);
-            const { latestVersion: latest } = await window.electronAPI.getLatestGameVersion(gameId);
+            // Get the latest version from the cached games instead of making another API call
+            const gameInfo = cachedGames.find(g => g.game_id === gameId);
+            const latest = gameInfo?.version;
             setCurrentVersion(current);
             setLatestVersion(latest);
             setHasUpdate(current !== latest);
