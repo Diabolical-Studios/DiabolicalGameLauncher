@@ -13,7 +13,6 @@ import {
     Chip,
     Tabs,
     Tab,
-    Box
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import GameCard from "../../GameCard";
@@ -30,26 +29,6 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
     }
 }));
 
-const saveInstallationPair = (installationId, accessToken) => {
-    // Find the next available number
-    let count = 1;
-    while (Cookies.get(`githubInstallationId${count}`)) {
-        count++;
-    }
-
-    // Save the new pair
-    Cookies.set(`githubInstallationId${count}`, installationId, {
-        secure: true,
-        sameSite: "Strict",
-        expires: 7
-    });
-    Cookies.set(`githubAccessToken${count}`, accessToken, {
-        secure: true,
-        sameSite: "Strict",
-        expires: 7
-    });
-};
-
 const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [gameName, setGameName] = useState("");
     const [gameId, setGameId] = useState("");
@@ -61,7 +40,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [githubRepos, setGithubRepos] = useState([]);
     const [selectedRepo, setSelectedRepo] = useState("");
     const [loadingRepos, setLoadingRepos] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [hasRequiredFields, setHasRequiredFields] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -69,7 +47,8 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     const [connectedAccounts, setConnectedAccounts] = useState([]);
     const [ownerAvatars, setOwnerAvatars] = useState({});
     const [activeTab, setActiveTab] = useState(0);
-    const [gameFileUrl, setGameFileUrl] = useState("");
+    const [gameFile, setGameFile] = useState(null);
+    const [gameFileName, setGameFileName] = useState("");
 
     useEffect(() => {
         if (teams && teams.length > 0) {
@@ -79,24 +58,14 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
     }, [teams]);
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    useEffect(() => {
         const hasAllRequiredFields = 
             gameName?.trim() && 
             gameId?.trim() && 
             selectedTeam && 
-            ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFileUrl)) &&
-            gameBackgroundUrl;
+            gameBackgroundUrl &&
+            ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFile));
         setHasRequiredFields(!!hasAllRequiredFields);
-    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFileUrl]);
+    }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFile]);
 
     const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
         if (!installationId || !accessToken) {
@@ -193,8 +162,22 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const handleGameFileSelect = (file) => {
+        if (file && file.name.endsWith('.zip')) {
+            setGameFile(file);
+            setGameFileName(file.name);
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("File Selected", "Your game file is ready to be uploaded.");
+            }
+        } else {
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Invalid File", "Please select a ZIP file.");
+            }
+        }
+    };
+
     const handleSave = async () => {
-        setIsSaving(true); // Disable the button while processing
+        setIsSaving(true);
         const sessionID = Cookies.get("sessionID");
         if (!sessionID) {
             console.error("❌ No session ID found.");
@@ -214,51 +197,77 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             return;
         }
 
-        if (!selectedRepo) {
-            console.error("❌ No repository selected.");
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Game Creation Failed", "Please select a repository");
-            }
-            setIsSaving(false);
-            return;
-        }
-
-        // Find the correct installation ID for this repository
-        let installationId = null;
-        let count = 1;
-        while (true) {
-            const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
-            const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
-            
-            if (!currentInstallationId || !currentAccessToken) break;
-
+        // Handle file upload if in manual upload mode
+        if (activeTab === 1 && gameFile) {
             try {
-                // Check if this installation has access to the selected repo
-                const response = await fetch(`https://api.github.com/repos/${selectedRepo}`, {
+                const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+                    method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${currentAccessToken}`,
-                        Accept: "application/vnd.github+json",
+                        'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({
+                        fileExt: gameFile.name.split('.').pop(),
+                        contentType: gameFile.type,
+                        isGameUpload: true,
+                        gameId: gameId.trim()
+                    })
+                });
+                const { url } = await res.json();
+
+                await fetch(url, {
+                    method: "PUT",
+                    headers: { "Content-Type": gameFile.type },
+                    body: gameFile,
                 });
 
-                if (response.ok) {
-                    installationId = currentInstallationId;
-                    break;
-                }
             } catch (err) {
-                console.error(`Error checking repo access for installation ${count}:`, err);
+                console.error("❌ Upload failed:", err);
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
+                }
+                setIsSaving(false);
+                return;
             }
-
-            count++;
         }
 
-        if (!installationId) {
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Game Creation Failed", "No GitHub installation found with access to this repository");
+        // Find the correct installation ID for this repository if in GitHub mode
+        let installationId = null;
+        if (activeTab === 0) {
+            let count = 1;
+            while (true) {
+                const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
+                const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
+                
+                if (!currentInstallationId || !currentAccessToken) break;
+
+                try {
+                    // Check if this installation has access to the selected repo
+                    const response = await fetch(`https://api.github.com/repos/${selectedRepo}`, {
+                        headers: {
+                            Authorization: `Bearer ${currentAccessToken}`,
+                            Accept: "application/vnd.github+json",
+                        },
+                    });
+
+                    if (response.ok) {
+                        installationId = currentInstallationId;
+                        break;
+                    }
+                } catch (err) {
+                    console.error(`Error checking repo access for installation ${count}:`, err);
+                }
+
+                count++;
             }
-            console.error("❌ No GitHub Installation ID found with access to the selected repository.");
-            setIsSaving(false);
-            return;
+
+            if (!installationId) {
+                if (window.electronAPI) {
+                    window.electronAPI.showCustomNotification("Game Creation Failed", "No GitHub installation found with access to this repository");
+                }
+                console.error("❌ No GitHub Installation ID found with access to the selected repository.");
+                setIsSaving(false);
+                return;
+            }
         }
 
         const newGame = {
@@ -269,7 +278,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
             version: gameVersion,
             team_name: selectedTeam,
             team_icon_url: teamIconUrl,
-            github_repo: selectedRepo,
+            ...(activeTab === 0 ? { github_repo: selectedRepo } : {  }),
         };
 
         console.log("📤 Sending game creation request:", newGame);
@@ -277,9 +286,12 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         try {
             // Attempt to create the game via the Netlify function
             const response = await fetch("/create-game", {
-                method: "POST", headers: {
-                    "Content-Type": "application/json", "sessionID": sessionID,
-                }, body: JSON.stringify(newGame),
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json", 
+                    "sessionID": sessionID,
+                }, 
+                body: JSON.stringify(newGame),
             });
 
             if (!response.ok) {
@@ -291,26 +303,30 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
             console.log("✅ Game created successfully:", newGame);
 
-            // Only notify GitHub if the Netlify step succeeded.
-            const githubWebhookResponse = await fetch("https://api.diabolical.studio/github-app/webhook", {
-                method: "POST", headers: {
-                    "Content-Type": "application/json",
-                }, body: JSON.stringify({
-                    event: "game_created",
-                    repository: selectedRepo,
-                    game_id: gameId.trim(),
-                    installation_id: installationId,
-                }),
-            });
+            // Only notify GitHub if the Netlify step succeeded and we're in GitHub mode
+            if (activeTab === 0) {
+                const githubWebhookResponse = await fetch("https://api.diabolical.studio/github-app/webhook", {
+                    method: "POST", 
+                    headers: {
+                        "Content-Type": "application/json",
+                    }, 
+                    body: JSON.stringify({
+                        event: "game_created",
+                        repository: selectedRepo,
+                        game_id: gameId.trim(),
+                        installation_id: installationId,
+                    }),
+                });
 
-            if (!githubWebhookResponse.ok) {
-                if (window.electronAPI) {
-                    window.electronAPI.showCustomNotification("Game Creation Failed", "Github App did not respond.");
+                if (!githubWebhookResponse.ok) {
+                    if (window.electronAPI) {
+                        window.electronAPI.showCustomNotification("Game Creation Failed", "Github App did not respond.");
+                    }
+                    throw new Error("Failed to notify GitHub App.");
                 }
-                throw new Error("Failed to notify GitHub App.");
-            }
 
-            console.log("✅ GitHub App notified to create workflow.");
+                console.log("✅ GitHub App notified to create workflow.");
+            }
 
             // Send the notification via main process.
             if (window.electronAPI) {
@@ -321,7 +337,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
         } catch (err) {
             console.error("❌ Error creating game:", err);
         } finally {
-            setIsSaving(false); // Re-enable the button regardless of outcome
+            setIsSaving(false);
         }
     };
 
@@ -339,47 +355,6 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
-    };
-
-    const handleGameFileUpload = async (file) => {
-        setUploading(true);
-
-        try {
-            const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    fileExt: file.name.split('.').pop(),
-                    contentType: file.type,
-                    isGameUpload: true,
-                    gameId: gameId.trim()
-                })
-            });
-            const { url, key } = await res.json();
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            const fileUrl = `https://diabolical.services/${key}`;
-            setGameFileUrl(fileUrl);
-
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Complete", "Your game file was uploaded.");
-            }
-
-        } catch (err) {
-            console.error("❌ Upload failed:", err);
-            if (window.electronAPI) {
-                window.electronAPI.showCustomNotification("Upload Failed", "Could not upload your game file.");
-            }
-        } finally {
-            setUploading(false);
-        }
     };
 
     return (<StyledDialog open={open} container={document.getElementById("root")}
@@ -726,9 +701,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                         e.currentTarget.style.borderColor = colors.border;
                                         e.currentTarget.style.backgroundColor = colors.background;
                                         const file = e.dataTransfer.files[0];
-                                        if (file && file.name.endsWith('.zip')) {
-                                            handleGameFileUpload(file);
-                                        }
+                                        handleGameFileSelect(file);
                                     }}
                                     onClick={() => document.getElementById('game-file-upload')?.click()}
                                     style={{
@@ -749,18 +722,14 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                         accept=".zip"
                                         onChange={(e) => {
                                             const file = e.target.files[0];
-                                            if (file) handleGameFileUpload(file);
+                                            handleGameFileSelect(file);
                                         }}
                                     />
-                                    {uploading ? (
-                                        <Stack alignItems="center" gap={1}>
-                                            <CircularProgress size={24} />
-                                            <span style={{ color: colors.text }}>Uploading...</span>
-                                        </Stack>
-                                    ) : gameFileUrl ? (
+                                    {gameFile ? (
                                         <Stack alignItems="center" gap={1}>
                                             <UploadIcon style={{ color: colors.button }} />
-                                            <span style={{ color: colors.text }}>Game File Uploaded ✅</span>
+                                            <span style={{ color: colors.text }}>Game File Selected ✅</span>
+                                            <span style={{ color: colors.border, fontSize: "12px" }}>{gameFileName}</span>
                                             <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
                                         </Stack>
                                     ) : (
