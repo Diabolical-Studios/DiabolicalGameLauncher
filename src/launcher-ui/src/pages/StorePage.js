@@ -161,6 +161,42 @@ const FeaturedContent = styled(Box)(({ animate }) => ({
 const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
     const [isInstalled, setIsInstalled] = useState(installedGames.includes(game.game_id));
+    const [isRunning, setIsRunning] = useState(false);
+
+    useEffect(() => {
+        const checkGameStatus = async () => {
+            if (window.electronAPI) {
+                const running = await window.electronAPI.isGameRunning(game.game_id);
+                setIsRunning(running);
+            }
+        };
+
+        const handleGameStarted = (startedGameId) => {
+            if (startedGameId === game.game_id) {
+                setIsRunning(true);
+            }
+        };
+
+        const handleGameStopped = (stoppedGameId) => {
+            if (stoppedGameId === game.game_id) {
+                setIsRunning(false);
+            }
+        };
+
+        checkGameStatus();
+
+        if (window.electronAPI) {
+            window.electronAPI.onGameStarted(handleGameStarted);
+            window.electronAPI.onGameStopped(handleGameStopped);
+        }
+
+        return () => {
+            if (window.electronAPI) {
+                window.electronAPI.removeGameStartedListener(handleGameStarted);
+                window.electronAPI.removeGameStoppedListener(handleGameStopped);
+            }
+        };
+    }, [game.game_id]);
 
     useEffect(() => {
         const handleDownloadProgress = (progressData) => {
@@ -193,6 +229,16 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
 
     if (!game) return null;
 
+    const handleButtonClick = () => {
+        if (isRunning) {
+            window.electronAPI.stopGame(game.game_id);
+        } else if (isInstalled) {
+            onPlay(game.game_id);
+        } else {
+            onDownload(game.game_id);
+        }
+    };
+
     return (
         <GameCard size={size}>
             {game.version && (
@@ -219,9 +265,9 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
                     className="add-library-button"
                     size="small"
                     variant="contained"
-                    onClick={() => isInstalled ? onPlay(game.game_id) : onDownload(game.game_id)}
+                    onClick={handleButtonClick}
                 >
-                    {downloadProgress || (isInstalled ? "Play" : "Download")}
+                    {downloadProgress || (isRunning ? "Stop" : (isInstalled ? "Play" : "Download"))}
                 </StyledButton>
             </CardOverlay>
         </GameCard>
