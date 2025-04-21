@@ -129,6 +129,7 @@ const GameCard = ({
                 downloadProgress={downloadProgress}
                 gameVersion={localVersion || "Not Installed"}
                 onClick={handleButtonClick}
+                gameId={game.game_id}
             />
         </Stack>
     </div>);

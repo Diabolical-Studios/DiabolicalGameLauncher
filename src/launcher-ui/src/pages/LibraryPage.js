@@ -36,6 +36,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import TextField from '@mui/material/TextField';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsIcon from '@mui/icons-material/Settings';
+import StopIcon from '@mui/icons-material/Stop';
 import { colors } from "../theme/colors";
 import axios from "axios";
 
@@ -61,6 +62,7 @@ const LibraryPage = () => {
         notes: ''
     });
     const [gameUpdates, setGameUpdates] = useState({});
+    const [isGameRunning, setIsGameRunning] = useState(false);
 
     const fetchLocalVersion = useCallback(async (gameId) => {
         try {
@@ -178,6 +180,41 @@ const LibraryPage = () => {
             fetchLocalVersion(selectedGame.game_id);
         }
     }, [selectedGame, fetchLocalVersion]);
+
+    useEffect(() => {
+        const checkGameStatus = async () => {
+            if (selectedGame && window.electronAPI) {
+                const running = await window.electronAPI.isGameRunning(selectedGame.game_id);
+                setIsGameRunning(running);
+            }
+        };
+
+        const handleGameStarted = (startedGameId) => {
+            if (selectedGame && startedGameId === selectedGame.game_id) {
+                setIsGameRunning(true);
+            }
+        };
+
+        const handleGameStopped = (stoppedGameId) => {
+            if (selectedGame && stoppedGameId === selectedGame.game_id) {
+                setIsGameRunning(false);
+            }
+        };
+
+        checkGameStatus();
+
+        if (window.electronAPI) {
+            window.electronAPI.onGameStarted(handleGameStarted);
+            window.electronAPI.onGameStopped(handleGameStopped);
+        }
+
+        return () => {
+            if (window.electronAPI) {
+                window.electronAPI.removeGameStartedListener(handleGameStarted);
+                window.electronAPI.removeGameStoppedListener(handleGameStopped);
+            }
+        };
+    }, [selectedGame]);
 
     const handleSelectGame = async (game) => {
         setSelectedGame(game);
@@ -423,12 +460,14 @@ const LibraryPage = () => {
                                     <Stack spacing={2}>
                                         <Button
                                             variant="contained"
-                                            startIcon={isDownloading ? <DownloadIcon /> : hasUpdate ? <UpdateIcon /> : <PlayArrowIcon />}
+                                            startIcon={isDownloading ? <DownloadIcon /> : hasUpdate ? <UpdateIcon /> : isGameRunning ? <StopIcon /> : <PlayArrowIcon />}
                                             disabled={isDownloading}
                                             onClick={() => {
                                                 if (isDownloading) return;
                                                 if (hasUpdate) {
                                                     window.electronAPI.downloadGame(selectedGame.game_id);
+                                                } else if (isGameRunning) {
+                                                    window.electronAPI.stopGame(selectedGame.game_id);
                                                 } else {
                                                     window.electronAPI.openGame(selectedGame.game_id);
                                                 }
@@ -441,7 +480,7 @@ const LibraryPage = () => {
                                                 },
                                             }}
                                         >
-                                            {isDownloading ? `Downloading ${downloadingGame.percentageString}` : hasUpdate ? "Update Available" : "Play"}
+                                            {isDownloading ? "Downloading" : hasUpdate ? "Update" : isGameRunning ? "Stop" : "Play"}
                                         </Button>
                                         {isDownloading && (
                                             <LinearProgress

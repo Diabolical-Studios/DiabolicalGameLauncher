@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const {app, ipcMain, BrowserWindow} = require("electron");
-const {exec} = require("child_process");
+const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
@@ -9,6 +9,9 @@ const {getInstalledGames, showContextMenu, uninstallGame} = require("./gameManag
 const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
+
+// Track running game processes
+const runningGames = new Map();
 
 function initIPCHandlers() {
     //Game Actions
@@ -27,7 +30,82 @@ function initIPCHandlers() {
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
         const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
-        exec(`start "" "${executablePath}"`);
+
+        // Use spawn instead of exec for better process control
+        const gameProcess = spawn(executablePath, [], {
+            cwd: gamePath,
+            env: process.env,
+            detached: true, // This allows the process to continue running after the launcher closes
+            stdio: 'ignore' // Ignore stdio to prevent hanging
+        });
+
+        // Store the process with its PID
+        runningGames.set(gameId, {
+            process: gameProcess,
+            pid: gameProcess.pid
+        });
+
+        // Handle process exit
+        gameProcess.on('exit', (code) => {
+            console.log(`Game process exited with code ${code}`);
+            runningGames.delete(gameId);
+            event.sender.send("game-stopped", gameId);
+        });
+
+        // Handle process error
+        gameProcess.on('error', (err) => {
+            console.error('Failed to start game process:', err);
+            runningGames.delete(gameId);
+            event.sender.send("game-launch-error", err.message);
+        });
+
+        event.sender.send("game-started", gameId);
+    });
+
+    ipcMain.on("stop-game", (event, gameId) => {
+        const gameInfo = runningGames.get(gameId);
+        if (gameInfo) {
+            try {
+                // First try to gracefully terminate
+                gameInfo.process.kill();
+
+                // If process is still running after a short delay, force kill it
+                setTimeout(() => {
+                    try {
+                        // Use taskkill to forcefully terminate the process and its children
+                        const taskkill = spawn('taskkill', ['/F', '/T', '/PID', gameInfo.pid.toString()]);
+                        
+                        taskkill.on('exit', (code) => {
+                            if (code === 0) {
+                                console.log(`Successfully killed process ${gameInfo.pid}`);
+                            } else {
+                                console.error(`Failed to kill process ${gameInfo.pid}`);
+                            }
+                            runningGames.delete(gameId);
+                            event.sender.send("game-stopped", gameId);
+                        });
+
+                        taskkill.on('error', (err) => {
+                            console.error('Error executing taskkill:', err);
+                            runningGames.delete(gameId);
+                            event.sender.send("game-stopped", gameId);
+                        });
+                    } catch (err) {
+                        console.error('Error in force kill:', err);
+                        runningGames.delete(gameId);
+                        event.sender.send("game-stopped", gameId);
+                    }
+                }, 1000);
+            } catch (err) {
+                console.error('Error in stop-game:', err);
+                runningGames.delete(gameId);
+                event.sender.send("game-stopped", gameId);
+            }
+        }
+    });
+
+    ipcMain.handle("is-game-running", (event, gameId) => {
+        return runningGames.has(gameId);
     });
 
     ipcMain.on("open-install-location", (event, gameId) => {

@@ -20,6 +20,20 @@ contextBridge.exposeInMainWorld("electronAPI", {
     //Game Actions
     downloadGame: (gameId) => ipcRenderer.send("download-game", gameId),
     openGame: (gameId) => ipcRenderer.send("open-game", gameId),
+    stopGame: (gameId) => ipcRenderer.send("stop-game", gameId),
+    isGameRunning: (gameId) => ipcRenderer.invoke("is-game-running", gameId),
+    onGameStarted: (callback) => {
+        ipcRenderer.on("game-started", (event, gameId) => callback(gameId));
+    },
+    removeGameStartedListener: (callback) => {
+        ipcRenderer.removeListener("game-started", callback);
+    },
+    onGameStopped: (callback) => {
+        ipcRenderer.on("game-stopped", (event, gameId) => callback(gameId));
+    },
+    removeGameStoppedListener: (callback) => {
+        ipcRenderer.removeListener("game-stopped", callback);
+    },
     uninstallGame: (gameId) => ipcRenderer.send("uninstall-game", gameId),
     openInstallLocation: (gameId) => ipcRenderer.send("open-install-location", gameId),
     getInstalledGames: () => ipcRenderer.invoke("get-installed-games"),
