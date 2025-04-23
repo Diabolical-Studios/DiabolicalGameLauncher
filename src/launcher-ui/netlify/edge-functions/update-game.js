@@ -41,6 +41,80 @@ export default async (request, context) => {
         });
     }
 
+    // Validate version format if provided
+    if (version) {
+        const versionRegex = /^\d+\.\d+\.\d+$/;
+        if (!versionRegex.test(version)) {
+            return new Response(JSON.stringify({error: "Version must be in format X.Y.Z (e.g., 1.0.0)"}), {
+                status: 400,
+                headers: {"Content-Type": "application/json"},
+            });
+        }
+
+        // Get current game version from API to validate version increment
+        try {
+            const apiBaseUrl = Netlify.env.get("API_BASE_URL");
+            const apiKey = Netlify.env.get("API_KEY");
+
+            if (!apiBaseUrl || !apiKey) {
+                console.error("❌ API configuration missing.");
+                return new Response(
+                    JSON.stringify({error: "API configuration missing."}),
+                    {
+                        status: 500,
+                        headers: {"Content-Type": "application/json"},
+                    }
+                );
+            }
+
+            const gameRes = await fetch(`${apiBaseUrl}/rest-api/games/${game_id}`, {
+                headers: {
+                    "x-api-key": apiKey,
+                },
+            });
+
+            if (!gameRes.ok) {
+                console.error("❌ Failed to fetch current game version");
+                return new Response(JSON.stringify({error: "Failed to validate version update"}), {
+                    status: 500,
+                    headers: {"Content-Type": "application/json"},
+                });
+            }
+
+            const gameData = await gameRes.json();
+            const currentVersion = gameData.version;
+
+            // Compare versions
+            const currentParts = currentVersion.split('.').map(Number);
+            const newParts = version.split('.').map(Number);
+
+            let isHigherVersion = false;
+            for (let i = 0; i < 3; i++) {
+                if (newParts[i] > currentParts[i]) {
+                    isHigherVersion = true;
+                    break;
+                } else if (newParts[i] < currentParts[i]) {
+                    break;
+                }
+            }
+
+            if (!isHigherVersion) {
+                return new Response(JSON.stringify({
+                    error: `New version (${version}) must be higher than current version (${currentVersion})`
+                }), {
+                    status: 400,
+                    headers: {"Content-Type": "application/json"},
+                });
+            }
+        } catch (error) {
+            console.error("❌ Error validating version:", error);
+            return new Response(JSON.stringify({error: "Failed to validate version update"}), {
+                status: 500,
+                headers: {"Content-Type": "application/json"},
+            });
+        }
+    }
+
     const updatedFields = {};
     if (game_name) updatedFields.game_name = game_name;
     if (version) updatedFields.version = version;
@@ -87,7 +161,10 @@ export default async (request, context) => {
         if (!apiRes.ok) {
             const errText = await apiRes.text();
             console.error("❌ API Error:", errText);
-            return new Response(JSON.stringify({error: errText}), {
+            return new Response(JSON.stringify({
+                error: errText,
+                details: "Failed to update game. Please check the version format and ensure you have the necessary permissions."
+            }), {
                 status: apiRes.status,
                 headers: {"Content-Type": "application/json"},
             });

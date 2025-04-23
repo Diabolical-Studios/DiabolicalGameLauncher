@@ -269,17 +269,18 @@ const GameInfoPanel = ({game}) => {
             const updateResponse = await fetch("/update-game", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    "sessionID": sessionID,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
+                    session_id: sessionID,
                     game_id: game.game_id,
                     version: manualVersion
                 }),
             });
 
             if (!updateResponse.ok) {
-                throw new Error("Failed to update game version");
+                const errorData = await updateResponse.json();
+                throw new Error(errorData.error || "Failed to update game version");
             }
 
             if (window.electronAPI) {
