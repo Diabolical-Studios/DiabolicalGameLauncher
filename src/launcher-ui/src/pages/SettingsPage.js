@@ -59,15 +59,6 @@ const SettingsPage = () => {
         }
     };
 
-    const handleResolutionChange = (event) => {
-        const newResolution = event.target.value;
-        handleSettingChange("windowSize", newResolution);
-        const [width, height] = newResolution.split("x").map(Number);
-        if (window.api) {
-            window.electronAPI.setWindowSize(width, height);
-        }
-    };
-
     return (
         <Box sx={{ 
             height: 'calc(100vh - 48px)',
