@@ -11,7 +11,6 @@ const versionFilePath = (gameId) => path.join(diabolicalLauncherPath, `${gameId}
 //This will be made into a better logic
 const defaultSettings = {
     windowSize: { width: 1280, height: 720 },
-    theme: "dark",
     language: "en",
     autoUpdate: true,
     notifications: true,

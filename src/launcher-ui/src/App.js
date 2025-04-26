@@ -19,7 +19,7 @@ import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
 
 const App = () => {
-  const [muiTheme, setMuiTheme] = useState(
+  const [muiTheme] = useState(
     createTheme({
       palette: {
         mode: "dark",
@@ -72,68 +72,10 @@ const App = () => {
     // Load initial theme from settings
     if (window.electronAPI) {
       window.electronAPI.getSettings().then((settings) => {
-        applyColorsToCSS(settings.theme);
-        updateMuiTheme(settings.theme);
-      });
-
-      // Listen for theme changes
-      window.electronAPI.onThemeChanged((newTheme) => {
-        applyColorsToCSS(newTheme);
-        updateMuiTheme(newTheme);
+        applyColorsToCSS();
       });
     }
   }, []);
-
-  const updateMuiTheme = (newTheme) => {
-    setMuiTheme(
-      createTheme({
-        palette: {
-          mode: newTheme,
-          primary: {
-            main: "#07d400",
-          },
-          secondary: {
-            main: "#ff4081",
-          },
-          background: {
-            default: newTheme === "dark" ? "#000000" : "#ffffff",
-            paper: newTheme === "dark" ? "#000000" : "#ffffff",
-          },
-          text: {
-            primary: newTheme === "dark" ? "#ffffff" : "#000000",
-            secondary: newTheme === "dark" ? "#cccccc" : "#666666",
-          },
-          divider: newTheme === "dark" ? "#444444" : "#cccccc",
-        },
-        components: {
-          MuiButton: {
-            styleOverrides: {
-              root: {
-                backgroundColor: newTheme === "dark" ? "#333333" : "#f5f5f5",
-                color: newTheme === "dark" ? "#ffffff" : "#000000",
-                "&:hover": {
-                  backgroundColor: newTheme === "dark" ? "#1f1f1f" : "#e0e0e0",
-                },
-              },
-            },
-          },
-          MuiTextField: {
-            styleOverrides: {
-              root: {
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: newTheme === "dark" ? "#000000" : "#ffffff",
-                  color: newTheme === "dark" ? "#ffffff" : "#000000",
-                  "& fieldset": {
-                    borderColor: newTheme === "dark" ? "#444444" : "#cccccc",
-                  },
-                },
-              },
-            },
-          },
-        },
-      })
-    );
-  };
 
   return (
     <ThemeProvider theme={muiTheme}>

@@ -26,7 +26,6 @@ const StyledSettingsSection = styled(Stack)(({ theme }) => ({
 const SettingsPage = () => {
     const [settings, setSettings] = useState({
         windowSize: "1280x720",
-        theme: "dark",
         language: "en",
         autoUpdate: true,
         notifications: true,
@@ -94,11 +93,11 @@ const SettingsPage = () => {
                     <Typography variant="h6" sx={{ color: colors.text }}>Display Settings</Typography>
                     <Stack spacing={2}>
                         <FormControl fullWidth>
-                            <InputLabel id="resolution-label" sx={{ color: colors.text }}>Window Size</InputLabel>
+                            <InputLabel id="window-size-label" sx={{ color: colors.text }}>Window Size</InputLabel>
                             <Select
-                                labelId="resolution-label"
+                                labelId="window-size-label"
                                 value={settings.windowSize}
-                                onChange={handleResolutionChange}
+                                onChange={(e) => handleSettingChange("windowSize", e.target.value)}
                                 label="Window Size"
                                 sx={{
                                     "& .MuiOutlinedInput-root": {
@@ -113,29 +112,6 @@ const SettingsPage = () => {
                                 <MenuItem value="1280x720">1280x720</MenuItem>
                                 <MenuItem value="1920x1080">1920x1080</MenuItem>
                                 <MenuItem value="2560x1440">2560x1440</MenuItem>
-                                <MenuItem value="3840x2160">3840x2160</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        <FormControl fullWidth>
-                            <InputLabel id="theme-label" sx={{ color: colors.text }}>Theme</InputLabel>
-                            <Select
-                                labelId="theme-label"
-                                value={settings.theme}
-                                onChange={(e) => handleSettingChange("theme", e.target.value)}
-                                label="Theme"
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        color: colors.text,
-                                        backgroundColor: colors.background,
-                                        "& fieldset": {
-                                            borderColor: colors.border,
-                                        },
-                                    },
-                                }}
-                            >
-                                <MenuItem value="dark">Dark</MenuItem>
-                                <MenuItem value="light">Light</MenuItem>
                             </Select>
                         </FormControl>
                     </Stack>
