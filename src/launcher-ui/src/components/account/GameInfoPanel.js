@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography, TextField, CircularProgress} from "@mui/material";
+import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography, TextField, CircularProgress, Alert} from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
@@ -7,6 +7,8 @@ import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import UploadIcon from '@mui/icons-material/Upload';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import WarningIcon from '@mui/icons-material/Warning';
 import {colors} from "../../theme/colors";
 import Cookies from "js-cookie";
 
@@ -24,6 +26,9 @@ const GameInfoPanel = ({game}) => {
     const [gameFileName, setGameFileName] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleteError, setDeleteError] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Find the correct installation ID and access token for this game's repo
     const findGameCredentials = useCallback(async () => {
@@ -296,6 +301,47 @@ const GameInfoPanel = ({game}) => {
         }
     };
 
+    const handleDeleteGame = async () => {
+        setIsDeleting(true);
+        setDeleteError("");
+        
+        try {
+            const sessionID = Cookies.get("sessionID");
+            if (!sessionID) {
+                throw new Error("No session ID found");
+            }
+
+            const response = await fetch(`/delete-game`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    gameId: game.game_id,
+                    sessionId: sessionID
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to delete game");
+            }
+
+            if (window.electronAPI) {
+                window.electronAPI.showCustomNotification("Game Deleted", "The game has been successfully deleted.");
+            }
+            
+            // Close the dialog and refresh the game list
+            setDeleteDialogOpen(false);
+            window.location.reload(); // Refresh the page to update the game list
+        } catch (err) {
+            console.error("❌ Delete failed:", err);
+            setDeleteError(err.message || "Could not delete the game.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     const gameDetails = {
         "Game Name": game.game_name,
         "Team": game.team_name,
@@ -404,9 +450,10 @@ const GameInfoPanel = ({game}) => {
             }}
         >
             <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>
-            {!game.github_repo && <Tab value="manualUpload" label="Manual Upload" sx={{color: colors.text}}/>}
+            <Tab value="manualUpload" label="Manual Upload" sx={{color: colors.text}}/>
             {game.github_repo && <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>}
             {game.github_repo && <Tab value="githubApp" label="Github App" sx={{color: colors.text}}/>}
+            <Tab value="settings" label="Settings" sx={{color: colors.text}}/>
         </Tabs>
 
         {/* Game Info Tab */}
@@ -594,6 +641,84 @@ const GameInfoPanel = ({game}) => {
                 No GitHub workflows found for this repository.
             </Typography>)}
         </Stack>)}
+
+        {/* Settings Tab */}
+        {activeTab === "settings" && (
+            <Stack spacing={2} sx={{ padding: 2 }}>
+                <Typography variant="h6" sx={{ color: colors.textSecondary }}>
+                    Game Settings
+                </Typography>
+                
+                <Box sx={{ 
+                    border: `1px solid ${colors.error}`,
+                    borderRadius: "4px",
+                    padding: 2,
+                    backgroundColor: "rgba(255, 0, 0, 0.1)"
+                }}>
+                    <Typography variant="subtitle1" sx={{ color: colors.error, display: "flex", alignItems: "center", gap: 1 }}>
+                        <WarningIcon /> Danger Zone
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mt: 1 }}>
+                        Once you delete a game, there is no going back. Please be certain.
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<DeleteForeverIcon />}
+                        onClick={() => setDeleteDialogOpen(true)}
+                        sx={{ mt: 2 }}
+                    >
+                        Delete Game
+                    </Button>
+                </Box>
+            </Stack>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+            open={deleteDialogOpen}
+            onClose={() => !isDeleting && setDeleteDialogOpen(false)}
+            sx={{
+                "& .MuiDialog-paper": {
+                    backgroundColor: "rgba(0,0,0,0.9)",
+                    color: colors.text,
+                    outline: "1px solid" + colors.border,
+                    borderRadius: "2px"
+                },
+            }}
+        >
+            <DialogTitle>Delete Game</DialogTitle>
+            <DialogContent>
+                <Stack spacing={2}>
+                    <Typography>
+                        Are you sure you want to delete "{game.game_name}"? This action cannot be undone.
+                    </Typography>
+                    {deleteError && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {deleteError}
+                        </Alert>
+                    )}
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+                        <Button
+                            onClick={() => setDeleteDialogOpen(false)}
+                            disabled={isDeleting}
+                            sx={{ color: colors.text }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={handleDeleteGame}
+                            disabled={isDeleting}
+                            startIcon={isDeleting ? <CircularProgress size={20} /> : <DeleteForeverIcon />}
+                        >
+                            {isDeleting ? "Deleting..." : "Delete Game"}
+                        </Button>
+                    </Box>
+                </Stack>
+            </DialogContent>
+        </Dialog>
 
         {/* Log Viewer Popup */}
         <Dialog
