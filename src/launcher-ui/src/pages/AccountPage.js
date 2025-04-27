@@ -55,9 +55,13 @@ export default function AccountPage() {
         const params = new URLSearchParams(location.search);
         const sessionIDParam = params.get("sessionID");
         const usernameParam = params.get("username");
-        if (sessionIDParam && usernameParam) {
+        const githubIdParam = params.get("githubID");
+        
+        if (sessionIDParam && usernameParam && githubIdParam) {
             Cookies.set("sessionID", sessionIDParam, cookieOptions);
             Cookies.set("username", usernameParam, cookieOptions);
+            Cookies.set("githubID", githubIdParam, cookieOptions);
+
             setUsername(usernameParam);
             setIsLoggedIn(true);
             navigate(location.pathname, {replace: true});
@@ -106,6 +110,7 @@ export default function AccountPage() {
                     }
                     Cookies.set("sessionID", data.sessionID, cookieOptions);
                     Cookies.set("username", data.username, cookieOptions);
+                    Cookies.set("githubID", data.githubID, cookieOptions);
                     setUsername(data.username);
                     setIsLoggedIn(true);
                 }

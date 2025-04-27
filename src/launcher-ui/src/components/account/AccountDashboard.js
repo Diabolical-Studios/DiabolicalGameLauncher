@@ -19,7 +19,8 @@ export default function AccountDashboard({username}) {
     const [teams, setTeams] = useState([]);
     const [loadingTeams, setLoadingTeams] = useState(true);
     const [errorTeams, setErrorTeams] = useState(null);
-    const [githubAvatar, setGithubAvatar] = useState(null);
+    const githubId = Cookies.get("githubID");
+    const githubAvatar = githubId ? `https://avatars.githubusercontent.com/u/${githubId}?v=4` : null;
 
     const fetchTeams = useCallback(async () => {
         const sessionID = Cookies.get("sessionID");
@@ -41,12 +42,6 @@ export default function AccountDashboard({username}) {
             }
             const data = await response.json();
             setTeams(data);
-            if (data.length > 0 && data[0].github_ids) {
-                const userGithubID = data[0].github_ids.find((id) => id);
-                if (userGithubID) {
-                    setGithubAvatar(`https://avatars.githubusercontent.com/u/${userGithubID}?v=4`);
-                }
-            }
         } catch (err) {
             setErrorTeams("Failed to load teams.");
         } finally {
