@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {
-    Alert,
     Box,
     Button,
     CircularProgress,
@@ -11,7 +10,8 @@ import {
     Tab,
     Tabs,
     TextField,
-    Typography
+    Typography,
+    DialogContentText
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -723,7 +723,18 @@ const GameInfoPanel = ({game}) => {
             onClose={() => !isDeleting && setDeleteDialogOpen(false)}
             onConfirm={handleDeleteGame}
             title={`Delete ${game.game_name}`}
-            message={`Are you sure you want to delete "${game.game_name}"? This action cannot be undone.`}
+            message={
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this game? This action cannot be undone.
+                    </DialogContentText>
+                    {deleteError && (
+                        <Typography color="error" sx={{ mt: 2 }}>
+                            {deleteError}
+                        </Typography>
+                    )}
+                </DialogContent>
+            }
             confirmText="Delete Game"
             isConfirming={isDeleting}
             confirmButtonProps={{
