@@ -139,14 +139,3 @@ jobs:
           asset_path: ./dist/Diabolical Launcher Setup.exe.blockmap
           asset_name: Diabolical-Launcher-Setup.exe.blockmap
           asset_content_type: application/octet-stream
-          
-      - name: 📤 Upload Release Asset - Provenance
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .attestation/Diabolical-Launcher-Setup.exe.intoto.jsonl
-          asset_name: Diabolical-Launcher-Setup.exe.intoto.jsonl
-          asset_content_type: application/json
-
