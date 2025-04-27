@@ -120,18 +120,25 @@ export default function AccountPage() {
                     if (window.electronAPI) {
                         window.electronAPI.showCustomNotification("GitHub App", "Successfully authorized!");
                     }
-                    // Check if this installation already exists
-                    let exists = false;
+                    // Find if this installation exists and update it
+                    let found = false;
                     let count = 1;
                     while (Cookies.get(`githubInstallationId${count}`)) {
                         if (Cookies.get(`githubInstallationId${count}`) === data.githubInstallationId) {
-                            exists = true;
+                            // Update existing installation with new token
+                            Cookies.set(`githubAccessToken${count}`, data.githubAccessToken, {
+                                secure: true,
+                                sameSite: "Strict",
+                                expires: 7
+                            });
+                            found = true;
                             break;
                         }
                         count++;
                     }
 
-                    if (!exists) {
+                    // If not found, save as new installation
+                    if (!found) {
                         saveInstallationPair(data.githubInstallationId, data.githubAccessToken);
                     }
                 }
