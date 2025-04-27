@@ -93,49 +93,29 @@ jobs:
         env:
           NEW_VERSION: ${{ env.NEW_VERSION }}
           
-      - name: 🔒 Generate provenance attestation
-        uses: actions/attest-build-provenance@v1
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          subject-path: 'dist/Diabolical Launcher Setup.exe'
+          name: build-artifacts
+          path: |
+            dist/Diabolical Launcher Setup.exe
+            dist/latest.yml
+            dist/Diabolical Launcher Setup.exe.blockmap
+
+      - name: 🔒 Generate provenance attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/Diabolical Launcher Setup.exe
           subject-name: Diabolical-Launcher-Setup.exe
-      
-      - name: 🚀 Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.NEW_VERSION }}
-          release_name: ${{ env.NEW_VERSION }}
-          draft: false
-          prerelease: false
-
-      - name: 📤 Upload Release Asset - Setup Executable
-        uses: actions/upload-release-asset@v1
+          name: ${{ env.NEW_VERSION }}
+          files: |
+            dist/Diabolical Launcher Setup.exe
+            dist/latest.yml
+            dist/Diabolical Launcher Setup.exe.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/Diabolical Launcher Setup.exe
-          asset_name: Diabolical-Launcher-Setup.exe
-          asset_content_type: application/octet-stream
-
-      - name: 📤 Upload Release Asset - Latest YML
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/latest.yml
-          asset_name: latest.yml
-          asset_content_type: text/yaml
-
-      - name: 📤 Upload Release Asset - Blockmap (Fix auto-updater)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/Diabolical Launcher Setup.exe.blockmap
-          asset_name: Diabolical-Launcher-Setup.exe.blockmap
-          asset_content_type: application/octet-stream
