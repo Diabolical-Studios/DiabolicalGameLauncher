@@ -118,46 +118,20 @@ const StyledButton = styled(Button)({
             backgroundColor: colors.buttonHover,
         },
     },
+    '&.add-library-button': {
+        position: 'static',
+        transform: 'none',
+        opacity: 1,
+        padding: '6px 16px',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            border: `1px solid ${colors.text}`,
+        },
+    },
 });
 
-const ProgressIndicator = styled(Box)({
-    position: 'absolute',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    gap: '8px',
-    zIndex: 2,
-});
 
-const IndicatorDot = styled(Box)(({ active, progress }) => ({
-    width: '40px',
-    height: '4px',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: '2px',
-    cursor: 'pointer',
-    position: 'relative',
-    overflow: 'hidden',
-    '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    },
-    '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        height: '100%',
-        width: `${progress}%`,
-        backgroundColor: colors.text,
-        transition: 'width 0.1s linear',
-    },
-}));
-
-const FeaturedContent = styled(Box)(({ animate }) => ({
-    opacity: animate ? 0 : 1,
-    transform: animate ? 'translateY(20px)' : 'translateY(0)',
-    transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
-}));
 
 const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
@@ -278,10 +252,11 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
 const StorePage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
-    const [featuredIndex, setFeaturedIndex] = useState(0);
-    const [progress, setProgress] = useState(0);
-    const [isAnimating, setIsAnimating] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
+    const [progress, setProgress] = useState(0);
+    const [downloadProgresses, setDownloadProgresses] = useState({});
+    const [isHovering, setIsHovering] = useState(false);
 
     // Memoize the filtered games based on search query
     const filteredGames = useMemo(() => {
@@ -300,10 +275,58 @@ const StorePage = () => {
         return [];
     }, [filteredGames]);
 
-    // Memoize the featured games to prevent re-randomization
-    const memoizedFeaturedGames = useMemo(() => {
+    // Memoize featured games
+    const featuredGames = useMemo(() => {
         return shuffledGames.slice(0, 3);
     }, [shuffledGames]);
+
+    // Handle featured games transition and progress
+    useEffect(() => {
+        if (featuredGames.length === 0 || isHovering) return;
+
+        const progressInterval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    setCurrentFeaturedIndex((currentFeaturedIndex + 1) % featuredGames.length);
+                    return 0;
+                }
+                return prev + 1;
+            });
+        }, 50); // Update progress every 50ms
+
+        return () => clearInterval(progressInterval);
+    }, [featuredGames.length, currentFeaturedIndex, isHovering]);
+
+    // Handle download progress
+    useEffect(() => {
+        const handleDownloadProgress = (progressData) => {
+            setDownloadProgresses(prev => ({
+                ...prev,
+                [progressData.gameId]: `${Math.round(progressData.percentage * 100)}%`
+            }));
+        };
+
+        const handleDownloadComplete = ({ gameId }) => {
+            setDownloadProgresses(prev => {
+                const newProgresses = { ...prev };
+                delete newProgresses[gameId];
+                return newProgresses;
+            });
+            setInstalledGames(prev => [...prev, gameId]);
+        };
+
+        const handleGameUninstalled = (uninstalledGameId) => {
+            setInstalledGames(prev => prev.filter(id => id !== uninstalledGameId));
+        };
+
+        window.electronAPI?.onDownloadProgress(handleDownloadProgress);
+        window.electronAPI?.onDownloadComplete(handleDownloadComplete);
+        window.electronAPI?.onGameUninstalled(handleGameUninstalled);
+
+        return () => {
+            window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
+        };
+    }, []);
 
     useEffect(() => {
         const loadGames = async () => {
@@ -352,25 +375,6 @@ const StorePage = () => {
 
         loadGames();
     }, []);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 100) {
-                    setIsAnimating(true);
-                    setTimeout(() => {
-                        setFeaturedIndex(prevIndex => (prevIndex + 1) % memoizedFeaturedGames.length);
-                        setProgress(0);
-                        setIsAnimating(false);
-                    }, 300);
-                    return 100;
-                }
-                return prev + 0.5;
-            });
-        }, 100);
-
-        return () => clearInterval(interval);
-    }, [memoizedFeaturedGames.length]);
 
     const handlePlayGame = async (gameId) => {
         try {
@@ -422,69 +426,117 @@ const StorePage = () => {
                     />
                 </Box>
 
-                {/* Featured Games Carousel */}
-                {!searchQuery && (
-                    <Box sx={{ position: 'relative', mb: 3 }}>
-                        {memoizedFeaturedGames[featuredIndex] && (
-                            <Grow in={!isAnimating} timeout={500}>
+                {/* New Featured Games Section */}
+                {!searchQuery && featuredGames.length > 0 && (
+                    <Box 
+                        sx={{ position: 'relative', mb: 3, height: '400px' }}
+                        onMouseEnter={() => setIsHovering(true)}
+                        onMouseLeave={() => setIsHovering(false)}
+                    >
+                        {featuredGames.map((game, index) => (
+                            <Box
+                                key={game.game_id}
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    opacity: index === currentFeaturedIndex ? 1 : 0,
+                                    transition: 'opacity 0.5s ease-in-out',
+                                    zIndex: index === currentFeaturedIndex ? 1 : 0,
+                                }}
+                            >
                                 <FeaturedCard>
-                                    {memoizedFeaturedGames[featuredIndex].version && (
-                                        <VersionChip
-                                            label={`v${memoizedFeaturedGames[featuredIndex].version}`}
-                                        />
+                                    {game.version && (
+                                        <VersionChip label={`v${game.version}`} />
                                     )}
                                     <StyledCardMedia
                                         component="img"
-                                        image={memoizedFeaturedGames[featuredIndex].background_image_url || ""}
-                                        alt={memoizedFeaturedGames[featuredIndex].game_name}
+                                        image={game.background_image_url || ""}
+                                        alt={game.game_name}
                                     />
-                                    <CardOverlay className="card-overlay">
-                                        <FeaturedContent animate={isAnimating}>
-                                            <Typography variant="h3" sx={{ 
-                                                color: colors.text, 
-                                                mb: 1,
-                                                textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                                                fontWeight: 600
-                                            }}>
-                                                {memoizedFeaturedGames[featuredIndex].game_name}
-                                            </Typography>
-                                            <Typography variant="body1" sx={{ 
-                                                color: colors.text, 
-                                                mb: 2,
-                                                maxWidth: '600px',
-                                                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                                            }}>
-                                                {memoizedFeaturedGames[featuredIndex].description}
-                                            </Typography>
-                                            <StyledButton
-                                                className="featured-button"
-                                                variant="contained"
-                                                onClick={() => installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) 
-                                                    ? handlePlayGame(memoizedFeaturedGames[featuredIndex].game_id)
-                                                    : handleDownloadGame(memoizedFeaturedGames[featuredIndex].game_id)}
-                                            >
-                                                {installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) ? "Play" : "Download"}
-                                            </StyledButton>
-                                        </FeaturedContent>
+                                    <CardOverlay>
+                                        <Typography variant="h3" sx={{ 
+                                            color: colors.text, 
+                                            mb: 1,
+                                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                            fontWeight: 600
+                                        }}>
+                                            {game.game_name}
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ 
+                                            color: colors.text, 
+                                            mb: 2,
+                                            maxWidth: '600px',
+                                            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                        }}>
+                                            {game.description}
+                                        </Typography>
+                                        <StyledButton
+                                            className="add-library-button"
+                                            size="small"
+                                            variant="contained"
+                                            onClick={() => {
+                                                if (installedGames.includes(game.game_id)) {
+                                                    handlePlayGame(game.game_id);
+                                                } else {
+                                                    handleDownloadGame(game.game_id);
+                                                }
+                                            }}
+                                        >
+                                            {downloadProgresses[game.game_id] || 
+                                             (installedGames.includes(game.game_id) ? "Play" : "Download")}
+                                        </StyledButton>
                                     </CardOverlay>
-                                    <ProgressIndicator>
-                                        {memoizedFeaturedGames.map((_, index) => (
-                                            <IndicatorDot
-                                                key={index}
-                                                active={index === featuredIndex}
-                                                progress={index === featuredIndex ? progress : 0}
-                                                onClick={() => {
-                                                    if (index !== featuredIndex) {
-                                                        setFeaturedIndex(index);
-                                                        setProgress(0);
-                                                    }
-                                                }}
-                                            />
-                                        ))}
-                                    </ProgressIndicator>
                                 </FeaturedCard>
-                            </Grow>
-                        )}
+                            </Box>
+                        ))}
+                        <Box sx={{ 
+                            position: 'absolute', 
+                            bottom: '20px', 
+                            left: '50%', 
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            gap: '8px',
+                            zIndex: 2
+                        }}>
+                            {featuredGames.map((_, index) => (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        width: '40px',
+                                        height: '4px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                                        borderRadius: '2px',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                        }
+                                    }}
+                                    onClick={() => {
+                                        setCurrentFeaturedIndex(index);
+                                        setProgress(0);
+                                    }}
+                                >
+                                    {index === currentFeaturedIndex && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                height: '100%',
+                                                width: `${progress}%`,
+                                                backgroundColor: colors.text,
+                                                transition: 'width 0.05s linear',
+                                            }}
+                                        />
+                                    )}
+                                </Box>
+                            ))}
+                        </Box>
                     </Box>
                 )}
 
