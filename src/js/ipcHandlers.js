@@ -5,7 +5,7 @@ const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
-const {getInstalledGames, showContextMenu, uninstallGame, getGameSize} = require("./gameManager");
+const {getInstalledGames, showContextMenu, uninstallGame, getGameSize, startPlaytimeTracking, stopPlaytimeTracking, getGamePlaytime} = require("./gameManager");
 const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
@@ -31,9 +31,16 @@ function initIPCHandlers() {
         return getGameSize(gameId);
     });
 
+    ipcMain.handle("get-game-playtime", async (event, gameId) => {
+        return getGamePlaytime(gameId);
+    });
+
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
         const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
+
+        // Start tracking playtime
+        startPlaytimeTracking(gameId);
 
         // Use spawn instead of exec for better process control
         const gameProcess = spawn(executablePath, [], {
@@ -53,6 +60,7 @@ function initIPCHandlers() {
         gameProcess.on('exit', (code) => {
             console.log(`Game process exited with code ${code}`);
             runningGames.delete(gameId);
+            stopPlaytimeTracking(gameId);
             event.sender.send("game-stopped", gameId);
         });
 
@@ -60,7 +68,8 @@ function initIPCHandlers() {
         gameProcess.on('error', (err) => {
             console.error('Failed to start game process:', err);
             runningGames.delete(gameId);
-            event.sender.send("game-launch-error", err.message);
+            stopPlaytimeTracking(gameId);
+            event.sender.send("game-stopped", gameId);
         });
 
         event.sender.send("game-started", gameId);
@@ -86,23 +95,27 @@ function initIPCHandlers() {
                                 console.error(`Failed to kill process ${gameInfo.pid}`);
                             }
                             runningGames.delete(gameId);
+                            stopPlaytimeTracking(gameId);
                             event.sender.send("game-stopped", gameId);
                         });
 
                         taskkill.on('error', (err) => {
                             console.error('Error executing taskkill:', err);
                             runningGames.delete(gameId);
+                            stopPlaytimeTracking(gameId);
                             event.sender.send("game-stopped", gameId);
                         });
                     } catch (err) {
                         console.error('Error in force kill:', err);
                         runningGames.delete(gameId);
+                        stopPlaytimeTracking(gameId);
                         event.sender.send("game-stopped", gameId);
                     }
                 }, 1000);
             } catch (err) {
                 console.error('Error in stop-game:', err);
                 runningGames.delete(gameId);
+                stopPlaytimeTracking(gameId);
                 event.sender.send("game-stopped", gameId);
             }
         }

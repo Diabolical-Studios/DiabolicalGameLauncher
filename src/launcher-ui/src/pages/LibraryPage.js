@@ -51,7 +51,7 @@ const LibraryPage = () => {
     const [currentVersion, setCurrentVersion] = useState(null);
     const [latestVersion, setLatestVersion] = useState(null);
     const [contextMenu, setContextMenu] = useState(null);
-    const [playTime] = useState('0 hours');
+    const [playTime, setPlayTime] = useState('0 hours');
     const [achievements] = useState({ completed: 0, total: 0 });
     const [diskUsage, setDiskUsage] = useState('0 MB');
     const [propertiesDialogOpen, setPropertiesDialogOpen] = useState(false);
@@ -171,14 +171,17 @@ const LibraryPage = () => {
                 // Load game metadata directly from the API
                 const response = await axios.get("/get-all-games");
                 const metadata = response.data;
+                
+                // Always update cached games with fresh API data
                 setCachedGames(metadata);
+                window.electronAPI.cacheGamesLocally(metadata);
 
                 // Check for updates for all installed games
                 const updates = {};
                 for (const id of ids) {
                     try {
                         const current = await window.electronAPI.getCurrentGameVersion(id);
-                        // Get the latest version from the API response instead of using cached version
+                        // Get the latest version from the API response
                         const gameInfo = metadata.find(g => g.game_id === id);
                         if (gameInfo && gameInfo.version !== current) {
                             updates[id] = { 
@@ -195,11 +198,10 @@ const LibraryPage = () => {
                 if (ids.length > 0) {
                     const first = metadata.find(g => g.game_id === ids[0]) || { game_id: ids[0] };
                     setSelectedGame(first);
-                    // Don't call fetchLocalVersion here, it will be called by the selectedGame effect
                 }
             } catch (err) {
                 console.error("Error loading library:", err);
-                // Fallback to cached games if API fails
+                // Only fallback to cached games if API fails
                 try {
                     const cached = await window.electronAPI.getCachedGames();
                     setCachedGames(cached);
@@ -214,16 +216,29 @@ const LibraryPage = () => {
         const updateInterval = setInterval(loadGames, 300000); // Check every 5 minutes
 
         return () => clearInterval(updateInterval);
-    }, []); // Remove fetchLocalVersion dependency
+    }, []);
 
     useEffect(() => {
         if (selectedGame) {
-            fetchLocalVersion(selectedGame.game_id);
-            // Fetch game size
-            const fetchGameSize = async () => {
+            // Get the latest version from API data (cached games are always fresh from API)
+            const gameInfo = cachedGames.find(g => g.game_id === selectedGame.game_id);
+            if (gameInfo) {
+                setLatestVersion(gameInfo.version);
+            }
+
+            // Fetch current version and game size
+            const fetchGameInfo = async () => {
                 if (window.electronAPI) {
                     try {
-                        const sizeInBytes = await window.electronAPI.getGameSize(selectedGame.game_id);
+                        const [current, sizeInBytes] = await Promise.all([
+                            window.electronAPI.getCurrentGameVersion(selectedGame.game_id),
+                            window.electronAPI.getGameSize(selectedGame.game_id)
+                        ]);
+                        
+                        setCurrentVersion(current);
+                        // Compare with API version (from cachedGames which is fresh)
+                        setHasUpdate(gameInfo && current !== gameInfo.version);
+
                         // Convert bytes to appropriate unit
                         let size;
                         if (sizeInBytes < 1024 * 1024) { // Less than 1 MB
@@ -235,14 +250,14 @@ const LibraryPage = () => {
                         }
                         setDiskUsage(size);
                     } catch (err) {
-                        console.error("Error fetching game size:", err);
+                        console.error("Error fetching game info:", err);
                         setDiskUsage('Unknown');
                     }
                 }
             };
-            fetchGameSize();
+            fetchGameInfo();
         }
-    }, [selectedGame, fetchLocalVersion]);
+    }, [selectedGame, cachedGames]);
 
     useEffect(() => {
         const checkGameStatus = async () => {

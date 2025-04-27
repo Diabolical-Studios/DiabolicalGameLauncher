@@ -4,6 +4,9 @@ const {Menu, shell, BrowserWindow} = require("electron");
 const {downloadGame} = require("./downloadManager");
 const {diabolicalLauncherPath} = require("./settings");
 
+// Store active game sessions
+const activeSessions = new Map();
+
 //Get the size of a directory recursively
 function getDirectorySize(dirPath) {
     let size = 0;
@@ -33,6 +36,72 @@ function getGameSize(gameId) {
         console.error(`Failed to get size for game ${gameId}:`, error);
         return 0;
     }
+}
+
+// Get the path to the playtime data file
+function getPlaytimeFilePath() {
+    return path.join(diabolicalLauncherPath, 'playtime.json');
+}
+
+// Load playtime data from file
+function loadPlaytimeData() {
+    try {
+        const filePath = getPlaytimeFilePath();
+        if (fs.existsSync(filePath)) {
+            const data = fs.readFileSync(filePath, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('Failed to load playtime data:', error);
+    }
+    return {};
+}
+
+// Save playtime data to file
+function savePlaytimeData(data) {
+    try {
+        const filePath = getPlaytimeFilePath();
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    } catch (error) {
+        console.error('Failed to save playtime data:', error);
+    }
+}
+
+// Start tracking playtime for a game
+function startPlaytimeTracking(gameId) {
+    if (!activeSessions.has(gameId)) {
+        activeSessions.set(gameId, Date.now());
+        console.log(`Started tracking playtime for game: ${gameId}`);
+    }
+}
+
+// Stop tracking playtime for a game and update total playtime
+function stopPlaytimeTracking(gameId) {
+    if (activeSessions.has(gameId)) {
+        const startTime = activeSessions.get(gameId);
+        const endTime = Date.now();
+        const sessionDuration = endTime - startTime;
+        
+        // Load current playtime data
+        const playtimeData = loadPlaytimeData();
+        
+        // Update total playtime for the game
+        playtimeData[gameId] = (playtimeData[gameId] || 0) + sessionDuration;
+        
+        // Save updated data
+        savePlaytimeData(playtimeData);
+        
+        // Remove from active sessions
+        activeSessions.delete(gameId);
+        console.log(`Stopped tracking playtime for game: ${gameId}`);
+    }
+}
+
+// Get total playtime for a game in hours
+function getGamePlaytime(gameId) {
+    const playtimeData = loadPlaytimeData();
+    const totalMs = playtimeData[gameId] || 0;
+    return (totalMs / (1000 * 60 * 60)).toFixed(1); // Convert to hours with 1 decimal place
 }
 
 //Get a list of game_ids which are currently installed
@@ -112,5 +181,8 @@ module.exports = {
     uninstallGame, 
     getInstalledGames, 
     showContextMenu,
-    getGameSize
+    getGameSize,
+    startPlaytimeTracking,
+    stopPlaytimeTracking,
+    getGamePlaytime
 };
