@@ -52,6 +52,10 @@ function = "delete-game"
 path = "/delete-game"
 
 [[edge_functions]]
+function = "delete-team"
+path = "/delete-team"
+
+[[edge_functions]]
 function = "update-team"
 path = "/update-team"
 
