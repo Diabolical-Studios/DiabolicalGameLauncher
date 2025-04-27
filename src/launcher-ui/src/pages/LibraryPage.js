@@ -39,6 +39,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import StopIcon from '@mui/icons-material/Stop';
 import {colors} from "../theme/colors";
 import axios from "axios";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 
 const LibraryPage = () => {
     const [installedGameIds, setInstalledGameIds] = useState([]);
@@ -687,34 +688,15 @@ const LibraryPage = () => {
                 </MenuItem>
             </Menu>
 
-            {/* Uninstall Dialog */}
-            <Dialog
+            <ConfirmDialog
                 open={uninstallDialogOpen}
                 onClose={() => setUninstallDialogOpen(false)}
-                PaperProps={{
-                    sx: {
-                        bgcolor: 'rgba(0, 0, 0, 0.8)',
-                        border: `1px solid ${colors.border}`,
-                    },
-                }}
-            >
-                <DialogTitle sx={{color: colors.text}}>
-                    Uninstall {selectedGame?.game_name || selectedGame?.game_id}?
-                </DialogTitle>
-                <DialogContent>
-                    <Typography sx={{color: colors.text}}>
-                        Are you sure you want to uninstall this game? This action cannot be undone.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setUninstallDialogOpen(false)} sx={{color: colors.text}}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleUninstallGame} color="error">
-                        Uninstall
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onConfirm={handleUninstallGame}
+                title={`Uninstall ${selectedGame?.game_name || selectedGame?.game_id}`}
+                message={`Are you sure you want to uninstall this game? This action cannot be undone.`}
+                confirmText="Uninstall"
+                confirmColor="error"
+            />
 
             {/* Properties Dialog */}
             <Dialog

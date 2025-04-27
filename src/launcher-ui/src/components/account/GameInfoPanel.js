@@ -24,6 +24,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import WarningIcon from '@mui/icons-material/Warning';
 import {colors} from "../../theme/colors";
 import Cookies from "js-cookie";
+import ConfirmDialog from "../common/ConfirmDialog";
 
 const GameInfoPanel = ({game}) => {
     const [workflows, setWorkflows] = useState([]);
@@ -717,51 +718,18 @@ const GameInfoPanel = ({game}) => {
             </Stack>
         )}
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog
+        <ConfirmDialog
             open={deleteDialogOpen}
             onClose={() => !isDeleting && setDeleteDialogOpen(false)}
-            sx={{
-                "& .MuiDialog-paper": {
-                    backgroundColor: "rgba(0,0,0,0.9)",
-                    color: colors.text,
-                    outline: "1px solid" + colors.border,
-                    borderRadius: "2px"
-                },
+            onConfirm={handleDeleteGame}
+            title={`Delete ${game.game_name}`}
+            message={`Are you sure you want to delete "${game.game_name}"? This action cannot be undone.`}
+            confirmText="Delete Game"
+            isConfirming={isDeleting}
+            confirmButtonProps={{
+                startIcon: isDeleting ? <CircularProgress size={20}/> : <DeleteForeverIcon/>
             }}
-        >
-            <DialogTitle>Delete Game</DialogTitle>
-            <DialogContent>
-                <Stack spacing={2}>
-                    <Typography>
-                        Are you sure you want to delete "{game.game_name}"? This action cannot be undone.
-                    </Typography>
-                    {deleteError && (
-                        <Alert severity="error" sx={{mt: 2}}>
-                            {deleteError}
-                        </Alert>
-                    )}
-                    <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 2}}>
-                        <Button
-                            onClick={() => setDeleteDialogOpen(false)}
-                            disabled={isDeleting}
-                            sx={{color: colors.text}}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={handleDeleteGame}
-                            disabled={isDeleting}
-                            startIcon={isDeleting ? <CircularProgress size={20}/> : <DeleteForeverIcon/>}
-                        >
-                            {isDeleting ? "Deleting..." : "Delete Game"}
-                        </Button>
-                    </Box>
-                </Stack>
-            </DialogContent>
-        </Dialog>
+        />
 
         {/* Log Viewer Popup */}
         <Dialog

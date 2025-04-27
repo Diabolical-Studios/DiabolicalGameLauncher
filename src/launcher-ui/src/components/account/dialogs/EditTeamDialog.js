@@ -6,7 +6,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
     IconButton,
     Stack,
     TextField,
@@ -23,6 +22,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {colors} from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
+import ConfirmDialog from "../../common/ConfirmDialog";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
@@ -278,7 +278,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                                 borderRadius: "2px"
                                             }}
                                             onClick={handleAddMember}
-                                            style={{height: "100%"}}
+                                            style={{height: "inherit"}}
                                             aria-label="add"
                                             color="primary"
                                         >
@@ -365,49 +365,15 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                 </DialogActions>
             </StyledDialog>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog
+            <ConfirmDialog
                 open={deleteDialogOpen}
                 onClose={() => setDeleteDialogOpen(false)}
-                aria-labelledby="delete-dialog-title"
-            >
-                <DialogTitle id="delete-dialog-title" className="dialog">
-                    Confirm Team Deletion
-                </DialogTitle>
-                <DialogContent className="dialog">
-                    <Typography>
-                        Are you sure you want to delete this team? This action cannot be undone.
-                    </Typography>
-                </DialogContent>
-                <DialogActions className="dialog">
-                    <Button
-                        onClick={() => setDeleteDialogOpen(false)}
-                        color="primary"
-                        sx={{
-                            color: colors.text,
-                            backgroundColor: colors.background,
-                            outline: "1px solid" + colors.border,
-                            borderRadius: "2px",
-                            padding: "12px",
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleDeleteTeam}
-                        color="error"
-                        disabled={isDeleting}
-                        sx={{
-                            backgroundColor: colors.error,
-                            "&:hover": {
-                                backgroundColor: colors.errorDark
-                            }
-                        }}
-                    >
-                        {isDeleting ? "Deleting..." : "Delete"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onConfirm={handleDeleteTeam}
+                title="Confirm Team Deletion"
+                message="Are you sure you want to delete this team? This action cannot be undone."
+                confirmText="Delete"
+                isConfirming={isDeleting}
+            />
         </>
     );
 };
