@@ -46,6 +46,7 @@ const LibraryPage = () => {
     const [selectedGame, setSelectedGame] = useState(null);
     const [activeDownloads, setActiveDownloads] = useState({});
     const [hasUpdate, setHasUpdate] = useState(false);
+    const [applyingUpdate, setApplyingUpdate] = useState({});
     const [uninstallDialogOpen, setUninstallDialogOpen] = useState(false);
     const [currentVersion, setCurrentVersion] = useState(null);
     const [latestVersion, setLatestVersion] = useState(null);
@@ -94,22 +95,62 @@ const LibraryPage = () => {
             }));
         };
 
-        const handleDownloadComplete = ({ gameId }) => {
+        const handleDownloadComplete = async ({ gameId }) => {
+            console.log(`Download complete for game ${gameId}`);
+            
+            // First remove from active downloads
             setActiveDownloads((prev) => {
                 const updated = { ...prev };
                 delete updated[gameId];
                 return updated;
             });
-            if (gameId === selectedGame?.game_id) {
-                setHasUpdate(false);
-                fetchLocalVersion(gameId);
+
+            // Set applying update state
+            setApplyingUpdate(prev => ({ ...prev, [gameId]: true }));
+
+            try {
+                // Get the latest version from cached games
+                const gameInfo = cachedGames.find(g => g.game_id === gameId);
+                
+                // Add a small delay to ensure file operations are complete
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                try {
+                    // Get the current version regardless of whether we found game info
+                    const currentVersion = await window.electronAPI.getCurrentGameVersion(gameId);
+                    
+                    // Update UI if this is the selected game
+                    if (gameId === selectedGame?.game_id) {
+                        setCurrentVersion(currentVersion);
+                        // Only set hasUpdate to false if we can verify versions match
+                        if (gameInfo && currentVersion === gameInfo.version) {
+                            setHasUpdate(false);
+                        }
+                        console.log(`UI updated for selected game ${gameId} with version ${currentVersion}`);
+                    }
+
+                    // Remove from gameUpdates if we can verify versions match
+                    if (gameInfo && currentVersion === gameInfo.version) {
+                        setGameUpdates(prev => {
+                            const updated = { ...prev };
+                            delete updated[gameId];
+                            return updated;
+                        });
+                        console.log(`Game ${gameId} removed from updates list`);
+                    }
+                } catch (versionError) {
+                    console.error(`Error getting version for ${gameId}:`, versionError);
+                }
+            } catch (error) {
+                console.error(`Error in update process for ${gameId}:`, error);
+            } finally {
+                // Clear applying update state
+                setApplyingUpdate(prev => {
+                    const updated = { ...prev };
+                    delete updated[gameId];
+                    return updated;
+                });
             }
-            // Remove the game from gameUpdates when download is complete
-            setGameUpdates(prev => {
-                const updated = { ...prev };
-                delete updated[gameId];
-                return updated;
-            });
         };
 
         window.electronAPI?.onDownloadProgress(handleDownloadProgress);
@@ -118,7 +159,7 @@ const LibraryPage = () => {
         return () => {
             window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
         };
-    }, [selectedGame, fetchLocalVersion]);
+    }, [selectedGame, fetchLocalVersion, cachedGames]);
 
     useEffect(() => {
         const loadGames = async () => {
@@ -460,10 +501,16 @@ const LibraryPage = () => {
                                     <Stack spacing={2}>
                                         <Button
                                             variant="contained"
-                                            startIcon={isDownloading ? <DownloadIcon /> : hasUpdate ? <UpdateIcon /> : isGameRunning ? <StopIcon /> : <PlayArrowIcon />}
-                                            disabled={isDownloading}
+                                            startIcon={
+                                                isDownloading ? <DownloadIcon /> : 
+                                                applyingUpdate[selectedGame?.game_id] ? <UpdateIcon /> :
+                                                hasUpdate ? <UpdateIcon /> : 
+                                                isGameRunning ? <StopIcon /> : 
+                                                <PlayArrowIcon />
+                                            }
+                                            disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
                                             onClick={() => {
-                                                if (isDownloading) return;
+                                                if (isDownloading || applyingUpdate[selectedGame?.game_id]) return;
                                                 if (hasUpdate) {
                                                     window.electronAPI.downloadGame(selectedGame.game_id);
                                                 } else if (isGameRunning) {
@@ -480,7 +527,11 @@ const LibraryPage = () => {
                                                 },
                                             }}
                                         >
-                                            {isDownloading ? "Downloading" : hasUpdate ? "Update" : isGameRunning ? "Stop" : "Play"}
+                                            {isDownloading ? "Downloading" : 
+                                             applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
+                                             hasUpdate ? "Update" : 
+                                             isGameRunning ? "Stop" : 
+                                             "Play"}
                                         </Button>
                                         {isDownloading && (
                                             <LinearProgress
