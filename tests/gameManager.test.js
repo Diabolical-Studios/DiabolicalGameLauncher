@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { uninstallGame, getInstalledGames, showContextMenu } = require('../src/js/gameManager');
-const { diabolicalLauncherPath } = require('../src/js/settings');
+const {uninstallGame, getInstalledGames, showContextMenu} = require('../src/js/gameManager');
+const {diabolicalLauncherPath} = require('../src/js/settings');
 
 // Mock fs module
 jest.mock('fs');
@@ -35,15 +35,15 @@ describe('Game Manager', () => {
             fs.existsSync.mockReturnValue(false);
             const games = getInstalledGames();
             expect(games).toEqual([]);
-            expect(fs.mkdirSync).toHaveBeenCalledWith(diabolicalLauncherPath, { recursive: true });
+            expect(fs.mkdirSync).toHaveBeenCalledWith(diabolicalLauncherPath, {recursive: true});
         });
 
         it('should return list of installed games', () => {
             fs.existsSync.mockReturnValue(true);
             const mockDirs = [
-                { name: 'game1', isDirectory: () => true },
-                { name: 'game2', isDirectory: () => true },
-                { name: 'file.txt', isDirectory: () => false },
+                {name: 'game1', isDirectory: () => true},
+                {name: 'game2', isDirectory: () => true},
+                {name: 'file.txt', isDirectory: () => false},
             ];
             fs.readdirSync.mockReturnValue(mockDirs);
 
@@ -69,7 +69,7 @@ describe('Game Manager', () => {
             fs.existsSync.mockReturnValue(true);
 
             uninstallGame(gameId);
-            expect(fs.rmSync).toHaveBeenCalledWith(gamePath, { recursive: true });
+            expect(fs.rmSync).toHaveBeenCalledWith(gamePath, {recursive: true});
         });
 
         it('should handle non-existent game gracefully', () => {
@@ -83,13 +83,13 @@ describe('Game Manager', () => {
 
     describe('showContextMenu', () => {
         it('should show appropriate menu for installed game', () => {
-            const event = { sender: {} };
+            const event = {sender: {}};
             const gameId = 'installed-game';
-            const position = { x: 100, y: 100 };
+            const position = {x: 100, y: 100};
             fs.existsSync.mockReturnValue(true);
 
             showContextMenu(event, gameId, position);
-            
+
             const mockMenu = require('electron').Menu.buildFromTemplate();
             expect(mockMenu.popup).toHaveBeenCalledWith({
                 window: expect.any(Object),
@@ -99,13 +99,13 @@ describe('Game Manager', () => {
         });
 
         it('should show appropriate menu for non-installed game', () => {
-            const event = { sender: {} };
+            const event = {sender: {}};
             const gameId = 'non-installed-game';
-            const position = { x: 100, y: 100 };
+            const position = {x: 100, y: 100};
             fs.existsSync.mockReturnValue(false);
 
             showContextMenu(event, gameId, position);
-            
+
             const mockMenu = require('electron').Menu.buildFromTemplate();
             expect(mockMenu.popup).toHaveBeenCalledWith({
                 window: expect.any(Object),

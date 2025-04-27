@@ -1,28 +1,28 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
     Box,
-    Typography,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    LinearProgress,
     List,
     ListItem,
-    ListItemText,
     ListItemIcon,
-    Divider,
-    Button,
-    Grid,
-    Paper,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    ListItemText,
     Menu,
     MenuItem,
-    LinearProgress,
-    Stack,
-    Chip,
-    IconButton,
+    Paper,
     Select,
-    FormControl,
-    InputLabel,
+    Stack,
+    Typography,
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -37,7 +37,7 @@ import TextField from '@mui/material/TextField';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsIcon from '@mui/icons-material/Settings';
 import StopIcon from '@mui/icons-material/Stop';
-import { colors } from "../theme/colors";
+import {colors} from "../theme/colors";
 import axios from "axios";
 
 const LibraryPage = () => {
@@ -52,7 +52,7 @@ const LibraryPage = () => {
     const [latestVersion, setLatestVersion] = useState(null);
     const [contextMenu, setContextMenu] = useState(null);
     const [playTime, setPlayTime] = useState('0 hours');
-    const [achievements] = useState({ completed: 0, total: 0 });
+    const [achievements] = useState({completed: 0, total: 0});
     const [diskUsage, setDiskUsage] = useState('0 MB');
     const [propertiesDialogOpen, setPropertiesDialogOpen] = useState(false);
     const [gameProperties, setGameProperties] = useState({
@@ -95,30 +95,30 @@ const LibraryPage = () => {
             }));
         };
 
-        const handleDownloadComplete = async ({ gameId }) => {
+        const handleDownloadComplete = async ({gameId}) => {
             console.log(`Download complete for game ${gameId}`);
-            
+
             // First remove from active downloads
             setActiveDownloads((prev) => {
-                const updated = { ...prev };
+                const updated = {...prev};
                 delete updated[gameId];
                 return updated;
             });
 
             // Set applying update state
-            setApplyingUpdate(prev => ({ ...prev, [gameId]: true }));
+            setApplyingUpdate(prev => ({...prev, [gameId]: true}));
 
             try {
                 // Get the latest version from cached games
                 const gameInfo = cachedGames.find(g => g.game_id === gameId);
-                
+
                 // Add a small delay to ensure file operations are complete
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 try {
                     // Get the current version regardless of whether we found game info
                     const currentVersion = await window.electronAPI.getCurrentGameVersion(gameId);
-                    
+
                     // Update UI if this is the selected game
                     if (gameId === selectedGame?.game_id) {
                         setCurrentVersion(currentVersion);
@@ -132,7 +132,7 @@ const LibraryPage = () => {
                     // Remove from gameUpdates if we can verify versions match
                     if (gameInfo && currentVersion === gameInfo.version) {
                         setGameUpdates(prev => {
-                            const updated = { ...prev };
+                            const updated = {...prev};
                             delete updated[gameId];
                             return updated;
                         });
@@ -146,7 +146,7 @@ const LibraryPage = () => {
             } finally {
                 // Clear applying update state
                 setApplyingUpdate(prev => {
-                    const updated = { ...prev };
+                    const updated = {...prev};
                     delete updated[gameId];
                     return updated;
                 });
@@ -171,7 +171,7 @@ const LibraryPage = () => {
                 // Load game metadata directly from the API
                 const response = await axios.get("/get-all-games");
                 const metadata = response.data;
-                
+
                 // Always update cached games with fresh API data
                 setCachedGames(metadata);
                 window.electronAPI.cacheGamesLocally(metadata);
@@ -184,9 +184,9 @@ const LibraryPage = () => {
                         // Get the latest version from the API response
                         const gameInfo = metadata.find(g => g.game_id === id);
                         if (gameInfo && gameInfo.version !== current) {
-                            updates[id] = { 
-                                current, 
-                                latest: gameInfo.version 
+                            updates[id] = {
+                                current,
+                                latest: gameInfo.version
                             };
                         }
                     } catch (err) {
@@ -196,7 +196,7 @@ const LibraryPage = () => {
                 setGameUpdates(updates);
 
                 if (ids.length > 0) {
-                    const first = metadata.find(g => g.game_id === ids[0]) || { game_id: ids[0] };
+                    const first = metadata.find(g => g.game_id === ids[0]) || {game_id: ids[0]};
                     setSelectedGame(first);
                 }
             } catch (err) {
@@ -235,7 +235,7 @@ const LibraryPage = () => {
                             window.electronAPI.getGameSize(selectedGame.game_id),
                             window.electronAPI.getGamePlaytime(selectedGame.game_id)
                         ]);
-                        
+
                         setCurrentVersion(current);
                         // Compare with API version (from cachedGames which is fresh)
                         setHasUpdate(gameInfo && current !== gameInfo.version);
@@ -359,7 +359,7 @@ const LibraryPage = () => {
     };
 
     const installedGameObjects = installedGameIds.map((id) =>
-        cachedGames.find((g) => g.game_id === id) || { game_id: id, game_name: id }
+        cachedGames.find((g) => g.game_id === id) || {game_id: id, game_name: id}
     );
 
     const groupedGames = {
@@ -371,7 +371,7 @@ const LibraryPage = () => {
     const isDownloading = !!downloadingGame;
 
     return (
-        <Box sx={{ display: "flex", height: "100%", overflow: "hidden", gap: 2, p: 2 }}>
+        <Box sx={{display: "flex", height: "100%", overflow: "hidden", gap: 2, p: 2}}>
             {/* Left Panel - Game List */}
             <Paper
                 elevation={0}
@@ -417,22 +417,22 @@ const LibraryPage = () => {
                                             position: 'relative',
                                         }}
                                     >
-                                        <ListItemIcon sx={{ minWidth: 0 }}>
+                                        <ListItemIcon sx={{minWidth: 0}}>
                                             {game.team_icon_url ? (
                                                 <Box
                                                     component="img"
                                                     src={game.team_icon_url}
                                                     alt=""
-                                                    sx={{ width: 18 }}
+                                                    sx={{width: 18}}
                                                 />
                                             ) : (
-                                                <SportsEsportsIcon sx={{ color: colors.text }} />
+                                                <SportsEsportsIcon sx={{color: colors.text}}/>
                                             )}
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Typography sx={{ color: colors.text }}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    <Typography sx={{color: colors.text}}>
                                                         {game.game_name || game.game_id}
                                                     </Typography>
                                                     {hasUpdate && (
@@ -451,27 +451,27 @@ const LibraryPage = () => {
                                                 </Box>
                                             }
                                             secondary={
-                                                <Typography variant="caption" sx={{ color: colors.text, opacity: 0.7 }}>
-                                                    {isDownloading 
+                                                <Typography variant="caption" sx={{color: colors.text, opacity: 0.7}}>
+                                                    {isDownloading
                                                         ? `Downloading: ${isDownloading.percentageString}`
-                                                        : hasUpdate 
+                                                        : hasUpdate
                                                             ? `v${hasUpdate.current} → v${hasUpdate.latest}`
                                                             : ''}
                                                 </Typography>
                                             }
-                                            sx={{ color: colors.text }}
+                                            sx={{color: colors.text}}
                                         />
                                     </ListItem>
                                 );
                             })}
                         </List>
-                        <Divider sx={{ borderColor: colors.border }} />
+                        <Divider sx={{borderColor: colors.border}}/>
                     </Box>
                 ))}
             </Paper>
 
             {/* Right Panel - Game Details */}
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{flex: 1, display: "flex", flexDirection: "column", gap: 2}}>
                 {selectedGame ? (
                     <>
                         {/* Game Banner */}
@@ -506,21 +506,21 @@ const LibraryPage = () => {
                                     bgcolor: 'rgba(0, 0, 0, 0.6)',
                                 }}
                             >
-                                <Typography variant="h4" sx={{ color: colors.text, mb: 1 }}>
+                                <Typography variant="h4" sx={{color: colors.text, mb: 1}}>
                                     {selectedGame.game_name || selectedGame.game_id}
                                 </Typography>
                                 <Stack direction="row" spacing={2} alignItems="center">
                                     <Chip
                                         label={`Version ${currentVersion || "Not Installed"}`}
                                         size="small"
-                                        sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)', color: colors.text }}
+                                        sx={{bgcolor: 'rgba(255, 255, 255, 0.1)', color: colors.text}}
                                     />
                                     {hasUpdate && (
                                         <Chip
                                             label={`Update to v${latestVersion}`}
                                             size="small"
                                             color="primary"
-                                            sx={{ color: colors.text }}
+                                            sx={{color: colors.text}}
                                         />
                                     )}
                                 </Stack>
@@ -542,11 +542,11 @@ const LibraryPage = () => {
                                         <Button
                                             variant="contained"
                                             startIcon={
-                                                isDownloading ? <DownloadIcon /> : 
-                                                applyingUpdate[selectedGame?.game_id] ? <UpdateIcon /> :
-                                                hasUpdate ? <UpdateIcon /> : 
-                                                isGameRunning ? <StopIcon /> : 
-                                                <PlayArrowIcon />
+                                                isDownloading ? <DownloadIcon/> :
+                                                    applyingUpdate[selectedGame?.game_id] ? <UpdateIcon/> :
+                                                        hasUpdate ? <UpdateIcon/> :
+                                                            isGameRunning ? <StopIcon/> :
+                                                                <PlayArrowIcon/>
                                             }
                                             disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
                                             onClick={() => {
@@ -567,11 +567,11 @@ const LibraryPage = () => {
                                                 },
                                             }}
                                         >
-                                            {isDownloading ? "Downloading" : 
-                                             applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
-                                             hasUpdate ? "Update" : 
-                                             isGameRunning ? "Stop" : 
-                                             "Play"}
+                                            {isDownloading ? "Downloading" :
+                                                applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
+                                                    hasUpdate ? "Update" :
+                                                        isGameRunning ? "Stop" :
+                                                            "Play"}
                                         </Button>
                                         {isDownloading && (
                                             <LinearProgress
@@ -588,20 +588,20 @@ const LibraryPage = () => {
                                             />
                                         )}
                                         <Stack direction="row" spacing={1} alignItems="center">
-                                            <AccessTimeIcon sx={{ color: colors.text, opacity: 0.7 }} />
-                                            <Typography variant="body2" sx={{ color: colors.text }}>
+                                            <AccessTimeIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                            <Typography variant="body2" sx={{color: colors.text}}>
                                                 {playTime}
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" spacing={1} alignItems="center">
-                                            <EmojiEventsIcon sx={{ color: colors.text, opacity: 0.7 }} />
-                                            <Typography variant="body2" sx={{ color: colors.text }}>
+                                            <EmojiEventsIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                            <Typography variant="body2" sx={{color: colors.text}}>
                                                 {achievements.completed}/{achievements.total} Achievements
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" spacing={1} alignItems="center">
-                                            <StorageIcon sx={{ color: colors.text, opacity: 0.7 }} />
-                                            <Typography variant="body2" sx={{ color: colors.text }}>
+                                            <StorageIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                            <Typography variant="body2" sx={{color: colors.text}}>
                                                 {diskUsage}
                                             </Typography>
                                         </Stack>
@@ -617,10 +617,10 @@ const LibraryPage = () => {
                                         border: `1px solid ${colors.border}`,
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{ color: colors.text, mb: 2 }}>
+                                    <Typography variant="h6" sx={{color: colors.text, mb: 2}}>
                                         About
                                     </Typography>
-                                    <Typography variant="body1" sx={{ color: colors.text, opacity: 0.8 }}>
+                                    <Typography variant="body1" sx={{color: colors.text, opacity: 0.8}}>
                                         {selectedGame.description || "No description available"}
                                     </Typography>
                                 </Paper>
@@ -650,19 +650,19 @@ const LibraryPage = () => {
                 anchorReference="anchorPosition"
                 anchorPosition={
                     contextMenu !== null
-                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
                         : undefined
                 }
             >
                 <MenuItem onClick={() => handleOpenProperties(contextMenu?.game)}>
                     <ListItemIcon>
-                        <SettingsIcon fontSize="small" />
+                        <SettingsIcon fontSize="small"/>
                     </ListItemIcon>
                     Properties
                 </MenuItem>
                 <MenuItem onClick={() => handleOpenInstallLocation(contextMenu?.game.game_id)}>
                     <ListItemIcon>
-                        <FolderIcon fontSize="small" />
+                        <FolderIcon fontSize="small"/>
                     </ListItemIcon>
                     Open Install Location
                 </MenuItem>
@@ -671,7 +671,7 @@ const LibraryPage = () => {
                     handleCloseContextMenu();
                 }}>
                     <ListItemIcon>
-                        <DownloadIcon fontSize="small" />
+                        <DownloadIcon fontSize="small"/>
                     </ListItemIcon>
                     Download/Update
                 </MenuItem>
@@ -681,7 +681,7 @@ const LibraryPage = () => {
                     handleCloseContextMenu();
                 }}>
                     <ListItemIcon>
-                        <DeleteIcon fontSize="small" />
+                        <DeleteIcon fontSize="small"/>
                     </ListItemIcon>
                     Uninstall
                 </MenuItem>
@@ -698,16 +698,16 @@ const LibraryPage = () => {
                     },
                 }}
             >
-                <DialogTitle sx={{ color: colors.text }}>
+                <DialogTitle sx={{color: colors.text}}>
                     Uninstall {selectedGame?.game_name || selectedGame?.game_id}?
                 </DialogTitle>
                 <DialogContent>
-                    <Typography sx={{ color: colors.text }}>
+                    <Typography sx={{color: colors.text}}>
                         Are you sure you want to uninstall this game? This action cannot be undone.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setUninstallDialogOpen(false)} sx={{ color: colors.text }}>
+                    <Button onClick={() => setUninstallDialogOpen(false)} sx={{color: colors.text}}>
                         Cancel
                     </Button>
                     <Button onClick={handleUninstallGame} color="error">
@@ -729,17 +729,17 @@ const LibraryPage = () => {
                     },
                 }}
             >
-                <DialogTitle sx={{ color: colors.text }}>
+                <DialogTitle sx={{color: colors.text}}>
                     {selectedGame?.game_name || selectedGame?.game_id} Properties
                 </DialogTitle>
                 <DialogContent>
-                    <Stack spacing={3} sx={{ mt: 2 }}>
+                    <Stack spacing={3} sx={{mt: 2}}>
                         <FormControl fullWidth>
-                            <InputLabel sx={{ color: colors.text }}>Branch</InputLabel>
+                            <InputLabel sx={{color: colors.text}}>Branch</InputLabel>
                             <Select
                                 value={gameProperties.branch}
                                 label="Branch"
-                                onChange={(e) => setGameProperties(prev => ({ ...prev, branch: e.target.value }))}
+                                onChange={(e) => setGameProperties(prev => ({...prev, branch: e.target.value}))}
                                 sx={{
                                     color: colors.text,
                                     '& .MuiOutlinedInput-notchedOutline': {
@@ -757,11 +757,11 @@ const LibraryPage = () => {
                         </FormControl>
 
                         <FormControl fullWidth>
-                            <InputLabel sx={{ color: colors.text }}>Language</InputLabel>
+                            <InputLabel sx={{color: colors.text}}>Language</InputLabel>
                             <Select
                                 value={gameProperties.language}
                                 label="Language"
-                                onChange={(e) => setGameProperties(prev => ({ ...prev, language: e.target.value }))}
+                                onChange={(e) => setGameProperties(prev => ({...prev, language: e.target.value}))}
                                 sx={{
                                     color: colors.text,
                                     '& .MuiOutlinedInput-notchedOutline': {
@@ -785,16 +785,16 @@ const LibraryPage = () => {
                         <TextField
                             label="Download Location"
                             value={gameProperties.downloadLocation}
-                            onChange={(e) => setGameProperties(prev => ({ ...prev, downloadLocation: e.target.value }))}
+                            onChange={(e) => setGameProperties(prev => ({...prev, downloadLocation: e.target.value}))}
                             fullWidth
                             InputProps={{
                                 readOnly: true,
                                 endAdornment: (
                                     <IconButton
                                         onClick={() => handleOpenInstallLocation(selectedGame?.game_id)}
-                                        sx={{ color: colors.text }}
+                                        sx={{color: colors.text}}
                                     >
-                                        <FolderIcon />
+                                        <FolderIcon/>
                                     </IconButton>
                                 ),
                             }}
@@ -817,7 +817,7 @@ const LibraryPage = () => {
                         <TextField
                             label="Launch Options"
                             value={gameProperties.launchOptions}
-                            onChange={(e) => setGameProperties(prev => ({ ...prev, launchOptions: e.target.value }))}
+                            onChange={(e) => setGameProperties(prev => ({...prev, launchOptions: e.target.value}))}
                             fullWidth
                             placeholder="Additional command line arguments"
                             sx={{
@@ -839,7 +839,7 @@ const LibraryPage = () => {
                         <TextField
                             label="Notes"
                             value={gameProperties.notes}
-                            onChange={(e) => setGameProperties(prev => ({ ...prev, notes: e.target.value }))}
+                            onChange={(e) => setGameProperties(prev => ({...prev, notes: e.target.value}))}
                             fullWidth
                             multiline
                             rows={4}
@@ -862,12 +862,12 @@ const LibraryPage = () => {
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setPropertiesDialogOpen(false)} sx={{ color: colors.text }}>
+                    <Button onClick={() => setPropertiesDialogOpen(false)} sx={{color: colors.text}}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSaveProperties}
-                        startIcon={<SaveIcon />}
+                        startIcon={<SaveIcon/>}
                         sx={{
                             bgcolor: colors.primary,
                             color: colors.text,

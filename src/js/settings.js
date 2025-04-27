@@ -10,7 +10,7 @@ const versionFilePath = (gameId) => path.join(diabolicalLauncherPath, `${gameId}
 
 //This will be made into a better logic
 const defaultSettings = {
-    windowSize: { width: 1280, height: 720 },
+    windowSize: {width: 1280, height: 720},
     language: "en",
     autoUpdate: true,
     notifications: true,
@@ -24,7 +24,7 @@ const defaultSettings = {
 //Create or use the save file logic
 function initSettings() {
     if (!fs.existsSync(diabolicalLauncherPath)) {
-        fs.mkdirSync(diabolicalLauncherPath, { recursive: true });
+        fs.mkdirSync(diabolicalLauncherPath, {recursive: true});
     }
 
     if (!fs.existsSync(settingsFilePath)) {
@@ -39,7 +39,7 @@ function loadSettings() {
             const data = fs.readFileSync(settingsFilePath);
             const savedSettings = JSON.parse(data);
             // Merge with default settings to ensure all properties exist
-            return { ...defaultSettings, ...savedSettings };
+            return {...defaultSettings, ...savedSettings};
         }
     } catch (error) {
         console.error("Error reading settings:", error);

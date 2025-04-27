@@ -1,5 +1,5 @@
-import React, {useState, useRef} from "react";
-import {Stack, CircularProgress} from "@mui/material";
+import React, {useRef, useState} from "react";
+import {CircularProgress, Stack} from "@mui/material";
 import UploadIcon from '@mui/icons-material/Upload';
 import {colors} from "../../theme/colors";
 
@@ -21,11 +21,11 @@ const ImageUploader = ({onUpload, currentImageUrl, uploading, setUploading}) => 
                     contentType: file.type
                 })
             });
-            const { url, key } = await res.json();
+            const {url, key} = await res.json();
 
             await fetch(url, {
                 method: "PUT",
-                headers: { "Content-Type": file.type },
+                headers: {"Content-Type": file.type},
                 body: file,
             });
 
@@ -94,20 +94,20 @@ const ImageUploader = ({onUpload, currentImageUrl, uploading, setUploading}) => 
             />
             {uploading ? (
                 <Stack alignItems="center" gap={1}>
-                    <CircularProgress size={24} />
-                    <span style={{ color: colors.text }}>Uploading...</span>
+                    <CircularProgress size={24}/>
+                    <span style={{color: colors.text}}>Uploading...</span>
                 </Stack>
             ) : currentImageUrl ? (
                 <Stack alignItems="center" gap={1}>
-                    <UploadIcon style={{ color: colors.button }} />
-                    <span style={{ color: colors.text }}>Image Uploaded ✅</span>
-                    <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
+                    <UploadIcon style={{color: colors.button}}/>
+                    <span style={{color: colors.text}}>Image Uploaded ✅</span>
+                    <span style={{color: colors.border, fontSize: "12px"}}>Click or drag to change</span>
                 </Stack>
             ) : (
                 <Stack alignItems="center" gap={1}>
-                    <UploadIcon style={{ color: colors.border }} />
-                    <span style={{ color: colors.text }}>Upload</span>
-                    <span style={{ color: colors.border, fontSize: "12px" }}>Supports PNG, JPG, GIF, WEBP</span>
+                    <UploadIcon style={{color: colors.border}}/>
+                    <span style={{color: colors.text}}>Upload</span>
+                    <span style={{color: colors.border, fontSize: "12px"}}>Supports PNG, JPG, GIF, WEBP</span>
                 </Stack>
             )}
         </Stack>

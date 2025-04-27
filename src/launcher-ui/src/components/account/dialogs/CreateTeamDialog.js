@@ -1,27 +1,19 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Cookies from "js-cookie";
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    Stack,
-    TextField,
-    Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import {Button, Dialog, DialogActions, DialogTitle, Stack, TextField, Typography,} from "@mui/material";
+import {styled} from "@mui/material/styles";
 import SaveIcon from "@mui/icons-material/Save";
-import { colors } from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
         border: "1px solid" + colors.border,
         borderRadius: "4px",
     },
 }));
 
-const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
+const CreateTeamDialog = ({open, handleClose, onCreate}) => {
     const [teamName, setTeamName] = useState("");
     const [teamIconUrl, setTeamIconUrl] = useState("");
     const [githubIds, setGithubIds] = useState([]);
@@ -149,14 +141,14 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
 
                     {/* Show Error Message */}
                     {error && (
-                        <Typography color="error" variant="body2" style={{ marginTop: "10px" }}>
+                        <Typography color="error" variant="body2" style={{marginTop: "10px"}}>
                             {error}
                         </Typography>
                     )}
                 </Stack>
             </Stack>
 
-            <DialogActions className="dialog" sx={{ padding: "12px" }}>
+            <DialogActions className="dialog" sx={{padding: "12px"}}>
                 <Button
                     sx={{
                         color: colors.text,
@@ -169,7 +161,7 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
                     className={"size-full rounded-xs"}
                     aria-label="add"
                     color="primary"
-                    startIcon={<SaveIcon />}
+                    startIcon={<SaveIcon/>}
                     disabled={uploading || !teamIconUrl}
                 >
                     Save

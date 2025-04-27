@@ -2,7 +2,7 @@ import StoreIcon from "@mui/icons-material/Store";
 
 const Navigation = () => {
     return (
-        <Box sx={{ display: "flex", height: "100%" }}>
+        <Box sx={{display: "flex", height: "100%"}}>
             <Drawer
                 variant="permanent"
                 sx={{
@@ -16,20 +16,20 @@ const Navigation = () => {
                     },
                 }}
             >
-                <Toolbar />
-                <Box sx={{ overflow: 'auto' }}>
+                <Toolbar/>
+                <Box sx={{overflow: 'auto'}}>
                     <List>
                         <ListItem button component={Link} to="/store" selected={location.pathname === "/store"}>
                             <ListItemIcon>
-                                <StoreIcon sx={{ color: colors.text }} />
+                                <StoreIcon sx={{color: colors.text}}/>
                             </ListItemIcon>
-                            <ListItemText primary="Store" />
+                            <ListItemText primary="Store"/>
                         </ListItem>
                         <ListItem button component={Link} to="/library" selected={location.pathname === "/library"}>
                             <ListItemIcon>
-                                <SportsEsportsIcon sx={{ color: colors.text }} />
+                                <SportsEsportsIcon sx={{color: colors.text}}/>
                             </ListItemIcon>
-                            <ListItemText primary="Library" />
+                            <ListItemText primary="Library"/>
                         </ListItem>
                         {/* ... rest of the navigation items ... */}
                     </List>

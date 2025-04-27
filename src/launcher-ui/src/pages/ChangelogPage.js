@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { colors } from "../theme/colors";
-import { Box, Typography, CircularProgress, Alert, Paper, Chip, Link, Divider } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import React, {useEffect, useState} from "react";
+import {colors} from "../theme/colors";
+import {Alert, Box, Chip, CircularProgress, Divider, Link, Paper, Typography} from "@mui/material";
+import {styled} from "@mui/material/styles";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import DownloadIcon from '@mui/icons-material/Download';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import UpdateIcon from '@mui/icons-material/Update';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Paper)(({theme}) => ({
     padding: "20px",
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     border: "1px solid" + colors.border,
@@ -62,9 +62,9 @@ const ChangelogPage = () => {
     }, []);
 
     const formatDate = (dateString) => {
-        const options = { 
-            year: 'numeric', 
-            month: 'long', 
+        const options = {
+            year: 'numeric',
+            month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -73,7 +73,7 @@ const ChangelogPage = () => {
     };
 
     const parseReleaseNotes = (body) => {
-        if (!body) return { features: [], fixes: [], updates: [] };
+        if (!body) return {features: [], fixes: [], updates: []};
 
         const sections = {
             features: [],
@@ -100,7 +100,7 @@ const ChangelogPage = () => {
     };
 
     return (
-        <Box sx={{ 
+        <Box sx={{
             padding: "24px",
             height: 'calc(100vh - 48px)',
             overflowY: 'auto',
@@ -118,18 +118,18 @@ const ChangelogPage = () => {
                 background: colors.button,
             }
         }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ color: colors.text }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{color: colors.text}}>
                 Changelog
             </Typography>
 
             {loading && (
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                    <CircularProgress sx={{ color: colors.button }} />
+                    <CircularProgress sx={{color: colors.button}}/>
                 </Box>
             )}
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{mb: 2}}>
                     {error}
                 </Alert>
             )}
@@ -143,31 +143,31 @@ const ChangelogPage = () => {
                     <StyledPaper key={release.id} elevation={3}>
                         <ReleaseHeader>
                             <Box>
-                                <Typography variant="h5" sx={{ color: colors.text, mb: 1 }}>
+                                <Typography variant="h5" sx={{color: colors.text, mb: 1}}>
                                     {release.name || release.tag_name}
                                 </Typography>
                                 <ReleaseInfo>
-                                    <TagChip 
-                                        size="small" 
+                                    <TagChip
+                                        size="small"
                                         label={release.tag_name}
-                                        icon={<NewReleasesIcon />}
+                                        icon={<NewReleasesIcon/>}
                                     />
                                     {isPrerelease && (
-                                        <Chip 
-                                            size="small" 
+                                        <Chip
+                                            size="small"
                                             label="Pre-release"
-                                            sx={{ backgroundColor: '#ff9800', color: '#000' }}
+                                            sx={{backgroundColor: '#ff9800', color: '#000'}}
                                         />
                                     )}
                                     {isDraft && (
-                                        <Chip 
-                                            size="small" 
+                                        <Chip
+                                            size="small"
                                             label="Draft"
-                                            sx={{ backgroundColor: '#795548', color: '#fff' }}
+                                            sx={{backgroundColor: '#795548', color: '#fff'}}
                                         />
                                     )}
                                 </ReleaseInfo>
-                                <Typography variant="body2" sx={{ color: '#aaa' }}>
+                                <Typography variant="body2" sx={{color: '#aaa'}}>
                                     Released on {formatDate(release.published_at)}
                                 </Typography>
                             </Box>
@@ -187,20 +187,21 @@ const ChangelogPage = () => {
                                         }
                                     }}
                                 >
-                                    <GitHubIcon /> View on GitHub
+                                    <GitHubIcon/> View on GitHub
                                 </Link>
                             </Box>
                         </ReleaseHeader>
 
-                        <Divider sx={{ my: 2, borderColor: colors.border }} />
+                        <Divider sx={{my: 2, borderColor: colors.border}}/>
 
-                        <Box sx={{ color: colors.text }}>
+                        <Box sx={{color: colors.text}}>
                             {notes.features.length > 0 && (
                                 <Box mb={2}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                        <NewReleasesIcon /> New Features
+                                    <Typography variant="h6"
+                                                sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                                        <NewReleasesIcon/> New Features
                                     </Typography>
-                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                    <ul style={{margin: 0, paddingLeft: '20px'}}>
                                         {notes.features.map((feature, index) => (
                                             <li key={index}>{feature}</li>
                                         ))}
@@ -210,10 +211,11 @@ const ChangelogPage = () => {
 
                             {notes.fixes.length > 0 && (
                                 <Box mb={2}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                        <BugReportIcon /> Bug Fixes
+                                    <Typography variant="h6"
+                                                sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                                        <BugReportIcon/> Bug Fixes
                                     </Typography>
-                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                    <ul style={{margin: 0, paddingLeft: '20px'}}>
                                         {notes.fixes.map((fix, index) => (
                                             <li key={index}>{fix}</li>
                                         ))}
@@ -223,10 +225,11 @@ const ChangelogPage = () => {
 
                             {notes.updates.length > 0 && (
                                 <Box mb={2}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                        <UpdateIcon /> Updates
+                                    <Typography variant="h6"
+                                                sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                                        <UpdateIcon/> Updates
                                     </Typography>
-                                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                    <ul style={{margin: 0, paddingLeft: '20px'}}>
                                         {notes.updates.map((update, index) => (
                                             <li key={index}>{update}</li>
                                         ))}
@@ -236,8 +239,9 @@ const ChangelogPage = () => {
 
                             {release.assets.length > 0 && (
                                 <Box mt={2}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                        <DownloadIcon /> Downloads
+                                    <Typography variant="h6"
+                                                sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                                        <DownloadIcon/> Downloads
                                     </Typography>
                                     {release.assets.map(asset => (
                                         <Link
@@ -254,7 +258,7 @@ const ChangelogPage = () => {
                                                 }
                                             }}
                                         >
-                                            <DownloadIcon />
+                                            <DownloadIcon/>
                                             {asset.name} ({Math.round(asset.size / 1024 / 1024)}MB)
                                         </Link>
                                     ))}

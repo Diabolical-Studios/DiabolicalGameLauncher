@@ -76,52 +76,52 @@ const TeamCard = ({team, onUpdateTeam}) => {
     };
 
     return (<li className={"gap-3 flex flex-col justify-between border rounded-xs"} style={listStyle}>
-            <Stack className={"h-full gap-3 p-3 justify-between flex-col flex"}>
-                {/* Team Header */}
-                <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
-                    <Stack flexDirection="row" alignItems="center" gap="12px">
-                        <Avatar
-                            src={`${team.team_icon_url}?t=${Date.now()}`}
-                            alt={team.team_name}
-                            variant="square"
-                            sx={{width: 32, height: 32, "& img": {objectFit: "scale-down"}}}
-                        />
-                        <span style={{lineHeight: 1}}>{team.team_name}</span>
-                    </Stack>
-                    <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)}/>
+        <Stack className={"h-full gap-3 p-3 justify-between flex-col flex"}>
+            {/* Team Header */}
+            <Stack flexDirection="row" justifyContent="space-between" alignItems="center" spacing={"12px"}>
+                <Stack flexDirection="row" alignItems="center" gap="12px">
+                    <Avatar
+                        src={`${team.team_icon_url}?t=${Date.now()}`}
+                        alt={team.team_name}
+                        variant="square"
+                        sx={{width: 32, height: 32, "& img": {objectFit: "scale-down"}}}
+                    />
+                    <span style={{lineHeight: 1}}>{team.team_name}</span>
                 </Stack>
-
-                {/* Infinite Scrolling Games */}
-                {loadingGames ? (<InfiniteGameSkeleton/>) : errorGames ? (
-                    <p style={{color: "red", textAlign: "center"}}>{errorGames}</p>) : (
-                    <InfiniteGameScroller games={games}/>)}
-
-                {/* Team Members - GitHub Profile Pictures */}
-                <Stack flexDirection={"row-reverse"}>
-                    <AvatarGroup max={4}
-                                 sx={{
-                                     "& .MuiAvatar-root": {
-                                         width: 32, height: 32, borderColor: colors.border,
-                                     }, "& .MuiAvatarGroup-avatar": {
-                                         backgroundColor: colors.background, // 👈 Change this to your desired color
-                                         color: colors.text, // Text color
-                                         fontSize: "14px"
-                                     }
-                                 }}>
-                        {githubAvatars.map(member => (
-                            <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>))}
-                    </AvatarGroup>
-                </Stack>
+                <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)}/>
             </Stack>
 
-            {/* Edit Team Dialog */}
-            <EditTeamDialog
-                open={editOpen}
-                handleClose={() => setEditOpen(false)}
-                team={team}
-                onSave={handleSaveTeamChanges}
-            />
-        </li>);
+            {/* Infinite Scrolling Games */}
+            {loadingGames ? (<InfiniteGameSkeleton/>) : errorGames ? (
+                <p style={{color: "red", textAlign: "center"}}>{errorGames}</p>) : (
+                <InfiniteGameScroller games={games}/>)}
+
+            {/* Team Members - GitHub Profile Pictures */}
+            <Stack flexDirection={"row-reverse"}>
+                <AvatarGroup max={4}
+                             sx={{
+                                 "& .MuiAvatar-root": {
+                                     width: 32, height: 32, borderColor: colors.border,
+                                 }, "& .MuiAvatarGroup-avatar": {
+                                     backgroundColor: colors.background, // 👈 Change this to your desired color
+                                     color: colors.text, // Text color
+                                     fontSize: "14px"
+                                 }
+                             }}>
+                    {githubAvatars.map(member => (
+                        <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url}/>))}
+                </AvatarGroup>
+            </Stack>
+        </Stack>
+
+        {/* Edit Team Dialog */}
+        <EditTeamDialog
+            open={editOpen}
+            handleClose={() => setEditOpen(false)}
+            team={team}
+            onSave={handleSaveTeamChanges}
+        />
+    </li>);
 };
 
 export default TeamCard;

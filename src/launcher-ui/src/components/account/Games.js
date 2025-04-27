@@ -38,7 +38,7 @@ const Games = ({teams}) => {
             return matchesTeam && matchesSearch;
         });
     };
-    
+
     useEffect(() => {
         if (teams && teams.length > 0) {
             setCurrentTeams(teams);
@@ -153,7 +153,7 @@ const Games = ({teams}) => {
                             onUpdateGame={handleSaveGameChanges}
                         />
                     </div>
-                    <GameInfoPanel 
+                    <GameInfoPanel
                         game={game}
                     />
                 </Stack>

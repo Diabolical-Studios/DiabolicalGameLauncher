@@ -10,8 +10,8 @@ const activeSessions = new Map();
 //Get the size of a directory recursively
 function getDirectorySize(dirPath) {
     let size = 0;
-    const files = fs.readdirSync(dirPath, { withFileTypes: true });
-    
+    const files = fs.readdirSync(dirPath, {withFileTypes: true});
+
     for (const file of files) {
         const filePath = path.join(dirPath, file.name);
         if (file.isDirectory()) {
@@ -20,7 +20,7 @@ function getDirectorySize(dirPath) {
             size += fs.statSync(filePath).size;
         }
     }
-    
+
     return size;
 }
 
@@ -81,16 +81,16 @@ function stopPlaytimeTracking(gameId) {
         const startTime = activeSessions.get(gameId);
         const endTime = Date.now();
         const sessionDuration = endTime - startTime;
-        
+
         // Load current playtime data
         const playtimeData = loadPlaytimeData();
-        
+
         // Update total playtime for the game
         playtimeData[gameId] = (playtimeData[gameId] || 0) + sessionDuration;
-        
+
         // Save updated data
         savePlaytimeData(playtimeData);
-        
+
         // Remove from active sessions
         activeSessions.delete(gameId);
         console.log(`Stopped tracking playtime for game: ${gameId}`);
@@ -133,13 +133,13 @@ function showContextMenu(event, gameId, position) {
 
     if (isGameInstalled) {
         template.push({
-            label: "Open Game Location", 
+            label: "Open Game Location",
             click: () => {
                 const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
                 shell.showItemInFolder(executablePath);
             },
         }, {
-            label: "Uninstall Game", 
+            label: "Uninstall Game",
             click: () => {
                 uninstallGame(gameId);
                 event.sender.send("game-uninstalled", gameId);
@@ -147,7 +147,7 @@ function showContextMenu(event, gameId, position) {
         });
     } else {
         template.push({
-            label: "Download Game", 
+            label: "Download Game",
             click: () => {
                 downloadGame(event, gameId);
             },
@@ -155,7 +155,7 @@ function showContextMenu(event, gameId, position) {
     }
 
     template.push({
-        label: "Cancel", 
+        label: "Cancel",
         role: "cancel",
     });
 
@@ -178,8 +178,8 @@ function uninstallGame(gameId) {
 }
 
 module.exports = {
-    uninstallGame, 
-    getInstalledGames, 
+    uninstallGame,
+    getInstalledGames,
     showContextMenu,
     getGameSize,
     startPlaytimeTracking,

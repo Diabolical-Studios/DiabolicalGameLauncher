@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import OpenExternalLink from "./link/OpenExternalLink";
 import {colors} from "../theme/colors";
-import {Tooltip, Box, Stack, Zoom} from "@mui/material";
+import {Box, Stack, Tooltip, Zoom} from "@mui/material";
 
 const StatusBar = () => {
     const [appVersion, setAppVersion] = useState("");
@@ -28,7 +28,7 @@ const StatusBar = () => {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 3000); // Optional: timeout after 3s
-                    
+
                     clearTimeout(timeoutId);
                     return true; // If we reach here, it's considered up
                 } catch {
@@ -71,10 +71,10 @@ const StatusBar = () => {
 
 
     return (
-        <Zoom 
-            in={true} 
+        <Zoom
+            in={true}
             timeout={200}
-            style={{ 
+            style={{
                 transitionDelay: '150ms'
             }}
         >
@@ -99,7 +99,8 @@ const StatusBar = () => {
                                     <span>Diabolical Api</span>
                                 </Box>
                                 <Box display="flex" alignItems="center" gap={1}>
-                                    <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalLauncher}/>
+                                    <Box width={10} height={10} borderRadius="50%"
+                                         bgcolor={statuses.diabolicalLauncher}/>
                                     <span>Diabolical Launcher</span>
                                 </Box>
                                 <Box display="flex" alignItems="center" gap={1}>

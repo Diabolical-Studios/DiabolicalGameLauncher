@@ -9,14 +9,14 @@ export default async (request, context) => {
 
     // Only allow DELETE requests
     if (request.method !== 'DELETE') {
-        return new Response('Method not allowed', { status: 405 });
+        return new Response('Method not allowed', {status: 405});
     }
 
     try {
-        const { gameId, sessionId } = await request.json();
+        const {gameId, sessionId} = await request.json();
 
         if (!gameId || !sessionId) {
-            return new Response('Missing required parameters', { status: 400 });
+            return new Response('Missing required parameters', {status: 400});
         }
 
         // Access environment variables using Netlify.env.get() for Deno
@@ -58,7 +58,7 @@ export default async (request, context) => {
         });
     } catch (error) {
         console.error('Error in deleteGame edge function:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), {
+        return new Response(JSON.stringify({error: 'Internal server error'}), {
             status: 500,
             headers: {
                 'Content-Type': 'application/json'

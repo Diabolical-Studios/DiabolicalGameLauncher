@@ -1,5 +1,18 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Box, Button, Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography, TextField, CircularProgress, Alert} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Stack,
+    Tab,
+    Tabs,
+    TextField,
+    Typography
+} from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
@@ -36,7 +49,7 @@ const GameInfoPanel = ({game}) => {
         while (true) {
             const installationId = Cookies.get(`githubInstallationId${count}`);
             const accessToken = Cookies.get(`githubAccessToken${count}`);
-            
+
             if (!installationId || !accessToken) break;
 
             try {
@@ -124,8 +137,8 @@ const GameInfoPanel = ({game}) => {
 
         try {
             const response = await fetch("https://api.diabolical.studio/github-app/webhook", {
-                method: "POST", 
-                headers: {"Content-Type": "application/json"}, 
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     event: "game_created",
                     repository: game.github_repo,
@@ -196,7 +209,7 @@ const GameInfoPanel = ({game}) => {
     const handleVersionChange = (e) => {
         const newVersion = e.target.value;
         setManualVersion(newVersion);
-        
+
         if (newVersion) {
             if (!/^\d+\.\d+\.\d+$/.test(newVersion)) {
                 setVersionError("Version must be in format X.Y.Z (e.g., 1.0.0)");
@@ -247,7 +260,7 @@ const GameInfoPanel = ({game}) => {
                     version: manualVersion
                 })
             });
-            const { url } = await res.json();
+            const {url} = await res.json();
 
             const xhr = new XMLHttpRequest();
             xhr.upload.addEventListener('progress', (event) => {
@@ -304,7 +317,7 @@ const GameInfoPanel = ({game}) => {
     const handleDeleteGame = async () => {
         setIsDeleting(true);
         setDeleteError("");
-        
+
         try {
             const sessionID = Cookies.get("sessionID");
             if (!sessionID) {
@@ -330,7 +343,7 @@ const GameInfoPanel = ({game}) => {
             if (window.electronAPI) {
                 window.electronAPI.showCustomNotification("Game Deleted", "The game has been successfully deleted.");
             }
-            
+
             // Close the dialog and refresh the game list
             setDeleteDialogOpen(false);
             window.location.reload(); // Refresh the page to update the game list
@@ -446,7 +459,7 @@ const GameInfoPanel = ({game}) => {
             value={activeTab}
             onChange={(e, newValue) => setActiveTab(newValue)}
             sx={{
-                marginBottom: 1, 
+                marginBottom: 1,
                 borderBottom: `1px solid ${colors.border}`,
                 '& .MuiTabs-indicator': {
                     backgroundColor: colors.primary,
@@ -506,7 +519,7 @@ const GameInfoPanel = ({game}) => {
 
         {/* Manual Upload Tab */}
         {activeTab === "manualUpload" && (
-            <Stack spacing={2} sx={{ padding: 2, height: "100%" }}>
+            <Stack spacing={2} sx={{padding: 2, height: "100%"}}>
                 <Stack direction="row" spacing={1} alignItems="start">
                     <TextField
                         label="Version"
@@ -548,7 +561,7 @@ const GameInfoPanel = ({game}) => {
                             },
                         }}
                     >
-                        {isUploading ? <CircularProgress size={24} /> : <UploadIcon />}
+                        {isUploading ? <CircularProgress size={24}/> : <UploadIcon/>}
                     </Button>
                 </Stack>
 
@@ -594,21 +607,21 @@ const GameInfoPanel = ({game}) => {
                     />
                     {isUploading ? (
                         <Stack alignItems="center" gap={1}>
-                            <CircularProgress size={24} />
-                            <span style={{ color: colors.text }}>Uploading... {Math.round(uploadProgress)}%</span>
+                            <CircularProgress size={24}/>
+                            <span style={{color: colors.text}}>Uploading... {Math.round(uploadProgress)}%</span>
                         </Stack>
                     ) : gameFile ? (
                         <Stack alignItems="center" gap={1}>
-                            <UploadIcon style={{ color: colors.button }} />
-                            <span style={{ color: colors.text }}>Game File Selected ✅</span>
-                            <span style={{ color: colors.border, fontSize: "12px" }}>{gameFileName}</span>
-                            <span style={{ color: colors.border, fontSize: "12px" }}>Click or drag to change</span>
+                            <UploadIcon style={{color: colors.button}}/>
+                            <span style={{color: colors.text}}>Game File Selected ✅</span>
+                            <span style={{color: colors.border, fontSize: "12px"}}>{gameFileName}</span>
+                            <span style={{color: colors.border, fontSize: "12px"}}>Click or drag to change</span>
                         </Stack>
                     ) : (
                         <Stack alignItems="center" gap={1}>
-                            <UploadIcon style={{ color: colors.border }} />
-                            <span style={{ color: colors.text }}>Upload Game File</span>
-                            <span style={{ color: colors.border, fontSize: "12px" }}>Supports ZIP files only</span>
+                            <UploadIcon style={{color: colors.border}}/>
+                            <span style={{color: colors.text}}>Upload Game File</span>
+                            <span style={{color: colors.border, fontSize: "12px"}}>Supports ZIP files only</span>
                         </Stack>
                     )}
                 </Stack>
@@ -673,29 +686,30 @@ const GameInfoPanel = ({game}) => {
 
         {/* Settings Tab */}
         {activeTab === "settings" && (
-            <Stack spacing={2} sx={{ padding: 2 }}>
-                <Typography variant="h6" sx={{ color: colors.textSecondary }}>
+            <Stack spacing={2} sx={{padding: 2}}>
+                <Typography variant="h6" sx={{color: colors.textSecondary}}>
                     Game Settings
                 </Typography>
-                
-                <Box sx={{ 
+
+                <Box sx={{
                     border: `1px solid ${colors.error}`,
                     borderRadius: "4px",
                     padding: 2,
                     backgroundColor: "rgba(255, 0, 0, 0.1)"
                 }}>
-                    <Typography variant="subtitle1" sx={{ color: colors.error, display: "flex", alignItems: "center", gap: 1 }}>
-                        <WarningIcon /> Danger Zone
+                    <Typography variant="subtitle1"
+                                sx={{color: colors.error, display: "flex", alignItems: "center", gap: 1}}>
+                        <WarningIcon/> Danger Zone
                     </Typography>
-                    <Typography variant="body2" sx={{ color: colors.textSecondary, mt: 1 }}>
+                    <Typography variant="body2" sx={{color: colors.textSecondary, mt: 1}}>
                         Once you delete a game, there is no going back. Please be certain.
                     </Typography>
                     <Button
                         variant="outlined"
                         color="error"
-                        startIcon={<DeleteForeverIcon />}
+                        startIcon={<DeleteForeverIcon/>}
                         onClick={() => setDeleteDialogOpen(true)}
-                        sx={{ mt: 2 }}
+                        sx={{mt: 2}}
                     >
                         Delete Game
                     </Button>
@@ -723,15 +737,15 @@ const GameInfoPanel = ({game}) => {
                         Are you sure you want to delete "{game.game_name}"? This action cannot be undone.
                     </Typography>
                     {deleteError && (
-                        <Alert severity="error" sx={{ mt: 2 }}>
+                        <Alert severity="error" sx={{mt: 2}}>
                             {deleteError}
                         </Alert>
                     )}
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+                    <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 2}}>
                         <Button
                             onClick={() => setDeleteDialogOpen(false)}
                             disabled={isDeleting}
-                            sx={{ color: colors.text }}
+                            sx={{color: colors.text}}
                         >
                             Cancel
                         </Button>
@@ -740,7 +754,7 @@ const GameInfoPanel = ({game}) => {
                             color="error"
                             onClick={handleDeleteGame}
                             disabled={isDeleting}
-                            startIcon={isDeleting ? <CircularProgress size={20} /> : <DeleteForeverIcon />}
+                            startIcon={isDeleting ? <CircularProgress size={20}/> : <DeleteForeverIcon/>}
                         >
                             {isDeleting ? "Deleting..." : "Delete Game"}
                         </Button>

@@ -1,18 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import {
-    Box,
-    Typography,
-    Grid,
-    Button,
-    Card,
-    CardMedia,
-    Chip,
-    Container,
-    Grow,
-    TextField,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { colors } from "../theme/colors";
+import React, {useEffect, useMemo, useState} from "react";
+import {Box, Button, Card, CardMedia, Chip, Container, Grid, Grow, TextField, Typography,} from "@mui/material";
+import {styled} from "@mui/material/styles";
+import {colors} from "../theme/colors";
 import axios from "axios";
 
 const FeaturedCard = styled(Card)({
@@ -29,7 +18,7 @@ const FeaturedCard = styled(Card)({
     },
 });
 
-const GameCard = styled(Card)(({ size = 'normal' }) => ({
+const GameCard = styled(Card)(({size = 'normal'}) => ({
     position: 'relative',
     height: size === 'large' ? '400px' : size === 'small' ? '190px' : '200px',
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -132,8 +121,7 @@ const StyledButton = styled(Button)({
 });
 
 
-
-const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) => {
+const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
     const [isInstalled, setIsInstalled] = useState(installedGames.includes(game.game_id));
     const [isRunning, setIsRunning] = useState(false);
@@ -180,7 +168,7 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
             }
         };
 
-        const handleDownloadComplete = ({ gameId }) => {
+        const handleDownloadComplete = ({gameId}) => {
             if (gameId === game.game_id) {
                 setDownloadProgress(null);
                 setIsInstalled(true);
@@ -217,7 +205,7 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
     return (
         <GameCard size={size}>
             {game.version && (
-                <VersionChip label={`v${game.version}`} />
+                <VersionChip label={`v${game.version}`}/>
             )}
             <StyledCardMedia
                 component="img"
@@ -228,7 +216,7 @@ const GameCardComponent = ({ game, size, onDownload, onPlay, installedGames }) =
                 <GameTitle
                     className="game-title"
                     variant="h6"
-                    sx={{ 
+                    sx={{
                         color: colors.text,
                         textShadow: '0 2px 4px rgba(0,0,0,0.5)',
                         fontWeight: 600
@@ -261,7 +249,7 @@ const StorePage = () => {
     // Memoize the filtered games based on search query
     const filteredGames = useMemo(() => {
         if (!searchQuery) return games;
-        return games.filter(game => 
+        return games.filter(game =>
             game.game_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             game.description?.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -306,9 +294,9 @@ const StorePage = () => {
             }));
         };
 
-        const handleDownloadComplete = ({ gameId }) => {
+        const handleDownloadComplete = ({gameId}) => {
             setDownloadProgresses(prev => {
-                const newProgresses = { ...prev };
+                const newProgresses = {...prev};
                 delete newProgresses[gameId];
                 return newProgresses;
             });
@@ -347,14 +335,14 @@ const StorePage = () => {
                     const response = await axios.get("/get-all-games");
                     const freshGames = response.data;
                     setGames(freshGames);
-                    
+
                     // Cache games locally only in desktop environment
                     if (window.electronAPI?.cacheGamesLocally) {
                         window.electronAPI.cacheGamesLocally(freshGames);
                     }
                 } catch (error) {
                     console.error("❌ Error fetching games from API:", error);
-                    
+
                     // 3. Fallback to cached games if API fails (only in desktop environment)
                     if (window.electronAPI?.getCachedGames) {
                         try {
@@ -396,10 +384,10 @@ const StorePage = () => {
     const newReleases = shuffledGames.slice(8);
 
     return (
-        <Box sx={{ height: '100%', overflow: 'auto' }}>
-            <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{height: '100%', overflow: 'auto'}}>
+            <Container maxWidth="xl" sx={{py: 3}}>
                 {/* Search Bar */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{mb: 3}}>
                     <TextField
                         fullWidth
                         placeholder="Search games..."
@@ -428,8 +416,8 @@ const StorePage = () => {
 
                 {/* New Featured Games Section */}
                 {!searchQuery && featuredGames.length > 0 && (
-                    <Box 
-                        sx={{ position: 'relative', mb: 3, height: '400px' }}
+                    <Box
+                        sx={{position: 'relative', mb: 3, height: '400px'}}
                         onMouseEnter={() => setIsHovering(true)}
                         onMouseLeave={() => setIsHovering(false)}
                     >
@@ -449,7 +437,7 @@ const StorePage = () => {
                             >
                                 <FeaturedCard>
                                     {game.version && (
-                                        <VersionChip label={`v${game.version}`} />
+                                        <VersionChip label={`v${game.version}`}/>
                                     )}
                                     <StyledCardMedia
                                         component="img"
@@ -457,16 +445,16 @@ const StorePage = () => {
                                         alt={game.game_name}
                                     />
                                     <CardOverlay>
-                                        <Typography variant="h3" sx={{ 
-                                            color: colors.text, 
+                                        <Typography variant="h3" sx={{
+                                            color: colors.text,
                                             mb: 1,
                                             textShadow: '0 2px 4px rgba(0,0,0,0.5)',
                                             fontWeight: 600
                                         }}>
                                             {game.game_name}
                                         </Typography>
-                                        <Typography variant="body1" sx={{ 
-                                            color: colors.text, 
+                                        <Typography variant="body1" sx={{
+                                            color: colors.text,
                                             mb: 2,
                                             maxWidth: '600px',
                                             textShadow: '0 1px 2px rgba(0,0,0,0.5)',
@@ -485,17 +473,17 @@ const StorePage = () => {
                                                 }
                                             }}
                                         >
-                                            {downloadProgresses[game.game_id] || 
-                                             (installedGames.includes(game.game_id) ? "Play" : "Download")}
+                                            {downloadProgresses[game.game_id] ||
+                                                (installedGames.includes(game.game_id) ? "Play" : "Download")}
                                         </StyledButton>
                                     </CardOverlay>
                                 </FeaturedCard>
                             </Box>
                         ))}
-                        <Box sx={{ 
-                            position: 'absolute', 
-                            bottom: '20px', 
-                            left: '50%', 
+                        <Box sx={{
+                            position: 'absolute',
+                            bottom: '20px',
+                            left: '50%',
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             gap: '8px',
@@ -543,8 +531,8 @@ const StorePage = () => {
                 {/* Special Offers */}
                 {!searchQuery && (
                     <>
-                        <Typography variant="h5" sx={{ 
-                            color: colors.text, 
+                        <Typography variant="h5" sx={{
+                            color: colors.text,
                             mb: 2,
                             fontWeight: 600,
                             textTransform: 'uppercase',
@@ -552,7 +540,7 @@ const StorePage = () => {
                         }}>
                             Special Offers
                         </Typography>
-                        <Grid container spacing={2} sx={{ mb: 4 }}>
+                        <Grid container spacing={2} sx={{mb: 4}}>
                             {/* Main Special Offer */}
                             <Grid item xs={12} md={6}>
                                 {specialOffers[0] && (
@@ -571,10 +559,10 @@ const StorePage = () => {
                             </Grid>
                             {/* Grid of 4 games */}
                             <Grid item xs={12} md={6}>
-                                <Grid 
-                                    container 
-                                    spacing={2} 
-                                    sx={{ 
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    sx={{
                                         height: '-webkit-fill-available',
                                         minHeight: '400px',
                                         '& .MuiGrid-item': {
@@ -606,8 +594,8 @@ const StorePage = () => {
                 )}
 
                 {/* Search Results or New Releases */}
-                <Typography variant="h5" sx={{ 
-                    color: colors.text, 
+                <Typography variant="h5" sx={{
+                    color: colors.text,
                     mb: 2,
                     fontWeight: 600,
                     textTransform: 'uppercase',

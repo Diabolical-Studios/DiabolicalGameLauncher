@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
+    Box,
     FormControl,
     FormControlLabel,
     InputLabel,
@@ -9,13 +10,12 @@ import {
     Switch,
     TextField,
     Typography,
-    Box,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { colors } from "../theme/colors";
+import {styled} from "@mui/material/styles";
+import {colors} from "../theme/colors";
 import "./../settings.css";
 
-const StyledSettingsSection = styled(Stack)(({ theme }) => ({
+const StyledSettingsSection = styled(Stack)(({theme}) => ({
     backgroundColor: colors.background,
     border: "1px solid" + colors.border,
     borderRadius: "4px",
@@ -39,10 +39,10 @@ const SettingsPage = () => {
     useEffect(() => {
         if (window.api) {
             window.electronAPI.getSettings().then((savedSettings) => {
-                setSettings(prev => ({ ...prev, ...savedSettings }));
+                setSettings(prev => ({...prev, ...savedSettings}));
             });
             // Get current window size
-            window.electronAPI.getWindowSize().then(({ width, height }) => {
+            window.electronAPI.getWindowSize().then(({width, height}) => {
                 setSettings(prev => ({
                     ...prev,
                     windowSize: `${width}x${height}`
@@ -52,7 +52,7 @@ const SettingsPage = () => {
     }, []);
 
     const handleSettingChange = (setting, value) => {
-        const newSettings = { ...settings, [setting]: value };
+        const newSettings = {...settings, [setting]: value};
         setSettings(newSettings);
         if (window.api) {
             window.electronAPI.updateSettings(newSettings);
@@ -60,7 +60,7 @@ const SettingsPage = () => {
     };
 
     return (
-        <Box sx={{ 
+        <Box sx={{
             height: 'calc(100vh - 48px)',
             overflowY: 'auto',
             padding: '16px',
@@ -78,13 +78,13 @@ const SettingsPage = () => {
                 background: colors.button,
             }
         }}>
-            <Stack spacing={2} sx={{ width: '100%', maxWidth: '100%' }}>
+            <Stack spacing={2} sx={{width: '100%', maxWidth: '100%'}}>
                 {/* Display Settings */}
                 <StyledSettingsSection>
-                    <Typography variant="h6" sx={{ color: colors.text }}>Display Settings</Typography>
+                    <Typography variant="h6" sx={{color: colors.text}}>Display Settings</Typography>
                     <Stack spacing={2}>
                         <FormControl fullWidth>
-                            <InputLabel id="window-size-label" sx={{ color: colors.text }}>Window Size</InputLabel>
+                            <InputLabel id="window-size-label" sx={{color: colors.text}}>Window Size</InputLabel>
                             <Select
                                 labelId="window-size-label"
                                 value={settings.windowSize}
@@ -110,7 +110,7 @@ const SettingsPage = () => {
 
                 {/* Application Settings */}
                 <StyledSettingsSection>
-                    <Typography variant="h6" sx={{ color: colors.text }}>Application Settings</Typography>
+                    <Typography variant="h6" sx={{color: colors.text}}>Application Settings</Typography>
                     <Stack spacing={2}>
                         <FormControlLabel
                             control={
@@ -128,7 +128,7 @@ const SettingsPage = () => {
                                 />
                             }
                             label="Auto-update launcher"
-                            sx={{ color: colors.text }}
+                            sx={{color: colors.text}}
                         />
                         <FormControlLabel
                             control={
@@ -146,7 +146,7 @@ const SettingsPage = () => {
                                 />
                             }
                             label="Enable notifications"
-                            sx={{ color: colors.text }}
+                            sx={{color: colors.text}}
                         />
                         <FormControlLabel
                             control={
@@ -164,7 +164,7 @@ const SettingsPage = () => {
                                 />
                             }
                             label="Minimize to system tray"
-                            sx={{ color: colors.text }}
+                            sx={{color: colors.text}}
                         />
                         <FormControlLabel
                             control={
@@ -182,14 +182,14 @@ const SettingsPage = () => {
                                 />
                             }
                             label="Launch on system startup"
-                            sx={{ color: colors.text }}
+                            sx={{color: colors.text}}
                         />
                     </Stack>
                 </StyledSettingsSection>
 
                 {/* Download Settings */}
                 <StyledSettingsSection>
-                    <Typography variant="h6" sx={{ color: colors.text }}>Download Settings</Typography>
+                    <Typography variant="h6" sx={{color: colors.text}}>Download Settings</Typography>
                     <Stack spacing={2}>
                         <TextField
                             label="Download Path"
@@ -210,7 +210,8 @@ const SettingsPage = () => {
                             }}
                         />
                         <FormControl fullWidth>
-                            <InputLabel id="max-downloads-label" sx={{ color: colors.text }}>Max Concurrent Downloads</InputLabel>
+                            <InputLabel id="max-downloads-label" sx={{color: colors.text}}>Max Concurrent
+                                Downloads</InputLabel>
                             <Select
                                 labelId="max-downloads-label"
                                 value={settings.maxConcurrentDownloads}
@@ -234,7 +235,7 @@ const SettingsPage = () => {
                             </Select>
                         </FormControl>
                         <FormControl fullWidth>
-                            <InputLabel id="cache-size-label" sx={{ color: colors.text }}>Cache Size Limit</InputLabel>
+                            <InputLabel id="cache-size-label" sx={{color: colors.text}}>Cache Size Limit</InputLabel>
                             <Select
                                 labelId="cache-size-label"
                                 value={settings.cacheSize}

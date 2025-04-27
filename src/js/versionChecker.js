@@ -3,14 +3,14 @@ async function getLatestGameVersion(gameId) {
         // Get the cached games data
         const cachedGames = require('./cacheManager').readCachedGames();
         const game = cachedGames.find(g => g.game_id === gameId);
-        
+
         if (!game || !game.version) {
             throw new Error(`No version information found for game ${gameId}`);
         }
 
         const latestVersion = game.version;
         console.log(`Using cached version for ${gameId}: ${latestVersion}`);
-        
+
         // Construct the R2 URL directly
         const latestVersionUrl = `https://diabolical.services/R2/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
         console.log(`Constructed download URL: ${latestVersionUrl}`);

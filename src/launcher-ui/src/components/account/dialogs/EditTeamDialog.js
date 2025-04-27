@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
     Avatar,
     AvatarGroup,
@@ -12,20 +12,20 @@ import {
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
-import { styled } from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { colors } from "../../../theme/colors";
+import {colors} from "../../../theme/colors";
 import ImageUploader from "../../common/ImageUploader";
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({theme}) => ({
     "& .MuiDialog-paper": {
         border: "1px solid" + colors.border,
         borderRadius: "4px",
     },
 }));
 
-const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
+const EditTeamDialog = ({open, handleClose, team, onSave}) => {
     const [teamName, setTeamName] = useState(team.team_name);
     const [newMember, setNewMember] = useState("");
     const [githubIds, setGithubIds] = useState([...team.github_ids]);
@@ -45,10 +45,10 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
             const userPromises = githubIds.map(async (id) => {
                 try {
                     const response = await axios.get(`https://api.diabolical.studio/rest-api/users/github/${id}`);
-                    return { id, username: response.data.username };
+                    return {id, username: response.data.username};
                 } catch (error) {
                     console.error(`Error fetching GitHub username for ID ${id}:`, error);
-                    return { id, username: `Unknown-${id}` };
+                    return {id, username: `Unknown-${id}`};
                 }
             });
 
@@ -125,7 +125,7 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
 
     return (
         <StyledDialog open={open} onClose={handleClose}>
-            <DialogContent className="dialog" style={{ padding: "12px", backdropFilter: "invert(1)" }}>
+            <DialogContent className="dialog" style={{padding: "12px", backdropFilter: "invert(1)"}}>
                 <Stack spacing={2}>
                     <TextField
                         label="Team Name"
@@ -196,11 +196,11 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                                 borderRadius: "2px"
                             }}
                             onClick={handleAddMember}
-                            style={{ height: "100%" }}
+                            style={{height: "100%"}}
                             aria-label="add"
                             color="primary"
                         >
-                            <AddIcon />
+                            <AddIcon/>
                         </IconButton>
                     </Stack>
 
@@ -222,14 +222,14 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                                 <Avatar key={id}
                                         alt={`GitHub User ${githubUsers[id] || id}`}
                                         src={`https://avatars.githubusercontent.com/u/${id}`}
-                                        title={`${githubUsers[id] || "Loading..."}`} />
+                                        title={`${githubUsers[id] || "Loading..."}`}/>
                             ))}
                         </AvatarGroup>
                     </Stack>
                 </Stack>
             </DialogContent>
 
-            <DialogActions className="dialog" sx={{ padding: "12px" }}>
+            <DialogActions className="dialog" sx={{padding: "12px"}}>
                 <Button
                     sx={{
                         color: "#fff !important",
@@ -245,10 +245,10 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                         }
                     }}
                     onClick={handleSave}
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     aria-label="save"
                     color="primary"
-                    startIcon={<SaveIcon />}
+                    startIcon={<SaveIcon/>}
                     disabled={uploading || !hasChanges}
                 >
                     Save

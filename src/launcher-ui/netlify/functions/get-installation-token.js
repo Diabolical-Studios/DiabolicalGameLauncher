@@ -20,7 +20,7 @@ exports.handler = async function (event, context) {
 
     try {
         // Parse request body
-        const { installationId } = JSON.parse(event.body);
+        const {installationId} = JSON.parse(event.body);
         if (!installationId) {
             return {
                 statusCode: 400,
@@ -67,7 +67,7 @@ exports.handler = async function (event, context) {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ token: tokenData.token }),
+            body: JSON.stringify({token: tokenData.token}),
             headers: {
                 "Content-Type": "application/json",
             },

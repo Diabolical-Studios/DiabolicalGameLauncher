@@ -5,7 +5,15 @@ const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
-const {getInstalledGames, showContextMenu, uninstallGame, getGameSize, startPlaytimeTracking, stopPlaytimeTracking, getGamePlaytime} = require("./gameManager");
+const {
+    getInstalledGames,
+    showContextMenu,
+    uninstallGame,
+    getGameSize,
+    startPlaytimeTracking,
+    stopPlaytimeTracking,
+    getGamePlaytime
+} = require("./gameManager");
 const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
@@ -87,7 +95,7 @@ function initIPCHandlers() {
                     try {
                         // Use taskkill to forcefully terminate the process and its children
                         const taskkill = spawn('taskkill', ['/F', '/T', '/PID', gameInfo.pid.toString()]);
-                        
+
                         taskkill.on('exit', (code) => {
                             if (code === 0) {
                                 console.log(`Successfully killed process ${gameInfo.pid}`);
@@ -180,12 +188,12 @@ function initIPCHandlers() {
     });
     ipcMain.handle("update-settings", (event, newSettings) => {
         const currentSettings = loadSettings();
-        const updatedSettings = { ...currentSettings };
+        const updatedSettings = {...currentSettings};
 
         // Handle window size separately
         if (newSettings.windowSize) {
             const [width, height] = newSettings.windowSize.split("x").map(Number);
-            updatedSettings.windowSize = { width, height };
+            updatedSettings.windowSize = {width, height};
             const mainWindow = require("./windowManager").getMainWindow();
             if (mainWindow) {
                 mainWindow.setContentSize(width, height);

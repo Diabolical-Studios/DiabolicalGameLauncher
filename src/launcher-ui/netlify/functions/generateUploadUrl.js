@@ -1,21 +1,21 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const { v4: uuidv4 } = require("uuid");
+const {S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
+const {getSignedUrl} = require("@aws-sdk/s3-request-presigner");
+const {v4: uuidv4} = require("uuid");
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event, context) {
     // Only allow POST requests
     if (event.httpMethod !== "POST") {
         return {
             statusCode: 405,
-            body: JSON.stringify({ error: "Method not allowed" }),
-            headers: { "Content-Type": "application/json" }
+            body: JSON.stringify({error: "Method not allowed"}),
+            headers: {"Content-Type": "application/json"}
         };
     }
 
     try {
         // Parse the request body
         const body = JSON.parse(event.body);
-        const { contentType = "image/png", fileExt = "png", overwriteKey, gameId, isGameUpload, version } = body;
+        const {contentType = "image/png", fileExt = "png", overwriteKey, gameId, isGameUpload, version} = body;
 
         // Get R2 credentials from environment variables
         const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
@@ -24,8 +24,8 @@ exports.handler = async function(event, context) {
         if (!R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: "R2 credentials not configured" }),
-                headers: { "Content-Type": "application/json" }
+                body: JSON.stringify({error: "R2 credentials not configured"}),
+                headers: {"Content-Type": "application/json"}
             };
         }
 
@@ -56,19 +56,19 @@ exports.handler = async function(event, context) {
         });
 
         // Generate the presigned URL
-        const url = await getSignedUrl(s3, command, { expiresIn: 60 });
+        const url = await getSignedUrl(s3, command, {expiresIn: 60});
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ url, key }),
-            headers: { "Content-Type": "application/json" }
+            body: JSON.stringify({url, key}),
+            headers: {"Content-Type": "application/json"}
         };
     } catch (error) {
         console.error("Error generating upload URL:", error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message }),
-            headers: { "Content-Type": "application/json" }
+            body: JSON.stringify({error: error.message}),
+            headers: {"Content-Type": "application/json"}
         };
     }
 }; 

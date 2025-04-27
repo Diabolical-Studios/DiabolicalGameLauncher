@@ -4,10 +4,10 @@ import {AccountIcon, ChangelogIcon, HomeIcon, LibraryIcon, SettingsIcon} from ".
 import VerticalFlex from "./layout/VerticalFlex";
 import OpenExternalLink from "./link/OpenExternalLink";
 import {colors} from "../theme/colors";
-import { Zoom, IconButton, styled } from "@mui/material";
+import {IconButton, styled, Zoom} from "@mui/material";
 
 // Create a styled IconButton for our nav items
-const StyledNavButton = styled(IconButton)(({ theme, isActive }) => ({
+const StyledNavButton = styled(IconButton)(({theme, isActive}) => ({
     padding: '12px',
     borderRadius: '4px',
     border: `1px solid ${colors.border}`,
@@ -61,24 +61,24 @@ const NavBar = () => {
 
             <ul className="flex flex-col align-center m-0 p-0 gap-3 w-fit">
                 {menuItems.map((item, index) => (
-                    <Zoom 
-                        key={item.to} 
-                        in={true} 
-                        style={{ 
+                    <Zoom
+                        key={item.to}
+                        in={true}
+                        style={{
                             transitionDelay: `${index * 100}ms`
                         }}
                     >
                         <li>
                             <NavLink
                                 to={item.to}
-                                style={({ isActive }) => ({
+                                style={({isActive}) => ({
                                     display: 'block',
                                 })}
                             >
                                 {({isActive}) => (
                                     <StyledNavButton isActive={isActive}>
-                                        <item.icon 
-                                            fill={isActive ? "#ffffff" : "#4b4b4b"} 
+                                        <item.icon
+                                            fill={isActive ? "#ffffff" : "#4b4b4b"}
                                             alt={item.alt}
                                         />
                                     </StyledNavButton>

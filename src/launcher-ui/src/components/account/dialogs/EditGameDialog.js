@@ -1,11 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    Stack,
-} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogContent, Stack,} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from "../../GameCard";
@@ -148,7 +142,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                         }}
                         onClick={handleSave}
                         aria-label="save"
-                        startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                        startIcon={isSaving ? <CircularProgress size={20} color="inherit"/> : <SaveIcon/>}
                         disabled={!hasChanges || isSaving}
                     >
                         {isSaving ? "Saving..." : "Save"}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 
 const GameButton = ({gameInstalled, downloadProgress, gameVersion, onClick, gameId}) => {
     const [isRunning, setIsRunning] = useState(false);

@@ -1,6 +1,6 @@
 const axios = require('axios');
-const { pingDatabase } = require('../src/js/database');
-const { getMainWindow } = require('../src/js/windowManager');
+const {pingDatabase} = require('../src/js/database');
+const {getMainWindow} = require('../src/js/windowManager');
 
 // Mock dependencies
 jest.mock('axios');
@@ -23,7 +23,7 @@ describe('Database', () => {
     describe('pingDatabase', () => {
         it('should handle successful database ping', async () => {
             const url = 'http://example.com';
-            const mockResponse = { status: 200 };
+            const mockResponse = {status: 200};
 
             // Mock axios response
             axios.get.mockResolvedValue(mockResponse);
@@ -42,7 +42,7 @@ describe('Database', () => {
 
         it('should handle failed database ping', async () => {
             const url = 'http://example.com';
-            const mockResponse = { status: 500 };
+            const mockResponse = {status: 500};
 
             // Mock axios response
             axios.get.mockResolvedValue(mockResponse);

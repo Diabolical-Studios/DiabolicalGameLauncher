@@ -28,17 +28,17 @@ const saveInstallationPair = (installationId, accessToken) => {
 export const getAllInstallationPairs = () => {
     const pairs = [];
     let count = 1;
-    
+
     while (true) {
         const installationId = Cookies.get(`githubInstallationId${count}`);
         const accessToken = Cookies.get(`githubAccessToken${count}`);
-        
+
         if (!installationId || !accessToken) break;
-        
-        pairs.push({ installationId, accessToken });
+
+        pairs.push({installationId, accessToken});
         count++;
     }
-    
+
     return pairs;
 };
 

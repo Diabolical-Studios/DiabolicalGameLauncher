@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const { downloadGame, extractZip } = require('../src/js/downloadManager');
-const { diabolicalLauncherPath } = require('../src/js/settings');
-const { getLatestGameVersion } = require('../src/js/versionChecker');
-const { getMainWindow } = require('../src/js/windowManager');
+const {downloadGame, extractZip} = require('../src/js/downloadManager');
+const {diabolicalLauncherPath} = require('../src/js/settings');
+const {getLatestGameVersion} = require('../src/js/versionChecker');
+const {getMainWindow} = require('../src/js/windowManager');
 
 // Mock dependencies
 jest.mock('fs');
@@ -28,7 +28,7 @@ describe('Download Manager', () => {
 
     describe('downloadGame', () => {
         it('should handle successful game download and extraction', async () => {
-            const event = { sender: { send: jest.fn() } };
+            const event = {sender: {send: jest.fn()}};
             const gameId = 'test-game';
             const latestVersion = '1.0.0';
             const latestVersionUrl = 'http://example.com/game.zip';
@@ -64,13 +64,13 @@ describe('Download Manager', () => {
             // Verify extraction was performed
             expect(require('extract-zip')).toHaveBeenCalledWith(
                 savePath,
-                expect.objectContaining({ dir: extractPath })
+                expect.objectContaining({dir: extractPath})
             );
 
             // Verify version file was written
             expect(fs.writeFileSync).toHaveBeenCalledWith(
                 expect.any(String),
-                JSON.stringify({ version: latestVersion })
+                JSON.stringify({version: latestVersion})
             );
 
             // Verify success messages were sent
@@ -78,7 +78,7 @@ describe('Download Manager', () => {
         });
 
         it('should handle download errors gracefully', async () => {
-            const event = { sender: { send: jest.fn() } };
+            const event = {sender: {send: jest.fn()}};
             const gameId = 'test-game';
             const error = new Error('Download failed');
 
@@ -107,7 +107,7 @@ describe('Download Manager', () => {
         });
 
         it('should handle missing version information', async () => {
-            const event = { sender: { send: jest.fn() } };
+            const event = {sender: {send: jest.fn()}};
             const gameId = 'test-game';
 
             // Mock version checker to return no version info
@@ -136,7 +136,7 @@ describe('Download Manager', () => {
 
     describe('extractZip', () => {
         it('should handle successful extraction', async () => {
-            const event = { sender: { send: jest.fn() } };
+            const event = {sender: {send: jest.fn()}};
             const gameId = 'test-game';
             const zipPath = '/path/to/game.zip';
             const extractPath = path.join(diabolicalLauncherPath, gameId);
@@ -149,7 +149,7 @@ describe('Download Manager', () => {
             // Verify extraction was performed
             expect(require('extract-zip')).toHaveBeenCalledWith(
                 zipPath,
-                expect.objectContaining({ dir: extractPath })
+                expect.objectContaining({dir: extractPath})
             );
 
             // Verify zip was deleted
@@ -163,7 +163,7 @@ describe('Download Manager', () => {
         });
 
         it('should handle extraction errors', async () => {
-            const event = { sender: { send: jest.fn() } };
+            const event = {sender: {send: jest.fn()}};
             const gameId = 'test-game';
             const zipPath = '/path/to/game.zip';
             const error = new Error('Extraction failed');

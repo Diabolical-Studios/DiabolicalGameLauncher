@@ -34,8 +34,8 @@ async function downloadGame(event, gameId) {
             const mainWindow = getMainWindow();
             if (mainWindow && mainWindow.webContents) {
                 mainWindow.webContents.send("show-notification", {
-                    title: "Game Unavailable", 
-                    body: "Please try again later", 
+                    title: "Game Unavailable",
+                    body: "Please try again later",
                     duration: 5000
                 });
             }
@@ -52,11 +52,11 @@ async function downloadGame(event, gameId) {
         }
 
         const dl = await download(window, gameUrl, {
-            directory: diabolicalLauncherPath, 
+            directory: diabolicalLauncherPath,
             onProgress: (progress) => {
                 console.log(`Download progress for ${gameId}: ${progress.percent}%`);
                 event.sender.send("download-progress", {
-                    gameId: gameId, 
+                    gameId: gameId,
                     percentage: progress.percent,
                 });
             },
@@ -71,7 +71,7 @@ async function downloadGame(event, gameId) {
         const mainWindow = getMainWindow();
         if (mainWindow && mainWindow.webContents) {
             mainWindow.webContents.send("update-available", {
-                gameId, 
+                gameId,
                 updateAvailable: false,
             });
         }

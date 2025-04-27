@@ -56,21 +56,21 @@ const LandingPage = () => {
     };
 
     return (<div style={{display: "flex", flexDirection: "column", width: "100%", overflow: "auto"}}>
-            {loading && <GameCardsSkeleton topBar={false} columns={4}/>}
+        {loading && <GameCardsSkeleton topBar={false} columns={4}/>}
 
-            {!loading && (<div id="game-cards-container">
-                    {games.map((game, index) => (
-                        <Slide key={game.game_id} direction="up" in={!loading} timeout={300 + index * 100}>
-                            <div>
-                                <GameCard
-                                    game={game}
-                                    isInstalled={installedGames.includes(game.game_id)}
-                                    onAction={handleAction}
-                                />
-                            </div>
-                        </Slide>))}
-                </div>)}
-        </div>);
+        {!loading && (<div id="game-cards-container">
+            {games.map((game, index) => (
+                <Slide key={game.game_id} direction="up" in={!loading} timeout={300 + index * 100}>
+                    <div>
+                        <GameCard
+                            game={game}
+                            isInstalled={installedGames.includes(game.game_id)}
+                            onAction={handleAction}
+                        />
+                    </div>
+                </Slide>))}
+        </div>)}
+    </div>);
 };
 
 export default LandingPage;

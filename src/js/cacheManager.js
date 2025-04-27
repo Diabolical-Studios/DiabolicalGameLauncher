@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { diabolicalLauncherPath } = require("./settings");
+const {diabolicalLauncherPath} = require("./settings");
 
 const cachedGamesPath = path.join(diabolicalLauncherPath, "cachedGames.json");
 
@@ -25,4 +25,4 @@ function readCachedGames() {
     return [];
 }
 
-module.exports = { cacheGamesLocally, readCachedGames };
+module.exports = {cacheGamesLocally, readCachedGames};

@@ -9,7 +9,7 @@ let periodicChecksStarted = false;
 async function createWindow() {
     const isDev = (await import("electron-is-dev")).default;
     const settings = loadSettings();
-    
+
     //Creates the splash window while the launcher loads
     splash = new BrowserWindow({
         width: 300, height: 200, frame: false, transparent: true, alwaysOnTop: true, center: true, webPreferences: {
@@ -17,7 +17,7 @@ async function createWindow() {
         }
     });
     await splash.loadFile(path.join(__dirname, "../splash.html"));
-    
+
     //Creates the main window and hides it until its ready
     mainWindow = new BrowserWindow({
         width: settings.windowSize.width,
@@ -34,11 +34,11 @@ async function createWindow() {
         resizable: false,
         show: false
     });
-    
+
     //Dev mode = localhost
     const startURL = isDev ? "http://localhost:8888" : "https://launcher.diabolical.studio";
     mainWindow.loadURL(startURL);
-    
+
     //Close splash window and enable main window
     mainWindow.once("ready-to-show", () => {
         if (splash) {
@@ -56,7 +56,7 @@ async function createWindow() {
             e.preventDefault();
         }
     });
-    
+
     mainWindow.webContents.on("did-finish-load", async () => {
         if (splash) {
             splash.webContents.send("splash-update", "Initializing modules...");
@@ -70,7 +70,7 @@ async function createWindow() {
         }
         showMessage("Checking For Updates... ");
     });
-    
+
     mainWindow.on("close", () => {
         const {width, height} = mainWindow.getContentBounds();
         settings.windowSize = {
