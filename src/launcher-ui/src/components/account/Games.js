@@ -13,7 +13,6 @@ const Games = ({teams}) => {
     const [currentTeams, setCurrentTeams] = useState([]);
     const [selectedTeams, setSelectedTeams] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [deploymentStatuses, setDeploymentStatuses] = useState({});
 
     const handleChipClick = (teamName) => {
         setSelectedTeams((prevSelected) => prevSelected.includes(teamName) ? prevSelected.filter((name) => name !== teamName) : [...prevSelected, teamName]);
@@ -39,103 +38,7 @@ const Games = ({teams}) => {
             return matchesTeam && matchesSearch;
         });
     };
-
-    const checkDeploymentStatus = async (game) => {
-        // Find the installation ID and access token for this game's owner
-        let installationId = null;
-        let accessToken = null;
-        //let count = 1;
-
-        /* while (true) {
-            const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
-            const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
-            
-            if (!currentInstallationId || !currentAccessToken) break;
-
-            // Check if this installation has access to the game's repo
-            try {
-                const response = await fetch(`https://api.github.com/repos/${game.github_repo}`, {
-                    headers: {
-                        Authorization: `Bearer ${currentAccessToken}`,
-                        Accept: "application/vnd.github+json",
-                    },
-                });
-
-                if (response.ok) {
-                    installationId = currentInstallationId;
-                    accessToken = currentAccessToken;
-                    break;
-                }
-            } catch (err) {
-                console.error(`Error checking repo access for installation ${count}:`, err);
-            }
-
-            count++;
-        } */
-
-        if (!installationId || !accessToken) {
-            setDeploymentStatuses(prev => ({
-                ...prev,
-                [game.game_id]: { status: 'unknown', message: 'No GitHub access found' }
-            }));
-            return;
-        }
-
-        try {
-            // Check deployment status
-            const response = await fetch(`https://api.github.com/repos/${game.github_repo}/deployments`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    Accept: "application/vnd.github+json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch deployments: ${response.status}`);
-            }
-
-            const deployments = await response.json();
-            const latestDeployment = deployments[0];
-
-            if (!latestDeployment) {
-                setDeploymentStatuses(prev => ({
-                    ...prev,
-                    [game.game_id]: { status: 'not_deployed', message: 'No deployments found' }
-                }));
-                return;
-            }
-
-            // Get deployment status
-            const statusResponse = await fetch(latestDeployment.statuses_url, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    Accept: "application/vnd.github+json",
-                },
-            });
-
-            if (!statusResponse.ok) {
-                throw new Error(`Failed to fetch deployment status: ${statusResponse.status}`);
-            }
-
-            const statuses = await statusResponse.json();
-            const latestStatus = statuses[0];
-
-            setDeploymentStatuses(prev => ({
-                ...prev,
-                [game.game_id]: {
-                    status: latestStatus?.state || 'unknown',
-                    message: latestStatus?.description || 'Status unknown'
-                }
-            }));
-        } catch (err) {
-            console.error(`Error checking deployment status for ${game.game_id}:`, err);
-            setDeploymentStatuses(prev => ({
-                ...prev,
-                [game.game_id]: { status: 'error', message: 'Failed to check status' }
-            }));
-        }
-    };
-
+    
     useEffect(() => {
         if (teams && teams.length > 0) {
             setCurrentTeams(teams);
@@ -190,17 +93,6 @@ const Games = ({teams}) => {
 
         fetchGames();
     }, [currentTeams]);
-
-    useEffect(() => {
-        // Check deployment status for all games when they're loaded
-        if (games.length > 0) {
-            games.forEach(game => {
-                if (game.github_repo) {
-                    checkDeploymentStatus(game);
-                }
-            });
-        }
-    }, [games]);
 
     if (!teams || teams.length === 0) return <p>⏳ Waiting for teams to load...</p>;
     if (loading) return <GameCardsSkeleton/>;
@@ -259,12 +151,10 @@ const Games = ({teams}) => {
                             game={game}
                             isInstalled={false}
                             onUpdateGame={handleSaveGameChanges}
-                            deploymentStatus={deploymentStatuses[game.game_id]}
                         />
                     </div>
                     <GameInfoPanel 
                         game={game}
-                        deploymentStatus={deploymentStatuses[game.game_id]}
                     />
                 </Stack>
             </Zoom>))}
