@@ -3,22 +3,26 @@ name: Build and Release with Auto Versioning
 on:
   push:
     branches:
-      - master  # Set to your default development branch
+      - master
 
 jobs:
   build_and_release:
     runs-on: windows-latest
+    permissions:              
+      contents: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: 🛠 Check out code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
+          fetch-depth: 0
 
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'  # Use Node 16 for better compatibility
+          node-version: '16'
           cache: 'npm'
 
       - name: 📦 Install dependencies (Main Project)
@@ -88,6 +92,12 @@ jobs:
           echo "version: ${{ env.NEW_VERSION }}" > latest.yml
         env:
           NEW_VERSION: ${{ env.NEW_VERSION }}
+          
+      - name: 🔒 Generate provenance attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "./dist/Diabolical-Launcher-Setup.exe"
+          subject-name: "Diabolical-Launcher-Setup.exe"
 
       - name: 🚀 Create Release
         id: create_release
