@@ -114,7 +114,7 @@ jobs:
           tag_name: ${{ env.NEW_VERSION }}
           name: ${{ env.NEW_VERSION }}
           files: |
-            dist/Diabolical Launcher Setup.exe
+            dist/Diabolical-Launcher-Setup.exe
             dist/latest.yml
             dist/Diabolical Launcher Setup.exe.blockmap
         env:
