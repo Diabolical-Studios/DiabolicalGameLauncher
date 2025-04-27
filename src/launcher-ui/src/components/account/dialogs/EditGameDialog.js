@@ -52,6 +52,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
             background_image_url: gameBackgroundUrl.trim(),
             description: gameDescription.trim(),
             version: gameVersion.trim(),
+            is_manual_upload: false // This is just a metadata update, not a manual upload
         };
 
         console.log("📤 Sending game update request:", updatedGame);
