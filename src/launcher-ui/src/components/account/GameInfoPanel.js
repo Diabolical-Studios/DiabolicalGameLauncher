@@ -354,7 +354,7 @@ const GameInfoPanel = ({game}) => {
             sx={{
                 display: "flex",
                 alignItems: "center",
-                color: colors.success,
+                color: colors.primary,
                 fontWeight: "bold",
                 textDecoration: "none",
                 border: `1px solid ${colors.success}`,
@@ -446,14 +446,43 @@ const GameInfoPanel = ({game}) => {
             value={activeTab}
             onChange={(e, newValue) => setActiveTab(newValue)}
             sx={{
-                marginBottom: 1, borderBottom: `1px solid ${colors.border}`
+                marginBottom: 1, 
+                borderBottom: `1px solid ${colors.border}`,
+                '& .MuiTabs-indicator': {
+                    backgroundColor: colors.primary,
+                },
             }}
         >
-            <Tab value="gameInfo" label="Game Info" sx={{color: colors.text}}/>
-            <Tab value="manualUpload" label="Manual Upload" sx={{color: colors.text}}/>
-            {game.github_repo && <Tab value="workflowLogs" label="Workflow Logs" sx={{color: colors.text}}/>}
-            {game.github_repo && <Tab value="githubApp" label="Github App" sx={{color: colors.text}}/>}
-            <Tab value="settings" label="Settings" sx={{color: colors.text}}/>
+            <Tab value="gameInfo" label="Game Info" sx={{
+                color: colors.text,
+                '&.Mui-selected': {
+                    color: colors.primary,
+                },
+            }}/>
+            <Tab value="manualUpload" label="Manual Upload" sx={{
+                color: colors.text,
+                '&.Mui-selected': {
+                    color: colors.primary,
+                },
+            }}/>
+            {game.github_repo && <Tab value="workflowLogs" label="Workflow Logs" sx={{
+                color: colors.text,
+                '&.Mui-selected': {
+                    color: colors.primary,
+                },
+            }}/>}
+            {game.github_repo && <Tab value="githubApp" label="Github App" sx={{
+                color: colors.text,
+                '&.Mui-selected': {
+                    color: colors.primary,
+                },
+            }}/>}
+            <Tab value="settings" label="Settings" sx={{
+                color: colors.text,
+                '&.Mui-selected': {
+                    color: colors.primary,
+                },
+            }}/>
         </Tabs>
 
         {/* Game Info Tab */}

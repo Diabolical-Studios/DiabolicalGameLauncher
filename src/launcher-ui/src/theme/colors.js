@@ -3,12 +3,13 @@ const darkTheme = {
     text: "#ffffff",
     border: "#444444",
     button: "#333333",
-    primary: "#07d400",
+    primary: "#52dc4b",
     secondary: "#ff4081",
     error: "#ff5252",
     success: "#07d400",
     warning: "#ff9800",
     buttonHover: "#1f1f1f",
+    primaryHover: "#168110",
     transparent: "transparent",
 };
 

@@ -473,10 +473,10 @@ const LibraryPage = () => {
                                                 }
                                             }}
                                             sx={{
-                                                bgcolor: colors.button,
+                                                bgcolor: colors.primary,
                                                 color: colors.text,
                                                 '&:hover': {
-                                                    bgcolor: colors.buttonHover,
+                                                    bgcolor: colors.primaryHover,
                                                 },
                                             }}
                                         >
@@ -778,10 +778,10 @@ const LibraryPage = () => {
                         onClick={handleSaveProperties}
                         startIcon={<SaveIcon />}
                         sx={{
-                            bgcolor: colors.button,
+                            bgcolor: colors.primary,
                             color: colors.text,
                             '&:hover': {
-                                bgcolor: colors.buttonHover,
+                                bgcolor: colors.primaryHover,
                             },
                         }}
                     >

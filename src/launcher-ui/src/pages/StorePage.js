@@ -9,6 +9,7 @@ import {
     Chip,
     Container,
     Grow,
+    TextField,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { colors } from "../theme/colors";
@@ -280,14 +281,24 @@ const StorePage = () => {
     const [featuredIndex, setFeaturedIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Memoize the filtered games based on search query
+    const filteredGames = useMemo(() => {
+        if (!searchQuery) return games;
+        return games.filter(game => 
+            game.game_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            game.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [games, searchQuery]);
 
     // Memoize the shuffled games to prevent re-randomization on re-renders
     const shuffledGames = useMemo(() => {
-        if (games.length > 0) {
-            return [...games].sort(() => Math.random() - 0.5);
+        if (filteredGames.length > 0) {
+            return [...filteredGames].sort(() => Math.random() - 0.5);
         }
         return [];
-    }, [games]);
+    }, [filteredGames]);
 
     // Memoize the featured games to prevent re-randomization
     const memoizedFeaturedGames = useMemo(() => {
@@ -383,132 +394,166 @@ const StorePage = () => {
     return (
         <Box sx={{ height: '100%', overflow: 'auto' }}>
             <Container maxWidth="xl" sx={{ py: 3 }}>
-                {/* Featured Games Carousel */}
-                <Box sx={{ position: 'relative', mb: 4 }}>
-                    {memoizedFeaturedGames[featuredIndex] && (
-                        <Grow in={!isAnimating} timeout={500}>
-                            <FeaturedCard>
-                                {memoizedFeaturedGames[featuredIndex].version && (
-                                    <VersionChip
-                                        label={`v${memoizedFeaturedGames[featuredIndex].version}`}
-                                    />
-                                )}
-                                <StyledCardMedia
-                                    component="img"
-                                    image={memoizedFeaturedGames[featuredIndex].background_image_url || ""}
-                                    alt={memoizedFeaturedGames[featuredIndex].game_name}
-                                />
-                                <CardOverlay className="card-overlay">
-                                    <FeaturedContent animate={isAnimating}>
-                                        <Typography variant="h3" sx={{ 
-                                            color: colors.text, 
-                                            mb: 1,
-                                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-                                            fontWeight: 600
-                                        }}>
-                                            {memoizedFeaturedGames[featuredIndex].game_name}
-                                        </Typography>
-                                        <Typography variant="body1" sx={{ 
-                                            color: colors.text, 
-                                            mb: 2,
-                                            maxWidth: '600px',
-                                            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                                        }}>
-                                            {memoizedFeaturedGames[featuredIndex].description}
-                                        </Typography>
-                                        <StyledButton
-                                            className="featured-button"
-                                            variant="contained"
-                                            onClick={() => installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) 
-                                                ? handlePlayGame(memoizedFeaturedGames[featuredIndex].game_id)
-                                                : handleDownloadGame(memoizedFeaturedGames[featuredIndex].game_id)}
-                                        >
-                                            {installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) ? "Play" : "Download"}
-                                        </StyledButton>
-                                    </FeaturedContent>
-                                </CardOverlay>
-                                <ProgressIndicator>
-                                    {memoizedFeaturedGames.map((_, index) => (
-                                        <IndicatorDot
-                                            key={index}
-                                            active={index === featuredIndex}
-                                            progress={index === featuredIndex ? progress : 0}
-                                            onClick={() => {
-                                                if (index !== featuredIndex) {
-                                                    setFeaturedIndex(index);
-                                                    setProgress(0);
-                                                }
-                                            }}
-                                        />
-                                    ))}
-                                </ProgressIndicator>
-                            </FeaturedCard>
-                        </Grow>
-                    )}
+                {/* Search Bar */}
+                <Box sx={{ mb: 4 }}>
+                    <TextField
+                        fullWidth
+                        placeholder="Search games..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                color: colors.text,
+                                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                                "& fieldset": {
+                                    borderColor: colors.border,
+                                },
+                                "&:hover fieldset": {
+                                    borderColor: colors.button,
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: colors.button,
+                                },
+                            },
+                            "& .MuiInputBase-input": {
+                                padding: "12px 16px",
+                            },
+                        }}
+                    />
                 </Box>
 
-                {/* Special Offers */}
-                <Typography variant="h5" sx={{ 
-                    color: colors.text, 
-                    mb: 2,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                }}>
-                    Special Offers
-                </Typography>
-                <Grid container spacing={2} sx={{ mb: 4 }}>
-                    {/* Main Special Offer */}
-                    <Grid item xs={12} md={6}>
-                        {specialOffers[0] && (
-                            <Grow in={true} timeout={600}>
-                                <Box>
-                                    <GameCardComponent
-                                        game={specialOffers[0]}
-                                        size="large"
-                                        onDownload={handleDownloadGame}
-                                        onPlay={handlePlayGame}
-                                        installedGames={installedGames}
+                {/* Featured Games Carousel */}
+                {!searchQuery && (
+                    <Box sx={{ position: 'relative', mb: 4 }}>
+                        {memoizedFeaturedGames[featuredIndex] && (
+                            <Grow in={!isAnimating} timeout={500}>
+                                <FeaturedCard>
+                                    {memoizedFeaturedGames[featuredIndex].version && (
+                                        <VersionChip
+                                            label={`v${memoizedFeaturedGames[featuredIndex].version}`}
+                                        />
+                                    )}
+                                    <StyledCardMedia
+                                        component="img"
+                                        image={memoizedFeaturedGames[featuredIndex].background_image_url || ""}
+                                        alt={memoizedFeaturedGames[featuredIndex].game_name}
                                     />
-                                </Box>
+                                    <CardOverlay className="card-overlay">
+                                        <FeaturedContent animate={isAnimating}>
+                                            <Typography variant="h3" sx={{ 
+                                                color: colors.text, 
+                                                mb: 1,
+                                                textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                                fontWeight: 600
+                                            }}>
+                                                {memoizedFeaturedGames[featuredIndex].game_name}
+                                            </Typography>
+                                            <Typography variant="body1" sx={{ 
+                                                color: colors.text, 
+                                                mb: 2,
+                                                maxWidth: '600px',
+                                                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                            }}>
+                                                {memoizedFeaturedGames[featuredIndex].description}
+                                            </Typography>
+                                            <StyledButton
+                                                className="featured-button"
+                                                variant="contained"
+                                                onClick={() => installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) 
+                                                    ? handlePlayGame(memoizedFeaturedGames[featuredIndex].game_id)
+                                                    : handleDownloadGame(memoizedFeaturedGames[featuredIndex].game_id)}
+                                            >
+                                                {installedGames.includes(memoizedFeaturedGames[featuredIndex].game_id) ? "Play" : "Download"}
+                                            </StyledButton>
+                                        </FeaturedContent>
+                                    </CardOverlay>
+                                    <ProgressIndicator>
+                                        {memoizedFeaturedGames.map((_, index) => (
+                                            <IndicatorDot
+                                                key={index}
+                                                active={index === featuredIndex}
+                                                progress={index === featuredIndex ? progress : 0}
+                                                onClick={() => {
+                                                    if (index !== featuredIndex) {
+                                                        setFeaturedIndex(index);
+                                                        setProgress(0);
+                                                    }
+                                                }}
+                                            />
+                                        ))}
+                                    </ProgressIndicator>
+                                </FeaturedCard>
                             </Grow>
                         )}
-                    </Grid>
-                    {/* Grid of 4 games */}
-                    <Grid item xs={12} md={6}>
-                        <Grid 
-                            container 
-                            spacing={2} 
-                            sx={{ 
-                                height: '-webkit-fill-available',
-                                minHeight: '400px',
-                                '& .MuiGrid-item': {
-                                    height: 'calc(50% - 8px)',
-                                }
-                            }}
-                        >
-                            {specialOffers.slice(1, 5).map((game, index) => (
-                                game && (
-                                    <Grid item xs={6} key={game.game_id}>
-                                        <Grow in={true} timeout={700 + (index * 100)}>
-                                            <Box>
-                                                <GameCardComponent
-                                                    game={game}
-                                                    size="small"
-                                                    onDownload={handleDownloadGame}
-                                                    onPlay={handlePlayGame}
-                                                    installedGames={installedGames}
-                                                />
-                                            </Box>
-                                        </Grow>
-                                    </Grid>
-                                )
-                            ))}
-                        </Grid>
-                    </Grid>
-                </Grid>
+                    </Box>
+                )}
 
-                {/* New Releases */}
+                {/* Special Offers */}
+                {!searchQuery && (
+                    <>
+                        <Typography variant="h5" sx={{ 
+                            color: colors.text, 
+                            mb: 2,
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                        }}>
+                            Special Offers
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mb: 4 }}>
+                            {/* Main Special Offer */}
+                            <Grid item xs={12} md={6}>
+                                {specialOffers[0] && (
+                                    <Grow in={true} timeout={600}>
+                                        <Box>
+                                            <GameCardComponent
+                                                game={specialOffers[0]}
+                                                size="large"
+                                                onDownload={handleDownloadGame}
+                                                onPlay={handlePlayGame}
+                                                installedGames={installedGames}
+                                            />
+                                        </Box>
+                                    </Grow>
+                                )}
+                            </Grid>
+                            {/* Grid of 4 games */}
+                            <Grid item xs={12} md={6}>
+                                <Grid 
+                                    container 
+                                    spacing={2} 
+                                    sx={{ 
+                                        height: '-webkit-fill-available',
+                                        minHeight: '400px',
+                                        '& .MuiGrid-item': {
+                                            height: 'calc(50% - 8px)',
+                                        }
+                                    }}
+                                >
+                                    {specialOffers.slice(1, 5).map((game, index) => (
+                                        game && (
+                                            <Grid item xs={6} key={game.game_id}>
+                                                <Grow in={true} timeout={700 + (index * 100)}>
+                                                    <Box>
+                                                        <GameCardComponent
+                                                            game={game}
+                                                            size="small"
+                                                            onDownload={handleDownloadGame}
+                                                            onPlay={handlePlayGame}
+                                                            installedGames={installedGames}
+                                                        />
+                                                    </Box>
+                                                </Grow>
+                                            </Grid>
+                                        )
+                                    ))}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </>
+                )}
+
+                {/* Search Results or New Releases */}
                 <Typography variant="h5" sx={{ 
                     color: colors.text, 
                     mb: 2,
@@ -516,10 +561,10 @@ const StorePage = () => {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                 }}>
-                    New Releases
+                    {searchQuery ? "Search Results" : "New Releases"}
                 </Typography>
                 <Grid container spacing={2}>
-                    {newReleases.map((game, index) => (
+                    {(searchQuery ? filteredGames : newReleases).map((game, index) => (
                         <Grid item xs={12} sm={6} md={3} key={game.game_id}>
                             <Grow in={true} timeout={800 + (index * 100)}>
                                 <Box>

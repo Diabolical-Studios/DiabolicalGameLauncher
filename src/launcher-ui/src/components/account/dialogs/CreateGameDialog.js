@@ -411,13 +411,17 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                 backgroundColor: colors.background, border: "1px solid" + colors.border, gap: "24px", padding: "0 24px 24px 24px"
             }}>
                 {/* Tabs at the top */}
-                <Stack width="100%" sx={{ borderBottom: 1, borderColor: colors.border }}>
+                <Stack width="100%" sx={{ 
+                    borderBottom: 1, 
+                    borderColor: colors.border,
+                    WebkitAppRegion: "no-drag"
+                }}>
                     <Tabs 
                         value={activeTab} 
                         onChange={handleTabChange}
                         sx={{
                             '& .MuiTabs-indicator': {
-                                backgroundColor: colors.button,
+                                backgroundColor: colors.primary,
                             },
                         }}
                     >
@@ -426,7 +430,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             sx={{
                                 color: colors.text,
                                 '&.Mui-selected': {
-                                    color: colors.button,
+                                    color: colors.primary,
                                 },
                             }}
                         />
@@ -435,7 +439,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                             sx={{
                                 color: colors.text,
                                 '&.Mui-selected': {
-                                    color: colors.button,
+                                    color: colors.primary,
                                 },
                             }}
                         />
