@@ -96,9 +96,9 @@ jobs:
       - name: 🔒 Generate provenance attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: "./dist/Diabolical-Launcher-Setup.exe"
-          subject-name: "Diabolical-Launcher-Setup.exe"
-
+          subject-path: 'dist/Diabolical Launcher Setup.exe'
+          subject-name: Diabolical-Launcher-Setup.exe
+      
       - name: 🚀 Create Release
         id: create_release
         uses: actions/create-release@v1
