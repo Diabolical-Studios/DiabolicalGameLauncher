@@ -230,9 +230,10 @@ const LibraryPage = () => {
             const fetchGameInfo = async () => {
                 if (window.electronAPI) {
                     try {
-                        const [current, sizeInBytes] = await Promise.all([
+                        const [current, sizeInBytes, playtime] = await Promise.all([
                             window.electronAPI.getCurrentGameVersion(selectedGame.game_id),
-                            window.electronAPI.getGameSize(selectedGame.game_id)
+                            window.electronAPI.getGameSize(selectedGame.game_id),
+                            window.electronAPI.getGamePlaytime(selectedGame.game_id)
                         ]);
                         
                         setCurrentVersion(current);
@@ -249,9 +250,11 @@ const LibraryPage = () => {
                             size = `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
                         }
                         setDiskUsage(size);
+                        setPlayTime(`${playtime} hours`);
                     } catch (err) {
                         console.error("Error fetching game info:", err);
                         setDiskUsage('Unknown');
+                        setPlayTime('0 hours');
                     }
                 }
             };
