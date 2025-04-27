@@ -7,6 +7,7 @@ const LogoutButton = () => {
                     onClick={() => {
                         Cookies.remove("username");
                         Cookies.remove("sessionID");
+                        Cookies.remove("githubID");
                         window.location.reload();
                     }}
                     style={{

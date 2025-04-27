@@ -56,7 +56,7 @@ export default function AccountPage() {
         const sessionIDParam = params.get("sessionID");
         const usernameParam = params.get("username");
         const githubIdParam = params.get("githubID");
-        
+
         if (sessionIDParam && usernameParam && githubIdParam) {
             Cookies.set("sessionID", sessionIDParam, cookieOptions);
             Cookies.set("username", usernameParam, cookieOptions);
@@ -82,6 +82,7 @@ export default function AccountPage() {
                 if (!res.ok) {
                     Cookies.remove("sessionID");
                     Cookies.remove("username");
+                    Cookies.remove("githubID");
                     setUsername("");
                     setIsLoggedIn(false);
                 } else {
@@ -93,6 +94,7 @@ export default function AccountPage() {
             .catch(() => {
                 Cookies.remove("sessionID");
                 Cookies.remove("username");
+                Cookies.remove("githubID");
                 setUsername("");
                 setIsLoggedIn(false);
             })

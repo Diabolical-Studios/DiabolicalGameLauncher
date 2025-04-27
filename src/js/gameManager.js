@@ -4,6 +4,37 @@ const {Menu, shell, BrowserWindow} = require("electron");
 const {downloadGame} = require("./downloadManager");
 const {diabolicalLauncherPath} = require("./settings");
 
+//Get the size of a directory recursively
+function getDirectorySize(dirPath) {
+    let size = 0;
+    const files = fs.readdirSync(dirPath, { withFileTypes: true });
+    
+    for (const file of files) {
+        const filePath = path.join(dirPath, file.name);
+        if (file.isDirectory()) {
+            size += getDirectorySize(filePath);
+        } else {
+            size += fs.statSync(filePath).size;
+        }
+    }
+    
+    return size;
+}
+
+//Get the size of a game installation in bytes
+function getGameSize(gameId) {
+    try {
+        const gamePath = path.join(diabolicalLauncherPath, gameId);
+        if (!fs.existsSync(gamePath)) {
+            return 0;
+        }
+        return getDirectorySize(gamePath);
+    } catch (error) {
+        console.error(`Failed to get size for game ${gameId}:`, error);
+        return 0;
+    }
+}
+
 //Get a list of game_ids which are currently installed
 function getInstalledGames() {
     try {
@@ -80,5 +111,6 @@ function uninstallGame(gameId) {
 module.exports = {
     uninstallGame, 
     getInstalledGames, 
-    showContextMenu
+    showContextMenu,
+    getGameSize
 };

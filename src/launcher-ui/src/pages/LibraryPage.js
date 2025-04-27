@@ -53,7 +53,7 @@ const LibraryPage = () => {
     const [contextMenu, setContextMenu] = useState(null);
     const [playTime] = useState('0 hours');
     const [achievements] = useState({ completed: 0, total: 0 });
-    const [diskUsage] = useState('0 MB');
+    const [diskUsage, setDiskUsage] = useState('0 MB');
     const [propertiesDialogOpen, setPropertiesDialogOpen] = useState(false);
     const [gameProperties, setGameProperties] = useState({
         branch: 'latest',
@@ -219,6 +219,28 @@ const LibraryPage = () => {
     useEffect(() => {
         if (selectedGame) {
             fetchLocalVersion(selectedGame.game_id);
+            // Fetch game size
+            const fetchGameSize = async () => {
+                if (window.electronAPI) {
+                    try {
+                        const sizeInBytes = await window.electronAPI.getGameSize(selectedGame.game_id);
+                        // Convert bytes to appropriate unit
+                        let size;
+                        if (sizeInBytes < 1024 * 1024) { // Less than 1 MB
+                            size = `${(sizeInBytes / 1024).toFixed(2)} KB`;
+                        } else if (sizeInBytes < 1024 * 1024 * 1024) { // Less than 1 GB
+                            size = `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
+                        } else { // GB or larger
+                            size = `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+                        }
+                        setDiskUsage(size);
+                    } catch (err) {
+                        console.error("Error fetching game size:", err);
+                        setDiskUsage('Unknown');
+                    }
+                }
+            };
+            fetchGameSize();
         }
     }, [selectedGame, fetchLocalVersion]);
 

@@ -5,7 +5,7 @@ const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
 
 const {downloadGame} = require("./downloadManager");
-const {getInstalledGames, showContextMenu, uninstallGame} = require("./gameManager");
+const {getInstalledGames, showContextMenu, uninstallGame, getGameSize} = require("./gameManager");
 const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
@@ -25,6 +25,10 @@ function initIPCHandlers() {
 
     ipcMain.handle("get-latest-game-version", async (event, gameId) => {
         return await getLatestGameVersion(gameId);
+    });
+
+    ipcMain.handle("get-game-size", async (event, gameId) => {
+        return getGameSize(gameId);
     });
 
     ipcMain.on("open-game", (event, gameId) => {

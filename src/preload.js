@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     openGame: (gameId) => ipcRenderer.send("open-game", gameId),
     stopGame: (gameId) => ipcRenderer.send("stop-game", gameId),
     isGameRunning: (gameId) => ipcRenderer.invoke("is-game-running", gameId),
+    getGameSize: (gameId) => ipcRenderer.invoke("get-game-size", gameId),
     onGameStarted: (callback) => {
         ipcRenderer.on("game-started", (event, gameId) => callback(gameId));
     },
