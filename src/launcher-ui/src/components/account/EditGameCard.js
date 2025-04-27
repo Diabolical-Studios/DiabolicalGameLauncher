@@ -5,7 +5,7 @@ import {Stack} from "@mui/material";
 import EditGameDialog from "./dialogs/EditGameDialog";
 import GameButton from "../button/GameButton";
 
-const EditGameCard = ({game, isInstalled, onUpdateGame, deploymentStatus}) => {
+const EditGameCard = ({game, isInstalled, onUpdateGame}) => {
     const [editOpen, setEditOpen] = useState(false);
 
     const handleSaveGameChanges = (updatedGame) => {
@@ -13,21 +13,6 @@ const EditGameCard = ({game, isInstalled, onUpdateGame, deploymentStatus}) => {
 
         if (typeof onUpdateGame === "function") {
             onUpdateGame(updatedGame);
-        }
-    };
-
-    const getDeploymentStatusColor = () => {
-        switch (deploymentStatus?.status) {
-            case 'success':
-                return '#4caf50';
-            case 'pending':
-                return '#ff9800';
-            case 'error':
-                return '#f44336';
-            case 'not_deployed':
-                return '#9e9e9e';
-            default:
-                return '#9e9e9e';
         }
     };
 
@@ -59,29 +44,6 @@ const EditGameCard = ({game, isInstalled, onUpdateGame, deploymentStatus}) => {
                     },]}
                 />*/}
             </Stack>
-            {deploymentStatus && (
-                <div style={{
-                    position: 'absolute',
-                    bottom: '10px',
-                    right: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: '4px 8px',
-                    borderRadius: '4px'
-                }}>
-                    <div style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: getDeploymentStatusColor()
-                    }} />
-                    <span style={{color: '#fff', fontSize: '12px'}}>
-                        {deploymentStatus.message}
-                    </span>
-                </div>
-            )}
         </Stack>
 
         <EditGameDialog
