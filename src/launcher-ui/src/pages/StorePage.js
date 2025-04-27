@@ -395,7 +395,7 @@ const StorePage = () => {
         <Box sx={{ height: '100%', overflow: 'auto' }}>
             <Container maxWidth="xl" sx={{ py: 3 }}>
                 {/* Search Bar */}
-                <Box sx={{ mb: 4 }}>
+                <Box sx={{ mb: 3 }}>
                     <TextField
                         fullWidth
                         placeholder="Search games..."
@@ -424,7 +424,7 @@ const StorePage = () => {
 
                 {/* Featured Games Carousel */}
                 {!searchQuery && (
-                    <Box sx={{ position: 'relative', mb: 4 }}>
+                    <Box sx={{ position: 'relative', mb: 3 }}>
                         {memoizedFeaturedGames[featuredIndex] && (
                             <Grow in={!isAnimating} timeout={500}>
                                 <FeaturedCard>
