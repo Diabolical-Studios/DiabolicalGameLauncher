@@ -1,16 +1,15 @@
-// netlify/edge-functions/patreon-auth.js
-export default async (request, context) => {
+// netlify/functions/patreonAuth.js
+exports.handler = async function(event, context) {
   console.log("=== Patreon Auth Function Started ===");
   
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code');
-  const source = searchParams.get('state') || "web";
+  const code = event.queryStringParameters?.code;
+  const source = event.queryStringParameters?.state || "web";
   
   if (!code) {
-    return new Response('Missing code', { 
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' }
-    });
+    return {
+      statusCode: 400,
+      body: 'Missing code'
+    };
   }
 
   try {
@@ -21,18 +20,18 @@ export default async (request, context) => {
       body: new URLSearchParams({
         code,
         grant_type: 'authorization_code',
-        client_id: Netlify.env.get('PATREON_CLIENT_ID'),
-        client_secret: Netlify.env.get('PATREON_CLIENT_SECRET'),
-        redirect_uri: 'https://launcher.diabolical.studio/.netlify/functions/patreon-auth'
+        client_id: process.env.PATREON_CLIENT_ID,
+        client_secret: process.env.PATREON_CLIENT_SECRET,
+        redirect_uri: 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth'
       })
     });
     
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      return new Response('Token exchange failed', { 
-        status: 400,
-        headers: { 'Content-Type': 'text/plain' }
-      });
+      return {
+        statusCode: 400,
+        body: 'Token exchange failed'
+      };
     }
 
     // Fetch user info
@@ -69,20 +68,21 @@ export default async (request, context) => {
       </html>
     `;
 
-    return new Response(html, {
-      status: 200,
+    return {
+      statusCode: 200,
       headers: {
         'Content-Type': 'text/html',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
-      }
-    });
+      },
+      body: html
+    };
   } catch (error) {
     console.error("Error in Patreon auth:", error);
-    return new Response(`Error: ${error.message}`, { 
-      status: 500,
-      headers: { 'Content-Type': 'text/plain' }
-    });
+    return {
+      statusCode: 500,
+      body: `Error: ${error.message}`
+    };
   }
-};
+}; 

@@ -29,7 +29,7 @@ const services = [
 ];
 
 const PATREON_CLIENT_ID = "1xNwOOd3hVInyijzxYT0qrqTf1mkuhYPqcZusknZ4I6MQhk-97vzlp2ABpqgMHFH";
-const REDIRECT_URI = "https://launcher.diabolical.studio/.netlify/functions/patreon-auth";
+const REDIRECT_URI = "https://launcher.diabolical.studio/.netlify/functions/patreonAuth";
 
 const getPatreonOAuthUrl = () => {
     // Detect if running in Electron (customize this check as needed)
