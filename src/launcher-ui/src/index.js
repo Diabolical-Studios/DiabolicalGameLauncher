@@ -79,6 +79,9 @@ if (typeof window !== 'undefined') {
         }
         const protoUrl = `diabolicallauncher://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
         window.location.href = protoUrl;
+        setTimeout(() => {
+          window.close();
+        }, 500); // Give the protocol handler a moment to trigger
       }
     } catch (e) {
       // Fail silently
