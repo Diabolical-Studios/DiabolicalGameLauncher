@@ -6,7 +6,6 @@ import {Avatar, Stack} from "@mui/material";
 import Teams from "./Teams";
 import Games from "./Games";
 import AccountName from "./AccountName";
-import LogoutButton from "./LogoutButton";
 import Grid from "../Grid";
 import Divider from "../Divider";
 import ImageButton from "../button/ImageButton";
@@ -14,6 +13,7 @@ import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import {colors} from "../../theme/colors";
+import AccountSettings from "./AccountSettings";
 
 export default function AccountDashboard({username}) {
     const [teams, setTeams] = useState([]);
@@ -78,11 +78,13 @@ export default function AccountDashboard({username}) {
                     />
                     <AccountName username={username}/>
                 </Stack>
-                <LogoutButton/>
             </div>
             <div className="w-full h-full flex overflow-hidden">
                 <ul className="flex flex-col gap-3 h-full w-1/5 p-3 m-0 justify-between">
                     <Stack direction="column" spacing="12px">
+                        <Link to="/account/dashboard/settings">
+                            <ImageButton style={{width: "100%"}} text="Account" icon={GroupsIcon}/>
+                        </Link>
                         <Link to="/account/dashboard/teams">
                             <ImageButton style={{width: "100%"}} text="Teams" icon={GroupsIcon}/>
                         </Link>
@@ -105,6 +107,14 @@ export default function AccountDashboard({username}) {
                                         error={errorTeams}
                                         onUpdateTeam={handleUpdateTeam}
                                     />
+                                </Grid>
+                            }
+                        />
+                        <Route
+                            path="settings"
+                            element={
+                                <Grid>
+                                    <AccountSettings username={username}/>
                                 </Grid>
                             }
                         />

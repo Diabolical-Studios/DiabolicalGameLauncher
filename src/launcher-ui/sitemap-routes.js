@@ -6,6 +6,7 @@ module.exports = [
     '/account',
     '/account/login',
     '/account/dashboard',
+    '/account/dashboard/settings',
     '/account/dashboard/teams',
     '/account/dashboard/games',
     '/changelog',

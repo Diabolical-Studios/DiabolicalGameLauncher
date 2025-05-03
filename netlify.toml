@@ -44,6 +44,10 @@ function = "github-auth"
 path = "/github-auth"
 
 [[edge_functions]]
+function = "patreon-auth"
+path = "/patreon-auth"
+
+[[edge_functions]]
 function = "update-game"
 path = "/update-game"
 
