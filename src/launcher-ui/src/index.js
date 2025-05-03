@@ -79,9 +79,9 @@ if (typeof window !== 'undefined') {
         }
         const protoUrl = `diabolicallauncher://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
         window.location.href = protoUrl;
-        setTimeout(() => {
+        /* setTimeout(() => {
           window.location.href = "https://launcher.diabolical.studio";
-        }, 500); // Adjust delay as needed
+        }, 500); */
       }
     } catch (e) {
       // Fail silently
