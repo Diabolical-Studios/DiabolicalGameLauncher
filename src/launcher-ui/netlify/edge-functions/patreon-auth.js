@@ -1,12 +1,11 @@
 // netlify/edge-functions/patreon-auth.js
-export default async (event) => {
-  const code = event.queryStringParameters?.code;
-  // Accept provider from query, default to 'patreon'
-  const provider = event.queryStringParameters?.provider || 'patreon';
-  const source = event.queryStringParameters?.state || "web";
+export default async (request, context) => {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code');
+  const source = searchParams.get('state') || "web";
 
   if (!code) {
-    return { statusCode: 400, body: 'Missing code' };
+    return new Response('Missing code', { status: 400 });
   }
 
   // Exchange code for access token
@@ -16,14 +15,14 @@ export default async (event) => {
     body: new URLSearchParams({
       code,
       grant_type: 'authorization_code',
-      client_id: process.env.PATREON_CLIENT_ID,
-      client_secret: process.env.PATREON_CLIENT_SECRET,
+      client_id: Netlify.env.get('PATREON_CLIENT_ID'),
+      client_secret: Netlify.env.get('PATREON_CLIENT_SECRET'),
       redirect_uri: 'https://launcher.diabolical.studio/.netlify/functions/patreon-auth'
     })
   });
   const tokenData = await tokenRes.json();
   if (!tokenData.access_token) {
-    return { statusCode: 400, body: 'Token exchange failed' };
+    return new Response('Token exchange failed', { status: 400 });
   }
 
   // Fetch user info
@@ -41,7 +40,7 @@ export default async (event) => {
   // TODO: Store user info in your DB/session and grant perks
 
   // Determine the redirect URL based on the source (electron or web)
-  const providerParam = `provider=${provider}`;
+  const providerParam = 'provider=patreon';
   const patreonParam = `patreon=${isPatron ? "success" : "fail"}`;
   const query = `${providerParam}&${patreonParam}&code=${code}`;
   const redirectUrl =
@@ -49,9 +48,8 @@ export default async (event) => {
       ? `diabolicallauncher://auth?${query}`
       : `https://launcher.diabolical.studio/account?${query}`;
 
-  return {
-    statusCode: 302,
-    headers: { Location: redirectUrl },
-    body: ''
-  };
+  return new Response('', {
+    status: 302,
+    headers: { Location: redirectUrl }
+  });
 };
