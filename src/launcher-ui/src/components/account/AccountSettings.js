@@ -39,8 +39,8 @@ const getPatreonOAuthUrl = () => {
 };
 
 const iconButtonStyle = {
-    background: '#fff',
-    borderRadius: '2px',
+    background: '#000',
+    borderRadius: '4px',
     width: 48,
     height: 48,
     border: `1px solid ${colors.border}`,
@@ -51,20 +51,20 @@ const iconButtonStyle = {
     p: 0,
     boxShadow: '0 1px 4px 0 rgba(0,0,0,0.03)',
     '&:hover': {
-        background: '#111',
-        borderColor: '#111',
+        background: '#fff',
+        borderColor: '#fff',
     },
 };
 
 const imgStyle = {
-    width: 32,
-    height: 32,
-    filter: 'invert(0%)',
+    width: 24,
+    height: 24,
+    filter: 'invert(100%)',
     transition: 'filter 0.2s',
 };
 
 const imgHoverStyle = {
-    filter: 'invert(100%)',
+    filter: 'invert(0%)',
 };
 
 const Divider = () => (
@@ -98,7 +98,7 @@ const AccountSettings = ({username}) => {
                             disabled
                             fullWidth
                             sx={{
-                                borderRadius: '2px',
+                                borderRadius: '4px',
                                 background: 'rgba(255,255,255,0.03)',
                                 "& .MuiOutlinedInput-root": {
                                     color: colors.text,
@@ -107,14 +107,14 @@ const AccountSettings = ({username}) => {
                                 },
                                 "& .MuiOutlinedInput-notchedOutline": {
                                     border: "1px solid" + colors.border + "!important",
-                                    borderRadius: "2px",
+                                    borderRadius: "4px",
                                 },
                                 "& .MuiFormLabel-root": {
                                     color: colors.text,
                                 },
                             }}
                         />
-                        <LogoutButton style={{height: "100%", margin: 0, borderRadius: '2px'}}>
+                        <LogoutButton style={{height: "100%", margin: 0, borderRadius: '4px'}}>
                             <LogoutIcon sx={{ color: colors.error }} />
                         </LogoutButton>
                     </Stack>
