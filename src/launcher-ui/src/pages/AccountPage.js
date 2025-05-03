@@ -107,14 +107,54 @@ export default function AccountPage() {
         if (window.api && window.electronAPI && typeof window.electronAPI.onProtocolData === "function") {
             window.electronAPI.onProtocolData((action, data) => {
                 if (action === "auth") {
-                    if (window.electronAPI) {
-                        window.electronAPI.showCustomNotification("GitHub OAuth", "Success! You are logged in");
+                    // Use provider from data
+                    const provider = data && data.provider ? data.provider.toLowerCase() : "unknown";
+
+                    let protocolName = "OAuth";
+                    switch (provider) {
+                        case "patreon":
+                            protocolName = "Patreon OAuth";
+                            break;
+                        case "github":
+                            protocolName = "GitHub OAuth";
+                            break;
+                        case "steam":
+                            protocolName = "Steam OAuth";
+                            break;
+                        case "discord":
+                            protocolName = "Discord OAuth";
+                            break;
+                        default:
+                            protocolName = "OAuth";
                     }
-                    Cookies.set("sessionID", data.sessionID, cookieOptions);
-                    Cookies.set("username", data.username, cookieOptions);
-                    Cookies.set("githubID", data.githubID, cookieOptions);
-                    setUsername(data.username);
-                    setIsLoggedIn(true);
+
+                    if (window.electronAPI) {
+                        window.electronAPI.showCustomNotification(protocolName, "Successfully Authorized!");
+                    }
+
+                    // Handle each provider's data
+                    switch (provider) {
+                        case "github":
+                            Cookies.set("sessionID", data.sessionID, cookieOptions);
+                            Cookies.set("username", data.username, cookieOptions);
+                            Cookies.set("githubID", data.githubID, cookieOptions);
+                            setUsername(data.username);
+                            setIsLoggedIn(true);
+                            break;
+                        case "patreon":
+                            Cookies.set("patreonStatus", data.patreon, cookieOptions);
+                            // Add more Patreon-specific logic as needed
+                            break;
+                        case "steam":
+                            // Handle Steam-specific logic here
+                            break;
+                        case "discord":
+                            // Handle Discord-specific logic here
+                            break;
+                        default:
+                            // Handle unknown or generic OAuth
+                            break;
+                    }
                 }
                 if (action === "github-app") {
                     if (window.electronAPI) {

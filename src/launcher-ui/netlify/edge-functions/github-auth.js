@@ -88,10 +88,13 @@ export default async (request, context) => {
         }
 
         // Determine the redirect URL based on the source (electron or web)
+        const providerParam = 'provider=github';
+        const sessionParams = `sessionID=${encodeURIComponent(sessionID)}&username=${encodeURIComponent(username)}&githubID=${encodeURIComponent(github_id)}`;
+        const query = `${providerParam}&${sessionParams}`;
         const redirectUrl =
             source === "electron"
-                ? `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}&githubID=${encodeURIComponent(github_id)}`
-                : `https://launcher.diabolical.studio/account/login?sessionID=${sessionID}&username=${encodeURIComponent(username)}&githubID=${encodeURIComponent(github_id)}`;
+                ? `diabolicallauncher://auth?${query}`
+                : `https://launcher.diabolical.studio/account?${query}`;
 
         return new Response("", {
             status: 302,

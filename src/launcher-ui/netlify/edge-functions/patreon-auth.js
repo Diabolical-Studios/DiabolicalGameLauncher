@@ -39,10 +39,13 @@ export default async (event) => {
   // TODO: Store user info in your DB/session and grant perks
 
   // Determine the redirect URL based on the source (electron or web)
+  const providerParam = 'provider=patreon';
+  const patreonParam = `patreon=${isPatron ? "success" : "fail"}`;
+  const query = `${providerParam}&${patreonParam}`;
   const redirectUrl =
     source === "electron"
-      ? `diabolicallauncher://auth?patreon=${isPatron ? "success" : "fail"}`
-      : `https://launcher.diabolical.studio/account?patreon=${isPatron ? "success" : "fail"}`;
+      ? `diabolicallauncher://auth?${query}`
+      : `https://launcher.diabolical.studio/account?${query}`;
 
   return {
     statusCode: 302,
