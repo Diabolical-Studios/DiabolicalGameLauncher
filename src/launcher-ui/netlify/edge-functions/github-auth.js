@@ -4,6 +4,8 @@ export default async (request, context) => {
     // Parse query parameters from the request URL
     const {searchParams} = new URL(request.url);
     const code = searchParams.get("code");
+    // Accept provider from query, default to 'github'
+    const provider = searchParams.get("provider") || 'github';
     const source = searchParams.get("state") || "web";
 
     if (!code) {
@@ -88,7 +90,7 @@ export default async (request, context) => {
         }
 
         // Determine the redirect URL based on the source (electron or web)
-        const providerParam = 'provider=github';
+        const providerParam = `provider=${provider}`;
         const sessionParams = `sessionID=${encodeURIComponent(sessionID)}&username=${encodeURIComponent(username)}&githubID=${encodeURIComponent(github_id)}`;
         const query = `${providerParam}&${sessionParams}`;
         const redirectUrl =

@@ -1,6 +1,8 @@
 // netlify/edge-functions/patreon-auth.js
 export default async (event) => {
   const code = event.queryStringParameters?.code;
+  // Accept provider from query, default to 'patreon'
+  const provider = event.queryStringParameters?.provider || 'patreon';
   const source = event.queryStringParameters?.state || "web";
 
   if (!code) {
@@ -39,9 +41,9 @@ export default async (event) => {
   // TODO: Store user info in your DB/session and grant perks
 
   // Determine the redirect URL based on the source (electron or web)
-  const providerParam = 'provider=patreon';
+  const providerParam = `provider=${provider}`;
   const patreonParam = `patreon=${isPatron ? "success" : "fail"}`;
-  const query = `${providerParam}&${patreonParam}`;
+  const query = `${providerParam}&${patreonParam}&code=${code}`;
   const redirectUrl =
     source === "electron"
       ? `diabolicallauncher://auth?${query}`

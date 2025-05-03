@@ -143,7 +143,9 @@ export default function AccountPage() {
                             break;
                         case "patreon":
                             Cookies.set("patreonStatus", data.patreon, cookieOptions);
-                            // Add more Patreon-specific logic as needed
+                            if (data.code) {
+                                Cookies.set("patreonAuthCode", data.code, cookieOptions);
+                            }
                             break;
                         case "steam":
                             // Handle Steam-specific logic here
