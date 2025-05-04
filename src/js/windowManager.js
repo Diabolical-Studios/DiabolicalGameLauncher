@@ -58,7 +58,7 @@ async function createWindow() {
     });
 
     //Dev mode = localhost
-    const startURL = isDev ? "http://localhost:8888" : process.env.NODE_ENV === 'development' ? "https://dev.launcher.diabolical.studio" : "https://launcher.diabolical.studio";
+    const startURL = isDev ? "http://localhost:8888" : (process.env.NODE_ENV === 'development' ? "https://dev.launcher.diabolical.studio" : "https://launcher.diabolical.studio");
     mainWindow.loadURL(startURL);
 
     //Close splash window and enable main window
