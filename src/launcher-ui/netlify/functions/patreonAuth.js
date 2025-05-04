@@ -85,7 +85,6 @@ exports.handler = async function (event) {
   /* Defaults assume non-patron */
   let planId = 0;
   let isPatron = false;
-  let startedAt = new Date();
   let renewedAt = null;
   let endsAt = null;
   let externalSubId = "patreon";
@@ -105,7 +104,6 @@ exports.handler = async function (event) {
       planId =
           +activeMember.relationships.currently_entitled_tiers.data[0].id || 0;
     }
-    startedAt = safeDate(activeMember.attributes?.pledge_relationship_start);
     renewedAt = safeDate(activeMember.attributes?.last_charge_date);
   }
 
@@ -126,7 +124,6 @@ exports.handler = async function (event) {
     plan_id: planId,
     status: isPatron ? "active" : "inactive",
     external_subscription_id: externalSubId,
-    started_at: startedAt,
     renewed_at: renewedAt,
     ends_at: endsAt,
   };
