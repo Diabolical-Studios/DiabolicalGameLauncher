@@ -6,135 +6,166 @@ on:
       - master
       - dev
 
+# ------------------------------------------------------------------
+# Global flags so every step can tell if we're on dev or master
+# ------------------------------------------------------------------
+env:
+  IS_DEV:  ${{ startsWith(github.ref, 'refs/heads/dev') }}
+  IS_PROD: ${{ startsWith(github.ref, 'refs/heads/master') }}
+
 jobs:
   build_and_release:
     runs-on: windows-latest
-    permissions:              
+    permissions:
       contents: write
       attestations: write
       id-token: write
 
     steps:
-      - name: 🛠 Check out code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+    # --------------------------------------------------------------
+    # 📥 Checkout & tooling
+    # --------------------------------------------------------------
+    - name: 🛠 Check out code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: ⚙️ Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-          cache: 'npm'
+    - name: ⚙️ Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16
+        cache: npm
 
-      - name: 📦 Install dependencies (Electron Project)
-        run: npm install
+    - name: 📦 Install dependencies
+      run: npm install
 
-      - name: 🔢 Calculate new version and create tag
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
-        id: calculate_new_version
-        run: |
-          echo "Fetching tags..."
-          git fetch --tags
-          # Determine if this is a dev or production build
-          if [[ "$GITHUB_REF" == "refs/heads/dev" ]]; then
-            TAG_PREFIX="dev-"
-            LAST_TAG=$(git tag -l "dev-*" | sort -V | tail -n1)
-            if [[ -z "$LAST_TAG" ]]; then LAST_TAG="dev-0.0.0"; fi
-          else
-            TAG_PREFIX=""
-            LAST_TAG=$(git tag -l "[0-9]*" | sort -V | tail -n1)
-            if [[ -z "$LAST_TAG" ]]; then LAST_TAG="0.0.0"; fi
-          fi
-          echo "Last version: $LAST_TAG"
-          # Get commit message
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          echo "Commit message: $COMMIT_MESSAGE"
-          # Extract version numbers
-          IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_TAG#*-}"
-          # Determine version increment
-          if echo "$COMMIT_MESSAGE" | grep -iq "major"; then
-            echo "Incrementing major version"
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-          elif echo "$COMMIT_MESSAGE" | grep -iq "minor"; then
-            echo "Incrementing minor version"
-            MINOR=$((MINOR + 1))
-            PATCH=0
-          else
-            echo "Incrementing patch version"
-            PATCH=$((PATCH + 1))
-          fi
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "New version: $NEW_VERSION"
-          # Check if tag already exists
-          if git rev-parse "$TAG_PREFIX$NEW_VERSION" >/dev/null 2>&1; then
-            echo "Tag $TAG_PREFIX$NEW_VERSION already exists. Incrementing patch version."
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          fi
-          # Create new tag
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag "$TAG_PREFIX$NEW_VERSION"
-          # Set environment variable for the new version
-          echo "NEW_VERSION=$TAG_PREFIX$NEW_VERSION" >> $GITHUB_ENV
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    # --------------------------------------------------------------
+    # 🔢 SemVer bump + tag (dev => dev-X.Y.Z, prod => X.Y.Z)
+    # --------------------------------------------------------------
+    - name: 🔢 Generate version & git tag
+      id: version
+      shell: bash
+      run: |
+        set -e
+        git fetch --tags
 
-      - name: 📝 Update package.json version
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
-        run: |
-          npm version ${{ env.NEW_VERSION }} --no-git-tag-version
-          git add package.json
-          git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
+        # Work out last tag in the right namespace
+        if [[ "${{ env.IS_DEV }}" == "true" ]]; then
+          LAST_TAG=$(git tag -l "dev-[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+          [[ -z "$LAST_TAG" ]] && LAST_TAG="dev-0.0.0"
+        else
+          LAST_TAG=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+          [[ -z "$LAST_TAG" ]] && LAST_TAG="0.0.0"
+        fi
 
-      - name: 🔨 Build and Package Electron App
-        if: github.ref == 'refs/heads/master'
-        run: npm run dist
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        VERSION=$(echo "$LAST_TAG" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+        IFS=. read MA MI PA <<<"$VERSION"
 
-      - name: 🔨 Build and Package Electron App (Dev)
-        if: github.ref == 'refs/heads/dev'
-        run: npm run build:dev
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        # Decide bump size from commit message keywords
+        COMMIT_MSG="$(git log -1 --pretty=%B | tr -d '\r')"
+        if echo "$COMMIT_MSG" | grep -iqE '(^|\s)major(\s|$)'; then
+          ((MA+=1)); MI=0; PA=0
+        elif echo "$COMMIT_MSG" | grep -iqE '(^|\s)minor(\s|$)'; then
+          ((MI+=1)); PA=0
+        else
+          ((PA+=1))
+        fi
 
-      - name: 📄 Create latest.yml
-        run: |
-          echo "version: ${{ env.NEW_VERSION }}" > latest.yml
-        env:
-          NEW_VERSION: ${{ env.NEW_VERSION }}
+        NEW_VERSION="${MA}.${MI}.${PA}"
+        TAG="${{ env.IS_DEV == 'true' && 'dev-' || '' }}${NEW_VERSION}"
 
-      - name: 🏷️ Rename setup file to use hyphens
-        run: |
+        echo "NEW_VERSION=$NEW_VERSION" >>"$GITHUB_OUTPUT"
+        echo "TAG=$TAG"                 >>"$GITHUB_OUTPUT"
+
+        git config --local user.email "action@github.com"
+        git config --local user.name  "GitHub Action"
+        git tag "$TAG"
+
+    # --------------------------------------------------------------
+    # 📝 Update package.json + push commit & tag
+    # --------------------------------------------------------------
+    - name: 📝 Update package.json version
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      shell: bash
+      run: |
+        npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
+        git add package.json package-lock.json || true
+        git commit -m "chore: bump version to ${{ steps.version.outputs.NEW_VERSION }}" || true
+        git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+        git push origin HEAD --follow-tags
+
+    # --------------------------------------------------------------
+    # 🔨 Build (prod = dist, dev = build:dev)
+    # --------------------------------------------------------------
+    - name: 🔨 Build and package Electron app
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      shell: bash
+      run: |
+        if [[ "${{ env.IS_DEV }}" == "true" ]]; then
+          npm run build:dev
+        else
+          npm run dist
+        fi
+
+    # --------------------------------------------------------------
+    # 📄 Generate latest.yml (for auto-update)
+    # --------------------------------------------------------------
+    - name: 📄 Create latest.yml
+      shell: bash
+      run: |
+        echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > latest.yml
+
+    # --------------------------------------------------------------
+    # 🏷️ Rename installer & expose INSTALLER var for later steps
+    # --------------------------------------------------------------
+    - name: 🏷️ Rename installer
+      shell: bash
+      run: |
+        if [[ "${{ env.IS_DEV }}" == "true" ]]; then
+          mv "dist/Diabolical Launcher Setup.exe" "dist/Diabolical-Launcher-Setup-dev.exe"
+          echo "INSTALLER=Diabolical-Launcher-Setup-dev.exe" >>"$GITHUB_ENV"
+        else
           mv "dist/Diabolical Launcher Setup.exe" "dist/Diabolical-Launcher-Setup.exe"
-      
-      - name: 📤 Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            dist/Diabolical-Launcher-Setup.exe
-            dist/latest.yml
-            dist/Diabolical Launcher Setup.exe.blockmap
+          echo "INSTALLER=Diabolical-Launcher-Setup.exe" >>"$GITHUB_ENV"
+        fi
 
-      - name: 🔒 Generate provenance attestation
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: dist/Diabolical-Launcher-Setup.exe
-          subject-name: Diabolical-Launcher-Setup.exe
+    # --------------------------------------------------------------
+    # 📤 Upload artifacts
+    # --------------------------------------------------------------
+    - name: 📤 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: |
+          dist/${{ env.INSTALLER }}
+          dist/latest.yml
+          dist/Diabolical Launcher Setup.exe.blockmap
 
-      - name: 🚀 Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NEW_VERSION }}
-          name: "${{ env.NEW_VERSION }} - ${{ github.ref == 'refs/heads/dev' && 'Development' || 'Production' }} Build"
-          files: |
-            dist/Diabolical-Launcher-Setup.exe
-            dist/latest.yml
-            dist/Diabolical Launcher Setup.exe.blockmap
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    # --------------------------------------------------------------
+    # 🔒 Supply-chain attestation
+    # --------------------------------------------------------------
+    - name: 🔒 Generate provenance attestation
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-path: dist/${{ env.INSTALLER }}
+        subject-name: ${{ env.INSTALLER }}
+
+    # --------------------------------------------------------------
+    # 🚀 Create GitHub Release (pre-release for dev, full for prod)
+    # --------------------------------------------------------------
+    - name: 🚀 Publish GitHub Release
+      if: env.IS_DEV || env.IS_PROD
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        tag_name:   ${{ steps.version.outputs.TAG }}
+        name:       ${{ env.IS_DEV == 'true' && format('DEV build – {0}', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
+        #prerelease: ${{ env.IS_DEV }}
+        #draft:      ${{ env.IS_DEV }}
+        files: |
+          dist/${{ env.INSTALLER }}
+          dist/latest.yml
+          dist/Diabolical Launcher Setup.exe.blockmap

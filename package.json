@@ -19,7 +19,8 @@
   "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
   "publish": {
     "provider": "github",
-    "releaseType": "release"
+    "releaseType": "release",
+    "channel": "${env.NODE_ENV === 'development' ? 'dev' : 'master'}"
   },
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
