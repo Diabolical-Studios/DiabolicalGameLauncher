@@ -26,13 +26,6 @@ function log(msg) {
     fs.appendFileSync(logFile, `${new Date().toISOString()} - ${msg}\n`);
 }
 
-/* ────────────────────────────────────────────────────────────────
-   Resolve icon path for dev vs packaged build
- ──────────────────────────────────────────────────────────────── */
-function getIconPath() {
-    return app.isPackaged ? path.join(process.resourcesPath, "icons", "icon.ico") : path.join(__dirname, "../../icons/icon.ico");
-}
-
 /* ------------------------------------------------------------------
    Wait until the React dev-server answers on localhost:8888
 ------------------------------------------------------------------*/
@@ -81,12 +74,12 @@ async function createWindow() {
     log(`npm_package_env_NODE_ENV: ${buildEnv}`);
     log(`isLocalDev:               ${isLocalDev}`);
     log(`startURL:                 ${startURL}`);
+    log('iconPath: ', path.join(__dirname, "../Resources/icon.ico"));
 
     /* ───────────────────────────────
        2. Create splash + main window
        ───────────────────────────────*/
     const settings = loadSettings();
-    const iconPath = getIconPath();
 
     splash = new BrowserWindow({
         width: 300,
@@ -95,7 +88,6 @@ async function createWindow() {
         transparent: true,
         alwaysOnTop: true,
         center: true,
-        icon: iconPath,
         webPreferences: {nodeIntegration: true, contextIsolation: false},
     });
     await splash.loadFile(path.join(__dirname, "../splash.html"));
@@ -104,7 +96,7 @@ async function createWindow() {
         width: settings.windowSize.width,
         height: settings.windowSize.height,
         frame: false,
-        icon: iconPath,
+        icon: path.join(__dirname, "../Resources/icon.ico"),
         backgroundColor: "#000000",
         webPreferences: {
             contextIsolation: true,
@@ -157,7 +149,7 @@ async function createWindow() {
             e.preventDefault();
             mainWindow.hide();
             if (!tray) {
-                tray = new Tray(iconPath);
+                tray = new Tray(path.join(__dirname, "../Resources/icon.ico"));
                 const ctx = Menu.buildFromTemplate([{label: "Show Launcher", click: () => mainWindow.show()}, {
                     label: "Quit", click: () => {
                         tray.destroy();

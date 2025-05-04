@@ -68,6 +68,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     //Settings
     getSettings: () => ipcRenderer.invoke("get-settings"),
     updateSettings: (settings) => ipcRenderer.invoke("update-settings", settings),
+    onSettingsUpdated: (callback) => {
+        ipcRenderer.on("settings-updated", (event, settings) => callback(settings));
+        return () => {
+            ipcRenderer.removeListener("settings-updated", callback);
+        };
+    },
     onThemeChanged: (callback) => {
         ipcRenderer.on("theme-changed", (event, theme) => callback(theme));
         return () => {
