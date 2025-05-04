@@ -7,8 +7,8 @@
   "scripts": {
     "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
     "start": "concurrently \"npm run dev-ui\" \"electron .\"",
-    "build": "npm run build --prefix src/launcher-ui && electron-builder",
-    "build:dev": "cross-env NODE_ENV=development npm run build",
+    "build": "cross-env NODE_ENV=production npm run build --prefix src/launcher-ui && electron-builder",
+    "build:dev": "cross-env NODE_ENV=development npm run build --prefix src/launcher-ui && electron-builder",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "jest",

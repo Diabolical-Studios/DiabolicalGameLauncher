@@ -30,20 +30,27 @@ jobs:
         run: npm install
 
       - name: 🔢 Calculate new version and create tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
         id: calculate_new_version
         run: |
           echo "Fetching tags..."
           git fetch --tags
-          # Find the last version tag
-          LAST_TAG=$(git tag | sort -V | tail -n1)
-          if [[ -z "$LAST_TAG" ]]; then LAST_TAG="0.0.0"; fi
+          # Determine if this is a dev or production build
+          if [[ "$GITHUB_REF" == "refs/heads/dev" ]]; then
+            TAG_PREFIX="dev-"
+            LAST_TAG=$(git tag -l "dev-*" | sort -V | tail -n1)
+            if [[ -z "$LAST_TAG" ]]; then LAST_TAG="dev-0.0.0"; fi
+          else
+            TAG_PREFIX=""
+            LAST_TAG=$(git tag -l "[0-9]*" | sort -V | tail -n1)
+            if [[ -z "$LAST_TAG" ]]; then LAST_TAG="0.0.0"; fi
+          fi
           echo "Last version: $LAST_TAG"
           # Get commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           echo "Commit message: $COMMIT_MESSAGE"
           # Extract version numbers
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_TAG"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_TAG#*-}"
           # Determine version increment
           if echo "$COMMIT_MESSAGE" | grep -iq "major"; then
             echo "Incrementing major version"
@@ -58,7 +65,7 @@ jobs:
             echo "Incrementing patch version"
             PATCH=$((PATCH + 1))
           fi
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          NEW_VERSION="$TAG_PREFIX$MAJOR.$MINOR.$PATCH"
           echo "New version: $NEW_VERSION"
           # Create new tag
           git config --local user.email "action@github.com"
@@ -71,12 +78,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: 📝 Update package.json version
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
         run: |
           npm version ${{ env.NEW_VERSION }} --no-git-tag-version
           git add package.json
           git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
 
       - name: 🔨 Build and Package Electron App
+        if: github.ref == 'refs/heads/master'
         run: npm run dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -116,7 +125,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.NEW_VERSION }}
-          name: ${{ env.NEW_VERSION }}
+          name: "${{ env.NEW_VERSION }} - ${{ github.ref == 'refs/heads/dev' && 'Development' || 'Production' }} Build"
           files: |
             dist/Diabolical-Launcher-Setup.exe
             dist/latest.yml

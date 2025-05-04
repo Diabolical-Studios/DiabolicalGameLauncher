@@ -24,7 +24,7 @@ async function waitForReact() {
 }
 
 async function createWindow() {
-    const isDev = (await import("electron-is-dev")).default;
+    const isDev = process.env.NODE_ENV === 'development' || (await import("electron-is-dev")).default;
     const settings = loadSettings();
 
     // Wait for React to be ready in development mode
@@ -58,7 +58,7 @@ async function createWindow() {
     });
 
     //Dev mode = localhost
-    const startURL = isDev ? "http://localhost:8888" : "https://launcher.diabolical.studio";
+    const startURL = isDev ? "http://localhost:8888" : process.env.NODE_ENV === 'development' ? "https://dev.launcher.diabolical.studio" : "https://launcher.diabolical.studio";
     mainWindow.loadURL(startURL);
 
     //Close splash window and enable main window
