@@ -30,7 +30,8 @@
     },
     "files": [
       "src/**/*",
-      "src/launcher-ui/build/**/*"
+      "src/launcher-ui/build/**/*",
+      "icons/**/*"
     ],
     "protocols": [
       {

@@ -1,145 +1,188 @@
-const {BrowserWindow, Tray, Menu, app} = require("electron");
+/* windowManager.js
+   ---------------------------------------------------------------
+   Chooses the correct site for:
+   • npm start  → http://localhost:8888      (hot-reload dev UI)
+   • packaged dev build → https://dev.launcher.diabolical.studio
+   • packaged prod build → https://launcher.diabolical.studio
+----------------------------------------------------------------*/
+const { BrowserWindow, Tray, Menu, app } = require("electron");
 const path = require("path");
-const {loadSettings, saveSettings} = require("./settings");
-const http = require('http');
+const http = require("http");
+const { loadSettings, saveSettings } = require("./settings");
+
 let mainWindow;
 let splash;
 let allowResize = false;
 let periodicChecksStarted = false;
 let tray = null;
 
+function getIconPath() {
+  // • When packaged, everything is under process.resourcesPath
+  //   e.g.   C:\Program Files\Diabolical Launcher\resources\app.asar
+  // • When running with `electron .`, __dirname === <repo>/src/js
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, "icons", "icon.ico");
+  }
+  // dev run
+  return path.join(__dirname, "../../icons/icon.ico");
+}
+
+/* ------------------------------------------------------------------
+   Wait until the React dev-server answers on localhost:8888
+------------------------------------------------------------------*/
 async function waitForReact() {
-    return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            http.get('http://localhost:8888', (res) => {
-                if (res.statusCode === 200) {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }).on('error', () => {
-                // Server not ready yet
-            });
-        }, 1000); // Check every second
-    });
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      http
+        .get("http://localhost:8888", (res) => {
+          if (res.statusCode === 200) {
+            clearInterval(timer);
+            resolve();
+          }
+        })
+        .on("error", () => {
+          /* server not up yet */
+        });
+    }, 1000);
+  });
 }
 
+/* ------------------------------------------------------------------
+   Main window creator
+------------------------------------------------------------------*/
 async function createWindow() {
-    const isDev = process.env.NODE_ENV === 'development' || (await import("electron-is-dev")).default;
+  /* ───────────────────────────────
+     1.  Decide which site to load
+     ───────────────────────────────*/
+  const electronIsDev = (await import("electron-is-dev")).default;
+  const isLocalDev = electronIsDev || !!process.env.ELECTRON_DEV_SERVER_URL;
+
+  // For packaged builds read the builder "channel" ("dev" | "master")
+  const pkg = require(path.join(app.getAppPath(), "package.json"));
+  const buildChannel = (pkg.publish && pkg.publish.channel) || "master";
+
+  let startURL;
+  if (isLocalDev) {
+    startURL = "http://localhost:8888";
+    await waitForReact(); // ensure React dev-server is up
+  } else {
+    startURL =
+      buildChannel === "dev"
+        ? "https://dev.launcher.diabolical.studio"
+        : "https://launcher.diabolical.studio";
+  }
+
+  /* ───────────────────────────────
+     2.  Create splash + main window
+     ───────────────────────────────*/
+  const settings = loadSettings();
+  const iconPath = getIconPath();
+
+  splash = new BrowserWindow({
+    width: 300,
+    height: 200,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    center: true,
+    webPreferences: { nodeIntegration: true, contextIsolation: false },
+  });
+  await splash.loadFile(path.join(__dirname, "../splash.html"));
+
+  mainWindow = new BrowserWindow({
+    width: settings.windowSize.width,
+    height: settings.windowSize.height,
+    frame: false,
+    icon: path.join(__dirname, "../Resources/icon.ico"),
+    backgroundColor: "#000000",
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, "../preload.js"),
+    },
+    resizable: false,
+    show: false,
+  });
+
+  mainWindow.loadURL(startURL);
+
+  /* ───────────────────────────────
+     3.  Rest of your original logic
+     ───────────────────────────────*/
+  mainWindow.webContents.on("did-finish-load", async () => {
+    if (splash) {
+      splash.close();
+      splash = null;
+    }
+    mainWindow.show();
+
+    const {
+      initUpdater,
+      startPeriodicChecks,
+      checkForUpdates,
+    } = require("./updater");
     const settings = loadSettings();
-
-    // Wait for React to be ready in development mode
-    if (isDev) {
-        await waitForReact();
+    if (settings.autoUpdate) {
+      checkForUpdates();
+      showMessage("Checking For Updates... ");
     }
+    initUpdater();
+    if (!periodicChecksStarted) {
+      startPeriodicChecks(mainWindow);
+      periodicChecksStarted = true;
+    }
+  });
 
-    // Creates the splash window while the launcher loads
-    splash = new BrowserWindow({
-        width: 300, height: 200, frame: false, transparent: true, alwaysOnTop: true, center: true, webPreferences: {
-            nodeIntegration: true, contextIsolation: false
-        }
-    });
-    await splash.loadFile(path.join(__dirname, "../splash.html"));
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+  mainWindow.center();
 
-    //Creates the main window and hides it until its ready
-    mainWindow = new BrowserWindow({
-        width: settings.windowSize.width,
-        height: settings.windowSize.height,
-        frame: false,
-        icon: path.join(__dirname, "../Resources/icon.ico"),
-        backgroundColor: "#000000",
-        webPreferences: {
-            contextIsolation: true,
-            nodeIntegration: true,
-            enableRemoteModule: false,
-            preload: path.join(__dirname, "../preload.js")
-        },
-        resizable: false,
-        show: false
-    });
+  mainWindow.on("will-resize", (e) => {
+    if (!allowResize) e.preventDefault();
+  });
 
-    //Dev mode = localhost
-    const startURL = isDev ? "http://localhost:8888" : (process.env.NODE_ENV === 'development' ? "https://dev.launcher.diabolical.studio" : "https://launcher.diabolical.studio");
-    mainWindow.loadURL(startURL);
-
-    //Close splash window and enable main window
-    mainWindow.webContents.on("did-finish-load", async () => {
-        if (splash) {
-            splash.close();
-            splash = null;
-        }
-        mainWindow.show();
-
-        const {initUpdater, startPeriodicChecks, checkForUpdates} = require("./updater");
-        const settings = loadSettings();
-        if (settings.autoUpdate) {
-            checkForUpdates();
-            showMessage("Checking For Updates... ");
-        }
-        initUpdater();
-        if (!periodicChecksStarted) {
-            startPeriodicChecks(mainWindow);
-            periodicChecksStarted = true;
-        }
-    });
-
-    mainWindow.on("closed", () => {
-        mainWindow = null;
-    });
-    mainWindow.center();
-    mainWindow.on("will-resize", (e) => {
-        if (!allowResize) {
-            e.preventDefault();
-        }
-    });
-
-    mainWindow.on("close", (e) => {
-        const settings = loadSettings();
-        if (settings.minimizeToTray) {
-            e.preventDefault();
-            mainWindow.hide();
-            if (!tray) {
-                tray = new Tray("icons/icon.ico");
-                const contextMenu = Menu.buildFromTemplate([
-                    {
-                        label: "Show Launcher",
-                        click: () => {
-                            mainWindow.show();
-                        }
-                    },
-                    {
-                        label: "Quit",
-                        click: () => {
-                            tray.destroy();
-                            tray = null;
-                            app.quit();
-                        }
-                    }
-                ]);
-                tray.setToolTip("Diabolical Launcher");
-                tray.setContextMenu(contextMenu);
-                tray.on("double-click", () => {
-                    mainWindow.show();
-                });
-            }
-        } else {
-            const {width, height} = mainWindow.getContentBounds();
-            settings.windowSize = {
-                width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10
-            };
-            saveSettings(settings);
-        }
-    });
+  mainWindow.on("close", (e) => {
+    const settings = loadSettings();
+    if (settings.minimizeToTray) {
+      e.preventDefault();
+      mainWindow.hide();
+      if (!tray) {
+        tray = new Tray(iconPath);
+        const ctx = Menu.buildFromTemplate([
+          { label: "Show Launcher", click: () => mainWindow.show() },
+          {
+            label: "Quit",
+            click: () => {
+              tray.destroy();
+              tray = null;
+              app.quit();
+            },
+          },
+        ]);
+        tray.setToolTip("Diabolical Launcher");
+        tray.setContextMenu(ctx);
+        tray.on("double-click", () => mainWindow.show());
+      }
+    } else {
+      const { width, height } = mainWindow.getContentBounds();
+      settings.windowSize = {
+        width: Math.round(width / 10) * 10,
+        height: Math.round(height / 10) * 10,
+      };
+      saveSettings(settings);
+    }
+  });
 }
 
+/* ------------------------------------------------------------------ */
 function showMessage(message) {
-    console.log("showMessage trapped", message);
-    if (getMainWindow()) {
-        getMainWindow().webContents.send("updateMessage", message);
-    }
+  console.log("showMessage trapped", message);
+  if (mainWindow) mainWindow.webContents.send("updateMessage", message);
 }
-
 function getMainWindow() {
-    return mainWindow;
+  return mainWindow;
 }
 
-module.exports = {createWindow, showMessage, getMainWindow};
+module.exports = { createWindow, showMessage, getMainWindow };
