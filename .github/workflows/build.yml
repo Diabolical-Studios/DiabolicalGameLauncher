@@ -1,4 +1,4 @@
-name: Build and Release with Auto Versioning
+name: Build and Release with Auto Versioning!
 
 on:
   push:
