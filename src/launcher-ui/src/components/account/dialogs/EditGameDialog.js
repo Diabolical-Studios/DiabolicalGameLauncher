@@ -134,7 +134,7 @@ const EditGameDialog = ({open, handleClose, game, onSave}) => {
                             color: "#fff !important",
                             backgroundColor: colors.button,
                             outline: "1px solid" + colors.border,
-                            borderRadius: "2px",
+                            borderRadius: "4px",
                             padding: "12px 16px",
                             opacity: hasChanges ? 1 : 0.5,
                             "&:hover": {

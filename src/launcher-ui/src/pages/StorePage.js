@@ -1,8 +1,9 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Box, Button, Card, CardMedia, Chip, Container, Grid, Grow, TextField, Typography,} from "@mui/material";
+import {Box, Card, CardMedia, Chip, Container, Grid, Grow, TextField, Typography,} from "@mui/material";
 import {styled} from "@mui/material/styles";
 import {colors} from "../theme/colors";
 import axios from "axios";
+import ImageButton from "../components/button/ImageButton";
 
 const FeaturedCard = styled(Card)({
     position: 'relative',
@@ -34,7 +35,8 @@ const GameCard = styled(Card)(({size = 'normal'}) => ({
             transform: 'scale(1.05)',
         },
         '& .game-title': {
-            transform: 'translateY(-40px)',
+            transition: 'all 0.2s ease-in-out',
+            transform: 'translateY(-46px)',
         },
         '& .add-library-button': {
             opacity: 1,
@@ -56,11 +58,22 @@ const CardOverlay = styled(Box)({
     background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
     padding: '16px',
     transition: 'all 0.3s ease-in-out',
+    '.add-library-button': {
+        opacity: 0,
+        transform: 'translateY(20px)',
+        transition: 'all 0.2s ease-in-out',
+    },
+    // Show button when parent card is hovered
+    '.MuiCard-root:hover & .add-library-button': {
+        opacity: 1,
+        transform: 'translateY(0)',
+    },
 });
 
 const GameTitle = styled(Typography)({
     transition: 'transform 0.3s ease-in-out',
     transform: 'translateY(0)',
+    lineHeight: '1',
 });
 
 const VersionChip = styled(Chip)({
@@ -70,6 +83,7 @@ const VersionChip = styled(Chip)({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     backdropFilter: 'blur(5px)',
     border: `1px solid ${colors.border}`,
+    borderRadius: '2px',
     color: colors.text,
     height: '24px',
     fontSize: '0.75rem',
@@ -78,48 +92,6 @@ const VersionChip = styled(Chip)({
         padding: '0 8px',
     },
 });
-
-const StyledButton = styled(Button)({
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    color: colors.text,
-    borderRadius: '2px',
-    padding: '6px 16px',
-    minWidth: '140px',
-    backdropFilter: 'blur(5px)',
-    border: `1px solid ${colors.border}`,
-    transition: 'all 0.2s ease-in-out',
-    opacity: 0,
-    transform: 'translateY(20px)',
-    position: 'absolute',
-    bottom: '16px',
-    left: '16px',
-    '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        border: `1px solid ${colors.text}`,
-    },
-    '&.featured-button': {
-        position: 'static',
-        transform: 'none',
-        opacity: 1,
-        padding: '8px 24px',
-        backgroundColor: colors.button,
-        '&:hover': {
-            backgroundColor: colors.buttonHover,
-        },
-    },
-    '&.add-library-button': {
-        position: 'static',
-        transform: 'none',
-        opacity: 1,
-        padding: '6px 16px',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            border: `1px solid ${colors.text}`,
-        },
-    },
-});
-
 
 const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
@@ -218,20 +190,19 @@ const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => 
                     variant="h6"
                     sx={{
                         color: colors.text,
-                        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                        textShadow: '0 4px 4px rgba(0,0,0,0.5)',
                         fontWeight: 600
                     }}
                 >
                     {game.game_name}
                 </GameTitle>
-                <StyledButton
+                <ImageButton
                     className="add-library-button"
-                    size="small"
-                    variant="contained"
+                    text={downloadProgress || (isRunning ? "Stop" : (isInstalled ? "Play" : "Download"))}
+                    icon={isRunning ? require("@mui/icons-material/Stop").default : (isInstalled ? require("@mui/icons-material/PlayArrow").default : require("@mui/icons-material/Download").default)}
                     onClick={handleButtonClick}
-                >
-                    {downloadProgress || (isRunning ? "Stop" : (isInstalled ? "Play" : "Download"))}
-                </StyledButton>
+                    style={{position: 'absolute', bottom: '16px', left: '16px', minWidth: '140px', padding: '6px 16px'}}
+                />
             </CardOverlay>
         </GameCard>
     );
@@ -448,7 +419,7 @@ const StorePage = () => {
                                         <Typography variant="h3" sx={{
                                             color: colors.text,
                                             mb: 1,
-                                            textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                            textShadow: '0 4px 4px rgba(0,0,0,0.5)',
                                             fontWeight: 600
                                         }}>
                                             {game.game_name}
@@ -457,14 +428,13 @@ const StorePage = () => {
                                             color: colors.text,
                                             mb: 2,
                                             maxWidth: '600px',
-                                            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                            textShadow: '0 1px 4px rgba(0,0,0,0.5)',
                                         }}>
                                             {game.description}
                                         </Typography>
-                                        <StyledButton
-                                            className="add-library-button"
-                                            size="small"
-                                            variant="contained"
+                                        <ImageButton
+                                            text={downloadProgresses[game.game_id] || (installedGames.includes(game.game_id) ? "Play" : "Download")}
+                                            icon={installedGames.includes(game.game_id) ? require("@mui/icons-material/PlayArrow").default : require("@mui/icons-material/Download").default}
                                             onClick={() => {
                                                 if (installedGames.includes(game.game_id)) {
                                                     handlePlayGame(game.game_id);
@@ -472,10 +442,8 @@ const StorePage = () => {
                                                     handleDownloadGame(game.game_id);
                                                 }
                                             }}
-                                        >
-                                            {downloadProgresses[game.game_id] ||
-                                                (installedGames.includes(game.game_id) ? "Play" : "Download")}
-                                        </StyledButton>
+                                            style={{padding: '12px 48px',}}
+                                        />
                                     </CardOverlay>
                                 </FeaturedCard>
                             </Box>
@@ -496,7 +464,7 @@ const StorePage = () => {
                                         width: '40px',
                                         height: '4px',
                                         backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                        borderRadius: '2px',
+                                        borderRadius: '4px',
                                         cursor: 'pointer',
                                         position: 'relative',
                                         overflow: 'hidden',

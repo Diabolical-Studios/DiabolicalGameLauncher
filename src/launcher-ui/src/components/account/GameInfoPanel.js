@@ -373,7 +373,7 @@ const GameInfoPanel = ({game}) => {
                 textDecoration: "none",
                 border: `1px solid ${colors.success}`,
                 padding: "6px 12px",
-                borderRadius: "2px",
+                borderRadius: "4px",
                 cursor: "pointer",
                 "&:hover": {backgroundColor: "rgba(255, 255, 255, 0.1)"},
             }}
@@ -423,7 +423,7 @@ const GameInfoPanel = ({game}) => {
                         textDecoration: "none",
                         border: `1px solid ${colors.error}`,
                         padding: "6px 12px",
-                        borderRadius: "2px",
+                        borderRadius: "4px",
                         cursor: "pointer",
                         background: "none",
                         outline: "none",
@@ -449,7 +449,7 @@ const GameInfoPanel = ({game}) => {
             width: "100%",
             backgroundColor: "rgba(0,0,0,0.5)",
             padding: "12px",
-            borderRadius: "2px",
+            borderRadius: "4px",
             color: colors.text,
             border: `1px solid ${colors.border}`,
             overflow: "hidden",
@@ -590,7 +590,7 @@ const GameInfoPanel = ({game}) => {
                         alignItems: "center",
                         justifyContent: "center",
                         borderRadius: "4px",
-                        border: `2px dashed ${colors.border}`,
+                        border: `4px dashed ${colors.border}`,
                         backgroundColor: colors.background,
                         cursor: "pointer",
                         transition: "all 0.2s ease",
@@ -753,7 +753,7 @@ const GameInfoPanel = ({game}) => {
                     backgroundColor: "rgba(0,0,0,0.9)",
                     color: colors.text,
                     outline: "1px solid" + colors.border,
-                    borderRadius: "2px"
+                    borderRadius: "4px"
                 },
             }}
         >

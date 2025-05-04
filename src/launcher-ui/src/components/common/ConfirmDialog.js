@@ -70,7 +70,7 @@ const ConfirmDialog = ({
                         color: colors.text,
                         backgroundColor: colors.background,
                         outline: "1px solid" + colors.border,
-                        borderRadius: "2px",
+                        borderRadius: "4px",
                         padding: "8px 16px",
                         "&:hover": {
                             backgroundColor: colors.button,
@@ -87,7 +87,7 @@ const ConfirmDialog = ({
                     sx={{
                         backgroundColor: colors[confirmColor],
                         color: colors.text,
-                        borderRadius: "2px",
+                        borderRadius: "4px",
                         padding: "8px 16px",
                         "&:hover": {
                             backgroundColor: colors[`${confirmColor}Dark`],

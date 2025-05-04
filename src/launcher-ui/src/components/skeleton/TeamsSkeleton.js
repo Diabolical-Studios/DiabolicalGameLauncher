@@ -21,7 +21,7 @@ const TeamsSkeleton = () => {
                         variant="rounded"
                         width="-webkit-fill-available"
                         height="-webkit-fill-available"
-                        sx={{bgcolor: "#161616", borderRadius: "2px", aspectRatio: 1}}
+                        sx={{bgcolor: "#161616", borderRadius: "4px", aspectRatio: 1}}
                     />
                 ))}
             </div>

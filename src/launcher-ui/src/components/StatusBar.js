@@ -81,7 +81,7 @@ const StatusBar = () => {
             <div>
                 <OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
                     <div
-                        className={"flex position-relative align-center items-center h-fit p-3 border rounded-xs gap-3 w-fit cursor-pointer backdrop-blur"}
+                        className={"flex position-relative align-center items-center h-fit p-3 border rounded-sm gap-3 w-fit cursor-pointer backdrop-blur"}
                         style={{
                             borderColor: colors.border
                         }}>

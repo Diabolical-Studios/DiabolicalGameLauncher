@@ -290,7 +290,7 @@ body {
     border-radius: 8px;
     background-color: rgba(5, 5, 5, 0.416);
     /*Miscellaneous*/
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 #contentArea {
@@ -306,7 +306,7 @@ body {
     background-color: rgba(5, 5, 5, 0.416);
     /*Miscellaneous*/
     overflow: hidden;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 #game-cards-container {
@@ -356,7 +356,7 @@ body {
     height: 350px;
     width: -webkit-fill-available;
     padding: 12px;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #121212;
     background-position: center;
     background-repeat: no-repeat;
@@ -513,7 +513,7 @@ h2 {
     position: relative;
     height: fit-content;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     outline: 1px solid var(--border);
     background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
@@ -542,7 +542,7 @@ h2 {
     width: -webkit-fill-available;
     height: fit-content;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     outline: 1px solid var(--border);
     background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
@@ -596,8 +596,8 @@ h2 {
 @keyframes shimmer {
     to {
         background-size: 100% 100%;
-        box-shadow: -2px -2px 6px rgba(255, 87, 51, 0.5),
-        2px 2px 6px rgb(144, 12, 63);
+        box-shadow: -4px -4px 6px rgba(255, 87, 51, 0.5),
+        4px 4px 6px rgb(144, 12, 63);
     }
 }
 
@@ -661,7 +661,7 @@ h2 {
     background-color: rgba(5, 5, 5, 0.416);
     /*Miscellaneous*/
     cursor: pointer;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 .download-button {
@@ -792,7 +792,7 @@ h2 {
     align-items: center;
     justify-content: center;
     /*Miscellaneous*/
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
     cursor: pointer;
 }
 
@@ -800,7 +800,7 @@ h2 {
     /*Box model stuff*/
     background-color: rgba(60, 60, 60, 0.31);
     /*Miscellaneous*/
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.5);
 }
 
 .MenuItems li svg {
@@ -812,7 +812,7 @@ h2 {
 
 .MenuItems li:hover svg {
     /*Manipulations stuff*/
-    filter: drop-shadow(0 0 2px #ffffff87);
+    filter: drop-shadow(0 0 4px #ffffff87);
     /*Miscellaneous*/
     fill: var(--text);
 }
@@ -859,7 +859,7 @@ h2 {
     background-size: 20px 20px;
     animation: moveBackground 3s linear infinite;
     color: var(--text);
-    border-radius: 2px;
+    border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     transition: right 0.5s ease-in-out;
     z-index: 1000;
@@ -895,7 +895,7 @@ h2 {
 .toaster-button {
     position: relative;
     border: none;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 4px 4px 0;
     height: 60px;
     width: 100px;
     background-color: var(--background);
@@ -947,7 +947,7 @@ h2 {
 .window-button {
     padding: 4px;
     border: 1px solid #303030;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: transparent;
     display: flex;
     align-items: center;

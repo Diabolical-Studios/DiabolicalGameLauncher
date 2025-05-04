@@ -40,7 +40,7 @@ const HoverMenu = ({actions}) => {
                 style={{
                     width: "30px",
                     height: "30px",
-                    borderRadius: "2px",
+                    borderRadius: "4px",
                     cursor: "pointer",
                     transition: "transform 0.2s ease-in-out",
                     padding: "8px",

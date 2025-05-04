@@ -12,7 +12,7 @@ const ContentPanel = ({children}) => {
             }}
         >
             <div
-                className={"flex flex-col overflow-hidden h-full w-full border rounded-xs backdrop-blur"}
+                className={"flex flex-col overflow-hidden h-full w-full border rounded-sm backdrop-blur"}
                 style={{
                     borderColor: colors.border
                 }}

@@ -35,7 +35,7 @@ const GameCardsSkeleton = ({topBar = true, columns = 3}) => {
                                     variant="rounded"
                                     width={100}
                                     height={32}
-                                    sx={{bgcolor: "#161616", borderRadius: "2px"}}
+                                    sx={{bgcolor: "#161616", borderRadius: "4px"}}
                                 />
                             ))}
                         </Stack>
@@ -45,7 +45,7 @@ const GameCardsSkeleton = ({topBar = true, columns = 3}) => {
                             variant="rounded"
                             width="50%"
                             height={40}
-                            sx={{bgcolor: "#161616", borderRadius: "2px", padding: "8px"}}
+                            sx={{bgcolor: "#161616", borderRadius: "4px", padding: "8px"}}
                         />
                     </Stack>
 
@@ -71,7 +71,7 @@ const GameCardsSkeleton = ({topBar = true, columns = 3}) => {
                         variant="rounded"
                         width="-webkit-fill-available"
                         height="350px"
-                        sx={{bgcolor: "#161616", borderRadius: "2px"}}
+                        sx={{bgcolor: "#161616", borderRadius: "4px"}}
                     />
                 ))}
             </div>

@@ -59,7 +59,7 @@ exports.handler = async function(event, context) {
           <meta http-equiv="refresh" content="0;url=${redirectUrl}">
           <title>Redirecting...</title>
         </head>
-        <body>
+        <body style="background-color: #000;">
           <p>Redirecting to launcher...</p>
           <script>
             window.location.href = "${redirectUrl}";

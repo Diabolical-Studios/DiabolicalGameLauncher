@@ -451,7 +451,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
 
                 <div style={{display: "flex", flexDirection: "row", gap: "24px"}}>
                     {/* Left side - Game Card */}
-                    <Stack width={"min-content"} alignItems="center" className={"gap-6 justify-between rounded-xs"}
+                    <Stack width={"min-content"} alignItems="center" className={"gap-6 justify-between rounded-sm"}
                            style={{
                                gap: "24px"
                            }}>
@@ -677,7 +677,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                                                 <Stack
                                                                     key={repo.id}
                                                                     direction="row"
-                                                                    className={"justify-between items-center p-2 rounded-xs cursor-pointer"}
+                                                                    className={"justify-between items-center p-2 rounded-sm cursor-pointer"}
                                                                     style={{
                                                                         transition: "background 0.2s",
                                                                         border: selectedRepo === repo.full_name ? "1px solid #00bcd4" : "transparent",
@@ -794,7 +794,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             borderRadius: "4px",
-                                            border: `2px dashed ${colors.border}`,
+                                            border: `4px dashed ${colors.border}`,
                                             backgroundColor: colors.background,
                                             cursor: "pointer",
                                             transition: "all 0.2s ease",

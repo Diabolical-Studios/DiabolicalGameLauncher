@@ -5,7 +5,7 @@ import {colors} from "../../theme/colors";
 const LogoutButton = ({children, style = {}}) => {
     return (
         <button 
-            className="game-button shimmer-button rounded-xs cursor-pointer w-fit p-3 text-sm"
+            className="game-button shimmer-button rounded-sm cursor-pointer w-fit p-3 text-sm"
             onClick={() => {
                 Cookies.remove("username");
                 Cookies.remove("sessionID");

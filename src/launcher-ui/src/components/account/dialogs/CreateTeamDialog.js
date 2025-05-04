@@ -121,7 +121,7 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                             },
                             "& .MuiOutlinedInput-notchedOutline": {
                                 border: "1px solid" + colors.border + "!important",
-                                borderRadius: "2px",
+                                borderRadius: "4px",
                             },
                             "& .MuiFormLabel-root": {
                                 color: "#444444 !important",
@@ -154,11 +154,11 @@ const CreateTeamDialog = ({open, handleClose, onCreate}) => {
                         color: colors.text,
                         backgroundColor: colors.background,
                         outline: "1px solid" + colors.border,
-                        borderRadius: "2px",
+                        borderRadius: "4px",
                         padding: "12px",
                     }}
                     onClick={handleCreate}
-                    className={"size-full rounded-xs"}
+                    className={"size-full rounded-sm"}
                     aria-label="add"
                     color="primary"
                     startIcon={<SaveIcon/>}

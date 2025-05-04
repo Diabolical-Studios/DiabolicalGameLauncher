@@ -326,17 +326,17 @@
         --radius-3xl: 1.5rem;
         --radius-4xl: 2rem;
         --shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
-        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-xs: 0 1px 4px 0 rgb(0 0 0 / 0.05);
+        --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 4px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 4px 4px -4px rgb(0 0 0 / 0.1);
         --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         --inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05);
         --inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05);
-        --inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 / 0.05);
+        --inset-shadow-sm: inset 0 4px 4px rgb(0 0 0 / 0.05);
         --drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.05);
-        --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
+        --drop-shadow-sm: 0 1px 4px rgb(0 0 0 / 0.15);
         --drop-shadow-md: 0 3px 3px rgb(0 0 0 / 0.12);
         --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
         --drop-shadow-xl: 0 9px 7px rgb(0 0 0 / 0.1);
@@ -1077,7 +1077,7 @@
     }
 
     .shadow {
-        --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+        --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 4px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
 
@@ -1092,7 +1092,7 @@
     }
 
     .drop-shadow {
-        --tw-drop-shadow: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+        --tw-drop-shadow: drop-shadow(0 1px 4px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
         filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
     }
 
@@ -1407,7 +1407,7 @@ body {
     border: 1px solid #242424;
     border-radius: 8px;
     background-color: rgba(5, 5, 5, 0.416);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 #contentArea {
@@ -1419,7 +1419,7 @@ body {
     border-radius: 8px;
     background-color: rgba(5, 5, 5, 0.416);
     overflow: hidden;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 #game-cards-container {
@@ -1464,7 +1464,7 @@ body {
     height: 350px;
     width: -webkit-fill-available;
     padding: 12px;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #121212;
     background-position: center;
     background-repeat: no-repeat;
@@ -1576,7 +1576,7 @@ body {
     position: relative;
     height: fit-content;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     outline: 1px solid var(--border);
     background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
@@ -1598,13 +1598,25 @@ body {
     align-content: center;
 }
 
+.game-button:hover {
+    transform: translateY(-2px);
+    outline: 1px solid var(--text);
+    transition: all 0.2s ease;
+}
+
+.game-button:active {
+    transform: translateY(0) scale(0.97);
+    outline: 1px solid var(--border);
+    transition: all 0.1s ease;
+}
+
 .dialog {
     position: relative;
     width: -webkit-fill-available;
     height: fit-content;
     border: none;
-    border-radius: 2px;
-    outline: 1px solid var(--border);
+    border-radius: 4px;
+    outline: 1px solid var(--border) !important;
     background-color: var(--background);
     background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px), radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
     background-position: 0 0, 0 0;
@@ -1638,18 +1650,12 @@ body {
     overflow: hidden;
 }
 
-.game-button:hover {
-    transform: rotate(-3deg) !important;
-}
 
-.game-button:active {
-    transform: scale(0.9) rotate(-3deg) !important;
-}
 
 @keyframes shimmer {
     to {
         background-size: 100% 100%;
-        box-shadow: -2px -2px 6px rgba(255, 87, 51, 0.5), 2px 2px 6px rgb(144, 12, 63);
+        box-shadow: -4px -4px 6px rgba(255, 87, 51, 0.5), 4px 4px 6px rgb(144, 12, 63);
     }
 }
 
@@ -1698,7 +1704,7 @@ body {
     border-radius: 4px;
     background-color: rgba(5, 5, 5, 0.416);
     cursor: pointer;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 .download-button {
@@ -1799,13 +1805,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
     cursor: pointer;
 }
 
 .MenuItems button:hover {
     background-color: rgba(60, 60, 60, 0.31);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.5);
 }
 
 .MenuItems li svg {
@@ -1814,7 +1820,7 @@ body {
 }
 
 .MenuItems li:hover svg {
-    filter: drop-shadow(0 0 2px #ffffff87);
+    filter: drop-shadow(0 0 4px #ffffff87);
     fill: var(--text);
 }
 
@@ -1843,7 +1849,7 @@ body {
 .window-button {
     padding: 4px;
     border: 1px solid #303030;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: transparent;
     display: flex;
     align-items: center;

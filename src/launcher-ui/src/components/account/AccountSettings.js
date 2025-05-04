@@ -84,8 +84,8 @@ const AccountSettings = ({username}) => {
     };
 
     return (
-        <Stack className="overflow-hidden" sx={{width: '100%', maxWidth: "100%", margin: 0}}>
-            <Stack className="flex p-5 overflow-auto flex-col gap-5" sx={{background: 'rgba(255,255,255,0.01)', borderRadius: '2px', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)'}}>
+        <Stack className="overflow-hidden p-3" sx={{width: '100%', maxWidth: "100%", margin: 0}}>
+            <Stack className="flex p-5 overflow-auto flex-col gap-5" sx={{background: 'rgba(255,255,255,0.01)', borderRadius: '4px', boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)'}}>
                 {/* Profile Info */}
                 <Stack spacing={1.5}>
                     <Typography variant="subtitle1" sx={{color: colors.text, fontWeight: 600, letterSpacing: 0.2}}>
@@ -103,7 +103,7 @@ const AccountSettings = ({username}) => {
                                 "& .MuiOutlinedInput-root": {
                                     color: colors.text,
                                     fontSize: "16px",
-                                    borderRadius: '2px',
+                                    borderRadius: '4px',
                                 },
                                 "& .MuiOutlinedInput-notchedOutline": {
                                     border: "1px solid" + colors.border + "!important",

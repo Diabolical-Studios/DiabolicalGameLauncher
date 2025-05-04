@@ -113,7 +113,7 @@ const Games = ({teams}) => {
                     onClick={() => handleChipClick(team.team_name)}
                     color={selectedTeams.includes(team.team_name) ? "primary" : "default"}
                     style={{
-                        color: colors.text, borderRadius: "2px", outline: "1px solid" + colors.border,
+                        color: colors.text, borderRadius: "4px", outline: "1px solid" + colors.border,
                     }}
                 />))}
             </Stack>
@@ -127,7 +127,7 @@ const Games = ({teams}) => {
                     "& .MuiOutlinedInput-root": {
                         color: colors.text, fontSize: "16px",
                     }, "& .MuiOutlinedInput-notchedOutline": {
-                        border: "1px solid" + colors.border + "!important", borderRadius: "2px", color: colors.text,
+                        border: "1px solid" + colors.border + "!important", borderRadius: "4px", color: colors.text,
                     }, "& .MuiFormLabel-root": {
                         color: colors.text,
                     },

@@ -2,7 +2,7 @@
     animation: 1.5s ease infinite alternate running shimmer;
     background-size: 200% 100%;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     color: #ffffff;
     cursor: pointer;
     font-size: 16px;
@@ -54,7 +54,7 @@
     animation: 1.5s ease infinite alternate running shimmer;
     background-size: 200% 100%;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     color: #ffffff;
     cursor: pointer;
     font-size: 16px;

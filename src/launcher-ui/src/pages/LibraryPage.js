@@ -40,6 +40,7 @@ import StopIcon from '@mui/icons-material/Stop';
 import {colors} from "../theme/colors";
 import axios from "axios";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import ImageButton from "../components/button/ImageButton";
 
 const LibraryPage = () => {
     const [installedGameIds, setInstalledGameIds] = useState([]);
@@ -540,16 +541,17 @@ const LibraryPage = () => {
                                     }}
                                 >
                                     <Stack spacing={2}>
-                                        <Button
-                                            variant="contained"
-                                            startIcon={
-                                                isDownloading ? <DownloadIcon/> :
-                                                    applyingUpdate[selectedGame?.game_id] ? <UpdateIcon/> :
-                                                        hasUpdate ? <UpdateIcon/> :
-                                                            isGameRunning ? <StopIcon/> :
-                                                                <PlayArrowIcon/>
-                                            }
-                                            disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
+                                        <ImageButton
+                                            text={isDownloading ? "Downloading" :
+                                                applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
+                                                    hasUpdate ? "Update" :
+                                                        isGameRunning ? "Stop" :
+                                                            "Play"}
+                                            icon={isDownloading ? DownloadIcon :
+                                                applyingUpdate[selectedGame?.game_id] ? UpdateIcon :
+                                                    hasUpdate ? UpdateIcon :
+                                                        isGameRunning ? StopIcon :
+                                                            PlayArrowIcon}
                                             onClick={() => {
                                                 if (isDownloading || applyingUpdate[selectedGame?.game_id]) return;
                                                 if (hasUpdate) {
@@ -560,20 +562,9 @@ const LibraryPage = () => {
                                                     window.electronAPI.openGame(selectedGame.game_id);
                                                 }
                                             }}
-                                            sx={{
-                                                bgcolor: colors.primary,
-                                                color: colors.text,
-                                                '&:hover': {
-                                                    bgcolor: colors.primaryHover,
-                                                },
-                                            }}
-                                        >
-                                            {isDownloading ? "Downloading" :
-                                                applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
-                                                    hasUpdate ? "Update" :
-                                                        isGameRunning ? "Stop" :
-                                                            "Play"}
-                                        </Button>
+                                            style={{width: "100%"}}
+                                            disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
+                                        />
                                         {isDownloading && (
                                             <LinearProgress
                                                 variant="determinate"

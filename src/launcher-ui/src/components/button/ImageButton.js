@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {SvgIcon} from "@mui/material";
 import {colors} from "../../theme/colors";
 
-const ImageButton = ({text, icon: IconComponent, onClick, style = {}}) => {
+const ImageButton = ({text, icon: IconComponent, onClick, style = {}, className = ""}) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ const ImageButton = ({text, icon: IconComponent, onClick, style = {}}) => {
 
     return (
         <button
-            className="game-button shimmer-button"
+            className={`game-button shimmer-button ${className}`}
             style={{
                 display: "flex",
                 flexDirection: "row",

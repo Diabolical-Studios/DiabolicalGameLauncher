@@ -223,7 +223,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                             },
                                             "& .MuiOutlinedInput-notchedOutline": {
                                                 border: "1px solid" + colors.border + "!important",
-                                                borderRadius: "2px"
+                                                borderRadius: "4px"
                                             },
                                             "& .MuiFormLabel-root": {
                                                 color: "#444444 !important",
@@ -263,7 +263,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                                 },
                                                 "& .MuiOutlinedInput-notchedOutline": {
                                                     border: "1px solid" + colors.border + "!important",
-                                                    borderRadius: "2px"
+                                                    borderRadius: "4px"
                                                 },
                                                 "& .MuiFormLabel-root": {
                                                     color: "#444444 !important",
@@ -275,7 +275,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                                 color: "#fff !important",
                                                 backgroundColor: colors.button,
                                                 outline: "1px solid" + colors.border,
-                                                borderRadius: "2px"
+                                                borderRadius: "4px"
                                             }}
                                             onClick={handleAddMember}
                                             style={{height: "inherit"}}
@@ -344,7 +344,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                             color: "#fff !important",
                             backgroundColor: colors.button,
                             outline: "1px solid" + colors.border,
-                            borderRadius: "2px",
+                            borderRadius: "4px",
                             padding: "12px",
                             opacity: !hasChanges || uploading ? 0.5 : 1,
                             transition: "opacity 0.2s ease-in-out",
