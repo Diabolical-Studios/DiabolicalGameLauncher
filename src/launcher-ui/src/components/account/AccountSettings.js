@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {Stack, Typography, TextField, Grid, IconButton, Tooltip, Divider as MuiDivider} from "@mui/material";
 import {colors} from "../../theme/colors";
 import LogoutButton from "./LogoutButton";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 // Use local SVGs for each service, with a description for the tooltip
-const services = [{
+export const services = [{
     name: 'Discord', icon: '/logos/discord.svg', description: 'Get Discord role integration and team chat features.'
 }, {
     name: 'Steam', icon: '/logos/steam.svg', description: 'Deploy straight to Steam from GitHub.'
@@ -66,6 +66,42 @@ const Divider = () => (<MuiDivider sx={{borderColor: colors.border, opacity: 0.2
 
 const AccountSettings = ({username}) => {
     const [hovered, setHovered] = React.useState(null);
+    const [connectedProviders, setConnectedProviders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchConnectedProviders = async () => {
+            setLoading(true);
+            try {
+                // Get sessionID from cookie
+                const sessionID = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('sessionID='))
+                    ?.split('=')[1];
+                if (!sessionID) return;
+                const res = await fetch('/connected-external-apps', {
+                    headers: { 'SessionID': sessionID }
+                });
+                if (!res.ok) throw new Error('Failed to fetch connected accounts');
+                const data = await res.json();
+                // Extract and map provider ids to display names
+                const ids = Array.isArray(data.external_subscription_ids) ? data.external_subscription_ids : [];
+                // Map ids (e.g. 'patreon') to service display names (e.g. 'Patreon')
+                const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
+                const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
+                setConnectedProviders(connected);
+            } catch (e) {
+                setConnectedProviders([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConnectedProviders();
+    }, []);
+
+    // Split services into connected and not connected
+    const connectedServices = services.filter(s => connectedProviders.includes(s.name));
+    const unconnectedServices = services.filter(s => !connectedProviders.includes(s.name));
 
     const handlePatreonClick = () => {
         const url = getPatreonOAuthUrl();
@@ -120,7 +156,7 @@ const AccountSettings = ({username}) => {
                         connected accounts unless you choose to display them.
                     </Typography>
                     <Grid container spacing={2} sx={{mt: 0}}>
-                        {services.map((service) => (<Grid item key={service.name}>
+                        {unconnectedServices.map((service) => (<Grid item key={service.name}>
                                 <Tooltip
                                     title={<span style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
                                     placement="top" arrow>
@@ -147,14 +183,74 @@ const AccountSettings = ({username}) => {
 
                 <Divider/>
 
-                {/* Connected Accounts Section (empty for now) */}
+                {/* Connected Accounts Section */}
                 <Stack spacing={1.5}>
                     <Typography variant="subtitle1" sx={{color: colors.text, fontWeight: 600, letterSpacing: 0.2}}>
                         Connected Accounts
                     </Typography>
+                    {loading ? (
+                        <Typography variant="body2" sx={{color: colors.text, opacity: 0.7}}>Loading...</Typography>
+                    ) : connectedServices.length === 0 ? (
+                        <Typography variant="body2" sx={{color: colors.text, opacity: 0.7}}>No accounts connected yet.</Typography>
+                    ) : (
+                        <Grid container spacing={2} sx={{mt: 0}}>
+                            {connectedServices.map((service) => (
+                                <Grid item key={service.name}>
+                                    <Tooltip
+                                        title={<span style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
+                                        placement="top" arrow>
+                                        <IconButton
+                                            sx={iconButtonStyle}
+                                            disabled
+                                        >
+                                            <img
+                                                src={service.icon}
+                                                alt={service.name}
+                                                style={imgStyle}
+                                            />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    )}
                 </Stack>
             </Stack>
         </Stack>);
 };
+
+export function useConnectedProviders() {
+    const [connectedProviders, setConnectedProviders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchConnectedProviders = async () => {
+            setLoading(true);
+            try {
+                const sessionID = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('sessionID='))
+                    ?.split('=')[1];
+                if (!sessionID) return;
+                const res = await fetch('/connected-external-apps', {
+                    headers: { 'SessionID': sessionID }
+                });
+                if (!res.ok) throw new Error('Failed to fetch connected accounts');
+                const data = await res.json();
+                const ids = Array.isArray(data.external_subscription_ids) ? data.external_subscription_ids : [];
+                const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
+                const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
+                setConnectedProviders(connected);
+            } catch (e) {
+                setConnectedProviders([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConnectedProviders();
+    }, []);
+
+    return { connectedProviders, loading };
+}
 
 export default AccountSettings;
