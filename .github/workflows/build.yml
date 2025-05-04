@@ -4,114 +4,163 @@ on:
   push:
     branches:
       - master
+      - dev
+
+# ------------------------------------------------------------------
+# Global flags so every step can tell if we're on dev or master
+# ------------------------------------------------------------------
+env:
+  IS_DEV: ${{ startsWith(github.ref, 'refs/heads/dev') }}
+  IS_PROD: ${{ startsWith(github.ref, 'refs/heads/master') }}
 
 jobs:
   build_and_release:
     runs-on: windows-latest
-    permissions:              
+    permissions:
       contents: write
       attestations: write
       id-token: write
 
     steps:
+      # --------------------------------------------------------------
+      # 📥 Checkout & tooling
+      # --------------------------------------------------------------
       - name: 🛠 Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
-          cache: 'npm'
+          node-version: 16
+          cache: npm
 
-      - name: 📦 Install dependencies (Electron Project)
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🔢 Calculate new version and create tag
-        id: calculate_new_version
-        run: |
-          echo "Fetching tags..."
-          git fetch --tags
-          # Find the last version tag
-          LAST_TAG=$(git tag | sort -V | tail -n1)
-          if [[ -z "$LAST_TAG" ]]; then LAST_TAG="0.0.0"; fi
-          echo "Last version: $LAST_TAG"
-          # Get commit message
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          echo "Commit message: $COMMIT_MESSAGE"
-          # Extract version numbers
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_TAG"
-          # Determine version increment
-          if echo "$COMMIT_MESSAGE" | grep -iq "major"; then
-            echo "Incrementing major version"
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-          elif echo "$COMMIT_MESSAGE" | grep -iq "minor"; then
-            echo "Incrementing minor version"
-            MINOR=$((MINOR + 1))
-            PATCH=0
-          else
-            echo "Incrementing patch version"
-            PATCH=$((PATCH + 1))
-          fi
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "New version: $NEW_VERSION"
-          # Create new tag
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag $NEW_VERSION
-          # Set environment variable for the new version
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      # --------------------------------------------------------------
+      # 🔢 SemVer bump + tag (dev => dev-X.Y.Z, prod => X.Y.Z)
+      # --------------------------------------------------------------
+      - name: 🔢 Generate version & git tag
+        id: version
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: 📝 Update package.json version
         run: |
-          npm version ${{ env.NEW_VERSION }} --no-git-tag-version
-          git add package.json
-          git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
+          set -e
+          git fetch --tags
 
-      - name: 🔨 Build and Package Electron App
-        run: npm run dist
+          # Work out last tag in the right namespace
+          if [[ "${{ env.IS_DEV }}" == "true" ]]; then
+            LAST_TAG=$(git tag -l "dev-[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+            [[ -z "$LAST_TAG" ]] && LAST_TAG="dev-0.0.0"
+          else
+            LAST_TAG=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+            [[ -z "$LAST_TAG" ]] && LAST_TAG="0.0.0"
+          fi
+
+          VERSION=$(echo "$LAST_TAG" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+          IFS=. read MA MI PA <<<"$VERSION"
+
+          # Decide bump size from commit message keywords
+          COMMIT_MSG="$(git log -1 --pretty=%B | tr -d '\r')"
+          if echo "$COMMIT_MSG" | grep -iqE '(^|\s)major(\s|$)'; then
+            ((MA+=1)); MI=0; PA=0
+          elif echo "$COMMIT_MSG" | grep -iqE '(^|\s)minor(\s|$)'; then
+            ((MI+=1)); PA=0
+          else
+            ((PA+=1))
+          fi
+
+          NEW_VERSION="${MA}.${MI}.${PA}"
+          TAG="${{ env.IS_DEV == 'true' && 'dev-' || '' }}${NEW_VERSION}"
+
+          echo "NEW_VERSION=$NEW_VERSION" >>"$GITHUB_OUTPUT"
+          echo "TAG=$TAG"                 >>"$GITHUB_OUTPUT"
+
+          git config --local user.email "action@github.com"
+          git config --local user.name  "GitHub Action"
+          git tag "$TAG"
+
+      # --------------------------------------------------------------
+      # 📝 Update package.json + push commit & tag
+      # --------------------------------------------------------------
+      - name: 📝 Update package.json version
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: 📄 Create latest.yml
+        shell: bash
         run: |
-          echo "version: ${{ env.NEW_VERSION }}" > latest.yml
-        env:
-          NEW_VERSION: ${{ env.NEW_VERSION }}
+          npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
+          git add package.json package-lock.json || true
+          git commit -m "chore: bump version to ${{ steps.version.outputs.NEW_VERSION }}" || true
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          git push origin HEAD --follow-tags
 
-      - name: 🏷️ Rename setup file to use hyphens
+      # --------------------------------------------------------------
+      # 🔨 Build (prod = dist, dev = build:dev)
+      # --------------------------------------------------------------
+      - name: 🔨 Build and package Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        shell: bash
+        run: |
+          if [[ "${{ env.IS_DEV }}" == "true" ]]; then
+            npm run build:dev
+          else
+            npm run dist
+          fi
+
+      # --------------------------------------------------------------
+      # 📄 Generate latest.yml (for auto-update)
+      # --------------------------------------------------------------
+      - name: 📄 Create latest.yml
+        shell: bash
+        run: |
+          echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > latest.yml
+
+      # --------------------------------------------------------------
+      # 🏷️ Rename installer & expose INSTALLER var for later steps
+      # --------------------------------------------------------------
+      - name: 🏷️ Rename installer
+        shell: bash
         run: |
           mv "dist/Diabolical Launcher Setup.exe" "dist/Diabolical-Launcher-Setup.exe"
-      
+          echo "INSTALLER=Diabolical-Launcher-Setup.exe" >>"$GITHUB_ENV"
+
+      # --------------------------------------------------------------
+      # 📤 Upload artifacts
+      # --------------------------------------------------------------
       - name: 📤 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
-            dist/Diabolical-Launcher-Setup.exe
+            dist/${{ env.INSTALLER }}
             dist/latest.yml
             dist/Diabolical Launcher Setup.exe.blockmap
 
+      # --------------------------------------------------------------
+      # 🔒 Supply-chain attestation
+      # --------------------------------------------------------------
       - name: 🔒 Generate provenance attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: dist/Diabolical-Launcher-Setup.exe
-          subject-name: Diabolical-Launcher-Setup.exe
+          subject-path: dist/${{ env.INSTALLER }}
+          subject-name: ${{ env.INSTALLER }}
 
-      - name: 🚀 Create GitHub Release
+      # --------------------------------------------------------------
+      # 🚀 Create GitHub Release (pre-release for dev, full for prod)
+      # --------------------------------------------------------------
+      - name: 🚀 Publish GitHub Release
+        if: env.IS_DEV || env.IS_PROD
         uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NEW_VERSION }}
-          name: ${{ env.NEW_VERSION }}
-          files: |
-            dist/Diabolical-Launcher-Setup.exe
-            dist/latest.yml
-            dist/Diabolical Launcher Setup.exe.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.TAG }}
+          name: ${{ env.IS_DEV == 'true' && format('DEV build – {0}', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
+          #prerelease: ${{ env.IS_DEV }}
+          #draft:      ${{ env.IS_DEV }}
+          files: |
+            dist/${{ env.INSTALLER }}
+            dist/latest.yml
+            dist/Diabolical Launcher Setup.exe.blockmap

@@ -180,6 +180,12 @@ function initIPCHandlers() {
             mainWindow.reload();
         }
     });
+    ipcMain.on("minimize-window", () => {
+        const mainWindow = require("./windowManager").getMainWindow();
+        if (mainWindow) {
+            mainWindow.minimize();
+        }
+    });
     ipcMain.handle("get-app-version", () => {
         return app.getVersion();
     });

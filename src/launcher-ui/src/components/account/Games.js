@@ -94,7 +94,7 @@ const Games = ({teams}) => {
         fetchGames();
     }, [currentTeams]);
 
-    if (!teams || teams.length === 0) return <p>⏳ Waiting for teams to load...</p>;
+    if (!teams || teams.length === 0) return <p>Waiting for teams to load...</p>;
     if (loading) return <GameCardsSkeleton/>;
     if (error) return <p style={{color: "red"}}>{error}</p>;
 
