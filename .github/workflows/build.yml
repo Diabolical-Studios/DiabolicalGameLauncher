@@ -79,7 +79,7 @@ jobs:
       # ----------------------------------------------------------
       # 📝 Bump package.json version & push
       # ----------------------------------------------------------
-      - name: 📝 Update package.json version
+      - name: Update package.json version
         env: { GH_TOKEN: ${ { secrets.GH_TOKEN } } }
         shell: bash
         run: |
