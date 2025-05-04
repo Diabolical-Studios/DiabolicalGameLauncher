@@ -29,7 +29,7 @@ function initUpdater() {
 
     autoUpdater.on("update-not-available", (info) => {
         showMessage(`Diabolical Launcher`);
-        showCustomNotification(mainWindow, "Launcher Update", "No updates available.", "launcher");
+        showCustomNotification(mainWindow, "Launcher Update", "No updates available.");
     });
 
     autoUpdater.on("update-downloaded", (info) => {
@@ -38,7 +38,7 @@ function initUpdater() {
             autoUpdater.quitAndInstall();
         } else {
             showMessage(`Update downloaded! Restart to install.`);
-            showCustomNotification(mainWindow, "Launcher Update", "Launcher update downloaded but auto-install is disabled in settings.", "launcher");
+            showCustomNotification(mainWindow, "Launcher Update", "Launcher update downloaded but auto-install is disabled in settings.");
         }
     });
 
