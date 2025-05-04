@@ -17,6 +17,7 @@ const {
 const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
 const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
 const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
+const { getPreferredExecutable } = require("./launcherUtils");
 
 // Track running game processes
 const runningGames = new Map();
@@ -45,7 +46,12 @@ function initIPCHandlers() {
 
     ipcMain.on("open-game", (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
-        const executablePath = path.join(gamePath, "StandaloneWindows64.exe");
+        // Find the preferred .exe file in the game directory
+        let executablePath = getPreferredExecutable(gamePath, gameId);
+        if (!executablePath) {
+            event.sender.send("game-stopped", gameId);
+            throw new Error('No .exe file found in game directory');
+        }
 
         // Start tracking playtime
         startPlaytimeTracking(gameId);
@@ -86,39 +92,46 @@ function initIPCHandlers() {
     ipcMain.on("stop-game", (event, gameId) => {
         const gameInfo = runningGames.get(gameId);
         if (gameInfo) {
+            let exited = false;
+
+            // Listen for process exit (only once)
+            const onExit = () => {
+                exited = true;
+                runningGames.delete(gameId);
+                stopPlaytimeTracking(gameId);
+                event.sender.send("game-stopped", gameId);
+            };
+            gameInfo.process.once('exit', onExit);
+
             try {
-                // First try to gracefully terminate
                 gameInfo.process.kill();
 
-                // If process is still running after a short delay, force kill it
                 setTimeout(() => {
+                    // Check if process is still running before calling taskkill
                     try {
-                        // Use taskkill to forcefully terminate the process and its children
-                        const taskkill = spawn('taskkill', ['/F', '/T', '/PID', gameInfo.pid.toString()]);
-
-                        taskkill.on('exit', (code) => {
-                            if (code === 0) {
-                                console.log(`Successfully killed process ${gameInfo.pid}`);
-                            } else {
-                                console.error(`Failed to kill process ${gameInfo.pid}`);
-                            }
-                            runningGames.delete(gameId);
-                            stopPlaytimeTracking(gameId);
-                            event.sender.send("game-stopped", gameId);
-                        });
-
-                        taskkill.on('error', (err) => {
-                            console.error('Error executing taskkill:', err);
-                            runningGames.delete(gameId);
-                            stopPlaytimeTracking(gameId);
-                            event.sender.send("game-stopped", gameId);
-                        });
-                    } catch (err) {
-                        console.error('Error in force kill:', err);
+                        process.kill(gameInfo.pid, 0); // throws if not running
+                    } catch (e) {
+                        // Process is already dead, do not call taskkill
+                        return;
+                    }
+                    // If we get here, process is still running, so force kill
+                    const taskkill = spawn('taskkill', ['/F', '/T', '/PID', gameInfo.pid.toString()]);
+                    taskkill.on('exit', (code) => {
+                        if (code === 0) {
+                            console.log(`Successfully killed process ${gameInfo.pid}`);
+                        } else {
+                            console.log(`Process ${gameInfo.pid} was already terminated or could not be found.`);
+                        }
                         runningGames.delete(gameId);
                         stopPlaytimeTracking(gameId);
                         event.sender.send("game-stopped", gameId);
-                    }
+                    });
+                    taskkill.on('error', (err) => {
+                        console.error('Error executing taskkill:', err);
+                        runningGames.delete(gameId);
+                        stopPlaytimeTracking(gameId);
+                        event.sender.send("game-stopped", gameId);
+                    });
                 }, 1000);
             } catch (err) {
                 console.error('Error in stop-game:', err);
