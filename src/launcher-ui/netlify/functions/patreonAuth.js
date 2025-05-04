@@ -1,10 +1,19 @@
 // netlify/functions/patreonAuth.js
 exports.handler = async function(event, context) {
   console.log("=== Patreon Auth Function Started ===");
-  
+
   const code = event.queryStringParameters?.code;
   const source = event.queryStringParameters?.state || "web";
-  
+
+  // Get session ID from cookies
+  const cookies = event.headers.cookie?.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  const sessionId = cookies?.sessionID;
+
   if (!code) {
     return {
       statusCode: 400,
@@ -12,7 +21,27 @@ exports.handler = async function(event, context) {
     };
   }
 
+  if (!sessionId) {
+    return {
+      statusCode: 400,
+      body: 'Missing session_id in cookies'
+    };
+  }
+
   try {
+    // Get our user ID from session ID
+    const userRes = await fetch(`${process.env.API_BASE_URL}/rest-api/users/session/${sessionId}`, {
+      headers: { 'x-api-key': process.env.API_KEY }
+    });
+    const userInfo = await userRes.json();
+
+    if (!userInfo || !userInfo.user_id) {
+      return {
+        statusCode: 400,
+        body: 'Invalid session ID'
+      };
+    }
+
     // Exchange code for access token
     const tokenRes = await fetch('https://www.patreon.com/api/oauth2/token', {
       method: 'POST',
@@ -25,7 +54,7 @@ exports.handler = async function(event, context) {
         redirect_uri: 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth'
       })
     });
-    
+
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
       return {
@@ -34,27 +63,51 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // Fetch user info
-    const userRes = await fetch(
-      'https://www.patreon.com/api/oauth2/v2/identity?include=memberships&fields[member]=patron_status,currently_entitled_tiers',
-      { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
+    // Fetch user info from Patreon
+    const patreonRes = await fetch(
+        'https://www.patreon.com/api/oauth2/v2/identity?include=memberships&fields[member]=patron_status,currently_entitled_tiers',
+        { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
     );
-    const userData = await userRes.json();
+    const patreonData = await patreonRes.json();
 
     // Check if user is a patron
-    const isPatron = userData.included?.some(
-      (m) => m.type === 'member' && m.attributes.patron_status === 'active_patron'
+    const isPatron = patreonData.included?.some(
+        (m) => m.type === 'member' && m.attributes.patron_status === 'active_patron'
     );
+
+    // Update user subscription in our API using our system's user ID
+    const subscriptionData = {
+      user_id: userInfo.user_id,
+      status: isPatron ? 'active' : 'inactive',
+      provider: 'patreon',
+      updated_at: new Date().toISOString()
+    };
+
+    // Update subscription status
+    await fetch(`${process.env.API_BASE_URL}/rest-api/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.API_KEY
+      },
+      body: JSON.stringify(subscriptionData)
+    });
+
+    // Check if user is subscribed using our API
+    const checkRes = await fetch(`${process.env.API_BASE_URL}/rest-api/subscriptions/check/${userInfo.user_id}`, {
+      headers: { 'x-api-key': process.env.API_KEY }
+    });
+    const { isSubscribed } = await checkRes.json();
 
     // Create the redirect URL
     const redirectUrl = source === "electron"
-      ? `diabolicallauncher://auth?provider=patreon&patreon=${isPatron ? "success" : "fail"}&code=${code}`
-      : `https://launcher.diabolical.studio/account?provider=patreon&patreon=${isPatron ? "success" : "fail"}&code=${code}`;
+        ? `diabolicallauncher://auth?provider=patreon&patreon=${isSubscribed ? "success" : "fail"}&code=${code}`
+        : `https://launcher.diabolical.studio/account?provider=patreon&patreon=${isSubscribed ? "success" : "fail"}&code=${code}`;
 
     // Return HTML that will redirect
     const html = `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
         <head>
           <meta http-equiv="refresh" content="0;url=${redirectUrl}">
           <title>Redirecting...</title>
@@ -85,4 +138,4 @@ exports.handler = async function(event, context) {
       body: `Error: ${error.message}`
     };
   }
-}; 
+};
