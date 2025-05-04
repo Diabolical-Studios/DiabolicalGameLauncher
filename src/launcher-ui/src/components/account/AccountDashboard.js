@@ -16,6 +16,7 @@ import {colors} from "../../theme/colors";
 import AccountSettings from "./AccountSettings";
 import { services, useConnectedProviders } from "./AccountSettings";
 import Chip from "@mui/material/Chip";
+import Skeleton from "@mui/material/Skeleton";
 
 export default function AccountDashboard({username}) {
     const [teams, setTeams] = useState([]);
@@ -23,7 +24,7 @@ export default function AccountDashboard({username}) {
     const [errorTeams, setErrorTeams] = useState(null);
     const githubId = Cookies.get("githubID");
     const githubAvatar = githubId ? `https://avatars.githubusercontent.com/u/${githubId}?v=4` : null;
-    const { connectedProviders } = useConnectedProviders();
+    const { connectedProviders, loading } = useConnectedProviders();
     const connectedServices = services.filter(s => connectedProviders.includes(s.name));
 
     const fetchTeams = useCallback(async () => {
@@ -86,26 +87,38 @@ export default function AccountDashboard({username}) {
                     </Stack>
                     {/* Right: Chips */}
                     <Stack direction="row" spacing={1}>
-                        {connectedServices.map(service => (
-                            <Chip
-                                key={service.name}
-                                label={service.name}
-                                avatar={<img src={service.icon} alt={service.name} style={{ width: 12, height: 12, filter: 'invert(1)', margin: 0 }} />}
-                                size="small"
-                                sx={{
-                                    background: '#18181b',
-                                    color: '#fff',
-                                    border: `1px solid ${colors.border}`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: "4px",
-                                    padding: "12px",
-                                    '& .MuiChip-label': {
-                                        padding: 0,
-                                    }
-                                }}
-                            />
-                        ))}
+                        {loading ? (
+                            Array.from({ length: 3 }).map((_, idx) => (
+                                <Skeleton
+                                    key={idx}
+                                    variant="rounded"
+                                    width={70}
+                                    height="{100%}"
+                                    sx={{ borderRadius: '16px', marginLeft: idx === 0 ? 0 : 1 }}
+                                />
+                            ))
+                        ) : (
+                            connectedServices.map(service => (
+                                <Chip
+                                    key={service.name}
+                                    label={service.name}
+                                    avatar={<img src={service.icon} alt={service.name} style={{ width: 12, height: 12, filter: 'invert(1)', margin: 0 }} />}
+                                    size="small"
+                                    sx={{
+                                        background: '#18181b',
+                                        color: '#fff',
+                                        border: `1px solid ${colors.border}`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: "4px",
+                                        padding: "12px",
+                                        '& .MuiChip-label': {
+                                            padding: 0,
+                                        }
+                                    }}
+                                />
+                            ))
+                        )}
                     </Stack>
                 </Stack>
             </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Stack, Typography, TextField, Grid, IconButton, Tooltip, Divider as MuiDivider} from "@mui/material";
+import {Stack, Typography, TextField, Grid, IconButton, Tooltip, Divider as MuiDivider, Skeleton} from "@mui/material";
 import {colors} from "../../theme/colors";
 import LogoutButton from "./LogoutButton";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -156,28 +156,42 @@ const AccountSettings = ({username}) => {
                         connected accounts unless you choose to display them.
                     </Typography>
                     <Grid container spacing={2} sx={{mt: 0}}>
-                        {unconnectedServices.map((service) => (<Grid item key={service.name}>
-                                <Tooltip
-                                    title={<span style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
-                                    placement="top" arrow>
-                                    <IconButton
-                                        sx={iconButtonStyle}
-                                        onMouseEnter={() => setHovered(service.name)}
-                                        onMouseLeave={() => setHovered(null)}
-                                        onClick={() => {
-                                            if (service.name === 'Patreon') {
-                                                handlePatreonClick();
-                                            }
-                                        }}
-                                    >
-                                        <img
-                                            src={service.icon}
-                                            alt={service.name}
-                                            style={hovered === service.name ? {...imgStyle, ...imgHoverStyle} : imgStyle}
-                                        />
-                                    </IconButton>
-                                </Tooltip>
-                            </Grid>))}
+                        {loading
+                            ? services.map((_, idx) => (
+                                <Grid item key={idx}>
+                                    <Skeleton
+                                        variant="rounded"
+                                        width={48}
+                                        height={48}
+                                        sx={{ borderRadius: '4px' }}
+                                    />
+                                </Grid>
+                            ))
+                            : unconnectedServices.map((service) => (
+                                <Grid item key={service.name}>
+                                    <Tooltip
+                                        title={<span style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
+                                        placement="top" arrow>
+                                        <IconButton
+                                            sx={iconButtonStyle}
+                                            onMouseEnter={() => setHovered(service.name)}
+                                            onMouseLeave={() => setHovered(null)}
+                                            onClick={() => {
+                                                if (service.name === 'Patreon') {
+                                                    handlePatreonClick();
+                                                }
+                                            }}
+                                        >
+                                            <img
+                                                src={service.icon}
+                                                alt={service.name}
+                                                style={hovered === service.name ? {...imgStyle, ...imgHoverStyle} : imgStyle}
+                                            />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                            ))
+                        }
                     </Grid>
                 </Stack>
 

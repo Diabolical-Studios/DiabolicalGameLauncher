@@ -40,6 +40,7 @@ const CustomCursor = () => {
     const rafRef = useRef(null);
     const containerRef = useRef(null);
     const cursorColor = '#fff';
+    const hoveredElement = useRef(null);
 
     // Memoized event handlers
     const handleMouseMove = useCallback((e) => {
@@ -72,6 +73,7 @@ const CustomCursor = () => {
             e.target.closest('.hover-effect');
 
         if (target) {
+            hoveredElement.current = target;
             const rect = target.getBoundingClientRect();
             const minSize = 2 * MIN_CORNER_GAP + CORNER_SIZE;
             const width = Math.max(rect.width + 2 * PADDING, minSize);
@@ -87,6 +89,7 @@ const CustomCursor = () => {
                 height
             });
         } else {
+            hoveredElement.current = null;
             setHoveredRect(null);
         }
     }, []);
@@ -113,9 +116,28 @@ const CustomCursor = () => {
     // Animation loop for cursor and corners
     useEffect(() => {
         function animate() {
-            // Smoothly interpolate mouse position
-            mouse.current.x += (targetMouse.current.x - mouse.current.x) * 0.25;
-            mouse.current.y += (targetMouse.current.y - mouse.current.y) * 0.25;
+            // Instantly follow the mouse for the center part
+            mouse.current.x = targetMouse.current.x;
+            mouse.current.y = targetMouse.current.y;
+
+            // If hovering an element, update hoveredRect every frame
+            if (hoveredElement.current) {
+                const target = hoveredElement.current;
+                const rect = target.getBoundingClientRect();
+                const minSize = 2 * MIN_CORNER_GAP + CORNER_SIZE;
+                const width = Math.max(rect.width + 2 * PADDING, minSize);
+                const height = Math.max(rect.height + 2 * PADDING, minSize);
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                setHoveredRect({
+                    left: centerX - width / 2,
+                    top: centerY - height / 2,
+                    right: centerX + width / 2,
+                    bottom: centerY + height / 2,
+                    width,
+                    height
+                });
+            }
 
             // Move SVG crosshair using transform for better performance
             if (svgRef.current) {
