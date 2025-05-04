@@ -206,7 +206,8 @@ function initIPCHandlers() {
             launchOnStartup: settings.launchOnStartup || false,
             downloadPath: settings.downloadPath || "",
             maxConcurrentDownloads: settings.maxConcurrentDownloads || 3,
-            cacheSize: settings.cacheSize || "5GB"
+            cacheSize: settings.cacheSize || "5GB",
+            customCursor: settings.customCursor || false,
         };
     });
     ipcMain.handle("update-settings", (event, newSettings) => {
@@ -244,11 +245,14 @@ function initIPCHandlers() {
         // Handle auto update
         if (typeof updatedSettings.autoUpdate !== "undefined") {
             if (updatedSettings.autoUpdate) {
-                // Optionally, check for updates now or set a flag for your updater logic
                 autoUpdater.checkForUpdates();
             }
-            // If false, you may want to stop any auto update polling/logic
-            // (No-op here, but you could add logic in updater.js if you have polling)
+        }
+
+        // Send settings update directly to renderer
+        const mainWindow = require("./windowManager").getMainWindow();
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send("settings-updated", updatedSettings);
         }
 
         return updatedSettings;
@@ -286,6 +290,14 @@ function initIPCHandlers() {
             mainWindow.webContents.send("show-notification", data);
         } else {
             console.log("No main window found to send notification");
+        }
+    });
+
+    // Add settings-updated event handler
+    ipcMain.on("settings-updated", (event, settings) => {
+        const mainWindow = require("./windowManager").getMainWindow();
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send("settings-updated", settings);
         }
     });
 

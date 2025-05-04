@@ -90,10 +90,6 @@ jobs:
         shell: bash
         run: |
           npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
-          git add package.json package-lock.json || true
-          git commit -m "chore: bump version to ${{ steps.version.outputs.NEW_VERSION }}" || true
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-          git push origin HEAD --follow-tags
 
       # --------------------------------------------------------------
       # 🔨 Build (prod = dist, dev = build:dev)
