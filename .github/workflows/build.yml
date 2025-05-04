@@ -6,9 +6,9 @@ on:
       - master
       - dev
 
-# ------------------------------------------------------------------
-# Global flags so every step can tell if we're on dev or master
-# ------------------------------------------------------------------
+# ──────────────────────────────────────────────────────────────
+#  Flags every step can reuse
+# ──────────────────────────────────────────────────────────────
 env:
   IS_DEV: ${{ startsWith(github.ref, 'refs/heads/dev') }}
   IS_PROD: ${{ startsWith(github.ref, 'refs/heads/master') }}
@@ -22,13 +22,12 @@ jobs:
       id-token: write
 
     steps:
-      # --------------------------------------------------------------
+      # ----------------------------------------------------------
       # 📥 Checkout & tooling
-      # --------------------------------------------------------------
+      # ----------------------------------------------------------
       - name: 🛠 Check out code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v4
@@ -37,56 +36,51 @@ jobs:
           cache: npm
 
       - name: 📦 Install dependencies
-        run: npm install
-
-      # --------------------------------------------------------------
-      # 🔢 SemVer bump + tag (dev => dev-X.Y.Z, prod => X.Y.Z)
-      # --------------------------------------------------------------
+        run: npm ci
+      
+      # ----------------------------------------------------------
+      # 🔢 Auto-version + tag
+      # ----------------------------------------------------------
       - name: 🔢 Generate version & git tag
         id: version
         shell: bash
         run: |
           set -e
           git fetch --tags
-
-          # Work out last tag in the right namespace
+          
+          # Last tag in correct namespace
           if [[ "${{ env.IS_DEV }}" == "true" ]]; then
-            LAST_TAG=$(git tag -l "dev-[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
-            [[ -z "$LAST_TAG" ]] && LAST_TAG="dev-0.0.0"
+            LAST=$(git tag -l "dev-[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+            [[ -z "$LAST" ]] && LAST="dev-0.0.0"
           else
-            LAST_TAG=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
-            [[ -z "$LAST_TAG" ]] && LAST_TAG="0.0.0"
+            LAST=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n1)
+            [[ -z "$LAST" ]] && LAST="0.0.0"
           fi
-
-          VERSION=$(echo "$LAST_TAG" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
-          IFS=. read MA MI PA <<<"$VERSION"
-
-          # Decide bump size from commit message keywords
+          
+          # Bump patch (or major/minor via commit message)
+          VER=${LAST#dev-}
+          IFS=. read MA MI PA <<<"$VER"
           COMMIT_MSG="$(git log -1 --pretty=%B | tr -d '\r')"
-          if echo "$COMMIT_MSG" | grep -iqE '(^|\s)major(\s|$)'; then
-            ((MA+=1)); MI=0; PA=0
-          elif echo "$COMMIT_MSG" | grep -iqE '(^|\s)minor(\s|$)'; then
-            ((MI+=1)); PA=0
-          else
-            ((PA+=1))
+          if   echo "$COMMIT_MSG" | grep -iq '\bmajor\b'; then ((MA+=1)); MI=0; PA=0
+          elif echo "$COMMIT_MSG" | grep -iq '\bminor\b'; then ((MI+=1)); PA=0
+          else ((PA+=1))
           fi
-
           NEW_VERSION="${MA}.${MI}.${PA}"
-          TAG="${{ env.IS_DEV == 'true' && 'dev-' || '' }}${NEW_VERSION}"
-
+          
+          TAG=$([[ "${{ env.IS_DEV }}" == "true" ]] && echo "dev-${NEW_VERSION}" || echo "${NEW_VERSION}")
+          
           echo "NEW_VERSION=$NEW_VERSION" >>"$GITHUB_OUTPUT"
           echo "TAG=$TAG"                 >>"$GITHUB_OUTPUT"
-
+          
           git config --local user.email "action@github.com"
           git config --local user.name  "GitHub Action"
           git tag "$TAG"
-
-      # --------------------------------------------------------------
-      # 📝 Update package.json + push commit & tag
-      # --------------------------------------------------------------
+      
+      # ----------------------------------------------------------
+      # 📝 Bump package.json version & push
+      # ----------------------------------------------------------
       - name: 📝 Update package.json version
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        env: { GH_TOKEN: ${ { secrets.GH_TOKEN } } }
         shell: bash
         run: |
           npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
@@ -94,13 +88,12 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.version.outputs.NEW_VERSION }}" || true
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
           git push origin HEAD --follow-tags
-
-      # --------------------------------------------------------------
-      # 🔨 Build (prod = dist, dev = build:dev)
-      # --------------------------------------------------------------
-      - name: 🔨 Build and package Electron app
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      
+      # ----------------------------------------------------------
+      # 🔨 Build & package Electron app
+      #    (injects NODE_ENV + PUBLISH_CHANNEL via npm scripts)
+      # ----------------------------------------------------------
+      - name: 🔨 Build Electron app
         shell: bash
         run: |
           if [[ "${{ env.IS_DEV }}" == "true" ]]; then
@@ -108,27 +101,27 @@ jobs:
           else
             npm run build
           fi
-
-      # --------------------------------------------------------------
-      # 📄 Generate latest.yml (for auto-update)
-      # --------------------------------------------------------------
+      
+      # ----------------------------------------------------------
+      # 📄 latest.yml (for auto-update)
+      # ----------------------------------------------------------
       - name: 📄 Create latest.yml
         shell: bash
-        run: |
+        run:
           echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > latest.yml
-
-      # --------------------------------------------------------------
-      # 🏷️ Rename installer & expose INSTALLER var for later steps
-      # --------------------------------------------------------------
+      
+      # ----------------------------------------------------------
+      # 🏷️ Rename installer (+ export INSTALLER var)
+      # ----------------------------------------------------------
       - name: 🏷️ Rename installer
         shell: bash
         run: |
           mv "dist/Diabolical Launcher Setup.exe" "dist/Diabolical-Launcher-Setup.exe"
           echo "INSTALLER=Diabolical-Launcher-Setup.exe" >>"$GITHUB_ENV"
-
-      # --------------------------------------------------------------
+      
+      # ----------------------------------------------------------
       # 📤 Upload artifacts
-      # --------------------------------------------------------------
+      # ----------------------------------------------------------
       - name: 📤 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -137,16 +130,16 @@ jobs:
             dist/${{ env.INSTALLER }}
             dist/latest.yml
             dist/Diabolical Launcher Setup.exe.blockmap
-
-      # --------------------------------------------------------------
+      
+      # ----------------------------------------------------------
       # 🔒 Supply-chain attestation
-      # --------------------------------------------------------------
+      # ----------------------------------------------------------
       - name: 🔒 Generate provenance attestation
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: dist/${{ env.INSTALLER }}
           subject-name: ${{ env.INSTALLER }}
-
+      
       # --------------------------------------------------------------
       # 🚀 Create GitHub Release (pre-release for dev, full for prod)
       # --------------------------------------------------------------
