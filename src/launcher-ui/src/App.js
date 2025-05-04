@@ -14,9 +14,10 @@ import AppLayout from "./components/AppLayout";
 import StatusBarAndContentPanel from "./components/StatusBarAndContentPanel";
 import HorizontalFlex from "./components/layout/HorizontalFlex";
 import {applyColorsToCSS} from "./theme/colors";
-import {createTheme, ThemeProvider} from "@mui/material";
+import {createTheme, ThemeProvider, CssBaseline, GlobalStyles} from "@mui/material";
 import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
+import CustomCursor from './components/common/CustomCursor';
 
 const App = () => {
     const [muiTheme] = useState(
@@ -79,6 +80,18 @@ const App = () => {
 
     return (
         <ThemeProvider theme={muiTheme}>
+            <CssBaseline />
+            <GlobalStyles
+                styles={{
+                    '*': {
+                        cursor: 'none !important',
+                    },
+                    'a, button, [role="button"], input, select, textarea': {
+                        cursor: 'none !important',
+                    },
+                }}
+            />
+            <CustomCursor />
             <Router>
                 <AppLayout>
                     <BackgroundAnimation/>
