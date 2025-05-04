@@ -8,7 +8,6 @@ import {
     Select,
     Stack,
     Switch,
-    TextField,
     Typography,
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
@@ -147,7 +146,7 @@ const SettingsPage = () => {
                 <StyledSettingsSection>
                     <Typography variant="h6" sx={{color: colors.text}}>Application Settings</Typography>
                     <Stack spacing={2}>
-                        <FormControlLabel
+                        <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
                             control={
                                 <Switch
                                     checked={settings.autoUpdate}
@@ -170,7 +169,7 @@ const SettingsPage = () => {
                             label="Auto-update launcher"
                             sx={{color: colors.text}}
                         />
-                        <FormControlLabel
+                        <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
                             control={
                                 <Switch
                                     checked={settings.notifications}
@@ -193,7 +192,7 @@ const SettingsPage = () => {
                             label="Enable notifications"
                             sx={{color: colors.text}}
                         />
-                        <FormControlLabel
+                        <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
                             control={
                                 <Switch
                                     checked={settings.minimizeToTray}
@@ -216,7 +215,7 @@ const SettingsPage = () => {
                             label="Minimize to system tray"
                             sx={{color: colors.text}}
                         />
-                        <FormControlLabel
+                        <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
                             control={
                                 <Switch
                                     checked={settings.launchOnStartup}
@@ -243,7 +242,7 @@ const SettingsPage = () => {
                 </StyledSettingsSection>
 
                 {/* Download Settings */}
-                <StyledSettingsSection>
+                {/* <StyledSettingsSection>
                     <Typography variant="h6" sx={{color: colors.text}}>Download Settings</Typography>
                     <Stack spacing={2}>
                         <TextField
@@ -314,7 +313,7 @@ const SettingsPage = () => {
                             </Select>
                         </FormControl>
                     </Stack>
-                </StyledSettingsSection>
+                </StyledSettingsSection> */}
             </Stack>
         </Box>
     );

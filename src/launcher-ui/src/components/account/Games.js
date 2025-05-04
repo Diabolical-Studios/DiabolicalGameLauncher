@@ -107,15 +107,20 @@ const Games = ({teams}) => {
             }}
         >
             <Stack direction={"row"} className={"gap-3 flex-wrap items-center w-1/2"}>
-                {teams.map((team) => (<Chip
-                    key={team.team_name}
-                    label={team.team_name}
-                    onClick={() => handleChipClick(team.team_name)}
-                    color={selectedTeams.includes(team.team_name) ? "primary" : "default"}
-                    style={{
-                        color: colors.text, borderRadius: "4px", outline: "1px solid" + colors.border,
-                    }}
-                />))}
+                {teams.map((team) => (
+                    <Chip
+                        key={team.team_name}
+                        label={team.team_name}
+                        onClick={() => handleChipClick(team.team_name)}
+                        style={{
+                            color: colors.text,
+                            backgroundColor: colors.background,
+                            borderRadius: "4px",
+                            outline: "1px solid" + colors.border,
+                            filter: selectedTeams.includes(team.team_name) ? "invert(1)" : "none",
+                        }}
+                    />
+                ))}
             </Stack>
             <TextField
                 style={{width: "50%"}}

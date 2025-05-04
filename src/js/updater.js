@@ -33,13 +33,8 @@ function initUpdater() {
     });
 
     autoUpdater.on("update-downloaded", (info) => {
-        if (settings.autoUpdate) { // Check settings before installing
             showMessage(`Launcher update downloaded. Restarting...`);
             autoUpdater.quitAndInstall();
-        } else {
-            showMessage(`Update downloaded! Restart to install.`);
-            showCustomNotification(mainWindow, "Launcher Update", "Launcher update downloaded but auto-install is disabled in settings.");
-        }
     });
 
     autoUpdater.on("error", (info) => {

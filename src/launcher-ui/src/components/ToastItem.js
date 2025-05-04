@@ -43,7 +43,7 @@ const ToastItem = ({toast, timeout = 300, autoDismiss = 3000, onDownload, onDism
     return (
         <Slide direction="left" in={show} timeout={timeout} onExited={handleExited}>
             <div
-                className="background relative rounded-sm shadow-lg transition-all duration-500 dialog w-fit outline"
+                className="background relative rounded-sm shadow-lg transition-all duration-500 dialog outline"
                 style={{
                     justifyContent: "space-between",
                     padding: 0,
@@ -51,6 +51,7 @@ const ToastItem = ({toast, timeout = 300, autoDismiss = 3000, onDownload, onDism
                     outlineColor: colors.border,
                     backgroundColor: colors.background,
                     color: colors.text,
+                    width: "fit-content",
                 }}
             >
                 <div className="flex items-center justify-between h-full gap-3">

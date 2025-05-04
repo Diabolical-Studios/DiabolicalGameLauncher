@@ -419,16 +419,16 @@ const LibraryPage = () => {
                                         }}
                                     >
                                         <ListItemIcon sx={{minWidth: 0}}>
-                                            {game.team_icon_url ? (
+                                           {/*  {game.team_icon_url ? (
                                                 <Box
                                                     component="img"
                                                     src={game.team_icon_url}
                                                     alt=""
                                                     sx={{width: 18}}
                                                 />
-                                            ) : (
+                                            ) : ( */}
                                                 <SportsEsportsIcon sx={{color: colors.text}}/>
-                                            )}
+                                            {/* )} */}
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={
