@@ -148,7 +148,7 @@ jobs:
           subject-name: ${{ env.INSTALLER }}
 
       # --------------------------------------------------------------
-      # 🚀 Create GitHub Release (pre-release for dev, full for prod)
+      # 🚀 Create GitHub Release (pre-release for dev, full for prod) 
       # --------------------------------------------------------------
       - name: 🚀 Publish GitHub Release
         if: env.IS_DEV || env.IS_PROD
@@ -158,8 +158,6 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
           name: ${{ env.IS_DEV == 'true' && format('DEV build – {0}', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
-          #prerelease: ${{ env.IS_DEV }}
-          #draft:      ${{ env.IS_DEV }}
           files: |
             dist/${{ env.INSTALLER }}
             dist/latest.yml
