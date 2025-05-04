@@ -1,7 +1,7 @@
 {
   "name": "diabolicallauncher",
   "productName": "Diabolical Launcher",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Launcher for the Diabolical Studios games",
   "main": "src/index.js",
   "scripts": {
