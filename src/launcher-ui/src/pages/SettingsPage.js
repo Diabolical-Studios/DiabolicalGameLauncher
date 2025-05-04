@@ -29,7 +29,7 @@ const SettingsPage = () => {
         language: "en",
         autoUpdate: true,
         notifications: true,
-        minimizeToTray: true,
+        minimizeToTray: false,
         launchOnStartup: false,
         downloadPath: "",
         maxConcurrentDownloads: 3,
