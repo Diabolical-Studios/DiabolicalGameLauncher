@@ -48,6 +48,10 @@ function = "patreon-auth"
 path = "/patreon-auth"
 
 [[edge_functions]]
+function = "connected-external-apps"
+path = "/connected-external-apps"
+
+[[edge_functions]]
 function = "update-game"
 path = "/update-game"
 
