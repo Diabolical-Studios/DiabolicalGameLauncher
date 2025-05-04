@@ -1,17 +1,38 @@
 const {BrowserWindow, Tray, Menu, app} = require("electron");
 const path = require("path");
 const {loadSettings, saveSettings} = require("./settings");
+const http = require('http');
 let mainWindow;
 let splash;
 let allowResize = false;
 let periodicChecksStarted = false;
 let tray = null;
 
+async function waitForReact() {
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            http.get('http://localhost:8888', (res) => {
+                if (res.statusCode === 200) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }).on('error', () => {
+                // Server not ready yet
+            });
+        }, 1000); // Check every second
+    });
+}
+
 async function createWindow() {
     const isDev = (await import("electron-is-dev")).default;
     const settings = loadSettings();
 
-    //Creates the splash window while the launcher loads
+    // Wait for React to be ready in development mode
+    if (isDev) {
+        await waitForReact();
+    }
+
+    // Creates the splash window while the launcher loads
     splash = new BrowserWindow({
         width: 300, height: 200, frame: false, transparent: true, alwaysOnTop: true, center: true, webPreferences: {
             nodeIntegration: true, contextIsolation: false
@@ -41,27 +62,13 @@ async function createWindow() {
     mainWindow.loadURL(startURL);
 
     //Close splash window and enable main window
-    mainWindow.once("ready-to-show", () => {
+    mainWindow.webContents.on("did-finish-load", async () => {
         if (splash) {
             splash.close();
             splash = null;
         }
         mainWindow.show();
-    });
-    mainWindow.on("closed", () => {
-        mainWindow = null;
-    });
-    mainWindow.center();
-    mainWindow.on("will-resize", (e) => {
-        if (!allowResize) {
-            e.preventDefault();
-        }
-    });
 
-    mainWindow.webContents.on("did-finish-load", async () => {
-        if (splash) {
-            splash.webContents.send("splash-update", "Initializing modules...");
-        }
         const {initUpdater, startPeriodicChecks, checkForUpdates} = require("./updater");
         const settings = loadSettings();
         if (settings.autoUpdate) {
@@ -72,6 +79,16 @@ async function createWindow() {
         if (!periodicChecksStarted) {
             startPeriodicChecks(mainWindow);
             periodicChecksStarted = true;
+        }
+    });
+
+    mainWindow.on("closed", () => {
+        mainWindow = null;
+    });
+    mainWindow.center();
+    mainWindow.on("will-resize", (e) => {
+        if (!allowResize) {
+            e.preventDefault();
         }
     });
 

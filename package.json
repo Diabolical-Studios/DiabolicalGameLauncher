@@ -5,7 +5,7 @@
   "description": "Launcher for the Diabolical Studios games",
   "main": "src/index.js",
   "scripts": {
-    "dev-ui": "cd src/launcher-ui && netlify dev",
+    "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
     "start": "concurrently \"npm run dev-ui\" \"electron .\"",
     "build": "npm run build --prefix src/launcher-ui && electron-builder",
     "pack": "electron-builder --dir",
@@ -75,11 +75,12 @@
     "uuid": "^11.0.5"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
     "electron": "^33.2.1",
     "electron-builder": "^24.13.3",
     "jest": "^29.7.0",
-    "@types/jest": "^29.5.12",
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.1.2"
   }

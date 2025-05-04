@@ -25,12 +25,8 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      - name: 📦 Install dependencies (Main Project)
+      - name: 📦 Install dependencies (Electron Project)
         run: npm install
-
-      - name: 📦 Install dependencies (React UI)
-        run: npm install
-        working-directory: src/launcher-ui
 
       - name: 🔢 Calculate new version and create tag
         id: calculate_new_version
@@ -77,10 +73,6 @@ jobs:
           npm version ${{ env.NEW_VERSION }} --no-git-tag-version
           git add package.json
           git commit -m "Update package.json to version ${{ env.NEW_VERSION }}"
-
-      - name: 🏗 Build React App
-        run: npm run build
-        working-directory: src/launcher-ui
 
       - name: 🔨 Build and Package Electron App
         run: npm run dist
