@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
 
 jobs:
   build_and_release:
@@ -29,6 +30,7 @@ jobs:
         run: npm install
 
       - name: 🔢 Calculate new version and create tag
+        if: github.ref == 'refs/heads/master'
         id: calculate_new_version
         run: |
           echo "Fetching tags..."
@@ -76,6 +78,12 @@ jobs:
 
       - name: 🔨 Build and Package Electron App
         run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: 🔨 Build and Package Electron App (Dev)
+        if: github.ref == 'refs/heads/dev'
+        run: npm run build:dev
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
