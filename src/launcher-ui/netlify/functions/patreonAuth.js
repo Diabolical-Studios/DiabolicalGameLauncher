@@ -165,9 +165,9 @@ exports.handler = async function (event) {
   const html = `
     <!DOCTYPE html><html lang="en"><head>
       <meta http-equiv="refresh" content="0;url=${redirectUrl}">
-      <title>Redirecting…</title>
-    </head><body style="background:#000;color:#fff">
-      <p>Redirecting to launcher…</p>
+      <title>Redirecting...</title>
+    </head><body style="background:#000;color:#fff;font-family: JetBrains Mono, monospace; width: 100svw; height: 100svh; justify-content: center; align-items: center">
+      <p>Redirecting to launcher...</p>
       <script>window.location.replace("${redirectUrl}");</script>
     </body></html>
   `;

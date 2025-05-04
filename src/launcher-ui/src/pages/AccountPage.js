@@ -6,24 +6,24 @@ import LoginScreen from "../components/account/LoginScreen";
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router-dom";
 
 const saveInstallationPair = (installationId, accessToken) => {
-    // Find the next available number
     let count = 1;
-    while (Cookies.get(`githubInstallationId${count}`)) {
-        count++;
-    }
+    while (Cookies.get(`githubInstallationId${count}`)) count++;
 
-    // Save the new pair
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
     Cookies.set(`githubInstallationId${count}`, installationId, {
         secure: true,
         sameSite: "Strict",
-        expires: 7
+        expires: expiresAt,
     });
+
     Cookies.set(`githubAccessToken${count}`, accessToken, {
         secure: true,
         sameSite: "Strict",
-        expires: 7
+        expires: expiresAt,
     });
 };
+
 
 export const getAllInstallationPairs = () => {
     const pairs = [];
@@ -142,7 +142,6 @@ export default function AccountPage() {
                             setIsLoggedIn(true);
                             break;
                         case "patreon":
-                            Cookies.set("patreonStatus", data.patreon, cookieOptions);
                             if (data.code) {
                                 Cookies.set("patreonAuthCode", data.code, cookieOptions);
                             }
