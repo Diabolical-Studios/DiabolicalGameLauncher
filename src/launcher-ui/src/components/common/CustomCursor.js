@@ -70,7 +70,12 @@ const CustomCursor = () => {
             e.target.closest('.MuiButton-root') ||
             e.target.closest('.image-button') ||
             e.target.closest('.MuiListItem-root') ||
-            e.target.closest('.hover-effect');
+            e.target.closest('.hover-effect') ||
+            e.target.closest('.MuiInputBase-input') ||
+            e.target.closest('.featured-progress-bars') ||
+            e.target.closest('.MuiChip-root') ||
+            e.target.closest('.view-on-github-link') ||
+            e.target.closest('.download-link');
 
         if (target) {
             hoveredElement.current = target;

@@ -450,21 +450,21 @@ const StorePage = () => {
                         ))}
                         <Box sx={{
                             position: 'absolute',
-                            bottom: '20px',
+                            bottom: '16px',
                             left: '50%',
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             gap: '8px',
                             zIndex: 2
-                        }}>
+                        }} className="featured-progress-bars">
                             {featuredGames.map((_, index) => (
                                 <Box
                                     key={index}
                                     sx={{
                                         width: '40px',
-                                        height: '4px',
+                                        height: '6px',
                                         backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                        borderRadius: '4px',
+                                        borderRadius: '2px',
                                         cursor: 'pointer',
                                         position: 'relative',
                                         overflow: 'hidden',

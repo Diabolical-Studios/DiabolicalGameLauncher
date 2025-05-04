@@ -176,15 +176,13 @@ const ChangelogPage = () => {
                                     href={release.html_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    className="view-on-github-link"
                                     sx={{
-                                        color: colors.button,
+                                        color: colors.text,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '4px',
                                         textDecoration: 'none',
-                                        '&:hover': {
-                                            color: colors.buttonHover,
-                                        }
                                     }}
                                 >
                                     <GitHubIcon/> View on GitHub
@@ -238,23 +236,21 @@ const ChangelogPage = () => {
                             )}
 
                             {release.assets.length > 0 && (
-                                <Box mt={2}>
-                                    <Typography variant="h6"
-                                                sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
-                                        <DownloadIcon/> Downloads
-                                    </Typography>
+                                <Box display="flex" flexDirection="column" gap={1}>
                                     {release.assets.map(asset => (
                                         <Link
                                             key={asset.id}
+                                            className="download-link"
                                             href={asset.browser_download_url}
                                             sx={{
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '8px',
-                                                color: colors.button,
+                                                color: colors.text,
                                                 textDecoration: 'none',
+                                                width: 'fit-content',
                                                 '&:hover': {
-                                                    color: colors.buttonHover,
+                                                    color: colors.text,
                                                 }
                                             }}
                                         >
