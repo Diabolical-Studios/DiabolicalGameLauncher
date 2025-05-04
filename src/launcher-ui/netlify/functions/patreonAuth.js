@@ -82,7 +82,7 @@ exports.handler = async function(event, context) {
       user_id: userInfo.user_id,
       status: isPatron ? 'active' : 'inactive',
       external_subscription_id: 'patreon',
-      updated_at: new Date().toISOString()
+      //updated_at: new Date().toISOString()
     };
 
     // Update subscription status
