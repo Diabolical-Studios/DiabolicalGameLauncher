@@ -794,7 +794,7 @@ const CreateGameDialog = ({open, handleClose, onSave, teams}) => {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             borderRadius: "4px",
-                                            border: `4px dashed ${colors.border}`,
+                                            border: `2px dashed ${colors.border}`,
                                             backgroundColor: colors.background,
                                             cursor: "pointer",
                                             transition: "all 0.2s ease",

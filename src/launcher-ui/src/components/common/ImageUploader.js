@@ -75,7 +75,7 @@ const ImageUploader = ({onUpload, currentImageUrl, uploading, setUploading}) => 
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: "4px",
-                border: `4px dashed ${isDragging ? colors.button : colors.border}`,
+                border: `2px dashed ${isDragging ? colors.button : colors.border}`,
                 backgroundColor: isDragging ? `${colors.button}20` : colors.background,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
