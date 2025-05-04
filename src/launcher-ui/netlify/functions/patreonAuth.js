@@ -1,18 +1,20 @@
-// netlify/functions/patreonAuth.js
 exports.handler = async function(event, context) {
   console.log("=== Patreon Auth Function Started ===");
 
   const code = event.queryStringParameters?.code;
-  const source = event.queryStringParameters?.state || "web";
 
-  // Get session ID from cookies
-  const cookies = event.headers.cookie?.split(';').reduce((acc, cookie) => {
-    const [key, value] = cookie.trim().split('=');
-    acc[key] = value;
-    return acc;
-  }, {});
-
-  const sessionId = cookies?.sessionID;
+  // Parse state for source and sessionID
+  let source = "web";
+  let sessionId = undefined;
+  try {
+    if (event.queryStringParameters?.state) {
+      const stateObj = JSON.parse(decodeURIComponent(event.queryStringParameters.state));
+      source = stateObj.source || "web";
+      sessionId = stateObj.sessionID;
+    }
+  } catch (e) {
+    source = event.queryStringParameters?.state || "web";
+  }
 
   if (!code) {
     return {
@@ -24,7 +26,7 @@ exports.handler = async function(event, context) {
   if (!sessionId) {
     return {
       statusCode: 400,
-      body: 'Missing session_id in cookies'
+      body: 'Missing sessionID in state'
     };
   }
 
