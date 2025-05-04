@@ -110,7 +110,6 @@ exports.handler = async function (event) {
   console.log("Membership parsed:", {
     isPatron,
     planId,
-    startedAt,
     renewedAt,
     endsAt,
     externalSubId,
