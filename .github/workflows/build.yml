@@ -148,7 +148,7 @@ jobs:
           subject-name: ${{ env.INSTALLER }}
 
       # --------------------------------------------------------------
-      # 🚀 Create GitHub Release (pre-release for dev, full for prod)
+      # 🚀 Create GitHub Release (pre-release for dev, full for prod) 
       # --------------------------------------------------------------
       - name: 🚀 Publish GitHub Release
         if: env.IS_DEV || env.IS_PROD
