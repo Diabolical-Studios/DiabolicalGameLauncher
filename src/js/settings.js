@@ -18,7 +18,8 @@ const defaultSettings = {
     launchOnStartup: false,
     downloadPath: "",
     maxConcurrentDownloads: 3,
-    cacheSize: "5GB"
+    cacheSize: "5GB",
+    customCursor: false,
 };
 
 //Create or use the save file logic

@@ -18,6 +18,8 @@ import {createTheme, ThemeProvider, CssBaseline, GlobalStyles} from "@mui/materi
 import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
 import CustomCursor from './components/common/CustomCursor';
+import {FormControlLabel, Switch} from "@mui/material";
+import {colors} from "./theme/colors";
 
 const App = () => {
     const [muiTheme] = useState(
@@ -69,14 +71,49 @@ const App = () => {
         })
     );
 
+    const [settings, setSettings] = useState({
+        windowSize: "1280x720",
+        language: "en",
+        autoUpdate: true,
+        notifications: true,
+        minimizeToTray: true,
+        launchOnStartup: false,
+        downloadPath: "",
+        maxConcurrentDownloads: 3,
+        cacheSize: "5GB",
+        customCursor: false,
+    });
+
     useEffect(() => {
         // Load initial theme from settings
         if (window.electronAPI) {
-            window.electronAPI.getSettings().then((settings) => {
+            window.electronAPI.getSettings().then((savedSettings) => {
+                setSettings(savedSettings);
                 applyColorsToCSS();
+            });
+
+            // Listen for settings updates
+            window.electronAPI.onSettingsUpdated((updatedSettings) => {
+                setSettings(updatedSettings);
             });
         }
     }, []);
+
+    // Apply cursor setting changes immediately
+    useEffect(() => {
+        document.body.style.cursor = settings.customCursor ? 'none' : 'auto';
+        const interactiveElements = document.querySelectorAll('a, button, [role="button"], input, select, textarea');
+        interactiveElements.forEach(el => {
+            el.style.cursor = settings.customCursor ? 'none' : 'auto';
+        });
+    }, [settings.customCursor]);
+
+    const handleSettingChange = (key, value) => {
+        setSettings((prevSettings) => ({
+            ...prevSettings,
+            [key]: value,
+        }));
+    };
 
     return (
         <ThemeProvider theme={muiTheme}>
@@ -84,14 +121,14 @@ const App = () => {
             <GlobalStyles
                 styles={{
                     '*': {
-                        cursor: 'none !important',
+                        cursor: settings.customCursor ? 'none !important' : 'auto',
                     },
                     'a, button, [role="button"], input, select, textarea': {
-                        cursor: 'none !important',
+                        cursor: settings.customCursor ? 'none !important' : 'auto',
                     },
                 }}
             />
-            <CustomCursor />
+            {settings.customCursor && <CustomCursor />}
             <Router>
                 <AppLayout>
                     <BackgroundAnimation/>

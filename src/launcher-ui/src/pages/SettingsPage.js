@@ -34,6 +34,7 @@ const SettingsPage = () => {
         downloadPath: "",
         maxConcurrentDownloads: 3,
         cacheSize: "5GB",
+        customCursor: false,
     });
 
     const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -236,6 +237,38 @@ const SettingsPage = () => {
                                 />
                             }
                             label="Launch on system startup"
+                            sx={{color: colors.text}}
+                        />
+                        <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
+                            control={
+                                <Switch
+                                    checked={settings.customCursor}
+                                    onChange={(e) => {
+                                        const newValue = e.target.checked;
+                                        // Update local state immediately
+                                        setSettings(prev => ({...prev, customCursor: newValue}));
+                                        // Apply cursor change immediately
+                                        document.body.style.cursor = newValue ? 'none' : 'auto';
+                                        const interactiveElements = document.querySelectorAll('a, button, [role="button"], input, select, textarea');
+                                        interactiveElements.forEach(el => {
+                                            el.style.cursor = newValue ? 'none' : 'auto';
+                                        });
+                                        // Update settings in main process
+                                        if (window.electronAPI?.updateSettings) {
+                                            window.electronAPI.updateSettings({customCursor: newValue});
+                                        }
+                                    }}
+                                    sx={{
+                                        "& .MuiSwitch-thumb": {
+                                            backgroundColor: colors.button,
+                                        },
+                                        "& .MuiSwitch-track": {
+                                            backgroundColor: colors.border,
+                                        },
+                                    }}
+                                />
+                            }
+                            label="Enable custom cursor"
                             sx={{color: colors.text}}
                         />
                     </Stack>
