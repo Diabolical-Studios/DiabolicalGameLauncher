@@ -3,6 +3,7 @@ const fs = require("fs");
 const {app, ipcMain, BrowserWindow} = require("electron");
 const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
+const { autoUpdater } = require("electron-updater");
 
 const {downloadGame} = require("./downloadManager");
 const {
@@ -185,6 +186,9 @@ function initIPCHandlers() {
     ipcMain.on("check-for-updates", () => {
         require("./updater").checkForUpdates();
     });
+    ipcMain.on("download-update", () => {
+        require("./updater").downloadUpdate();
+    });
     ipcMain.handle("get-settings", () => {
         const settings = loadSettings();
         return {
@@ -222,6 +226,25 @@ function initIPCHandlers() {
         });
 
         saveSettings(updatedSettings);
+
+        // Handle launch on startup
+        if (typeof updatedSettings.launchOnStartup !== "undefined") {
+            app.setLoginItemSettings({
+                openAtLogin: !!updatedSettings.launchOnStartup,
+                path: process.execPath,
+            });
+        }
+
+        // Handle auto update
+        if (typeof updatedSettings.autoUpdate !== "undefined") {
+            if (updatedSettings.autoUpdate) {
+                // Optionally, check for updates now or set a flag for your updater logic
+                autoUpdater.checkForUpdates();
+            }
+            // If false, you may want to stop any auto update polling/logic
+            // (No-op here, but you could add logic in updater.js if you have polling)
+        }
+
         return updatedSettings;
     });
     ipcMain.handle("get-window-size", () => {

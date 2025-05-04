@@ -14,6 +14,7 @@ import {
 import {styled} from "@mui/material/styles";
 import {colors} from "../theme/colors";
 import "./../settings.css";
+import ImageButton from "../components/button/ImageButton";
 
 const StyledSettingsSection = styled(Stack)(({theme}) => ({
     backgroundColor: colors.background,
@@ -36,8 +37,11 @@ const SettingsPage = () => {
         cacheSize: "5GB",
     });
 
+    const [updateAvailable, setUpdateAvailable] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(null);
+
     useEffect(() => {
-        if (window.api) {
+        if (window.electronAPI) {
             window.electronAPI.getSettings().then((savedSettings) => {
                 setSettings(prev => ({...prev, ...savedSettings}));
             });
@@ -47,6 +51,20 @@ const SettingsPage = () => {
                     ...prev,
                     windowSize: `${width}x${height}`
                 }));
+            });
+
+            // Listen for update events
+            window.electronAPI.onUpdateAvailable(() => {
+                setUpdateAvailable(true);
+            });
+
+            window.electronAPI.onUpdateNotAvailable(() => {
+                setUpdateAvailable(false);
+            });
+
+            // Listen for download progress
+            window.electronAPI.onDownloadProgress(({ percentage }) => {
+                setDownloadProgress(percentage);
             });
         }
     }, []);
@@ -79,6 +97,23 @@ const SettingsPage = () => {
             }
         }}>
             <Stack spacing={2} sx={{width: '100%', maxWidth: '100%'}}>
+                {/* Check for Updates Section */}
+                <StyledSettingsSection>
+                    <Typography variant="h6" sx={{color: colors.text}}>Launcher Updates</Typography>
+                    <ImageButton
+                        text={downloadProgress !== null ? `Downloading... ${downloadProgress}%` : (updateAvailable ? "Download Update" : "Check for Updates")}
+                        icon={require("@mui/icons-material/Update").default}
+                        onClick={() => {
+                            if (updateAvailable) {
+                                window.electronAPI?.downloadUpdate();
+                            } else {
+                                window.electronAPI?.checkForUpdates();
+                            }
+                        }}
+                        style={{width: 'fit-content',}}
+                    />
+                </StyledSettingsSection>
+
                 {/* Display Settings */}
                 <StyledSettingsSection>
                     <Typography variant="h6" sx={{color: colors.text}}>Display Settings</Typography>
@@ -116,7 +151,12 @@ const SettingsPage = () => {
                             control={
                                 <Switch
                                     checked={settings.autoUpdate}
-                                    onChange={(e) => handleSettingChange("autoUpdate", e.target.checked)}
+                                    onChange={(e) => {
+                                        handleSettingChange("autoUpdate", e.target.checked);
+                                        if (window.electronAPI?.updateSettings) {
+                                            window.electronAPI.updateSettings({autoUpdate: e.target.checked});
+                                        }
+                                    }}
                                     sx={{
                                         "& .MuiSwitch-thumb": {
                                             backgroundColor: colors.button,
@@ -134,7 +174,12 @@ const SettingsPage = () => {
                             control={
                                 <Switch
                                     checked={settings.notifications}
-                                    onChange={(e) => handleSettingChange("notifications", e.target.checked)}
+                                    onChange={(e) => {
+                                        handleSettingChange("notifications", e.target.checked);
+                                        if (window.electronAPI?.updateSettings) {
+                                            window.electronAPI.updateSettings({notifications: e.target.checked});
+                                        }
+                                    }}
                                     sx={{
                                         "& .MuiSwitch-thumb": {
                                             backgroundColor: colors.button,
@@ -152,7 +197,12 @@ const SettingsPage = () => {
                             control={
                                 <Switch
                                     checked={settings.minimizeToTray}
-                                    onChange={(e) => handleSettingChange("minimizeToTray", e.target.checked)}
+                                    onChange={(e) => {
+                                        handleSettingChange("minimizeToTray", e.target.checked);
+                                        if (window.electronAPI?.updateSettings) {
+                                            window.electronAPI.updateSettings({minimizeToTray: e.target.checked});
+                                        }
+                                    }}
                                     sx={{
                                         "& .MuiSwitch-thumb": {
                                             backgroundColor: colors.button,
@@ -170,7 +220,12 @@ const SettingsPage = () => {
                             control={
                                 <Switch
                                     checked={settings.launchOnStartup}
-                                    onChange={(e) => handleSettingChange("launchOnStartup", e.target.checked)}
+                                    onChange={(e) => {
+                                        handleSettingChange("launchOnStartup", e.target.checked);
+                                        if (window.electronAPI?.updateSettings) {
+                                            window.electronAPI.updateSettings({launchOnStartup: e.target.checked});
+                                        }
+                                    }}
                                     sx={{
                                         "& .MuiSwitch-thumb": {
                                             backgroundColor: colors.button,

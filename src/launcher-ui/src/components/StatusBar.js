@@ -5,7 +5,7 @@ import {Box, Stack, Tooltip, Zoom} from "@mui/material";
 
 const StatusBar = () => {
     const [appVersion, setAppVersion] = useState("");
-    const [message, setMessage] = useState("Status message...");
+    const [message, setMessage] = useState("Diabolical Launcher");
 
     const [statuses, setStatuses] = useState({
         diabolicalOracleBucket: "gray",

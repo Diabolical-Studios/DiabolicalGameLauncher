@@ -12,22 +12,34 @@ const versionDirectory = path.join(os.homedir(), "AppData", "Local", "Diabolical
 
 //Launcher auto update logic
 function initUpdater() {
+    const settings = require('./settings').loadSettings(); // Load settings
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
 
     autoUpdater.on("update-available", (info) => {
-        showMessage(`Launcher update available. Download Started...`);
-        showCustomNotification(mainWindow, "Launcher Update", "Download started.", "launcher");
-        autoUpdater.downloadUpdate();
+        if (settings.autoUpdate) { // Check settings before updating
+            showMessage(`Launcher update available. Download Started...`);
+            showCustomNotification(mainWindow, "Launcher Update", "Download started.", "launcher");
+            autoUpdater.downloadUpdate();
+        } else {
+            showMessage(`Diabolical Launcher`);
+            showCustomNotification(mainWindow, "Launcher Update", "Launcher update available but auto-update is disabled in settings.", "launcher");
+        }
     });
 
     autoUpdater.on("update-not-available", (info) => {
         showMessage(`Diabolical Launcher`);
+        showCustomNotification(mainWindow, "Launcher Update", "No updates available.", "launcher");
     });
 
     autoUpdater.on("update-downloaded", (info) => {
-        showMessage(`Launcher update downloaded. Restarting...`);
-        autoUpdater.quitAndInstall();
+        if (settings.autoUpdate) { // Check settings before installing
+            showMessage(`Launcher update downloaded. Restarting...`);
+            autoUpdater.quitAndInstall();
+        } else {
+            showMessage(`Update downloaded! Restart to install.`);
+            showCustomNotification(mainWindow, "Launcher Update", "Launcher update downloaded but auto-install is disabled in settings.", "launcher");
+        }
     });
 
     autoUpdater.on("error", (info) => {
@@ -37,6 +49,12 @@ function initUpdater() {
 
 function checkForUpdates() {
     autoUpdater.checkForUpdates();
+    showMessage("Checking For Updates... ");
+}
+
+function downloadUpdate() {
+    autoUpdater.downloadUpdate();
+    showMessage("Downloading Update... ");
 }
 
 //Show the toaster so the user can download the update for the game
@@ -113,5 +131,5 @@ function startPeriodicChecks(window, interval = 60000) {
 }
 
 module.exports = {
-    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion, getCurrentGameVersion
+    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion, getCurrentGameVersion, downloadUpdate
 };

@@ -75,7 +75,8 @@ const CustomCursor = () => {
             e.target.closest('.featured-progress-bars') ||
             e.target.closest('.MuiChip-root') ||
             e.target.closest('.view-on-github-link') ||
-            e.target.closest('.download-link');
+            e.target.closest('.download-link') ||
+            e.target.closest('.MuiSwitch-root');
 
         if (target) {
             hoveredElement.current = target;

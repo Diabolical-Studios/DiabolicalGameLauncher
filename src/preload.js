@@ -94,6 +94,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
             callback(action, data);
         });
     },
+    checkForUpdates: () => ipcRenderer.send("check-for-updates"),
+    downloadUpdate: () => ipcRenderer.send("download-update"),
+    onUpdateAvailable: (callback) => ipcRenderer.on("update-available", callback),
+    onUpdateNotAvailable: (callback) => ipcRenderer.on("update-not-available", callback),
 });
 
 contextBridge.exposeInMainWorld("githubAPI", {
