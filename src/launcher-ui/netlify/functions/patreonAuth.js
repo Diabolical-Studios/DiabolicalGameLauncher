@@ -81,7 +81,6 @@ exports.handler = async function(event, context) {
     const subscriptionData = {
       user_id: userInfo.user_id,
       status: isPatron ? 'active' : 'inactive',
-      provider: 'patreon',
       updated_at: new Date().toISOString()
     };
 
