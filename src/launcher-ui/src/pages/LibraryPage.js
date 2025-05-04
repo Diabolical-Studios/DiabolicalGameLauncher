@@ -476,15 +476,13 @@ const LibraryPage = () => {
             <Box sx={{flex: 1, display: "flex", flexDirection: "column", gap: 2}}>
                 {selectedGame ? (
                     <>
-                        {/* Game Banner */}
-                        <Paper
-                            elevation={0}
+                        {/* Game Banner with Overlay Content */}
+                        <Box
                             sx={{
                                 height: 300,
-                                bgcolor: 'rgba(0, 0, 0, 0.2)',
-                                border: `1px solid ${colors.border}`,
                                 position: 'relative',
                                 overflow: 'hidden',
+                                borderRadius: '4px',
                             }}
                         >
                             <Box
@@ -495,7 +493,6 @@ const LibraryPage = () => {
                                     width: '100%',
                                     height: '100%',
                                     objectFit: 'cover',
-                                    opacity: 0.4,
                                 }}
                             />
                             <Box
@@ -504,120 +501,154 @@ const LibraryPage = () => {
                                     bottom: 0,
                                     left: 0,
                                     right: 0,
-                                    p: 3,
-                                    bgcolor: 'rgba(0, 0, 0, 0.6)',
+                                    p: 4,
+                                    background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0) 100%)',
                                 }}
                             >
-                                <Typography variant="h4" sx={{color: colors.text, mb: 1}}>
+                                <Typography variant="h4" sx={{color: colors.text, mb: 2, fontWeight: 600}}>
                                     {selectedGame.game_name || selectedGame.game_id}
                                 </Typography>
                                 <Stack direction="row" spacing={2} alignItems="center">
                                     <Chip
                                         label={`Version ${currentVersion || "Not Installed"}`}
                                         size="small"
-                                        sx={{bgcolor: 'rgba(255, 255, 255, 0.1)', color: colors.text}}
+                                        sx={{
+                                            bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                            color: colors.text,
+                                            backdropFilter: 'blur(12px)',
+                                            padding: "16px 12px",
+                                            borderRadius: "4px",
+                                            filter: "hue-rotate(180deg)",
+                                        }}
                                     />
                                     {hasUpdate && (
                                         <Chip
                                             label={`Update to v${latestVersion}`}
                                             size="small"
                                             color="primary"
-                                            sx={{color: colors.text}}
+                                            sx={{
+                                                color: colors.text,
+                                                backdropFilter: 'blur(10px)',
+                                            }}
                                         />
                                     )}
                                 </Stack>
                             </Box>
-                        </Paper>
+                        </Box>
 
                         {/* Game Info and Actions */}
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={4}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
-                                        border: `1px solid ${colors.border}`,
-                                    }}
-                                >
-                                    <Stack spacing={2}>
-                                        <ImageButton
-                                            text={isDownloading ? "Downloading" :
-                                                applyingUpdate[selectedGame?.game_id] ? "Applying Update..." :
-                                                    hasUpdate ? "Update" :
-                                                        isGameRunning ? "Stop" :
-                                                            "Play"}
-                                            icon={isDownloading ? DownloadIcon :
-                                                applyingUpdate[selectedGame?.game_id] ? UpdateIcon :
-                                                    hasUpdate ? UpdateIcon :
-                                                        isGameRunning ? StopIcon :
-                                                            PlayArrowIcon}
-                                            onClick={() => {
-                                                if (isDownloading || applyingUpdate[selectedGame?.game_id]) return;
-                                                if (hasUpdate) {
-                                                    window.electronAPI.downloadGame(selectedGame.game_id);
-                                                } else if (isGameRunning) {
-                                                    window.electronAPI.stopGame(selectedGame.game_id);
-                                                } else {
-                                                    window.electronAPI.openGame(selectedGame.game_id);
-                                                }
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            {/* Top Row: Play Button and Stats */}
+                            <Box sx={{ 
+                                display: 'flex', 
+                                gap: 3,
+                                width: '100%',
+                                justifyContent: 'space-between',
+                            }}>
+                                {/* Play Button */}
+                                <Box sx={{ width: '220px' }}>
+                                    <ImageButton
+                                        text={isDownloading ? "Downloading" :
+                                            applyingUpdate[selectedGame?.game_id] ? "Patching..." :
+                                                hasUpdate ? "Update" :
+                                                    isGameRunning ? "Stop" :
+                                                        "Play"}
+                                        icon={isDownloading ? DownloadIcon :
+                                            applyingUpdate[selectedGame?.game_id] ? UpdateIcon :
+                                                hasUpdate ? UpdateIcon :
+                                                    isGameRunning ? StopIcon :
+                                                        PlayArrowIcon}
+                                        onClick={() => {
+                                            if (isDownloading || applyingUpdate[selectedGame?.game_id]) return;
+                                            if (hasUpdate) {
+                                                window.electronAPI.downloadGame(selectedGame.game_id);
+                                            } else if (isGameRunning) {
+                                                window.electronAPI.stopGame(selectedGame.game_id);
+                                            } else {
+                                                window.electronAPI.openGame(selectedGame.game_id);
+                                            }
+                                        }}
+                                        style={{width: "100%", height: "100%", padding: "12px 24px"}}
+                                        fontSize="16px"
+                                        iconSize="28px"
+                                        disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
+                                    />
+                                    {isDownloading && (
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={downloadingGame.percent}
+                                            sx={{
+                                                height: 8,
+                                                borderRadius: 4,
+                                                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                                mt: 2,
+                                                '& .MuiLinearProgress-bar': {
+                                                    bgcolor: colors.button,
+                                                },
                                             }}
-                                            style={{width: "100%"}}
-                                            disabled={isDownloading || applyingUpdate[selectedGame?.game_id]}
                                         />
-                                        {isDownloading && (
-                                            <LinearProgress
-                                                variant="determinate"
-                                                value={downloadingGame.percent}
-                                                sx={{
-                                                    height: 8,
-                                                    borderRadius: 4,
-                                                    bgcolor: 'rgba(255, 255, 255, 0.1)',
-                                                    '& .MuiLinearProgress-bar': {
-                                                        bgcolor: colors.button,
-                                                    },
-                                                }}
-                                            />
-                                        )}
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                            <AccessTimeIcon sx={{color: colors.text, opacity: 0.7}}/>
-                                            <Typography variant="body2" sx={{color: colors.text}}>
+                                    )}
+                                </Box>
+
+                                {/* Stats */}
+                                <Box sx={{ 
+                                    flex: 1,
+                                    display: 'flex',
+                                    justifyContent: 'space-evenly',
+                                    p: 0,
+                                    bgcolor: 'rgba(0, 0, 0, 0)',
+                                    borderRadius: '8px',
+                                }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <AccessTimeIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                        <Box>
+                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                                Play Time
+                                            </Typography>
+                                            <Typography variant="body1" sx={{color: colors.text}}>
                                                 {playTime}
                                             </Typography>
-                                        </Stack>
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                            <EmojiEventsIcon sx={{color: colors.text, opacity: 0.7}}/>
-                                            <Typography variant="body2" sx={{color: colors.text}}>
-                                                {achievements.completed}/{achievements.total} Achievements
+                                        </Box>
+                                    </Stack>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <EmojiEventsIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                        <Box>
+                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                                Achievements
                                             </Typography>
-                                        </Stack>
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                            <StorageIcon sx={{color: colors.text, opacity: 0.7}}/>
-                                            <Typography variant="body2" sx={{color: colors.text}}>
+                                            <Typography variant="body1" sx={{color: colors.text}}>
+                                                {achievements.completed}/{achievements.total}
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <StorageIcon sx={{color: colors.text, opacity: 0.7}}/>
+                                        <Box>
+                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                                Size
+                                            </Typography>
+                                            <Typography variant="body1" sx={{color: colors.text}}>
                                                 {diskUsage}
                                             </Typography>
-                                        </Stack>
+                                        </Box>
                                     </Stack>
-                                </Paper>
-                            </Grid>
-                            <Grid item xs={12} md={8}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        bgcolor: 'rgba(0, 0, 0, 0.2)',
-                                        border: `1px solid ${colors.border}`,
-                                    }}
-                                >
-                                    <Typography variant="h6" sx={{color: colors.text, mb: 2}}>
-                                        About
-                                    </Typography>
-                                    <Typography variant="body1" sx={{color: colors.text, opacity: 0.8}}>
-                                        {selectedGame.description || "No description available"}
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                        </Grid>
+                                </Box>
+                            </Box>
+
+                            {/* Description */}
+                            <Box sx={{ 
+                                p: 3, 
+                                bgcolor: 'rgba(0, 0, 0, 0.2)', 
+                                borderRadius: '8px',
+                            }}>
+                                <Typography variant="h6" sx={{color: colors.text, mb: 2, fontWeight: 500}}>
+                                    About
+                                </Typography>
+                                <Typography variant="body1" sx={{color: colors.text, opacity: 0.8, lineHeight: 1.6}}>
+                                    {selectedGame.description || "No description available"}
+                                </Typography>
+                            </Box>
+                        </Box>
                     </>
                 ) : (
                     <Box
