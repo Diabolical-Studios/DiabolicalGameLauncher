@@ -106,7 +106,7 @@ jobs:
           if [[ "${{ env.IS_DEV }}" == "true" ]]; then
             npm run build:dev
           else
-            npm run dist
+            npm run build
           fi
 
       # --------------------------------------------------------------
