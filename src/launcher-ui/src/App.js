@@ -18,8 +18,6 @@ import {createTheme, ThemeProvider, CssBaseline, GlobalStyles} from "@mui/materi
 import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
 import CustomCursor from './components/common/CustomCursor';
-import {FormControlLabel, Switch} from "@mui/material";
-import {colors} from "./theme/colors";
 
 const App = () => {
     const [muiTheme] = useState(
@@ -107,13 +105,6 @@ const App = () => {
             el.style.cursor = settings.customCursor ? 'none' : 'auto';
         });
     }, [settings.customCursor]);
-
-    const handleSettingChange = (key, value) => {
-        setSettings((prevSettings) => ({
-            ...prevSettings,
-            [key]: value,
-        }));
-    };
 
     return (
         <ThemeProvider theme={muiTheme}>

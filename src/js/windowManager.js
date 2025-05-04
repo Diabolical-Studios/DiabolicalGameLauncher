@@ -95,7 +95,7 @@ async function createWindow() {
         transparent: true,
         alwaysOnTop: true,
         center: true,
-        icon: iconPath,
+        icon: getIconPath() || undefined,
         webPreferences: {nodeIntegration: true, contextIsolation: false},
     });
     await splash.loadFile(path.join(__dirname, "../splash.html"));
@@ -104,7 +104,7 @@ async function createWindow() {
         width: settings.windowSize.width,
         height: settings.windowSize.height,
         frame: false,
-        icon: iconPath,
+        icon: getIconPath() || undefined,
         backgroundColor: "#000000",
         webPreferences: {
             contextIsolation: true,
