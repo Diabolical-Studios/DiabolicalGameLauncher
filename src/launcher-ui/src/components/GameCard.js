@@ -11,6 +11,7 @@ const GameCard = ({
     const [localVersion, setLocalVersion] = React.useState(null);
 
     React.useEffect(() => {
+        //Download progress
         const handleDownloadProgress = (progressData) => {
             if (progressData.gameId === game.game_id) {
                 setDownloadProgress(`${Math.round(progressData.percentage * 100)}%`);
