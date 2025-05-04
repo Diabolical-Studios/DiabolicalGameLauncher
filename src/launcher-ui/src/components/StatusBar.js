@@ -18,7 +18,7 @@ const StatusBar = () => {
     useEffect(() => {
         if (window.versions) {
             window.versions.getAppVersion().then((version) => {
-                setAppVersion(`v${version}`);
+                setAppVersion(`dev${version}`);
             });
         }
 

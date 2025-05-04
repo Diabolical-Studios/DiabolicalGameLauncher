@@ -78,6 +78,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     //Window
     closeWindow: () => ipcRenderer.send("close-window"),
     reloadWindow: () => ipcRenderer.send("reload-window"),
+    minimizeWindow: () => ipcRenderer.send("minimize-window"),
     getWindowSize: () => ipcRenderer.invoke("get-window-size"),
     setWindowSize: (width, height) => {
         ipcRenderer.send("set-window-size-and-center", width, height);
