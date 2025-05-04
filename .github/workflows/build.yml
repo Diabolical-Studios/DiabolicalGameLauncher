@@ -1,4 +1,4 @@
-name: Build and Release with Auto Versioning!
+name: Build and Release with Auto Versioning
 
 on:
   push:
@@ -79,8 +79,9 @@ jobs:
       # ----------------------------------------------------------
       # 📝 Bump package.json version & push
       # ----------------------------------------------------------
-      - name: Update package.json version
-        env: { GH_TOKEN: ${ { secrets.GH_TOKEN } } }
+      - name: 📝 Update package.json version
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         shell: bash
         run: |
           npm version ${{ steps.version.outputs.NEW_VERSION }} --no-git-tag-version
@@ -107,7 +108,7 @@ jobs:
       # ----------------------------------------------------------
       - name: 📄 Create latest.yml
         shell: bash
-        run:
+        run: |
           echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > latest.yml
       
       # ----------------------------------------------------------
