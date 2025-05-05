@@ -1,4 +1,5 @@
-const {app} = require("electron");
+const {app, Menu} = require("electron");
+Menu.setApplicationMenu(null)
 const {createWindow} = require("./js/windowManager");
 const {initSettings} = require("./js/settings");
 const {initIPCHandlers} = require("./js/ipcHandlers");
