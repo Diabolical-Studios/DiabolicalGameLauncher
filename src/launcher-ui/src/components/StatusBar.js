@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import OpenExternalLink from "./link/OpenExternalLink";
 import { colors } from "../theme/colors";
-import { Box, Stack, Tooltip, Zoom } from "@mui/material";
+import { Box, Stack, Tooltip, Zoom, Chip, Typography } from "@mui/material";
 
 const StatusBar = () => {
   const [appVersion, setAppVersion] = useState("");
@@ -20,7 +20,7 @@ const StatusBar = () => {
       window.versions.getAppVersion().then((version) => {
         // hostname will be…
         //   localhost:8888           ← npm start (live-reload dev)
-        //   dev.launcher…            ← packaged “dev” build
+        //   dev.launcher…            ← packaged "dev" build
         //   launcher…                ← packaged production build
         const host = window.location.hostname; // "localhost" | "dev.launcher.diabolical.studio" | "launcher.diabolical.studio"
         const isDev = host === "localhost" || host.startsWith("dev.");
@@ -102,13 +102,17 @@ const StatusBar = () => {
       }}
     >
       <div>
-        <OpenExternalLink url="https://github.com/Diabolical-Studios/DiabolicalGameLauncher/">
           <div
             className={
-              "hover-effect flex position-relative align-center items-center h-fit p-3 border rounded-sm gap-3 w-fit cursor-pointer backdrop-blur"
+              "hover-effect flex position-relative align-center items-center h-fit p-3 border rounded-sm gap-3 cursor-pointer backdrop-blur"
             }
             style={{
               borderColor: colors.border,
+              maxWidth: "800px",
+            }}
+            title={window.location.href}
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
             }}
           >
             <div
@@ -200,7 +204,6 @@ const StatusBar = () => {
               {appVersion}
             </span>
           </div>
-        </OpenExternalLink>
       </div>
     </Zoom>
   );

@@ -91,7 +91,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     },
 
     //API
-    openExternal: (url) => shell.openExternal(url),
+    openExternal: (url) => ipcRenderer.invoke("open-external-url", url),
     showCustomNotification: (title, body, gameId) => ipcRenderer.send("show-notification", {title, body, gameId}),
     onNotification: (callback) => {
         ipcRenderer.on("show-notification", (event, data) => callback(data));

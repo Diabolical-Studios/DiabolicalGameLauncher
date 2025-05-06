@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const {app, ipcMain, BrowserWindow} = require("electron");
+const {app, ipcMain, BrowserWindow, shell} = require("electron");
 const {exec, spawn} = require("child_process");
 const AdmZip = require("adm-zip");
 const { autoUpdater } = require("electron-updater");
@@ -338,6 +338,25 @@ function initIPCHandlers() {
         } catch (error) {
             console.error("❌ Error extracting logs:", error);
             return "Failed to retrieve logs.";
+        }
+    });
+
+    // Handle opening external URLs
+    ipcMain.handle("open-external-url", async (event, url) => {
+        try {
+            // Only allow http(s) URLs
+            const parsed = new URL(url);
+            if (!["http:", "https:"].includes(parsed.protocol)) {
+                throw new Error("Blocked non-http(s) protocol");
+            }
+            if (!["github.com", "patreon.com", "diabolical.studio", "diabolical.services"].some(domain => parsed.hostname.endsWith(domain))) {
+                 throw new Error("Blocked domain");
+             }
+            await shell.openExternal(url);
+            return true;
+        } catch (error) {
+            console.error("Error opening external URL:", error);
+            return false;
         }
     });
 }

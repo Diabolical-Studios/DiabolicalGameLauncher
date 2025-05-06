@@ -88,7 +88,7 @@ async function createWindow() {
         transparent: true,
         alwaysOnTop: true,
         center: true,
-        webPreferences: {nodeIntegration: true, contextIsolation: false},
+        webPreferences: {nodeIntegration: false, contextIsolation: true},
     });
     await splash.loadFile(path.join(__dirname, "../splash.html"));
 
@@ -100,12 +100,104 @@ async function createWindow() {
         backgroundColor: "#000000",
         webPreferences: {
             contextIsolation: true,
-            nodeIntegration: true,
+            nodeIntegration: false,
             enableRemoteModule: false,
             preload: path.join(__dirname, "../preload.js"),
+            sandbox: true,
+            webSecurity: true,
+            allowRunningInsecureContent: false,
+            webviewTag: false,
+            spellcheck: false,
+            plugins: false,
+            experimentalFeatures: false,
+            webgl: false,
+            backgroundThrottling: false,
+            devTools: process.env.NODE_ENV !== 'production',
+            baseUri: 'self',
+            formAction: 'self',
+            frameAncestors: 'none',
+            upgradeInsecureRequests: true
         },
         resizable: false,
         show: false,
+    });
+
+    // Set CSP headers
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                'Content-Security-Policy': [
+                    "default-src 'self' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com; " +
+                    "style-src 'self' 'unsafe-inline' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://fonts.googleapis.com; " +
+                    "font-src 'self' data: https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
+                    "img-src 'self' data: https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev; " +
+                    "connect-src 'self' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev; " +
+                    "object-src 'none'; " +
+                    "media-src 'self' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev; " +
+                    "frame-src 'none';"
+                ]
+            }
+        });
+    });
+
+    // Block navigation to unauthorized domains
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+        const parsedUrl = new URL(url);
+        const allowedDomains = [
+            'diabolical.studio',  // Allow root domain
+            'diabolical.services',  // Allow root domain
+            'github.com',
+            'githubusercontent.com',
+            'cloudflare.com',
+            'r2.dev',
+            'fonts.googleapis.com',
+            'fonts.gstatic.com',
+            'localhost',
+        ];
+        
+        const isAllowed = allowedDomains.some(domain => parsedUrl.hostname.endsWith(domain));
+        if (!isAllowed) {
+            event.preventDefault();
+            console.warn(`Blocked navigation to unauthorized domain: ${url}`);
+        }
+
+        // Prevent navigation to file:// URLs
+        if (url.startsWith('file://')) {
+            event.preventDefault();
+            console.warn('Blocked navigation to file:// URL');
+            return;
+        }
+        
+        // Prevent navigation to data: URLs
+        if (url.startsWith('data:')) {
+            event.preventDefault();
+            console.warn('Blocked navigation to data: URL');
+            return;
+        }
+    });
+
+    // Block new window creation to unauthorized domains
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        const parsedUrl = new URL(url);
+        const allowedDomains = [
+            'diabolical.studio',  // Allow root domain
+            'diabolical.services',  // Allow root domain
+            'github.com',
+            'githubusercontent.com',
+            'cloudflare.com',
+            'r2.dev',
+            'fonts.googleapis.com',
+            'fonts.gstatic.com'
+        ];
+        
+        const isAllowed = allowedDomains.some(domain => parsedUrl.hostname.endsWith(domain));
+        if (!isAllowed) {
+            console.warn(`Blocked new window to unauthorized domain: ${url}`);
+            return { action: 'deny' };
+        }
+        return { action: 'allow' };
     });
 
     mainWindow.loadURL(startURL);
@@ -132,6 +224,10 @@ async function createWindow() {
         if (!periodicChecksStarted) {
             startPeriodicChecks(mainWindow);
             periodicChecksStarted = true;
+        }
+
+        if (process.env.NODE_ENV !== 'production') {
+            mainWindow.webContents.openDevTools({ mode: 'detach' });
         }
     });
 
