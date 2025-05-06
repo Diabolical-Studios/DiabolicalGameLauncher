@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import OpenExternalLink from "./link/OpenExternalLink";
 import { colors } from "../theme/colors";
-import { Box, Stack, Tooltip, Zoom, Chip, Typography } from "@mui/material";
+import { Box, Stack, Tooltip, Zoom } from "@mui/material";
 
 const StatusBar = () => {
   const [appVersion, setAppVersion] = useState("");
