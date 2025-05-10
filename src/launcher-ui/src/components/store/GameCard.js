@@ -1,0 +1,185 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardMedia, Typography, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { colors } from '../../theme/colors';
+import ImageButton from '../button/ImageButton';
+import { VersionChip } from './VersionChip';
+
+const GameCard = styled(Card)(({ size = 'normal' }) => ({
+  position: 'relative',
+  height: size === 'large' ? '400px' : size === 'small' ? '190px' : '200px',
+  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  border: `1px solid ${colors.border}`,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  overflow: 'hidden',
+  transformOrigin: 'center center',
+  '&:hover': {
+    transform: 'scale(1.03)',
+    zIndex: 1,
+    boxShadow: '0 0 30px rgba(0, 0, 0, 0.5)',
+    '& .MuiCardMedia-root': {
+      transform: 'scale(1.05)',
+    },
+    '& .game-title': {
+      transition: 'all 0.2s ease-in-out',
+      transform: 'translateY(-46px)',
+    },
+    '& .add-library-button': {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
+}));
+
+const StyledCardMedia = styled(CardMedia)({
+  height: '100%',
+  transition: 'transform 0.4s ease-in-out',
+});
+
+const CardOverlay = styled(Box)({
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
+  padding: '16px',
+  transition: 'all 0.3s ease-in-out',
+  '.add-library-button': {
+    opacity: 0,
+    transform: 'translateY(20px)',
+    transition: 'all 0.2s ease-in-out',
+  },
+  '.MuiCard-root:hover & .add-library-button': {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
+});
+
+const GameTitle = styled(Typography)({
+  transition: 'transform 0.3s ease-in-out',
+  transform: 'translateY(0)',
+  lineHeight: '1',
+});
+
+export const GameCardComponent = ({
+  game,
+  size,
+  onPlay,
+  installedGames,
+  isRunning,
+  libraryGames,
+  onLibraryUpdate,
+}) => {
+  const navigate = useNavigate();
+  const [isAddingToLibrary, setIsAddingToLibrary] = useState(false);
+  const isInLibrary = libraryGames.includes(game.game_id);
+
+  if (!game) return null;
+
+  const handleButtonClick = async () => {
+    if (isRunning) {
+      window.electronAPI.stopGame(game.game_id);
+    } else if (isInLibrary) {
+      navigate('/library');
+    } else {
+      try {
+        setIsAddingToLibrary(true);
+        const sessionID = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+
+        if (!sessionID) {
+          throw new Error('No session ID found. Please log in to add games to your library.');
+        }
+
+        const response = await fetch('/add-to-library', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            SessionID: sessionID,
+          },
+          body: JSON.stringify({
+            game_id: game.game_id,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to add game to library');
+        }
+
+        if (window.electronAPI) {
+          window.electronAPI.showCustomNotification(
+            'Game Added',
+            'Game has been added to your library!'
+          );
+        }
+
+        onLibraryUpdate(prev => [...prev, game.game_id]);
+      } catch (err) {
+        console.error('Error adding game to library:', err);
+        if (window.electronAPI) {
+          window.electronAPI.showCustomNotification(
+            'Add to Library Failed',
+            err.message || 'Could not add game to library'
+          );
+        }
+      } finally {
+        setIsAddingToLibrary(false);
+      }
+    }
+  };
+
+  return (
+    <GameCard size={size}>
+      {game.version && <VersionChip label={`v${game.version}`} />}
+      <StyledCardMedia
+        component="img"
+        image={game.background_image_url || ''}
+        alt={game.game_name}
+      />
+      <CardOverlay>
+        <GameTitle
+          className="game-title"
+          variant="h6"
+          sx={{
+            color: colors.text,
+            textShadow: '0 4px 4px rgba(0,0,0,0.5)',
+            fontWeight: 600,
+          }}
+        >
+          {game.game_name}
+        </GameTitle>
+        <ImageButton
+          className="add-library-button"
+          text={
+            isRunning
+              ? 'Stop'
+              : isInLibrary
+                ? 'Go to Library'
+                : isAddingToLibrary
+                  ? 'Adding...'
+                  : 'Add to Library'
+          }
+          icon={
+            isRunning
+              ? require('@mui/icons-material/Stop').default
+              : isInLibrary
+                ? require('@mui/icons-material/LibraryBooks').default
+                : require('@mui/icons-material/Add').default
+          }
+          onClick={handleButtonClick}
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            left: '16px',
+            minWidth: '140px',
+            padding: '6px 16px',
+          }}
+        />
+      </CardOverlay>
+    </GameCard>
+  );
+};

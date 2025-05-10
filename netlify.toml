@@ -78,3 +78,15 @@ path = "/verify-session"
 [[edge_functions]]
 function = "get-all-games"
 path = "/get-all-games"
+
+[[edge_functions]]
+function = "add-to-library"
+path = "/add-to-library"
+
+[[edge_functions]]
+function = "remove-from-library"
+path = "/remove-from-library"
+
+[[edge_functions]]
+function = "get-library-games"
+path = "/get-library-games"
