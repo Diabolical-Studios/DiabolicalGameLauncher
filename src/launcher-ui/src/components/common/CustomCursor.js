@@ -97,7 +97,8 @@ const CustomCursor = () => {
           e.target.closest('.MuiChip-root') ||
           e.target.closest('.view-on-github-link') ||
           e.target.closest('.download-link') ||
-          e.target.closest('.settings-section-content');
+          e.target.closest('.settings-section-content') ||
+          e.target.closest('.MuiButtonBase-root');
 
     if (target) {
       hoveredElement.current = target;

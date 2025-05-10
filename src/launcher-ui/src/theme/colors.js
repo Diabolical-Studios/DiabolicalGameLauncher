@@ -11,6 +11,7 @@ const darkTheme = {
   buttonHover: '#1f1f1f',
   primaryHover: '#168110',
   transparent: 'transparent',
+  update: '#ff9800',
 };
 
 export const colors = darkTheme;
