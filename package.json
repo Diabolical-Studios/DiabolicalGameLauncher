@@ -7,8 +7,8 @@
   "scripts": {
     "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
     "start": "concurrently \"npm run dev-ui\" \"electron --trace-warnings .\"",
-    "build": "cross-env PUBLISH_CHANNEL=master electron-builder -c.extraMetadata.env.NODE_ENV=production",
-    "build:dev": "cross-env PUBLISH_CHANNEL=dev    electron-builder -c.extraMetadata.env.NODE_ENV=development",
+    "build": "cross-env PUBLISH_CHANNEL=latest electron-builder -c.extraMetadata.env.NODE_ENV=production",
+    "build:dev": "cross-env PUBLISH_CHANNEL=beta electron-builder -c.extraMetadata.env.NODE_ENV=development",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "jest",
@@ -20,7 +20,8 @@
   "publish": {
     "provider": "github",
     "releaseType": "release",
-    "channel": "${env.PUBLISH_CHANNEL}"
+    "channel": "${env.PUBLISH_CHANNEL}",
+    "generateUpdatesFilesForAllChannels": true
   },
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
