@@ -32,6 +32,10 @@ function = "get-user-games"
 path = "/get-user-games"
 
 [[edge_functions]]
+function = "get-team-games"
+path = "/get-team-games"
+
+[[edge_functions]]
 function = "get-user-teams"
 path = "/get-user-teams"
 
