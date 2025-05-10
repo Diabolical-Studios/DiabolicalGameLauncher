@@ -58,7 +58,7 @@ export const GameList = ({
       >
         {games.map(game => {
           const isInstalled = installedGameIds.includes(game.game_id);
-          const hasUpdate = gameUpdates[game.game_id];
+          const hasUpdate = gameUpdates[game.game_id] !== undefined;
           const isRunning = runningGames.includes(game.game_id);
 
           return (

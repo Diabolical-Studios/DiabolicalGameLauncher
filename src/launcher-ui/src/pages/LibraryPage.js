@@ -129,52 +129,61 @@ const LibraryPage = () => {
 
   useEffect(() => {
     const loadGames = async () => {
-      // 1. Load cached library games first for instant UI
+      // 1. Always display all library games from cache immediately
+      let cachedLibraryGames = [];
       if (window.electronAPI?.getCachedLibraryGames) {
         try {
-          const cached = await window.electronAPI.getCachedLibraryGames();
-          if (cached && cached.length > 0) {
-            setCachedGames(cached);
-          }
+          cachedLibraryGames = await window.electronAPI.getCachedLibraryGames();
+          setCachedGames(cachedLibraryGames);
         } catch (cacheErr) {
           console.error('Error loading cached library games:', cacheErr);
         }
       }
 
-      // 2. Then fetch from API and update
+      // 2. Get installed games and update installed status
+      let ids = [];
+      if (window.electronAPI && window.electronAPI.getInstalledGames) {
+        try {
+          ids = await window.electronAPI.getInstalledGames();
+        } catch (err) {
+          console.error('Error getting installed games:', err);
+        }
+      }
+      setInstalledGameIds(ids);
+
+      // 3. Fetch latest library games from API and update the library list
       try {
-        const ids = await window.electronAPI.getInstalledGames();
-        setInstalledGameIds(ids);
-
-        const response = await axios.get('/get-all-games');
-        const allGames = response.data;
-
-        // Only keep games in the user's library (installed/owned)
-        const libraryGames = allGames.filter(g => ids.includes(g.game_id));
+        const sessionID = Cookies.get('sessionID');
+        const response = await axios.get('/get-library-games', {
+          headers: {
+            sessionID: sessionID,
+          },
+        });
+        const libraryGames = response.data;
         setCachedGames(libraryGames);
-        window.electronAPI.cacheLibraryGamesLocally(libraryGames);
+        if (window.electronAPI && window.electronAPI.cacheLibraryGamesLocally) {
+          window.electronAPI.cacheLibraryGamesLocally(libraryGames);
+        }
 
+        // 4. Update info about updates for all library games
         const updates = {};
-        for (const id of ids) {
-          try {
-            const current = await window.electronAPI.getCurrentGameVersion(id);
-            const gameInfo = libraryGames.find(g => g.game_id === id);
-            if (gameInfo && gameInfo.version !== current) {
-              updates[id] = {
+        for (const game of libraryGames) {
+          let current = null;
+          if (ids.includes(game.game_id) && window.electronAPI) {
+            try {
+              current = await window.electronAPI.getCurrentGameVersion(game.game_id);
+            } catch (err) {
+              current = null;
+            }
+            if (current && game.version !== current) {
+              updates[game.game_id] = {
                 current,
-                latest: gameInfo.version,
+                latest: game.version,
               };
             }
-          } catch (err) {
-            console.error(`Error checking updates for game ${id}:`, err);
           }
         }
         setGameUpdates(updates);
-
-        if (ids.length > 0) {
-          const first = libraryGames.find(g => g.game_id === ids[0]) || { game_id: ids[0] };
-          setSelectedGame(first);
-        }
       } catch (err) {
         console.error('Error loading library:', err);
       }
@@ -376,7 +385,13 @@ const LibraryPage = () => {
           item
           xs={12}
           md={3}
-          sx={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}
+          sx={{
+            height: '100%',
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: `1px solid ${colors.border}`,
+          }}
         >
           <TextField
             value={searchQuery}

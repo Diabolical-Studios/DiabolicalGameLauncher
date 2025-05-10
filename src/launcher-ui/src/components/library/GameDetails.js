@@ -67,7 +67,7 @@ export const GameDetails = ({
     buttonIcon = UpdateIcon;
     buttonOnClick = onUpdate;
     buttonDisabled = true;
-  } else if (hasUpdate) {
+  } else if (hasUpdate && isInstalled) {
     buttonText = 'Update';
     buttonIcon = UpdateIcon;
     buttonOnClick = onUpdate;
@@ -84,7 +84,6 @@ export const GameDetails = ({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderLeft: `2px solid ${colors.border}`,
       }}
     >
       {/* Banner */}
@@ -176,13 +175,12 @@ export const GameDetails = ({
       </Box>
 
       {/* Scrollable Content: Description and Stats */}
-      <Box sx={{ p: 3, pt: 0, flex: 1, overflowY: 'auto' }}>
+      <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: 3 }}>
         {/* Game Description */}
         <Typography
           variant="body1"
           sx={{
             color: colors.text,
-            mb: 4,
             lineHeight: 1.6,
           }}
         >

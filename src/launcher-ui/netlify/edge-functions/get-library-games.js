@@ -23,14 +23,19 @@ export default async function (request, context) {
     headersObj[key.toLowerCase()] = value;
   }
 
-  const sessionID = headersObj['sessionid'];
+  // Try to get sessionID from headers or query string
+  let sessionID = headersObj['sessionid'];
+  if (!sessionID) {
+    const url = new URL(request.url);
+    sessionID = url.searchParams.get('sessionID') || url.searchParams.get('sessionid');
+  }
   console.log('Extracted sessionID:', sessionID);
 
   if (!sessionID) {
-    console.error('❌ No sessionID found in headers.');
+    console.error('❌ No sessionID found in headers or query.');
     return new Response(JSON.stringify({ error: 'Unauthorized: No valid session ID' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 
@@ -61,7 +66,7 @@ export default async function (request, context) {
       console.error('❌ API Error:', errorText);
       return new Response(JSON.stringify({ error: errorText }), {
         status: response.status,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }
 
@@ -70,13 +75,13 @@ export default async function (request, context) {
 
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   } catch (error) {
     console.error('❌ API Error:', error.message);
     return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 }
