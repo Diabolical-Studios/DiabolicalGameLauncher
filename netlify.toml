@@ -1,6 +1,6 @@
 [build]
 base = "src/launcher-ui"
-command = "npm run build"
+command = "CI=false npm run build"
 publish = "build"
 
 
