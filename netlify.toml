@@ -1,6 +1,6 @@
 [build]
 base = "src/launcher-ui"
-command = "npm run build"
+command = "CI=false npm run build"
 publish = "build"
 
 
@@ -30,6 +30,10 @@ path = "/fetch-games"
 [[edge_functions]]
 function = "get-user-games"
 path = "/get-user-games"
+
+[[edge_functions]]
+function = "get-team-games"
+path = "/get-team-games"
 
 [[edge_functions]]
 function = "get-user-teams"
@@ -74,3 +78,15 @@ path = "/verify-session"
 [[edge_functions]]
 function = "get-all-games"
 path = "/get-all-games"
+
+[[edge_functions]]
+function = "add-to-library"
+path = "/add-to-library"
+
+[[edge_functions]]
+function = "remove-from-library"
+path = "/remove-from-library"
+
+[[edge_functions]]
+function = "get-library-games"
+path = "/get-library-games"

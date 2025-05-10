@@ -6,18 +6,15 @@
     "import/no-unresolved": [
       2,
       {
-        "ignore": [
-          "electron"
-        ]
+        "ignore": ["electron"]
       }
     ],
     "linebreak-style": 0,
-    "spaced-comment": [
-      "error",
-      "always"
-    ],
+    "spaced-comment": ["error", "always"],
     "no-console": 0,
     "object-curly-newline": 0,
-    "object-curly-spacing": 0
+    "object-curly-spacing": 0,
+    "import/no-anonymous-default-export": 0,
+    "no-undef": 0
   }
 }

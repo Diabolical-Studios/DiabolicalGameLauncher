@@ -1,171 +1,176 @@
 .settingsButton {
-    animation: 1.5s ease infinite alternate running shimmer;
-    background-size: 200% 100%;
-    border: none;
-    border-radius: 4px;
-    color: #ffffff;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 670;
-    line-height: 24px;
-    white-space: nowrap;
-    overflow: hidden;
-    position: relative;
-    text-decoration: none;
-    transition: 0.2s;
-    width: 60px;
-    height: 40px;
+  animation: 1.5s ease infinite alternate running shimmer;
+  background-size: 200% 100%;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 670;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  transition: 0.2s;
+  width: 60px;
+  height: 40px;
 
-    background-color: #000;
+  background-color: #000;
 
-    outline: 1px solid #444444;
+  outline: 1px solid #444444;
 
-    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  background-image:
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-    background-position: 0 0, 0 0;
-    background-size: 20px 20px;
-    animation: moveBackground 3s linear infinite;
+  background-position:
+    0 0,
+    0 0;
+  background-size: 20px 20px;
+  animation: moveBackground 3s linear infinite;
 }
 
 .settingsButton svg {
-    left: -70px;
-    opacity: 0.5;
-    position: absolute;
-    top: -6px;
-    transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+  left: -70px;
+  opacity: 0.5;
+  position: absolute;
+  top: -6px;
+  transition: 1s cubic-bezier(0.5, -0.5, 0.5, 1.5);
 }
 
 .settingsButton:hover svg {
-    opacity: 0.8;
-    transform: translateX(210px) scale(2);
+  opacity: 0.8;
+  transform: translateX(210px) scale(2);
 }
 
 .settingsButton:hover {
-    transform: rotate(-3deg) !important;
+  transform: rotate(-3deg) !important;
 }
 
 .settingsButton:active {
-    transform: scale(0.9) rotate(-3deg) !important;
+  transform: scale(0.9) rotate(-3deg) !important;
 }
-
 
 .settingsSelect,
 .settingsSelect option {
-    animation: 1.5s ease infinite alternate running shimmer;
-    background-size: 200% 100%;
-    border: none;
-    border-radius: 4px;
-    color: #ffffff;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 670;
-    line-height: 24px;
-    white-space: nowrap;
-    overflow: hidden;
-    position: relative;
-    text-decoration: none;
-    transition: 0.2s;
-    padding: 0 10px;
-    width: fit-content;
-    height: 40px;
+  animation: 1.5s ease infinite alternate running shimmer;
+  background-size: 200% 100%;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 670;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  transition: 0.2s;
+  padding: 0 10px;
+  width: fit-content;
+  height: 40px;
 
-    background-color: #000;
+  background-color: #000;
 
-    outline: 1px solid #444444;
+  outline: 1px solid #444444;
 
-    background-image: radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
+  background-image:
+    radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px),
     radial-gradient(rgba(87, 87, 87, 0.3) 1px, transparent 1px);
-    background-position: 0 0, 0 0;
-    background-size: 20px 20px;
-    animation: moveBackground 3s linear infinite;
+  background-position:
+    0 0,
+    0 0;
+  background-size: 20px 20px;
+  animation: moveBackground 3s linear infinite;
 }
 
 .settingsGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding: 24px;
-    max-width: 800px;
-    margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .settingsSection {
-    background-color: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 24px;
-    gap: 24px;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px;
+  gap: 24px;
 }
 
 .settingsSection h6 {
-    color: var(--text);
-    margin-bottom: 16px;
-    font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .settingsButton {
-    background-color: var(--button);
-    color: #fff;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  background-color: var(--button);
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .settingsButton:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .settingsButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .settingsSelect {
-    background-color: var(--background);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 8px 16px;
-    width: 100%;
+  background-color: var(--background);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  width: 100%;
 }
 
 .settingsSelect option {
-    background-color: var(--background);
-    color: var(--text);
+  background-color: var(--background);
+  color: var(--text);
 }
 
 .settingsTextField {
-    background-color: var(--background);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+  background-color: var(--background);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .settingsSwitch {
-    color: var(--button);
+  color: var(--button);
 }
 
 .settingsSwitch .MuiSwitch-track {
-    background-color: var(--border);
+  background-color: var(--border);
 }
 
 .settingsSwitch .MuiSwitch-thumb {
-    background-color: var(--button);
+  background-color: var(--button);
 }
 
 @keyframes moveBackground {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        background-position: 20px 20px;
-    }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
 }
 
 .checkUpdateText {
-    position: absolute;
-    bottom: 24px;
-    color: #fff;
+  position: absolute;
+  bottom: 24px;
+  color: #fff;
 }

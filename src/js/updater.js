@@ -9,8 +9,6 @@ const settingsModule = require('./settings');
 
 let mainWindow = null;
 
-const versionDirectory = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
-
 function checkForUpdates() {
   // Set the channel based on the environment
   const isDev = process.env.NODE_ENV === 'development';
@@ -57,7 +55,11 @@ async function checkGameUpdates(gameId, currentVersion) {
 
 // Current version of the installed game
 function getCurrentGameVersion(gameId) {
-  const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
+  let versionFile = settingsModule.versionFilePath(gameId);
+  if (!fs.existsSync(versionFile)) {
+    // Fallback to old location for backward compatibility
+    versionFile = path.join(settingsModule.diabolicalLauncherPath, `${gameId}-version.json`);
+  }
   try {
     const versionData = fs.readFileSync(versionFile);
     const parsedData = JSON.parse(versionData);
@@ -70,7 +72,7 @@ function getCurrentGameVersion(gameId) {
 
 // Check for updates every minute
 function periodicallyCheckGameVersions(gameIds, interval = 60000) {
-  gameIds.forEach((gameId) => {
+  gameIds.forEach(gameId => {
     const currentVersion = getCurrentGameVersion(gameId);
     if (currentVersion) {
       checkGameUpdates(gameId, currentVersion);
@@ -78,7 +80,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 60000) {
   });
 
   setInterval(() => {
-    gameIds.forEach((gameId) => {
+    gameIds.forEach(gameId => {
       const currentVersion = getCurrentGameVersion(gameId);
       if (currentVersion) {
         checkGameUpdates(gameId, currentVersion);
@@ -118,7 +120,12 @@ function initUpdater() {
       autoUpdater.downloadUpdate();
     } else {
       showMessage('Diabolical Launcher');
-      showCustomNotification(mainWindow, 'Launcher Update', 'Launcher update available but auto-update is disabled in settings.', 'launcher');
+      showCustomNotification(
+        mainWindow,
+        'Launcher Update',
+        'Launcher update available but auto-update is disabled in settings.',
+        'launcher'
+      );
     }
   });
 
@@ -132,7 +139,7 @@ function initUpdater() {
     autoUpdater.quitAndInstall();
   });
 
-  autoUpdater.on('error', (info) => {
+  autoUpdater.on('error', info => {
     showMessage(`Launcher update error: ${info}`);
   });
 }

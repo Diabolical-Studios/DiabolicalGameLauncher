@@ -1,289 +1,331 @@
-import React, {useEffect, useState} from 'react';
-import {Divider as MuiDivider, Grid, IconButton, Skeleton, Stack, TextField, Tooltip, Typography} from '@mui/material';
-import {colors} from '../../theme/colors';
+import React, { useEffect, useState } from 'react';
+import {
+  Divider as MuiDivider,
+  Grid,
+  IconButton,
+  Skeleton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { colors } from '../../theme/colors';
 import LogoutButton from './LogoutButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 // Use local SVGs for each service, with a description for the tooltip
 export const services = [
-    {
-        name: 'Discord',
-        icon: '/logos/discord.svg',
-        description: 'Get Discord role integration and team chat features.',
-    },
-    {
-        name: 'Steam',
-        icon: '/logos/steam.svg',
-        description: 'Deploy straight to Steam from GitHub.',
-    },
-    {
-        name: 'Unity',
-        icon: '/logos/unity.svg',
-        description: 'Share your Unity asset packs with your team members.',
-    },
-    {
-        name: 'Patreon',
-        icon: '/logos/patreon.svg',
-        description: 'Get perks such as more hosting space, higher limits on games/teams, etc.',
-    },
+  {
+    name: 'Discord',
+    icon: '/logos/discord.svg',
+    description: 'Get Discord role integration and team chat features.',
+  },
+  {
+    name: 'Steam',
+    icon: '/logos/steam.svg',
+    description: 'Deploy straight to Steam from GitHub.',
+  },
+  {
+    name: 'Unity',
+    icon: '/logos/unity.svg',
+    description: 'Share your Unity asset packs with your team members.',
+  },
+  {
+    name: 'Patreon',
+    icon: '/logos/patreon.svg',
+    description: 'Get perks such as more hosting space, higher limits on games/teams, etc.',
+  },
 ];
 
 const PATREON_CLIENT_ID = '1xNwOOd3hVInyijzxYT0qrqTf1mkuhYPqcZusknZ4I6MQhk-97vzlp2ABpqgMHFH';
 const REDIRECT_URI = 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth';
 
 const getPatreonOAuthUrl = () => {
-    // Detect if running in Electron (customize this check as needed)
-    const isElectron = window?.navigator?.userAgent?.toLowerCase().includes('electron');
-    const source = isElectron ? 'electron' : 'web';
-    // Get the sessionID from your cookie or app state
-    const sessionID = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('sessionID='))
-        ?.split('=')[1];
+  // Detect if running in Electron (customize this check as needed)
+  const isElectron = window?.navigator?.userAgent?.toLowerCase().includes('electron');
+  const source = isElectron ? 'electron' : 'web';
+  // Get the sessionID from your cookie or app state
+  const sessionID = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('sessionID='))
+    ?.split('=')[1];
 
-    // Compose state as a JSON string and encode it
-    const stateObj = {source, sessionID};
-    const state = encodeURIComponent(JSON.stringify(stateObj));
+  // Compose state as a JSON string and encode it
+  const stateObj = { source, sessionID };
+  const state = encodeURIComponent(JSON.stringify(stateObj));
 
-    return `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=identity%20identity.memberships&state=${state}`;
+  return `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=identity%20identity.memberships&state=${state}`;
 };
 
 const iconButtonStyle = {
-    background: '#000',
-    borderRadius: '4px',
-    width: 48,
-    height: 48,
-    border: `1px solid ${colors.border}`,
-    transition: 'background 0.2s, border-color 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    p: 0,
-    boxShadow: '0 1px 4px 0 rgba(0,0,0,0.03)',
-    '&:hover': {
-        background: '#fff',
-        borderColor: '#fff',
-    },
+  background: '#000',
+  borderRadius: '4px',
+  width: 48,
+  height: 48,
+  border: `1px solid ${colors.border}`,
+  transition: 'background 0.2s, border-color 0.2s',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  p: 0,
+  boxShadow: '0 1px 4px 0 rgba(0,0,0,0.03)',
+  '&:hover': {
+    background: '#fff',
+    borderColor: '#fff',
+  },
 };
 
 const imgStyle = {
-    width: 24,
-    height: 24,
-    filter: 'invert(100%)',
-    transition: 'filter 0.2s',
+  width: 24,
+  height: 24,
+  filter: 'invert(100%)',
+  transition: 'filter 0.2s',
 };
 
 const imgHoverStyle = {
-    filter: 'invert(0%)',
+  filter: 'invert(0%)',
 };
 
-const Divider = () => <MuiDivider sx={{borderColor: colors.border, opacity: 0.2, my: 2}}/>;
+const Divider = () => <MuiDivider sx={{ borderColor: colors.border, opacity: 0.2, my: 2 }} />;
 
-const AccountSettings = ({username}) => {
-    const [hovered, setHovered] = React.useState(null);
-    const [connectedProviders, setConnectedProviders] = useState([]);
-    const [loading, setLoading] = useState(true);
+const AccountSettings = ({ username }) => {
+  const [hovered, setHovered] = React.useState(null);
+  const [connectedProviders, setConnectedProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchConnectedProviders = async () => {
-            setLoading(true);
-            try {
-                // Get sessionID from cookie
-                const sessionID = document.cookie
-                    .split('; ')
-                    .find((row) => row.startsWith('sessionID='))
-                    ?.split('=')[1];
-                if (!sessionID) return;
-                const res = await fetch('/connected-external-apps', {
-                    headers: {SessionID: sessionID},
-                });
-                if (!res.ok) throw new Error('Failed to fetch connected accounts');
-                const data = await res.json();
-                // Extract and map provider ids to display names
-                const ids = Array.isArray(data.external_subscription_ids) ? data.external_subscription_ids : [];
-                // Map ids (e.g. 'patreon') to service display names (e.g. 'Patreon')
-                const idToName = Object.fromEntries(services.map((s) => [s.name.toLowerCase(), s.name]));
-                const connected = ids.map((id) => idToName[id.toLowerCase()]).filter(Boolean);
-                setConnectedProviders(connected);
-            } catch (e) {
-                setConnectedProviders([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchConnectedProviders();
-    }, []);
-
-    // Split services into connected and not connected
-    const connectedServices = services.filter((s) => connectedProviders.includes(s.name));
-    const unconnectedServices = services.filter((s) => !connectedProviders.includes(s.name));
-
-    const handlePatreonClick = () => {
-        const url = getPatreonOAuthUrl();
-        if (window.electronAPI && typeof window.electronAPI.openExternal === 'function') {
-            window.electronAPI.openExternal(url);
-        } else {
-            window.location.href = url;
-        }
+  useEffect(() => {
+    const fetchConnectedProviders = async () => {
+      setLoading(true);
+      try {
+        // Get sessionID from cookie
+        const sessionID = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+        if (!sessionID) return;
+        const res = await fetch('/connected-external-apps', {
+          headers: { SessionID: sessionID },
+        });
+        if (!res.ok) throw new Error('Failed to fetch connected accounts');
+        const data = await res.json();
+        // Extract and map provider ids to display names
+        const ids = Array.isArray(data.external_subscription_ids)
+          ? data.external_subscription_ids
+          : [];
+        // Map ids (e.g. 'patreon') to service display names (e.g. 'Patreon')
+        const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
+        const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
+        setConnectedProviders(connected);
+      } catch (e) {
+        setConnectedProviders([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchConnectedProviders();
+  }, []);
 
-    return (
-        <Stack className='overflow-hidden p-3' sx={{width: '100%', maxWidth: '100%', margin: 0}}>
-            <Stack
-                className='flex p-5 overflow-auto flex-col gap-5'
-                sx={{
-                    background: 'rgba(255,255,255,0.01)',
-                    borderRadius: '4px',
-                    boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)',
-                }}
-            >
-                {/* Profile Info */}
-                <Stack spacing={1.5}>
-                    <Typography variant='subtitle1' sx={{color: colors.text, fontWeight: 600, letterSpacing: 0.2}}>
-                        Profile
-                    </Typography>
-                    <Stack direction='row' style={{gap: '12px'}} alignItems='center'>
-                        <TextField
-                            label='Username'
-                            value={username}
-                            disabled
-                            fullWidth
-                            sx={{
-                                borderRadius: '4px',
-                                background: 'rgba(255,255,255,0.03)',
-                                '& .MuiOutlinedInput-root': {
-                                    color: colors.text,
-                                    fontSize: '16px',
-                                    borderRadius: '4px',
-                                },
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    border: '1px solid' + colors.border + '!important',
-                                    borderRadius: '4px',
-                                },
-                                '& .MuiFormLabel-root': {
-                                    color: colors.text,
-                                },
-                            }}
+  // Split services into connected and not connected
+  const connectedServices = services.filter(s => connectedProviders.includes(s.name));
+  const unconnectedServices = services.filter(s => !connectedProviders.includes(s.name));
+
+  const handlePatreonClick = () => {
+    const url = getPatreonOAuthUrl();
+    if (window.electronAPI && typeof window.electronAPI.openExternal === 'function') {
+      window.electronAPI.openExternal(url);
+    } else {
+      window.location.href = url;
+    }
+  };
+
+  return (
+    <Stack className="overflow-hidden p-3" sx={{ width: '100%', maxWidth: '100%', margin: 0 }}>
+      <Stack
+        className="flex p-5 overflow-auto flex-col gap-5"
+        sx={{
+          background: 'rgba(255,255,255,0.01)',
+          borderRadius: '4px',
+          boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)',
+        }}
+      >
+        {/* Profile Info */}
+        <Stack spacing={1.5}>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
+          >
+            Profile
+          </Typography>
+          <Stack direction="row" style={{ gap: '12px' }} alignItems="center">
+            <TextField
+              label="Username"
+              value={username}
+              disabled
+              fullWidth
+              sx={{
+                borderRadius: '4px',
+                background: 'rgba(255,255,255,0.03)',
+                '& .MuiOutlinedInput-root': {
+                  color: colors.text,
+                  fontSize: '16px',
+                  borderRadius: '4px',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  border: '1px solid' + colors.border + '!important',
+                  borderRadius: '4px',
+                },
+                '& .MuiFormLabel-root': {
+                  color: colors.text,
+                },
+              }}
+            />
+            <LogoutButton style={{ height: '100%', margin: 0, borderRadius: '4px' }}>
+              <LogoutIcon sx={{ color: colors.error }} />
+            </LogoutButton>
+          </Stack>
+        </Stack>
+
+        <Divider />
+
+        {/* Add Accounts Section */}
+        <Stack spacing={1.5}>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
+          >
+            Add accounts to your profile
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: colors.text, opacity: 0.7, fontWeight: 400, fontSize: 14, mb: 1 }}
+          >
+            Connect your accounts to unlock features and personalize your experience. Only you can
+            see your connected accounts unless you choose to display them.
+          </Typography>
+          <Grid container spacing={2} sx={{ mt: 0 }}>
+            {loading
+              ? services.map((_, idx) => (
+                  <Grid item key={idx}>
+                    <Skeleton
+                      variant="rounded"
+                      width={48}
+                      height={48}
+                      sx={{ borderRadius: '4px' }}
+                    />
+                  </Grid>
+                ))
+              : unconnectedServices.map(service => (
+                  <Grid item key={service.name}>
+                    <Tooltip
+                      title={
+                        <span style={{ fontSize: 13, lineHeight: 1.4 }}>{service.description}</span>
+                      }
+                      placement="top"
+                      arrow
+                    >
+                      <IconButton
+                        sx={iconButtonStyle}
+                        onMouseEnter={() => setHovered(service.name)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => {
+                          if (service.name === 'Patreon') {
+                            handlePatreonClick();
+                          }
+                        }}
+                      >
+                        <img
+                          src={service.icon}
+                          alt={service.name}
+                          style={
+                            hovered === service.name ? { ...imgStyle, ...imgHoverStyle } : imgStyle
+                          }
                         />
-                        <LogoutButton style={{height: '100%', margin: 0, borderRadius: '4px'}}>
-                            <LogoutIcon sx={{color: colors.error}}/>
-                        </LogoutButton>
-                    </Stack>
-                </Stack>
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                ))}
+          </Grid>
+        </Stack>
 
-                <Divider/>
+        <Divider />
 
-                {/* Add Accounts Section */}
-                <Stack spacing={1.5}>
-                    <Typography variant='subtitle1' sx={{color: colors.text, fontWeight: 600, letterSpacing: 0.2}}>
-                        Add accounts to your profile
-                    </Typography>
-                    <Typography variant='body2'
-                                sx={{color: colors.text, opacity: 0.7, fontWeight: 400, fontSize: 14, mb: 1}}>
-                        Connect your accounts to unlock features and personalize your experience. Only you can see your
-                        connected accounts unless you choose to display them.
-                    </Typography>
-                    <Grid container spacing={2} sx={{mt: 0}}>
-                        {loading
-                            ? services.map((_, idx) => (
-                                <Grid item key={idx}>
-                                    <Skeleton variant='rounded' width={48} height={48} sx={{borderRadius: '4px'}}/>
-                                </Grid>
-                            ))
-                            : unconnectedServices.map((service) => (
-                                <Grid item key={service.name}>
-                                    <Tooltip title={<span
-                                        style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
-                                             placement='top' arrow>
-                                        <IconButton
-                                            sx={iconButtonStyle}
-                                            onMouseEnter={() => setHovered(service.name)}
-                                            onMouseLeave={() => setHovered(null)}
-                                            onClick={() => {
-                                                if (service.name === 'Patreon') {
-                                                    handlePatreonClick();
-                                                }
-                                            }}
-                                        >
-                                            <img src={service.icon} alt={service.name}
-                                                 style={hovered === service.name ? {...imgStyle, ...imgHoverStyle} : imgStyle}/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </Grid>
-                            ))}
-                    </Grid>
-                </Stack>
-
-                <Divider/>
-
-                {/* Connected Accounts Section */}
-                <Stack spacing={1.5}>
-                    <Typography variant='subtitle1' sx={{color: colors.text, fontWeight: 600, letterSpacing: 0.2}}>
-                        Connected Accounts
-                    </Typography>
-                    {loading ? (
-                        <Typography variant='body2' sx={{color: colors.text, opacity: 0.7}}>
-                            Loading...
-                        </Typography>
-                    ) : connectedServices.length === 0 ? (
-                        <Typography variant='body2' sx={{color: colors.text, opacity: 0.7}}>
-                            No accounts connected yet.
-                        </Typography>
-                    ) : (
-                        <Grid container spacing={2} sx={{mt: 0}}>
-                            {connectedServices.map((service) => (
-                                <Grid item key={service.name}>
-                                    <Tooltip title={<span
-                                        style={{fontSize: 13, lineHeight: 1.4}}>{service.description}</span>}
-                                             placement='top' arrow>
+        {/* Connected Accounts Section */}
+        <Stack spacing={1.5}>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
+          >
+            Connected Accounts
+          </Typography>
+          {loading ? (
+            <Typography variant="body2" sx={{ color: colors.text, opacity: 0.7 }}>
+              Loading...
+            </Typography>
+          ) : connectedServices.length === 0 ? (
+            <Typography variant="body2" sx={{ color: colors.text, opacity: 0.7 }}>
+              No accounts connected yet.
+            </Typography>
+          ) : (
+            <Grid container spacing={2} sx={{ mt: 0 }}>
+              {connectedServices.map(service => (
+                <Grid item key={service.name}>
+                  <Tooltip
+                    title={
+                      <span style={{ fontSize: 13, lineHeight: 1.4 }}>{service.description}</span>
+                    }
+                    placement="top"
+                    arrow
+                  >
                     <span>
                       <IconButton sx={iconButtonStyle} disabled>
-                        <img src={service.icon} alt={service.name} style={imgStyle}/>
+                        <img src={service.icon} alt={service.name} style={imgStyle} />
                       </IconButton>
                     </span>
-                                    </Tooltip>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    )}
-                </Stack>
-            </Stack>
+                  </Tooltip>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Stack>
-    );
+      </Stack>
+    </Stack>
+  );
 };
 
 export function useConnectedProviders() {
-    const [connectedProviders, setConnectedProviders] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [connectedProviders, setConnectedProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchConnectedProviders = async () => {
-            setLoading(true);
-            try {
-                const sessionID = document.cookie
-                    .split('; ')
-                    .find((row) => row.startsWith('sessionID='))
-                    ?.split('=')[1];
-                if (!sessionID) return;
-                const res = await fetch('/connected-external-apps', {
-                    headers: {SessionID: sessionID},
-                });
-                if (!res.ok) throw new Error('Failed to fetch connected accounts');
-                const data = await res.json();
-                const ids = Array.isArray(data.external_subscription_ids) ? data.external_subscription_ids : [];
-                const idToName = Object.fromEntries(services.map((s) => [s.name.toLowerCase(), s.name]));
-                const connected = ids.map((id) => idToName[id.toLowerCase()]).filter(Boolean);
-                setConnectedProviders(connected);
-            } catch (e) {
-                setConnectedProviders([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchConnectedProviders();
-    }, []);
+  useEffect(() => {
+    const fetchConnectedProviders = async () => {
+      setLoading(true);
+      try {
+        const sessionID = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+        if (!sessionID) return;
+        const res = await fetch('/connected-external-apps', {
+          headers: { SessionID: sessionID },
+        });
+        if (!res.ok) throw new Error('Failed to fetch connected accounts');
+        const data = await res.json();
+        const ids = Array.isArray(data.external_subscription_ids)
+          ? data.external_subscription_ids
+          : [];
+        const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
+        const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
+        setConnectedProviders(connected);
+      } catch (e) {
+        setConnectedProviders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchConnectedProviders();
+  }, []);
 
-    return {connectedProviders, loading};
+  return { connectedProviders, loading };
 }
 
 export default AccountSettings;
