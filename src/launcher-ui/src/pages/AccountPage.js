@@ -167,11 +167,7 @@ export default function AccountPage() {
                     while (Cookies.get(`githubInstallationId${count}`)) {
                         if (Cookies.get(`githubInstallationId${count}`) === data.githubInstallationId) {
                             // Update existing installation with new token
-                            Cookies.set(`githubAccessToken${count}`, data.githubAccessToken, {
-                                secure: true,
-                                sameSite: "Strict",
-                                expires: 7
-                            });
+                            Cookies.set(`githubAccessToken${count}`, data.githubAccessToken, cookieOptions);
                             found = true;
                             break;
                         }

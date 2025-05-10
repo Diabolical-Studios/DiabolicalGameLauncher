@@ -12,13 +12,13 @@ export default async (request, context) => {
      * 0.  Handle CORS
      * ─────────────────────── */
     if (request.method === "OPTIONS") {
-        return new Response("", { status: 200 });
+        return new Response("", {status: 200});
     }
 
     if (request.method !== "GET") {
-        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        return new Response(JSON.stringify({error: "Method not allowed"}), {
             status: 405,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
@@ -34,8 +34,8 @@ export default async (request, context) => {
 
     if (!sessionId) {
         return new Response(
-            JSON.stringify({ error: "Unauthorized: No valid session ID" }),
-            { status: 401, headers: { "content-type": "application/json" } }
+            JSON.stringify({error: "Unauthorized: No valid session ID"}),
+            {status: 401, headers: {"content-type": "application/json"}}
         );
     }
 
@@ -43,13 +43,13 @@ export default async (request, context) => {
      * 2.  Proxy call to REST API
      * ──────────────────────────────────────── */
     const apiBaseUrl = Netlify.env.get("API_BASE_URL");
-    const apiKey     = Netlify.env.get("API_KEY");
+    const apiKey = Netlify.env.get("API_KEY");
 
     if (!apiBaseUrl || !apiKey) {
         console.error("API configuration missing");
-        return new Response(JSON.stringify({ error: "API configuration missing" }), {
+        return new Response(JSON.stringify({error: "API configuration missing"}), {
             status: 500,
-            headers: { "content-type": "application/json" },
+            headers: {"content-type": "application/json"},
         });
     }
 
@@ -57,7 +57,7 @@ export default async (request, context) => {
     console.log("Proxying to:", apiURL);
 
     const apiRes = await fetch(apiURL, {
-        headers: { "x-api-key": apiKey },
+        headers: {"x-api-key": apiKey},
     });
 
     /* ────────────────────────────────────────

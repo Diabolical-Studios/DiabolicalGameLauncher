@@ -11,6 +11,13 @@
         ]
       }
     ],
-    "linebreak-style": 0
+    "linebreak-style": 0,
+    "spaced-comment": [
+      "error",
+      "always"
+    ],
+    "no-console": 0,
+    "object-curly-newline": 0,
+    "object-curly-spacing": 0
   }
 }

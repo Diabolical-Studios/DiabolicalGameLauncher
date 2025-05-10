@@ -5,13 +5,13 @@ import {
     CircularProgress,
     Dialog,
     DialogContent,
+    DialogContentText,
     DialogTitle,
     Stack,
     Tab,
     Tabs,
     TextField,
-    Typography,
-    DialogContentText
+    Typography
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -729,7 +729,7 @@ const GameInfoPanel = ({game}) => {
                         Are you sure you want to delete this game? This action cannot be undone.
                     </DialogContentText>
                     {deleteError && (
-                        <Typography color="error" sx={{ mt: 2 }}>
+                        <Typography color="error" sx={{mt: 2}}>
                             {deleteError}
                         </Typography>
                     )}

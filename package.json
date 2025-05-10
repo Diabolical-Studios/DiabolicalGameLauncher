@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
-    "start": "concurrently \"npm run dev-ui\" \"electron .\"",
+    "start": "concurrently \"npm run dev-ui\" \"electron --trace-warnings .\"",
     "build": "cross-env PUBLISH_CHANNEL=master electron-builder -c.extraMetadata.env.NODE_ENV=production",
     "build:dev": "cross-env PUBLISH_CHANNEL=dev    electron-builder -c.extraMetadata.env.NODE_ENV=development",
     "pack": "electron-builder --dir",
@@ -29,8 +29,11 @@
       "output": "dist"
     },
     "files": [
-      "src/**/*",
-      "src/launcher-ui/build/**/*",
+      "src/js/**/*",
+      "src/launcher-ui/public/**/*",
+      "src/index.js",
+      "src/preload.js",
+      "src/splash.html",
       "icons/**/*"
     ],
     "protocols": [
@@ -68,7 +71,7 @@
     "axios": "^1.8.2",
     "dotenv": "^16.4.7",
     "electron-dl": "^3.5.2",
-    "electron-is-dev": "^3.0.1",
+    "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-updater": "^6.3.0",
     "extract-zip": "^2.0.1",
@@ -81,7 +84,7 @@
     "@types/jest": "^29.5.12",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
-    "electron": "^33.2.1",
+    "electron": "^36.1.0",
     "electron-builder": "^24.13.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",

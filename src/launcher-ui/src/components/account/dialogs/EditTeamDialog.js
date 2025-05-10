@@ -2,16 +2,16 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     AvatarGroup,
+    Box,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     IconButton,
     Stack,
-    TextField,
-    Tabs,
     Tab,
-    Box,
+    Tabs,
+    TextField,
     Typography,
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
@@ -184,11 +184,11 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
             <StyledDialog open={open} onClose={handleClose}>
                 <DialogContent className="dialog" style={{padding: "12px", backdropFilter: "invert(1)"}}>
                     <Stack spacing={2}>
-                        <Tabs 
-                            value={activeTab} 
-                            onChange={handleTabChange} 
-                            sx={{ 
-                                borderBottom: 1, 
+                        <Tabs
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            sx={{
+                                borderBottom: 1,
                                 borderColor: 'divider',
                                 '& .MuiTab-root': {
                                     color: colors.text,
@@ -198,12 +198,12 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                 }
                             }}
                         >
-                            <Tab label="General" />
-                            <Tab label="Members" />
-                            <Tab label="Settings" />
+                            <Tab label="General"/>
+                            <Tab label="Members"/>
+                            <Tab label="Settings"/>
                         </Tabs>
 
-                        <Box sx={{ mt: 2 }}>
+                        <Box sx={{mt: 2}}>
                             {activeTab === 0 && (
                                 <Stack spacing={2}>
                                     <TextField
@@ -320,7 +320,7 @@ const EditTeamDialog = ({open, handleClose, team, onSave}) => {
                                     <Button
                                         variant="contained"
                                         color="error"
-                                        startIcon={<DeleteIcon />}
+                                        startIcon={<DeleteIcon/>}
                                         onClick={() => setDeleteDialogOpen(true)}
                                         disabled={isDeleting}
                                         sx={{

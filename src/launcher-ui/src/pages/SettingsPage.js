@@ -63,7 +63,7 @@ const SettingsPage = () => {
             });
 
             // Listen for download progress
-            window.electronAPI.onDownloadProgress(({ percentage }) => {
+            window.electronAPI.onDownloadProgress(({percentage}) => {
                 setDownloadProgress(percentage);
             });
         }
@@ -148,128 +148,128 @@ const SettingsPage = () => {
                     <Typography variant="h6" sx={{color: colors.text}}>Application Settings</Typography>
                     <Stack spacing={2}>
                         <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
-                            control={
-                                <Switch
-                                    checked={settings.autoUpdate}
-                                    onChange={(e) => {
-                                        handleSettingChange("autoUpdate", e.target.checked);
-                                        if (window.electronAPI?.updateSettings) {
-                                            window.electronAPI.updateSettings({autoUpdate: e.target.checked});
-                                        }
-                                    }}
-                                    sx={{
-                                        "& .MuiSwitch-thumb": {
-                                            backgroundColor: colors.button,
-                                        },
-                                        "& .MuiSwitch-track": {
-                                            backgroundColor: colors.border,
-                                        },
-                                    }}
-                                />
-                            }
-                            label="Auto-update launcher"
-                            sx={{color: colors.text}}
+                                          control={
+                                              <Switch
+                                                  checked={settings.autoUpdate}
+                                                  onChange={(e) => {
+                                                      handleSettingChange("autoUpdate", e.target.checked);
+                                                      if (window.electronAPI?.updateSettings) {
+                                                          window.electronAPI.updateSettings({autoUpdate: e.target.checked});
+                                                      }
+                                                  }}
+                                                  sx={{
+                                                      "& .MuiSwitch-thumb": {
+                                                          backgroundColor: colors.button,
+                                                      },
+                                                      "& .MuiSwitch-track": {
+                                                          backgroundColor: colors.border,
+                                                      },
+                                                  }}
+                                              />
+                                          }
+                                          label="Auto-update launcher"
+                                          sx={{color: colors.text}}
                         />
                         <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
-                            control={
-                                <Switch
-                                    checked={settings.notifications}
-                                    onChange={(e) => {
-                                        handleSettingChange("notifications", e.target.checked);
-                                        if (window.electronAPI?.updateSettings) {
-                                            window.electronAPI.updateSettings({notifications: e.target.checked});
-                                        }
-                                    }}
-                                    sx={{
-                                        "& .MuiSwitch-thumb": {
-                                            backgroundColor: colors.button,
-                                        },
-                                        "& .MuiSwitch-track": {
-                                            backgroundColor: colors.border,
-                                        },
-                                    }}
-                                />
-                            }
-                            label="Enable notifications"
-                            sx={{color: colors.text}}
+                                          control={
+                                              <Switch
+                                                  checked={settings.notifications}
+                                                  onChange={(e) => {
+                                                      handleSettingChange("notifications", e.target.checked);
+                                                      if (window.electronAPI?.updateSettings) {
+                                                          window.electronAPI.updateSettings({notifications: e.target.checked});
+                                                      }
+                                                  }}
+                                                  sx={{
+                                                      "& .MuiSwitch-thumb": {
+                                                          backgroundColor: colors.button,
+                                                      },
+                                                      "& .MuiSwitch-track": {
+                                                          backgroundColor: colors.border,
+                                                      },
+                                                  }}
+                                              />
+                                          }
+                                          label="Enable notifications"
+                                          sx={{color: colors.text}}
                         />
                         <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
-                            control={
-                                <Switch
-                                    checked={settings.minimizeToTray}
-                                    onChange={(e) => {
-                                        handleSettingChange("minimizeToTray", e.target.checked);
-                                        if (window.electronAPI?.updateSettings) {
-                                            window.electronAPI.updateSettings({minimizeToTray: e.target.checked});
-                                        }
-                                    }}
-                                    sx={{
-                                        "& .MuiSwitch-thumb": {
-                                            backgroundColor: colors.button,
-                                        },
-                                        "& .MuiSwitch-track": {
-                                            backgroundColor: colors.border,
-                                        },
-                                    }}
-                                />
-                            }
-                            label="Minimize to system tray"
-                            sx={{color: colors.text}}
+                                          control={
+                                              <Switch
+                                                  checked={settings.minimizeToTray}
+                                                  onChange={(e) => {
+                                                      handleSettingChange("minimizeToTray", e.target.checked);
+                                                      if (window.electronAPI?.updateSettings) {
+                                                          window.electronAPI.updateSettings({minimizeToTray: e.target.checked});
+                                                      }
+                                                  }}
+                                                  sx={{
+                                                      "& .MuiSwitch-thumb": {
+                                                          backgroundColor: colors.button,
+                                                      },
+                                                      "& .MuiSwitch-track": {
+                                                          backgroundColor: colors.border,
+                                                      },
+                                                  }}
+                                              />
+                                          }
+                                          label="Minimize to system tray"
+                                          sx={{color: colors.text}}
                         />
                         <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
-                            control={
-                                <Switch
-                                    checked={settings.launchOnStartup}
-                                    onChange={(e) => {
-                                        handleSettingChange("launchOnStartup", e.target.checked);
-                                        if (window.electronAPI?.updateSettings) {
-                                            window.electronAPI.updateSettings({launchOnStartup: e.target.checked});
-                                        }
-                                    }}
-                                    sx={{
-                                        "& .MuiSwitch-thumb": {
-                                            backgroundColor: colors.button,
-                                        },
-                                        "& .MuiSwitch-track": {
-                                            backgroundColor: colors.border,
-                                        },
-                                    }}
-                                />
-                            }
-                            label="Launch on system startup"
-                            sx={{color: colors.text}}
+                                          control={
+                                              <Switch
+                                                  checked={settings.launchOnStartup}
+                                                  onChange={(e) => {
+                                                      handleSettingChange("launchOnStartup", e.target.checked);
+                                                      if (window.electronAPI?.updateSettings) {
+                                                          window.electronAPI.updateSettings({launchOnStartup: e.target.checked});
+                                                      }
+                                                  }}
+                                                  sx={{
+                                                      "& .MuiSwitch-thumb": {
+                                                          backgroundColor: colors.button,
+                                                      },
+                                                      "& .MuiSwitch-track": {
+                                                          backgroundColor: colors.border,
+                                                      },
+                                                  }}
+                                              />
+                                          }
+                                          label="Launch on system startup"
+                                          sx={{color: colors.text}}
                         />
                         <FormControlLabel style={{width: 'fit-content'}} className="settings-section-content"
-                            control={
-                                <Switch
-                                    checked={settings.customCursor}
-                                    onChange={(e) => {
-                                        const newValue = e.target.checked;
-                                        // Update local state immediately
-                                        setSettings(prev => ({...prev, customCursor: newValue}));
-                                        // Apply cursor change immediately
-                                        document.body.style.cursor = newValue ? 'none' : 'auto';
-                                        const interactiveElements = document.querySelectorAll('a, button, [role="button"], input, select, textarea');
-                                        interactiveElements.forEach(el => {
-                                            el.style.cursor = newValue ? 'none' : 'auto';
-                                        });
-                                        // Update settings in main process
-                                        if (window.electronAPI?.updateSettings) {
-                                            window.electronAPI.updateSettings({customCursor: newValue});
-                                        }
-                                    }}
-                                    sx={{
-                                        "& .MuiSwitch-thumb": {
-                                            backgroundColor: colors.button,
-                                        },
-                                        "& .MuiSwitch-track": {
-                                            backgroundColor: colors.border,
-                                        },
-                                    }}
-                                />
-                            }
-                            label="Enable custom cursor"
-                            sx={{color: colors.text}}
+                                          control={
+                                              <Switch
+                                                  checked={settings.customCursor}
+                                                  onChange={(e) => {
+                                                      const newValue = e.target.checked;
+                                                      // Update local state immediately
+                                                      setSettings(prev => ({...prev, customCursor: newValue}));
+                                                      // Apply cursor change immediately
+                                                      document.body.style.cursor = newValue ? 'none' : 'auto';
+                                                      const interactiveElements = document.querySelectorAll('a, button, [role="button"], input, select, textarea');
+                                                      interactiveElements.forEach(el => {
+                                                          el.style.cursor = newValue ? 'none' : 'auto';
+                                                      });
+                                                      // Update settings in main process
+                                                      if (window.electronAPI?.updateSettings) {
+                                                          window.electronAPI.updateSettings({customCursor: newValue});
+                                                      }
+                                                  }}
+                                                  sx={{
+                                                      "& .MuiSwitch-thumb": {
+                                                          backgroundColor: colors.button,
+                                                      },
+                                                      "& .MuiSwitch-track": {
+                                                          backgroundColor: colors.border,
+                                                      },
+                                                  }}
+                                              />
+                                          }
+                                          label="Enable custom cursor"
+                                          sx={{color: colors.text}}
                         />
                     </Stack>
                 </StyledSettingsSection>

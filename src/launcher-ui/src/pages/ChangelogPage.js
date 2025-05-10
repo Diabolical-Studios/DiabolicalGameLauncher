@@ -174,8 +174,14 @@ const ChangelogPage = () => {
                             <Box>
                                 <Link
                                     href={release.html_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        if (window.electronAPI && typeof window.electronAPI.openExternal === 'function') {
+                                            window.electronAPI.openExternal(release.html_url);
+                                        } else {
+                                            window.open(release.html_url, "_blank", "noopener,noreferrer");
+                                        }
+                                    }}
                                     className="view-on-github-link"
                                     sx={{
                                         color: colors.text,

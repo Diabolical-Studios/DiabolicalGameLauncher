@@ -14,7 +14,7 @@ import AppLayout from "./components/AppLayout";
 import StatusBarAndContentPanel from "./components/StatusBarAndContentPanel";
 import HorizontalFlex from "./components/layout/HorizontalFlex";
 import {applyColorsToCSS} from "./theme/colors";
-import {createTheme, ThemeProvider, CssBaseline, GlobalStyles} from "@mui/material";
+import {createTheme, CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
 import LibraryPage from "./pages/LibraryPage";
 import StorePage from "./pages/StorePage";
 import CustomCursor from './components/common/CustomCursor';
@@ -108,7 +108,7 @@ const App = () => {
 
     return (
         <ThemeProvider theme={muiTheme}>
-            <CssBaseline />
+            <CssBaseline/>
             <GlobalStyles
                 styles={{
                     '*': {
@@ -119,7 +119,7 @@ const App = () => {
                     },
                 }}
             />
-            {settings.customCursor && <CustomCursor />}
+            {settings.customCursor && <CustomCursor/>}
             <Router>
                 <AppLayout>
                     <BackgroundAnimation/>

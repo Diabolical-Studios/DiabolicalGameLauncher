@@ -1,8 +1,10 @@
+const cacheManager = require('./cacheManager');
+
 async function getLatestGameVersion(gameId) {
     try {
         // Get the cached games data
-        const cachedGames = require('./cacheManager').readCachedGames();
-        const game = cachedGames.find(g => g.game_id === gameId);
+        const cachedGames = cacheManager.readCachedGames();
+        const game = cachedGames.find((g) => g.game_id === gameId);
 
         if (!game || !game.version) {
             throw new Error(`No version information found for game ${gameId}`);
@@ -25,4 +27,3 @@ async function getLatestGameVersion(gameId) {
 module.exports = {
     getLatestGameVersion,
 };
-  

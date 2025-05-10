@@ -1,9 +1,9 @@
-import React, {useEffect, useMemo, useState} from "react";
-import {Box, Card, CardMedia, Chip, Container, Grid, Grow, TextField, Typography,} from "@mui/material";
-import {styled} from "@mui/material/styles";
-import {colors} from "../theme/colors";
-import axios from "axios";
-import ImageButton from "../components/button/ImageButton";
+import React, {useEffect, useMemo, useState} from 'react';
+import {Box, Card, CardMedia, Chip, Container, Grid, Grow, TextField, Typography} from '@mui/material';
+import {styled} from '@mui/material/styles';
+import {colors} from '../theme/colors';
+import axios from 'axios';
+import ImageButton from '../components/button/ImageButton';
 
 const FeaturedCard = styled(Card)({
     position: 'relative',
@@ -93,47 +93,14 @@ const VersionChip = styled(Chip)({
     },
 });
 
-const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => {
+const GameCardComponent = ({game, size, onDownload, onPlay, installedGames, isRunning}) => {
     const [downloadProgress, setDownloadProgress] = useState(null);
     const [isInstalled, setIsInstalled] = useState(installedGames.includes(game.game_id));
-    const [isRunning, setIsRunning] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     useEffect(() => {
-        const checkGameStatus = async () => {
-            if (window.electronAPI) {
-                const running = await window.electronAPI.isGameRunning(game.game_id);
-                setIsRunning(running);
-            }
-        };
-
-        const handleGameStarted = (startedGameId) => {
-            if (startedGameId === game.game_id) {
-                setIsRunning(true);
-            }
-        };
-
-        const handleGameStopped = (stoppedGameId) => {
-            if (stoppedGameId === game.game_id) {
-                setIsRunning(false);
-            }
-        };
-
-        checkGameStatus();
-
-        if (window.electronAPI) {
-            window.electronAPI.onGameStarted(handleGameStarted);
-            window.electronAPI.onGameStopped(handleGameStopped);
-        }
-
-        return () => {
-            if (window.electronAPI) {
-                window.electronAPI.removeGameStartedListener(handleGameStarted);
-                window.electronAPI.removeGameStoppedListener(handleGameStopped);
-            }
-        };
-    }, [game.game_id]);
-
-    useEffect(() => {
+        if (!isDownloading) return;
+        // Only add listeners when downloading
         const handleDownloadProgress = (progressData) => {
             if (progressData.gameId === game.game_id) {
                 setDownloadProgress(`${Math.round(progressData.percentage * 100)}%`);
@@ -144,6 +111,7 @@ const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => 
             if (gameId === game.game_id) {
                 setDownloadProgress(null);
                 setIsInstalled(true);
+                setIsDownloading(false);
             }
         };
 
@@ -160,7 +128,7 @@ const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => 
         return () => {
             window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
         };
-    }, [game.game_id]);
+    }, [game.game_id, isDownloading]);
 
     if (!game) return null;
 
@@ -170,36 +138,31 @@ const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => 
         } else if (isInstalled) {
             onPlay(game.game_id);
         } else {
+            setIsDownloading(true);
             onDownload(game.game_id);
         }
     };
 
     return (
         <GameCard size={size}>
-            {game.version && (
-                <VersionChip label={`v${game.version}`}/>
-            )}
-            <StyledCardMedia
-                component="img"
-                image={game.background_image_url || ""}
-                alt={game.game_name}
-            />
+            {game.version && <VersionChip label={`v${game.version}`}/>}
+            <StyledCardMedia component='img' image={game.background_image_url || ''} alt={game.game_name}/>
             <CardOverlay>
                 <GameTitle
-                    className="game-title"
-                    variant="h6"
+                    className='game-title'
+                    variant='h6'
                     sx={{
                         color: colors.text,
                         textShadow: '0 4px 4px rgba(0,0,0,0.5)',
-                        fontWeight: 600
+                        fontWeight: 600,
                     }}
                 >
                     {game.game_name}
                 </GameTitle>
                 <ImageButton
-                    className="add-library-button"
-                    text={downloadProgress || (isRunning ? "Stop" : (isInstalled ? "Play" : "Download"))}
-                    icon={isRunning ? require("@mui/icons-material/Stop").default : (isInstalled ? require("@mui/icons-material/PlayArrow").default : require("@mui/icons-material/Download").default)}
+                    className='add-library-button'
+                    text={downloadProgress || (isRunning ? 'Stop' : isInstalled ? 'Play' : 'Download')}
+                    icon={isRunning ? require('@mui/icons-material/Stop').default : isInstalled ? require('@mui/icons-material/PlayArrow').default : require('@mui/icons-material/Download').default}
                     onClick={handleButtonClick}
                     style={{position: 'absolute', bottom: '16px', left: '16px', minWidth: '140px', padding: '6px 16px'}}
                 />
@@ -211,19 +174,17 @@ const GameCardComponent = ({game, size, onDownload, onPlay, installedGames}) => 
 const StorePage = () => {
     const [games, setGames] = useState([]);
     const [installedGames, setInstalledGames] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
     const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const [downloadProgresses, setDownloadProgresses] = useState({});
     const [isHovering, setIsHovering] = useState(false);
+    const [runningGames, setRunningGames] = useState({});
 
     // Memoize the filtered games based on search query
     const filteredGames = useMemo(() => {
         if (!searchQuery) return games;
-        return games.filter(game =>
-            game.game_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            game.description?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        return games.filter((game) => game.game_name.toLowerCase().includes(searchQuery.toLowerCase()) || game.description?.toLowerCase().includes(searchQuery.toLowerCase()));
     }, [games, searchQuery]);
 
     // Memoize the shuffled games to prevent re-randomization on re-renders
@@ -244,7 +205,7 @@ const StorePage = () => {
         if (featuredGames.length === 0 || isHovering) return;
 
         const progressInterval = setInterval(() => {
-            setProgress(prev => {
+            setProgress((prev) => {
                 if (prev >= 100) {
                     setCurrentFeaturedIndex((currentFeaturedIndex + 1) % featuredGames.length);
                     return 0;
@@ -256,34 +217,23 @@ const StorePage = () => {
         return () => clearInterval(progressInterval);
     }, [featuredGames.length, currentFeaturedIndex, isHovering]);
 
-    // Handle download progress
+    // Add a single set of listeners for game-started and game-stopped
     useEffect(() => {
-        const handleDownloadProgress = (progressData) => {
-            setDownloadProgresses(prev => ({
-                ...prev,
-                [progressData.gameId]: `${Math.round(progressData.percentage * 100)}%`
-            }));
+        const handleGameStarted = (startedGameId) => {
+            setRunningGames((prev) => ({...prev, [startedGameId]: true}));
         };
-
-        const handleDownloadComplete = ({gameId}) => {
-            setDownloadProgresses(prev => {
-                const newProgresses = {...prev};
-                delete newProgresses[gameId];
-                return newProgresses;
-            });
-            setInstalledGames(prev => [...prev, gameId]);
+        const handleGameStopped = (stoppedGameId) => {
+            setRunningGames((prev) => ({...prev, [stoppedGameId]: false}));
         };
-
-        const handleGameUninstalled = (uninstalledGameId) => {
-            setInstalledGames(prev => prev.filter(id => id !== uninstalledGameId));
-        };
-
-        window.electronAPI?.onDownloadProgress(handleDownloadProgress);
-        window.electronAPI?.onDownloadComplete(handleDownloadComplete);
-        window.electronAPI?.onGameUninstalled(handleGameUninstalled);
-
+        if (window.electronAPI) {
+            window.electronAPI.onGameStarted(handleGameStarted);
+            window.electronAPI.onGameStopped(handleGameStopped);
+        }
         return () => {
-            window.electronAPI?.removeDownloadProgressListener(handleDownloadProgress);
+            if (window.electronAPI) {
+                window.electronAPI.removeGameStartedListener(handleGameStarted);
+                window.electronAPI.removeGameStoppedListener(handleGameStopped);
+            }
         };
     }, []);
 
@@ -296,14 +246,14 @@ const StorePage = () => {
                         const fetchedInstalledGames = await window.electronAPI.getInstalledGames();
                         setInstalledGames(fetchedInstalledGames);
                     } catch (err) {
-                        console.error("Error fetching installed games:", err);
+                        console.error('Error fetching installed games:', err);
                         setInstalledGames([]);
                     }
                 }
 
                 // 2. Try live API first
                 try {
-                    const response = await axios.get("/get-all-games");
+                    const response = await axios.get('/get-all-games');
                     const freshGames = response.data;
                     setGames(freshGames);
 
@@ -312,7 +262,7 @@ const StorePage = () => {
                         window.electronAPI.cacheGamesLocally(freshGames);
                     }
                 } catch (error) {
-                    console.error("❌ Error fetching games from API:", error);
+                    console.error('❌ Error fetching games from API:', error);
 
                     // 3. Fallback to cached games if API fails (only in desktop environment)
                     if (window.electronAPI?.getCachedGames) {
@@ -320,15 +270,15 @@ const StorePage = () => {
                             const cachedGames = await window.electronAPI.getCachedGames();
                             if (cachedGames.length > 0) {
                                 setGames(cachedGames);
-                                window.electronAPI?.showCustomNotification("Offline Mode", "Showing cached games. Some features may be limited.");
+                                window.electronAPI?.showCustomNotification('Offline Mode', 'Showing cached games. Some features may be limited.');
                             }
                         } catch (cacheErr) {
-                            console.error("Error loading cached games:", cacheErr);
+                            console.error('Error loading cached games:', cacheErr);
                         }
                     }
                 }
             } catch (err) {
-                console.error("Error in loadGames:", err);
+                console.error('Error in loadGames:', err);
             }
         };
 
@@ -339,7 +289,7 @@ const StorePage = () => {
         try {
             await window.electronAPI.openGame(gameId);
         } catch (err) {
-            console.error("Error opening game:", err);
+            console.error('Error opening game:', err);
         }
     };
 
@@ -347,7 +297,7 @@ const StorePage = () => {
         try {
             await window.electronAPI.downloadGame(gameId);
         } catch (err) {
-            console.error("Error downloading game:", err);
+            console.error('Error downloading game:', err);
         }
     };
 
@@ -356,30 +306,30 @@ const StorePage = () => {
 
     return (
         <Box sx={{height: '100%', overflow: 'auto'}}>
-            <Container maxWidth="xl" sx={{py: 3}}>
+            <Container maxWidth='xl' sx={{py: 3}}>
                 {/* Search Bar */}
                 <Box sx={{mb: 3}}>
                     <TextField
                         fullWidth
-                        placeholder="Search games..."
+                        placeholder='Search games...'
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         sx={{
-                            "& .MuiOutlinedInput-root": {
+                            '& .MuiOutlinedInput-root': {
                                 color: colors.text,
-                                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                                "& fieldset": {
+                                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                '& fieldset': {
                                     borderColor: colors.border,
                                 },
-                                "&:hover fieldset": {
+                                '&:hover fieldset': {
                                     borderColor: colors.button,
                                 },
-                                "&.Mui-focused fieldset": {
+                                '&.Mui-focused fieldset': {
                                     borderColor: colors.button,
                                 },
                             },
-                            "& .MuiInputBase-input": {
-                                padding: "12px 16px",
+                            '& .MuiInputBase-input': {
+                                padding: '12px 16px',
                             },
                         }}
                     />
@@ -387,11 +337,8 @@ const StorePage = () => {
 
                 {/* New Featured Games Section */}
                 {!searchQuery && featuredGames.length > 0 && (
-                    <Box
-                        sx={{position: 'relative', mb: 3, height: '400px'}}
-                        onMouseEnter={() => setIsHovering(true)}
-                        onMouseLeave={() => setIsHovering(false)}
-                    >
+                    <Box sx={{position: 'relative', mb: 3, height: '400px'}} onMouseEnter={() => setIsHovering(true)}
+                         onMouseLeave={() => setIsHovering(false)}>
                         {featuredGames.map((game, index) => (
                             <Box
                                 key={game.game_id}
@@ -407,34 +354,35 @@ const StorePage = () => {
                                 }}
                             >
                                 <FeaturedCard>
-                                    {game.version && (
-                                        <VersionChip label={`v${game.version}`}/>
-                                    )}
-                                    <StyledCardMedia
-                                        component="img"
-                                        image={game.background_image_url || ""}
-                                        alt={game.game_name}
-                                    />
+                                    {game.version && <VersionChip label={`v${game.version}`}/>}
+                                    <StyledCardMedia component='img' image={game.background_image_url || ''}
+                                                     alt={game.game_name}/>
                                     <CardOverlay>
-                                        <Typography variant="h3" sx={{
-                                            color: colors.text,
-                                            mb: 1,
-                                            textShadow: '0 4px 4px rgba(0,0,0,0.5)',
-                                            fontWeight: 600
-                                        }}>
+                                        <Typography
+                                            variant='h3'
+                                            sx={{
+                                                color: colors.text,
+                                                mb: 1,
+                                                textShadow: '0 4px 4px rgba(0,0,0,0.5)',
+                                                fontWeight: 600,
+                                            }}
+                                        >
                                             {game.game_name}
                                         </Typography>
-                                        <Typography variant="body1" sx={{
-                                            color: colors.text,
-                                            mb: 2,
-                                            maxWidth: '600px',
-                                            textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-                                        }}>
+                                        <Typography
+                                            variant='body1'
+                                            sx={{
+                                                color: colors.text,
+                                                mb: 2,
+                                                maxWidth: '600px',
+                                                textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                                            }}
+                                        >
                                             {game.description}
                                         </Typography>
                                         <ImageButton
-                                            text={downloadProgresses[game.game_id] || (installedGames.includes(game.game_id) ? "Play" : "Download")}
-                                            icon={installedGames.includes(game.game_id) ? require("@mui/icons-material/PlayArrow").default : require("@mui/icons-material/Download").default}
+                                            text={downloadProgresses[game.game_id] || (installedGames.includes(game.game_id) ? 'Play' : 'Download')}
+                                            icon={installedGames.includes(game.game_id) ? require('@mui/icons-material/PlayArrow').default : require('@mui/icons-material/Download').default}
                                             onClick={() => {
                                                 if (installedGames.includes(game.game_id)) {
                                                     handlePlayGame(game.game_id);
@@ -442,21 +390,24 @@ const StorePage = () => {
                                                     handleDownloadGame(game.game_id);
                                                 }
                                             }}
-                                            style={{padding: '12px 48px',}}
+                                            style={{padding: '12px 48px'}}
                                         />
                                     </CardOverlay>
                                 </FeaturedCard>
                             </Box>
                         ))}
-                        <Box sx={{
-                            position: 'absolute',
-                            bottom: '16px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            display: 'flex',
-                            gap: '8px',
-                            zIndex: 2
-                        }} className="featured-progress-bars">
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: '16px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                display: 'flex',
+                                gap: '8px',
+                                zIndex: 2,
+                            }}
+                            className='featured-progress-bars'
+                        >
                             {featuredGames.map((_, index) => (
                                 <Box
                                     key={index}
@@ -470,7 +421,7 @@ const StorePage = () => {
                                         overflow: 'hidden',
                                         '&:hover': {
                                             backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                                        }
+                                        },
                                     }}
                                     onClick={() => {
                                         setCurrentFeaturedIndex(index);
@@ -499,13 +450,16 @@ const StorePage = () => {
                 {/* Special Offers */}
                 {!searchQuery && (
                     <>
-                        <Typography variant="h5" sx={{
-                            color: colors.text,
-                            mb: 2,
-                            fontWeight: 600,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                        }}>
+                        <Typography
+                            variant='h5'
+                            sx={{
+                                color: colors.text,
+                                mb: 2,
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                            }}
+                        >
                             Special Offers
                         </Typography>
                         <Grid container spacing={2} sx={{mb: 4}}>
@@ -516,10 +470,11 @@ const StorePage = () => {
                                         <Box>
                                             <GameCardComponent
                                                 game={specialOffers[0]}
-                                                size="large"
+                                                size='large'
                                                 onDownload={handleDownloadGame}
                                                 onPlay={handlePlayGame}
                                                 installedGames={installedGames}
+                                                isRunning={!!runningGames[specialOffers[0].game_id]}
                                             />
                                         </Box>
                                     </Grow>
@@ -535,26 +490,28 @@ const StorePage = () => {
                                         minHeight: '400px',
                                         '& .MuiGrid-item': {
                                             height: 'calc(50% - 8px)',
-                                        }
+                                        },
                                     }}
                                 >
-                                    {specialOffers.slice(1, 5).map((game, index) => (
-                                        game && (
-                                            <Grid item xs={6} key={game.game_id}>
-                                                <Grow in={true} timeout={700 + (index * 100)}>
-                                                    <Box>
-                                                        <GameCardComponent
-                                                            game={game}
-                                                            size="small"
-                                                            onDownload={handleDownloadGame}
-                                                            onPlay={handlePlayGame}
-                                                            installedGames={installedGames}
-                                                        />
-                                                    </Box>
-                                                </Grow>
-                                            </Grid>
-                                        )
-                                    ))}
+                                    {specialOffers.slice(1, 5).map(
+                                        (game, index) =>
+                                            game && (
+                                                <Grid item xs={6} key={game.game_id}>
+                                                    <Grow in={true} timeout={700 + index * 100}>
+                                                        <Box>
+                                                            <GameCardComponent
+                                                                game={game}
+                                                                size='small'
+                                                                onDownload={handleDownloadGame}
+                                                                onPlay={handlePlayGame}
+                                                                installedGames={installedGames}
+                                                                isRunning={!!runningGames[game.game_id]}
+                                                            />
+                                                        </Box>
+                                                    </Grow>
+                                                </Grid>
+                                            ),
+                                    )}
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -562,26 +519,26 @@ const StorePage = () => {
                 )}
 
                 {/* Search Results or New Releases */}
-                <Typography variant="h5" sx={{
-                    color: colors.text,
-                    mb: 2,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                }}>
-                    {searchQuery ? "Search Results" : "New Releases"}
+                <Typography
+                    variant='h5'
+                    sx={{
+                        color: colors.text,
+                        mb: 2,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                    }}
+                >
+                    {searchQuery ? 'Search Results' : 'New Releases'}
                 </Typography>
                 <Grid container spacing={2}>
                     {(searchQuery ? filteredGames : newReleases).map((game, index) => (
                         <Grid item xs={12} sm={6} md={3} key={game.game_id}>
-                            <Grow in={true} timeout={800 + (index * 100)}>
+                            <Grow in={true} timeout={800 + index * 100}>
                                 <Box>
-                                    <GameCardComponent
-                                        game={game}
-                                        onDownload={handleDownloadGame}
-                                        onPlay={handlePlayGame}
-                                        installedGames={installedGames}
-                                    />
+                                    <GameCardComponent game={game} onDownload={handleDownloadGame}
+                                                       onPlay={handlePlayGame} installedGames={installedGames}
+                                                       isRunning={!!runningGames[game.game_id]}/>
                                 </Box>
                             </Grow>
                         </Grid>
@@ -592,4 +549,4 @@ const StorePage = () => {
     );
 };
 
-export default StorePage; 
+export default StorePage;

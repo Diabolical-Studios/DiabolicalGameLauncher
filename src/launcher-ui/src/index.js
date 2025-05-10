@@ -66,27 +66,27 @@ if (!window.api) {
 
 // Add this to the renderer process (e.g., in a preload script or at the top of your main React entry point)
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('state') === 'electron') {
-        // Build the custom protocol URL with all query params
-        const protoParams = [];
-        for (const [key, value] of params.entries()) {
-          if (key !== 'state') {
-            protoParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-          }
+    window.addEventListener('DOMContentLoaded', () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('state') === 'electron') {
+                // Build the custom protocol URL with all query params
+                const protoParams = [];
+                for (const [key, value] of params.entries()) {
+                    if (key !== 'state') {
+                        protoParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+                    }
+                }
+                const protoUrl = `diabolicallauncher://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
+                window.location.href = protoUrl;
+                /* setTimeout(() => {
+                  window.location.href = "https://launcher.diabolical.studio";
+                }, 500); */
+            }
+        } catch (e) {
+            // Fail silently
         }
-        const protoUrl = `diabolicallauncher://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
-        window.location.href = protoUrl;
-        /* setTimeout(() => {
-          window.location.href = "https://launcher.diabolical.studio";
-        }, 500); */
-      }
-    } catch (e) {
-      // Fail silently
-    }
-  });
+    });
 }
 
 reportWebVitals();

@@ -1,9 +1,9 @@
 {
   "short_name": "Diabolical Launcher",
-  "name": "Diabolical Game Launcher",
+  "name": "Diabolical Launcher",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "../../icons/icon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },

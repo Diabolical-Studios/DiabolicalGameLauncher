@@ -2,7 +2,7 @@ import React from "react";
 import {Box, Container, Typography} from "@mui/material";
 import {colors} from "../../theme/colors";
 
-const handleGitHubLogin = () => {
+const handleGitHubLogin = async () => {
     const CLIENT_ID = "Ov23ligdn0N1TMqWtNTV";
     const redirectUri = encodeURIComponent("https://launcher.diabolical.studio/github-auth");
 
@@ -11,9 +11,19 @@ const handleGitHubLogin = () => {
 
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email&state=${source}`;
 
-    if (window.api) {
-        window.electronAPI.openExternal(authUrl);
-    } else {
+    try {
+        if (window.electronAPI) {
+            const success = await window.electronAPI.openExternal(authUrl);
+            if (!success) {
+                // Fallback to window.open if electron API fails
+                window.open(authUrl, "_blank");
+            }
+        } else {
+            window.open(authUrl, "_blank");
+        }
+    } catch (error) {
+        console.error("Error opening GitHub login:", error);
+        // Fallback to window.open if anything fails
         window.open(authUrl, "_blank");
     }
 };

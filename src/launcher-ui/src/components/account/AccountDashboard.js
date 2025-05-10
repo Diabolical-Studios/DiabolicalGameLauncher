@@ -13,8 +13,7 @@ import DiabolicalSpeedDial from "../button/DiabolicalSpeedDial";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import {colors} from "../../theme/colors";
-import AccountSettings from "./AccountSettings";
-import { services, useConnectedProviders } from "./AccountSettings";
+import AccountSettings, {services, useConnectedProviders} from "./AccountSettings";
 import Chip from "@mui/material/Chip";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -24,7 +23,7 @@ export default function AccountDashboard({username}) {
     const [errorTeams, setErrorTeams] = useState(null);
     const githubId = Cookies.get("githubID");
     const githubAvatar = githubId ? `https://avatars.githubusercontent.com/u/${githubId}?v=4` : null;
-    const { connectedProviders, loading } = useConnectedProviders();
+    const {connectedProviders, loading} = useConnectedProviders();
     const connectedServices = services.filter(s => connectedProviders.includes(s.name));
 
     const fetchTeams = useCallback(async () => {
@@ -75,26 +74,26 @@ export default function AccountDashboard({username}) {
                     borderBottom: "1px solid" + colors.border,
                 }}
             >
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: "100%" }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{width: "100%"}}>
                     {/* Left: Avatar + Username */}
                     <Stack direction="row" spacing="12px" alignItems="center">
                         <Avatar
                             alt="GitHub User"
                             src={githubAvatar || "/static/images/avatar/1.jpg"}
-                            sx={{ width: 32, height: 32, outline: "1px solid" + colors.border }}
+                            sx={{width: 32, height: 32, outline: "1px solid" + colors.border}}
                         />
-                        <AccountName username={username} />
+                        <AccountName username={username}/>
                     </Stack>
                     {/* Right: Chips */}
                     <Stack direction="row" spacing={1}>
                         {loading ? (
-                            Array.from({ length: 3 }).map((_, idx) => (
+                            Array.from({length: 3}).map((_, idx) => (
                                 <Skeleton
                                     key={idx}
                                     variant="rounded"
                                     width={70}
                                     height="{100%}"
-                                    sx={{ borderRadius: '16px', marginLeft: idx === 0 ? 0 : 1 }}
+                                    sx={{borderRadius: '16px', marginLeft: idx === 0 ? 0 : 1}}
                                 />
                             ))
                         ) : (
@@ -102,7 +101,8 @@ export default function AccountDashboard({username}) {
                                 <Chip
                                     key={service.name}
                                     label={service.name}
-                                    avatar={<img src={service.icon} alt={service.name} style={{ width: 12, height: 12, filter: 'invert(1)', margin: 0 }} />}
+                                    avatar={<img src={service.icon} alt={service.name}
+                                                 style={{width: 12, height: 12, filter: 'invert(1)', margin: 0}}/>}
                                     size="small"
                                     sx={{
                                         background: '#18181b',

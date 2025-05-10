@@ -1,12 +1,5 @@
 import React from "react";
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Typography
-} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {colors} from "../../theme/colors";
 import {styled} from "@mui/material/styles";
 
@@ -22,25 +15,25 @@ const StyledDialog = styled(Dialog)(({theme}) => ({
 }));
 
 const ConfirmDialog = ({
-    open,
-    onClose,
-    onConfirm,
-    title,
-    message,
-    confirmText = "Confirm",
-    cancelText = "Cancel",
-    confirmColor = "error",
-    isConfirming = false,
-    confirmButtonProps = {},
-    cancelButtonProps = {},
-}) => {
+                           open,
+                           onClose,
+                           onConfirm,
+                           title,
+                           message,
+                           confirmText = "Confirm",
+                           cancelText = "Cancel",
+                           confirmColor = "error",
+                           isConfirming = false,
+                           confirmButtonProps = {},
+                           cancelButtonProps = {},
+                       }) => {
     return (
         <StyledDialog
             open={open}
             onClose={onClose}
             aria-labelledby="confirm-dialog-title"
         >
-            <DialogTitle 
+            <DialogTitle
                 id="confirm-dialog-title"
                 sx={{
                     color: colors.text,
@@ -52,17 +45,17 @@ const ConfirmDialog = ({
             >
                 {title}
             </DialogTitle>
-            <DialogContent sx={{ padding: "24px !important", backgroundColor: colors.background }} >
-                <Typography sx={{ color: colors.text }}>
+            <DialogContent sx={{padding: "24px !important", backgroundColor: colors.background}}>
+                <Typography sx={{color: colors.text}}>
                     {message}
                 </Typography>
             </DialogContent>
-            <DialogActions sx={{ 
+            <DialogActions sx={{
                 padding: "16px 24px",
                 borderTop: "1px solid" + colors.border,
                 gap: "12px"
-            }}                 className="dialog"
->
+            }} className="dialog"
+            >
                 <Button
                     onClick={onClose}
                     disabled={isConfirming}
