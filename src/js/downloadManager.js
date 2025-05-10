@@ -66,6 +66,10 @@ async function downloadGame(event, gameId) {
     await extractZip(dl.getSavePath(), gameId, event);
 
     console.log(`Writing version file for ${gameId}: ${latestVersion}`);
+    const gameFolder = path.join(diabolicalLauncherPath, gameId);
+    if (!fs.existsSync(gameFolder)) {
+      fs.mkdirSync(gameFolder, { recursive: true });
+    }
     fs.writeFileSync(versionFilePath(gameId), JSON.stringify({ version: latestVersion }));
 
     const mainWindow = getMainWindow();

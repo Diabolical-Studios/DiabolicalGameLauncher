@@ -5,8 +5,8 @@ const os = require('os');
 // Absolute paths of the launcher
 const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 const settingsFilePath = path.join(diabolicalLauncherPath, 'settings.json');
-const versionFilePath = gameId => path.join(diabolicalLauncherPath, `${gameId}-version.json`);
-
+const versionFilePath = gameId =>
+  path.join(diabolicalLauncherPath, gameId, `${gameId}-version.json`);
 // This will be made into a better logic
 const defaultSettings = {
   windowSize: { width: 1280, height: 720 },
