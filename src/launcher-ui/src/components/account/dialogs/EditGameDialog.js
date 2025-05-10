@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, CircularProgress, Dialog, DialogContent, Stack, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  Stack,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import SaveIcon from '@mui/icons-material/Save';
 import GameCard from '../../GameCard';
@@ -41,7 +51,9 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
     const hasDescriptionChanged = gameDescription !== (game.description || '');
     const hasBackgroundChanged = gameBackgroundUrl !== (game.background_image_url || '');
     const hasStatusChanged = gameStatus !== (game.status || 'public');
-    setHasChanges(hasNameChanged || hasDescriptionChanged || hasBackgroundChanged || hasStatusChanged);
+    setHasChanges(
+      hasNameChanged || hasDescriptionChanged || hasBackgroundChanged || hasStatusChanged
+    );
   }, [gameName, gameDescription, gameBackgroundUrl, gameStatus, game]);
 
   const handleSave = async () => {
@@ -84,7 +96,10 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
       console.log('✅ Game updated successfully:', updatedGame);
 
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('Game Updated', 'Your game was successfully updated!');
+        window.electronAPI.showCustomNotification(
+          'Game Updated',
+          'Your game was successfully updated!'
+        );
       }
 
       onSave(updatedGame);
@@ -100,10 +115,12 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
   };
 
   return (
-    <StyledDialog open={open} onClose={handleClose} aria-labelledby='edit-game-dialog-title'>
-      <DialogContent style={{ padding: '24px', width: '100%', border: '1px solid' + colors.border }}>
+    <StyledDialog open={open} onClose={handleClose} aria-labelledby="edit-game-dialog-title">
+      <DialogContent
+        style={{ padding: '24px', width: '100%', border: '1px solid' + colors.border }}
+      >
         <Stack display={'flex'} flexDirection={'row'} gap={'24px'}>
-          <Stack spacing={2} alignItems='center'>
+          <Stack spacing={2} alignItems="center">
             {/* Render Editable Game Card */}
             <GameCard
               style={{ aspectRatio: '63/88', outline: '1px solid' + colors.border }}
@@ -132,12 +149,12 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
           >
             {/* Status Dropdown */}
             <FormControl fullWidth>
-              <InputLabel id='game-status-label'>Game Status</InputLabel>
+              <InputLabel id="game-status-label">Game Status</InputLabel>
               <Select
-                labelId='game-status-label'
+                labelId="game-status-label"
                 value={gameStatus}
-                label='Game Status'
-                onChange={(e) => setGameStatus(e.target.value)}
+                label="Game Status"
+                onChange={e => setGameStatus(e.target.value)}
                 sx={{
                   color: colors.text,
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -151,15 +168,15 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                   },
                 }}
               >
-                <MenuItem value='public'>Public</MenuItem>
-                <MenuItem value='private'>Private</MenuItem>
-                <MenuItem value='archived'>Archived</MenuItem>
+                <MenuItem value="public">Public</MenuItem>
+                <MenuItem value="private">Private</MenuItem>
+                <MenuItem value="archived">Archived</MenuItem>
               </Select>
             </FormControl>
 
             {/* Image Uploader */}
             <ImageUploader
-              onUpload={(url) => {
+              onUpload={url => {
                 setGameBackgroundUrl(url);
                 setHasChanges(true);
               }}
@@ -182,8 +199,8 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                 },
               }}
               onClick={handleSave}
-              aria-label='save'
-              startIcon={isSaving ? <CircularProgress size={20} color='inherit' /> : <SaveIcon />}
+              aria-label="save"
+              startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
               disabled={!hasChanges || isSaving}
             >
               {isSaving ? 'Saving...' : 'Save'}

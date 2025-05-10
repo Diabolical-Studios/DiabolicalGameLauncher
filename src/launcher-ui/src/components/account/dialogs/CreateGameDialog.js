@@ -1,5 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Chip, CircularProgress, Dialog, FormControl, InputLabel, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import GameCard from '../../GameCard';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
@@ -53,9 +67,24 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
   useEffect(() => {
     const hasAllRequiredFields =
-      gameName?.trim() && gameId?.trim() && selectedTeam && gameBackgroundUrl && ((activeTab === 0 && selectedRepo) || (activeTab === 1 && gameFile && validateVersion(gameVersion)));
+      gameName?.trim() &&
+      gameId?.trim() &&
+      selectedTeam &&
+      gameBackgroundUrl &&
+      ((activeTab === 0 && selectedRepo) ||
+        (activeTab === 1 && gameFile && validateVersion(gameVersion)));
     setHasRequiredFields(!!hasAllRequiredFields);
-  }, [gameName, gameId, selectedTeam, selectedRepo, gameBackgroundUrl, activeTab, gameFile, gameVersion, gameStatus]);
+  }, [
+    gameName,
+    gameId,
+    selectedTeam,
+    selectedRepo,
+    gameBackgroundUrl,
+    activeTab,
+    gameFile,
+    gameVersion,
+    gameStatus,
+  ]);
 
   const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
     if (!installationId || !accessToken) {
@@ -82,8 +111,8 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       if (data.repositories.length > 0) {
         const accountName = data.repositories[0].owner.login;
         const avatarUrl = data.repositories[0].owner.avatar_url;
-        setConnectedAccounts((prev) => [
-          ...prev.filter((acc) => acc.id !== installationId),
+        setConnectedAccounts(prev => [
+          ...prev.filter(acc => acc.id !== installationId),
           {
             id: installationId,
             name: accountName,
@@ -93,14 +122,14 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         ]);
 
         // Store avatar URL for this owner
-        setOwnerAvatars((prev) => ({
+        setOwnerAvatars(prev => ({
           ...prev,
           [accountName]: avatarUrl,
         }));
       }
 
       // Add repos to the list
-      setGithubRepos((prev) => [...prev, ...data.repositories]);
+      setGithubRepos(prev => [...prev, ...data.repositories]);
     } catch (error) {
       console.error('❌ Error fetching repositories:', error);
     }
@@ -151,14 +180,19 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
   }, [fetchGithubRepos]);
 
   // Calculate filtered repos
-  const filteredRepos = githubRepos.filter((repo) => repo.full_name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredRepos = githubRepos.filter(repo =>
+    repo.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleGameFileSelect = (file) => {
+  const handleGameFileSelect = file => {
     if (file && file.name.endsWith('.zip')) {
       setGameFile(file);
       setGameFileName(file.name);
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('File Selected', 'Your game file is ready to be uploaded.');
+        window.electronAPI.showCustomNotification(
+          'File Selected',
+          'Your game file is ready to be uploaded.'
+        );
       }
     } else {
       if (window.electronAPI) {
@@ -167,12 +201,12 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
     }
   };
 
-  const validateVersion = (version) => {
+  const validateVersion = version => {
     const versionRegex = /^\d+\.\d+\.\d+$/;
     return versionRegex.test(version);
   };
 
-  const handleVersionChange = (e) => {
+  const handleVersionChange = e => {
     const newVersion = e.target.value;
     setGameVersion(newVersion);
   };
@@ -182,7 +216,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
     if (!/^[a-z0-9]{1,20}$/.test(gameId)) {
       setGameIdError(true);
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('Invalid Game ID', 'Game ID must contain only lowercase letters and numbers, with no spaces, and be 20 characters or less');
+        window.electronAPI.showCustomNotification(
+          'Invalid Game ID',
+          'Game ID must contain only lowercase letters and numbers, with no spaces, and be 20 characters or less'
+        );
       }
       return;
     }
@@ -210,7 +247,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
     if (activeTab === 1 && !validateVersion(gameVersion)) {
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('Invalid Version', 'Version must be in format X.Y.Z (e.g., 1.0.0)');
+        window.electronAPI.showCustomNotification(
+          'Invalid Version',
+          'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        );
       }
       setIsSaving(false);
       return;
@@ -237,7 +277,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         const { url } = await res.json();
 
         const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', (event) => {
+        xhr.upload.addEventListener('progress', event => {
           if (event.lengthComputable) {
             const progress = (event.loaded / event.total) * 100;
             setUploadProgress(progress);
@@ -254,7 +294,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       } catch (err) {
         console.error('❌ Upload failed:', err);
         if (window.electronAPI) {
-          window.electronAPI.showCustomNotification('Upload Failed', 'Could not upload your game file.');
+          window.electronAPI.showCustomNotification(
+            'Upload Failed',
+            'Could not upload your game file.'
+          );
         }
         setIsSaving(false);
         setIsUploading(false);
@@ -296,7 +339,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       if (!installationId) {
         if (window.electronAPI) {
-          window.electronAPI.showCustomNotification('Game Creation Failed', 'No GitHub installation found with access to this repository');
+          window.electronAPI.showCustomNotification(
+            'Game Creation Failed',
+            'No GitHub installation found with access to this repository'
+          );
         }
         console.error('❌ No GitHub Installation ID found with access to the selected repository.');
         setIsSaving(false);
@@ -331,7 +377,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       if (!response.ok) {
         if (window.electronAPI) {
-          window.electronAPI.showCustomNotification('Game Creation Failed', 'Netlify did not respond.');
+          window.electronAPI.showCustomNotification(
+            'Game Creation Failed',
+            'Netlify did not respond.'
+          );
         }
         throw new Error('Failed to create game via Netlify.');
       }
@@ -340,22 +389,28 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       // Only notify GitHub if the Netlify step succeeded and we're in GitHub mode
       if (activeTab === 0) {
-        const githubWebhookResponse = await fetch('https://api.diabolical.studio/github-app/webhook', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            event: 'game_created',
-            repository: selectedRepo,
-            game_id: gameId.trim(),
-            installation_id: installationId,
-          }),
-        });
+        const githubWebhookResponse = await fetch(
+          'https://api.diabolical.studio/github-app/webhook',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              event: 'game_created',
+              repository: selectedRepo,
+              game_id: gameId.trim(),
+              installation_id: installationId,
+            }),
+          }
+        );
 
         if (!githubWebhookResponse.ok) {
           if (window.electronAPI) {
-            window.electronAPI.showCustomNotification('Game Creation Failed', 'Github App did not respond.');
+            window.electronAPI.showCustomNotification(
+              'Game Creation Failed',
+              'Github App did not respond.'
+            );
           }
           throw new Error('Failed to notify GitHub App.');
         }
@@ -365,7 +420,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       // Send the notification via main process.
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('Game Created', 'Your game was successfully created!');
+        window.electronAPI.showCustomNotification(
+          'Game Created',
+          'Your game was successfully created!'
+        );
       }
 
       handleClose();
@@ -376,15 +434,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
     }
   };
 
-  const handleTeamChange = (e) => {
+  const handleTeamChange = e => {
     const selectedTeamName = e.target.value;
     setSelectedTeam(selectedTeamName);
-    const team = teams.find((team) => team.team_name === selectedTeamName);
+    const team = teams.find(team => team.team_name === selectedTeamName);
     setTeamIconUrl(team ? team.team_icon_url : '');
   };
 
   const handleAuthorizeMoreRepos = () => {
-    const githubAppAuthUrl = 'https://github.com/apps/diabolical-launcher-integration/installations/select_target';
+    const githubAppAuthUrl =
+      'https://github.com/apps/diabolical-launcher-integration/installations/select_target';
     window.electronAPI.openExternal(githubAppAuthUrl);
   };
 
@@ -393,7 +452,12 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
   };
 
   return (
-    <StyledDialog open={open} container={document.getElementById('root')} onClose={handleClose} aria-labelledby='create-game-dialog-title'>
+    <StyledDialog
+      open={open}
+      container={document.getElementById('root')}
+      onClose={handleClose}
+      aria-labelledby="create-game-dialog-title"
+    >
       <Stack className={'p-6 overflow-hidden'}>
         <Stack
           className={'dialog gap-6 p-4'}
@@ -409,14 +473,18 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
             {/* Left side - Game Card */}
             <Stack
               width={'min-content'}
-              alignItems='center'
+              alignItems="center"
               className={'gap-6 justify-between rounded-sm'}
               style={{
                 gap: '24px',
               }}
             >
               <GameCard
-                style={{ aspectRatio: '63/88', outline: '1px solid' + colors.border, width: 'auto' }}
+                style={{
+                  aspectRatio: '63/88',
+                  outline: '1px solid' + colors.border,
+                  width: 'auto',
+                }}
                 game={{
                   game_name: gameName,
                   game_id: gameId,
@@ -432,11 +500,11 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
               />
               <Stack className={'w-full'} style={{ margin: 0, gap: '12px' }}>
                 <TextField
-                  label='Game ID'
-                  variant='outlined'
+                  label="Game ID"
+                  variant="outlined"
                   fullWidth
                   value={gameId}
-                  onChange={(e) => setGameId(e.target.value)}
+                  onChange={e => setGameId(e.target.value)}
                   error={gameIdError}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -465,15 +533,22 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       },
                     }}
                   >
-                    <InputLabel id='team-select-label' style={{ backgroundColor: colors.background, color: colors.border, padding: '0 8px' }}>
+                    <InputLabel
+                      id="team-select-label"
+                      style={{
+                        backgroundColor: colors.background,
+                        color: colors.border,
+                        padding: '0 8px',
+                      }}
+                    >
                       Team
                     </InputLabel>
                     <Select
-                      labelId='team-select-label'
+                      labelId="team-select-label"
                       value={selectedTeam}
-                      label='Team'
+                      label="Team"
                       onChange={handleTeamChange}
-                      variant='outlined'
+                      variant="outlined"
                       sx={{
                         '& .MuiOutlinedSelect-root': {
                           color: colors.text,
@@ -488,8 +563,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         },
                       }}
                     >
-                      {teams.map((team) => (
-                        <MenuItem style={{ backgroundColor: colors.background, color: colors.border, padding: '0 !important' }} key={team.team_name} value={team.team_name}>
+                      {teams.map(team => (
+                        <MenuItem
+                          style={{
+                            backgroundColor: colors.background,
+                            color: colors.border,
+                            padding: '0 !important',
+                          }}
+                          key={team.team_name}
+                          value={team.team_name}
+                        >
                           {team.team_name}
                         </MenuItem>
                       ))}
@@ -507,14 +590,21 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       },
                     }}
                   >
-                    <InputLabel id='status-select-label' style={{ backgroundColor: colors.background, color: colors.border, padding: '0 8px' }}>
+                    <InputLabel
+                      id="status-select-label"
+                      style={{
+                        backgroundColor: colors.background,
+                        color: colors.border,
+                        padding: '0 8px',
+                      }}
+                    >
                       Game Status
                     </InputLabel>
                     <Select
-                      labelId='status-select-label'
+                      labelId="status-select-label"
                       value={gameStatus}
-                      label='Game Status'
-                      onChange={(e) => setGameStatus(e.target.value)}
+                      label="Game Status"
+                      onChange={e => setGameStatus(e.target.value)}
                       sx={{
                         '& .MuiOutlinedSelect-root': {
                           color: colors.text,
@@ -529,14 +619,14 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         },
                       }}
                     >
-                      <MenuItem value='public'>Public</MenuItem>
-                      <MenuItem value='private'>Private</MenuItem>
-                      <MenuItem value='archived'>Archived</MenuItem>
+                      <MenuItem value="public">Public</MenuItem>
+                      <MenuItem value="private">Private</MenuItem>
+                      <MenuItem value="archived">Archived</MenuItem>
                     </Select>
                   </FormControl>
                 </Stack>
                 <ImageUploader
-                  onUpload={(url) => {
+                  onUpload={url => {
                     setGameBackgroundUrl(url);
                     setHasRequiredFields(true);
                   }}
@@ -550,7 +640,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
             {/* Right side - Upload Method */}
             <Stack className={'items-end w-full'} style={{ gap: '24px' }}>
               {/* Tabs at the top of the right side area */}
-              <Stack width='100%' sx={{ borderBottom: 1, borderColor: colors.border, WebkitAppRegion: 'no-drag' }}>
+              <Stack
+                width="100%"
+                sx={{ borderBottom: 1, borderColor: colors.border, WebkitAppRegion: 'no-drag' }}
+              >
                 <Tabs
                   value={activeTab}
                   onChange={handleTabChange}
@@ -561,7 +654,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   }}
                 >
                   <Tab
-                    label='Deploy from GitHub'
+                    label="Deploy from GitHub"
                     sx={{
                       color: colors.text,
                       '&.Mui-selected': {
@@ -570,7 +663,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     }}
                   />
                   <Tab
-                    label='Manual Upload'
+                    label="Manual Upload"
                     sx={{
                       color: colors.text,
                       '&.Mui-selected': {
@@ -586,7 +679,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   <>
                     {connectedAccounts.length > 0 && (
                       <Stack
-                        direction='row'
+                        direction="row"
                         spacing={2}
                         sx={{
                           backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -596,11 +689,11 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         }}
                       >
                         <Stack spacing={1}>
-                          <Typography variant='subtitle2' sx={{ color: colors.text }}>
+                          <Typography variant="subtitle2" sx={{ color: colors.text }}>
                             Connected GitHub Accounts
                           </Typography>
-                          {connectedAccounts.map((account) => (
-                            <Stack direction='row' alignItems='center' gap={1}>
+                          {connectedAccounts.map(account => (
+                            <Stack direction="row" alignItems="center" gap={1}>
                               <img
                                 src={account.avatarUrl}
                                 alt={account.name}
@@ -613,7 +706,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                               />
                               <Typography
                                 key={account.id}
-                                variant='body2'
+                                variant="body2"
                                 sx={{
                                   color: colors.text,
                                   display: 'flex',
@@ -624,7 +717,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                                 {account.name}
                                 <Chip
                                   label={account.type}
-                                  size='small'
+                                  size="small"
                                   sx={{
                                     backgroundColor: 'rgba(0, 188, 212, 0.1)',
                                     color: '#00bcd4',
@@ -639,9 +732,9 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     )}
 
                     <TextField
-                      placeholder='Search repositories...'
+                      placeholder="Search repositories..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={e => setSearchQuery(e.target.value)}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           color: colors.text,
@@ -684,30 +777,51 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         }}
                       >
                         {loadingRepos ? (
-                          <Stack alignItems='center' justifyContent='center' style={{ height: '100%' }}>
+                          <Stack
+                            alignItems="center"
+                            justifyContent="center"
+                            style={{ height: '100%' }}
+                          >
                             <CircularProgress size={20} />
-                            <p style={{ color: colors.text, fontSize: '14px', margin: '8px 0 0' }}>Loading Repositories...</p>
+                            <p style={{ color: colors.text, fontSize: '14px', margin: '8px 0 0' }}>
+                              Loading Repositories...
+                            </p>
                           </Stack>
                         ) : (
                           <>
                             {filteredRepos.length === 0 ? (
-                              <Stack alignItems='center' justifyContent='center' style={{ height: '100%' }}>
-                                <p style={{ color: colors.text, fontSize: '14px' }}>{searchQuery ? 'No repositories found' : 'No repositories available'}</p>
+                              <Stack
+                                alignItems="center"
+                                justifyContent="center"
+                                style={{ height: '100%' }}
+                              >
+                                <p style={{ color: colors.text, fontSize: '14px' }}>
+                                  {searchQuery
+                                    ? 'No repositories found'
+                                    : 'No repositories available'}
+                                </p>
                               </Stack>
                             ) : (
                               <>
-                                {filteredRepos.map((repo) => (
+                                {filteredRepos.map(repo => (
                                   <Stack
                                     key={repo.id}
-                                    direction='row'
-                                    className={'justify-between items-center p-2 rounded-sm cursor-pointer'}
+                                    direction="row"
+                                    className={
+                                      'justify-between items-center p-2 rounded-sm cursor-pointer'
+                                    }
                                     style={{
                                       transition: 'background 0.2s',
-                                      border: selectedRepo === repo.full_name ? '1px solid #00bcd4' : 'transparent',
+                                      border:
+                                        selectedRepo === repo.full_name
+                                          ? '1px solid #00bcd4'
+                                          : 'transparent',
                                     }}
                                     onClick={() => setSelectedRepo(repo.full_name)}
-                                    onMouseEnter={(e) => (e.currentTarget.style.background = '#222')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                                    onMouseEnter={e => (e.currentTarget.style.background = '#222')}
+                                    onMouseLeave={e =>
+                                      (e.currentTarget.style.background = 'transparent')
+                                    }
                                   >
                                     <img
                                       src={ownerAvatars[repo.owner.login] || '/github.png'}
@@ -719,12 +833,24 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                                         objectFit: 'cover',
                                       }}
                                     />
-                                    <p style={{ color: colors.text, margin: 0, fontSize: '14px', flex: 1, paddingLeft: '8px' }}>{repo.full_name}</p>
+                                    <p
+                                      style={{
+                                        color: colors.text,
+                                        margin: 0,
+                                        fontSize: '14px',
+                                        flex: 1,
+                                        paddingLeft: '8px',
+                                      }}
+                                    >
+                                      {repo.full_name}
+                                    </p>
                                     <Chip
                                       label={repo.private ? 'Private' : 'Public'}
-                                      size='small'
+                                      size="small"
                                       sx={{
-                                        backgroundColor: repo.private ? 'rgba(255, 64, 129, 0.1)' : 'rgba(0, 230, 118, 0.1)',
+                                        backgroundColor: repo.private
+                                          ? 'rgba(255, 64, 129, 0.1)'
+                                          : 'rgba(0, 230, 118, 0.1)',
                                         color: repo.private ? '#ff4081' : '#00e676',
                                         height: '20px',
                                         fontSize: '12px',
@@ -741,7 +867,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     </Stack>
 
                     <Button
-                      variant='outlined'
+                      variant="outlined"
                       onClick={handleAuthorizeMoreRepos}
                       sx={{
                         color: '#00bcd4',
@@ -763,11 +889,15 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   // Manual Upload Tab
                   <Stack spacing={2}>
                     <TextField
-                      label='Version'
+                      label="Version"
                       value={gameVersion}
                       onChange={handleVersionChange}
                       error={!validateVersion(gameVersion)}
-                      helperText={!validateVersion(gameVersion) ? 'Version must be in format X.Y.Z (e.g., 1.0.0)' : ''}
+                      helperText={
+                        !validateVersion(gameVersion)
+                          ? 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+                          : ''
+                      }
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           color: colors.text,
@@ -786,17 +916,17 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       }}
                     />
                     <Stack
-                      onDragOver={(e) => {
+                      onDragOver={e => {
                         e.preventDefault();
                         e.currentTarget.style.borderColor = colors.button;
                         e.currentTarget.style.backgroundColor = `${colors.button}20`;
                       }}
-                      onDragLeave={(e) => {
+                      onDragLeave={e => {
                         e.preventDefault();
                         e.currentTarget.style.borderColor = colors.border;
                         e.currentTarget.style.backgroundColor = colors.background;
                       }}
-                      onDrop={(e) => {
+                      onDrop={e => {
                         e.preventDefault();
                         e.currentTarget.style.borderColor = colors.border;
                         e.currentTarget.style.backgroundColor = colors.background;
@@ -816,32 +946,40 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       }}
                     >
                       <input
-                        id='game-file-upload'
+                        id="game-file-upload"
                         hidden
-                        type='file'
-                        accept='.zip'
-                        onChange={(e) => {
+                        type="file"
+                        accept=".zip"
+                        onChange={e => {
                           const file = e.target.files[0];
                           handleGameFileSelect(file);
                         }}
                       />
                       {isUploading ? (
-                        <Stack alignItems='center' gap={1}>
+                        <Stack alignItems="center" gap={1}>
                           <CircularProgress size={24} />
-                          <span style={{ color: colors.text }}>Uploading... {Math.round(uploadProgress)}%</span>
+                          <span style={{ color: colors.text }}>
+                            Uploading... {Math.round(uploadProgress)}%
+                          </span>
                         </Stack>
                       ) : gameFile ? (
-                        <Stack alignItems='center' gap={1}>
+                        <Stack alignItems="center" gap={1}>
                           <UploadIcon style={{ color: colors.button }} />
                           <span style={{ color: colors.text }}>Game File Selected ✅</span>
-                          <span style={{ color: colors.border, fontSize: '12px' }}>{gameFileName}</span>
-                          <span style={{ color: colors.border, fontSize: '12px' }}>Click or drag to change</span>
+                          <span style={{ color: colors.border, fontSize: '12px' }}>
+                            {gameFileName}
+                          </span>
+                          <span style={{ color: colors.border, fontSize: '12px' }}>
+                            Click or drag to change
+                          </span>
                         </Stack>
                       ) : (
-                        <Stack alignItems='center' gap={1}>
+                        <Stack alignItems="center" gap={1}>
                           <UploadIcon style={{ color: colors.border }} />
                           <span style={{ color: colors.text }}>Upload Game File</span>
-                          <span style={{ color: colors.border, fontSize: '12px' }}>Supports ZIP files only</span>
+                          <span style={{ color: colors.border, fontSize: '12px' }}>
+                            Supports ZIP files only
+                          </span>
                         </Stack>
                       )}
                     </Stack>
@@ -867,11 +1005,15 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   },
                 }}
                 onClick={handleSave}
-                aria-label='save'
+                aria-label="save"
                 startIcon={<RocketLaunchIcon />}
                 disabled={isSaving || !hasRequiredFields}
               >
-                {isSaving ? <CircularProgress size={20} color='inherit' /> : 'Create and Deploy Game!'}
+                {isSaving ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  'Create and Deploy Game!'
+                )}
               </Button>
             </Stack>
           </div>

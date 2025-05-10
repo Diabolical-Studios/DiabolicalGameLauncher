@@ -37,7 +37,17 @@ export default async (request, context) => {
     });
   }
 
-  const { game_name, game_id, team_name, description, background_image_url, version, team_icon_url, github_repo, status } = body;
+  const {
+    game_name,
+    game_id,
+    team_name,
+    description,
+    background_image_url,
+    version,
+    team_icon_url,
+    github_repo,
+    status,
+  } = body;
 
   if (!game_name || !game_id || !team_name) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -62,10 +72,13 @@ export default async (request, context) => {
     });
 
     if (!githubIdRes.ok) {
-      return new Response(JSON.stringify({ error: `Failed to verify session: ${githubIdRes.status}` }), {
-        status: githubIdRes.status,
-        headers: { 'content-type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: `Failed to verify session: ${githubIdRes.status}` }),
+        {
+          status: githubIdRes.status,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
 
     const { github_id: sessionGithubId } = await githubIdRes.json();
@@ -97,10 +110,13 @@ export default async (request, context) => {
     });
 
     if (!gameUploadRes.ok) {
-      return new Response(JSON.stringify({ error: `Failed to create game: ${gameUploadRes.status}` }), {
-        status: gameUploadRes.status,
-        headers: { 'content-type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: `Failed to create game: ${gameUploadRes.status}` }),
+        {
+          status: gameUploadRes.status,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
 
     const gameData = await gameUploadRes.json();
@@ -109,10 +125,15 @@ export default async (request, context) => {
     if (typeof gameData.status !== 'undefined') {
       const validStatuses = ['public', 'private', 'archived'];
       if (!validStatuses.includes(gameData.status)) {
-        return new Response(JSON.stringify({ error: 'Invalid status value. Must be one of: public, private, archived.' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        return new Response(
+          JSON.stringify({
+            error: 'Invalid status value. Must be one of: public, private, archived.',
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }
     }
 

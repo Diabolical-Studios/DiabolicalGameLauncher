@@ -1,17 +1,17 @@
 let mainWindow = null;
 
 function setMainWindow(win) {
-    mainWindow = win;
+  mainWindow = win;
 }
 
 function getMainWindow() {
-    return mainWindow;
+  return mainWindow;
 }
 
 function showMessage(message) {
-    if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('updateMessage', message);
-    }
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('updateMessage', message);
+  }
 }
 
-module.exports = {setMainWindow, getMainWindow, showMessage};
+module.exports = { setMainWindow, getMainWindow, showMessage };

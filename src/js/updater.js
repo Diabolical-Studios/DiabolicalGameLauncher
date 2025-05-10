@@ -70,7 +70,7 @@ function getCurrentGameVersion(gameId) {
 
 // Check for updates every minute
 function periodicallyCheckGameVersions(gameIds, interval = 60000) {
-  gameIds.forEach((gameId) => {
+  gameIds.forEach(gameId => {
     const currentVersion = getCurrentGameVersion(gameId);
     if (currentVersion) {
       checkGameUpdates(gameId, currentVersion);
@@ -78,7 +78,7 @@ function periodicallyCheckGameVersions(gameIds, interval = 60000) {
   });
 
   setInterval(() => {
-    gameIds.forEach((gameId) => {
+    gameIds.forEach(gameId => {
       const currentVersion = getCurrentGameVersion(gameId);
       if (currentVersion) {
         checkGameUpdates(gameId, currentVersion);
@@ -118,7 +118,12 @@ function initUpdater() {
       autoUpdater.downloadUpdate();
     } else {
       showMessage('Diabolical Launcher');
-      showCustomNotification(mainWindow, 'Launcher Update', 'Launcher update available but auto-update is disabled in settings.', 'launcher');
+      showCustomNotification(
+        mainWindow,
+        'Launcher Update',
+        'Launcher update available but auto-update is disabled in settings.',
+        'launcher'
+      );
     }
   });
 
@@ -132,7 +137,7 @@ function initUpdater() {
     autoUpdater.quitAndInstall();
   });
 
-  autoUpdater.on('error', (info) => {
+  autoUpdater.on('error', info => {
     showMessage(`Launcher update error: ${info}`);
   });
 }

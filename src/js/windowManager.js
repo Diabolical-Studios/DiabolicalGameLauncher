@@ -35,10 +35,10 @@ function log(msg) {
    Wait until the React dev-server answers on localhost:8888
 ------------------------------------------------------------------*/
 async function waitForReact() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const timer = setInterval(() => {
       http
-        .get('http://localhost:8888', (res) => {
+        .get('http://localhost:8888', res => {
           if (res.statusCode === 200) {
             clearInterval(timer);
             resolve();
@@ -71,7 +71,10 @@ async function createWindow() {
     startURL = 'http://localhost:8888';
     await waitForReact();
   } else {
-    startURL = buildEnv === 'development' ? 'https://dev.launcher.diabolical.studio' : 'https://launcher.diabolical.studio';
+    startURL =
+      buildEnv === 'development'
+        ? 'https://dev.launcher.diabolical.studio'
+        : 'https://launcher.diabolical.studio';
   }
 
   log(`npm_package_env_NODE_ENV: ${buildEnv}`);
@@ -180,7 +183,7 @@ async function createWindow() {
         'localhost',
       ];
 
-      const isAllowed = allowedDomains.some((domain) => parsedUrl.hostname.endsWith(domain));
+      const isAllowed = allowedDomains.some(domain => parsedUrl.hostname.endsWith(domain));
       if (!isAllowed) {
         event.preventDefault();
         console.warn(`Blocked navigation to unauthorized domain: ${url}`);
@@ -214,7 +217,7 @@ async function createWindow() {
         'fonts.gstatic.com',
       ];
 
-      const isAllowed = allowedDomains.some((domain) => parsedUrl.hostname.endsWith(domain));
+      const isAllowed = allowedDomains.some(domain => parsedUrl.hostname.endsWith(domain));
       if (!isAllowed) {
         console.warn(`Blocked new window to unauthorized domain: ${url}`);
         return { action: 'deny' };
@@ -253,11 +256,11 @@ async function createWindow() {
       mainWindow = null;
     });
     mainWindow.center();
-    mainWindow.on('will-resize', (e) => {
+    mainWindow.on('will-resize', e => {
       if (!allowResize) e.preventDefault();
     });
 
-    mainWindow.on('close', (e) => {
+    mainWindow.on('close', e => {
       const closeSettings = loadSettings();
       if (closeSettings.minimizeToTray) {
         e.preventDefault();

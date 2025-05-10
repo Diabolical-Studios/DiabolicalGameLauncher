@@ -16,7 +16,7 @@ const StatusBar = () => {
 
   useEffect(() => {
     if (window.versions) {
-      window.versions.getAppVersion().then((version) => {
+      window.versions.getAppVersion().then(version => {
         // hostname will be…
         //   localhost:8888           ← npm start (live-reload dev)
         //   dev.launcher…            ← packaged "dev" build
@@ -29,7 +29,7 @@ const StatusBar = () => {
 
     // Simulate async status fetches
     const checkStatus = async () => {
-      const realPing = async (url) => {
+      const realPing = async url => {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 3000); // Optional: timeout after 3s
@@ -41,7 +41,13 @@ const StatusBar = () => {
         }
       };
 
-      const [diabolicalOracleBucket, diabolicalApi, diabolicalLauncher, diabolicalGithub, diabolicalCloudflareBucket] = await Promise.all([
+      const [
+        diabolicalOracleBucket,
+        diabolicalApi,
+        diabolicalLauncher,
+        diabolicalGithub,
+        diabolicalCloudflareBucket,
+      ] = await Promise.all([
         realPing('https://objectstorage.eu-frankfurt-1.oraclecloud.com/...'),
         realPing('https://api.diabolical.studio'),
         realPing('https://launcher.diabolical.studio'),
@@ -63,19 +69,19 @@ const StatusBar = () => {
     checkStatus();
 
     if (window.api) {
-      window.api.onDbStatusChange((color) => {
+      window.api.onDbStatusChange(color => {
         console.log(`Received new status color: ${color}`);
       });
 
-      window.api.onUpdateMessage((msg) => {
+      window.api.onUpdateMessage(msg => {
         console.log(`Received new message: ${msg}`);
         setMessage(msg);
       });
     }
   }, []);
 
-  const allUp = Object.values(statuses).every((color) => color === 'green');
-  const allDown = Object.values(statuses).every((color) => color === 'red');
+  const allUp = Object.values(statuses).every(color => color === 'green');
+  const allDown = Object.values(statuses).every(color => color === 'red');
 
   let mainColor = 'gray';
   if (allUp) mainColor = 'green';
@@ -92,7 +98,9 @@ const StatusBar = () => {
     >
       <div>
         <div
-          className={'hover-effect flex position-relative align-center items-center h-fit p-3 border rounded-sm gap-3 cursor-pointer backdrop-blur'}
+          className={
+            'hover-effect flex position-relative align-center items-center h-fit p-3 border rounded-sm gap-3 cursor-pointer backdrop-blur'
+          }
           style={{
             borderColor: colors.border,
             maxWidth: '800px',
@@ -102,36 +110,56 @@ const StatusBar = () => {
             navigator.clipboard.writeText(window.location.href);
           }}
         >
-          <div id='message' style={{ whiteSpace: 'nowrap', color: colors.text }}>
+          <div id="message" style={{ whiteSpace: 'nowrap', color: colors.text }}>
             {message}
           </div>
 
           <Tooltip
             title={
               <Stack spacing={1} sx={{ padding: 1 }}>
-                <Box display='flex' alignItems='center' gap={1}>
-                  <Box width={10} height={10} borderRadius='50%' bgcolor={statuses.diabolicalOracleBucket} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box
+                    width={10}
+                    height={10}
+                    borderRadius="50%"
+                    bgcolor={statuses.diabolicalOracleBucket}
+                  />
                   <span>Oracle Bucket</span>
                 </Box>
-                <Box display='flex' alignItems='center' gap={1}>
-                  <Box width={10} height={10} borderRadius='50%' bgcolor={statuses.diabolicalApi} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalApi} />
                   <span>Diabolical Api</span>
                 </Box>
-                <Box display='flex' alignItems='center' gap={1}>
-                  <Box width={10} height={10} borderRadius='50%' bgcolor={statuses.diabolicalLauncher} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box
+                    width={10}
+                    height={10}
+                    borderRadius="50%"
+                    bgcolor={statuses.diabolicalLauncher}
+                  />
                   <span>Diabolical Launcher</span>
                 </Box>
-                <Box display='flex' alignItems='center' gap={1}>
-                  <Box width={10} height={10} borderRadius='50%' bgcolor={statuses.diabolicalGithub} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box
+                    width={10}
+                    height={10}
+                    borderRadius="50%"
+                    bgcolor={statuses.diabolicalGithub}
+                  />
                   <span>Diabolical Github</span>
                 </Box>
-                <Box display='flex' alignItems='center' gap={1}>
-                  <Box width={10} height={10} borderRadius='50%' bgcolor={statuses.diabolicalCloudflareBucket} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Box
+                    width={10}
+                    height={10}
+                    borderRadius="50%"
+                    bgcolor={statuses.diabolicalCloudflareBucket}
+                  />
                   <span>Cloudflare Bucket</span>
                 </Box>
               </Stack>
             }
-            placement='top'
+            placement="top"
             arrow
             componentsProps={{
               tooltip: {
@@ -159,7 +187,7 @@ const StatusBar = () => {
             ></div>
           </Tooltip>
 
-          <span style={{ color: colors.text }} id='launcher-version-number'>
+          <span style={{ color: colors.text }} id="launcher-version-number">
             {appVersion}
           </span>
         </div>

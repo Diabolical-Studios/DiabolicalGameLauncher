@@ -14,7 +14,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
   "publish": {
@@ -89,6 +90,7 @@
     "electron-builder": "^24.13.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.2.5",
     "ts-jest": "^29.1.2"
   }
 }

@@ -47,10 +47,13 @@ export default async (request, context) => {
   if (version) {
     const versionRegex = /^\d+\.\d+\.\d+$/;
     if (!versionRegex.test(version)) {
-      return new Response(JSON.stringify({ error: 'Version must be in format X.Y.Z (e.g., 1.0.0)' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Version must be in format X.Y.Z (e.g., 1.0.0)' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Only check version increment if this is a manual upload
@@ -107,7 +110,7 @@ export default async (request, context) => {
             {
               status: 400,
               headers: { 'Content-Type': 'application/json' },
-            },
+            }
           );
         }
       } catch (error) {
@@ -124,10 +127,15 @@ export default async (request, context) => {
   if (typeof status !== 'undefined') {
     const validStatuses = ['public', 'private', 'archived'];
     if (!validStatuses.includes(status)) {
-      return new Response(JSON.stringify({ error: 'Invalid status value. Must be one of: public, private, archived.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid status value. Must be one of: public, private, archived.',
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
   }
 
@@ -178,12 +186,13 @@ export default async (request, context) => {
       return new Response(
         JSON.stringify({
           error: errText,
-          details: 'Failed to update game. Please check the version format and ensure you have the necessary permissions.',
+          details:
+            'Failed to update game. Please check the version format and ensure you have the necessary permissions.',
         }),
         {
           status: apiRes.status,
           headers: { 'Content-Type': 'application/json' },
-        },
+        }
       );
     }
 
@@ -196,6 +205,9 @@ export default async (request, context) => {
     });
   } catch (error) {
     console.error('❌ API Error:', error.message);
-    return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };

@@ -14,21 +14,29 @@ const Games = ({ teams }) => {
   const [selectedTeams, setSelectedTeams] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleChipClick = (teamName) => {
-    setSelectedTeams((prevSelected) => (prevSelected.includes(teamName) ? prevSelected.filter((name) => name !== teamName) : [...prevSelected, teamName]));
+  const handleChipClick = teamName => {
+    setSelectedTeams(prevSelected =>
+      prevSelected.includes(teamName)
+        ? prevSelected.filter(name => name !== teamName)
+        : [...prevSelected, teamName]
+    );
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = event => {
     setSearchQuery(event.target.value.toLowerCase());
   };
 
-  const handleSaveGameChanges = (updatedGame) => {
+  const handleSaveGameChanges = updatedGame => {
     console.log('✅ Updating Game in UI:', updatedGame);
-    setGames((prevGames) => prevGames.map((game) => (game.game_id === updatedGame.game_id ? { ...game, ...updatedGame } : game)));
+    setGames(prevGames =>
+      prevGames.map(game =>
+        game.game_id === updatedGame.game_id ? { ...game, ...updatedGame } : game
+      )
+    );
   };
 
   const filterGames = () => {
-    return games.filter((game) => {
+    return games.filter(game => {
       const gameName = game.game_name || '';
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(game.team_name);
       const matchesSearch = gameName.toLowerCase().includes(searchQuery);
@@ -83,7 +91,7 @@ const Games = ({ teams }) => {
         }}
       >
         <Stack direction={'row'} className={'gap-3 flex-wrap items-center w-1/2'}>
-          {teams.map((team) => (
+          {teams.map(team => (
             <Chip
               key={team.team_name}
               label={team.team_name}
@@ -100,8 +108,8 @@ const Games = ({ teams }) => {
         </Stack>
         <TextField
           style={{ width: '50%' }}
-          label='Search Games'
-          variant='outlined'
+          label="Search Games"
+          variant="outlined"
           fullWidth
           onChange={handleSearchChange}
           sx={{
@@ -131,7 +139,11 @@ const Games = ({ teams }) => {
             <Zoom key={game.game_id} in={!loading} timeout={300 + index * 100}>
               <Stack className={'gap-3'} direction={'row'}>
                 <div>
-                  <EditGameCard game={game} isInstalled={false} onUpdateGame={handleSaveGameChanges} />
+                  <EditGameCard
+                    game={game}
+                    isInstalled={false}
+                    onUpdateGame={handleSaveGameChanges}
+                  />
                 </div>
                 <GameInfoPanel game={game} />
               </Stack>
