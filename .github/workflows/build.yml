@@ -12,6 +12,7 @@ on:
 env:
   IS_DEV: ${{ startsWith(github.ref, 'refs/heads/dev') }}
   IS_PROD: ${{ startsWith(github.ref, 'refs/heads/master') }}
+  PUBLISH_CHANNEL: ${{ startsWith(github.ref, 'refs/heads/dev') && 'beta' || 'latest' }}
 
 jobs:
   build_and_release:
@@ -97,6 +98,7 @@ jobs:
       - name: 🔨 Build and package Electron app
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          PUBLISH_CHANNEL: ${{ env.PUBLISH_CHANNEL }}
         shell: bash
         run: |
           if [[ "${{ env.IS_DEV }}" == "true" ]]; then
@@ -144,7 +146,7 @@ jobs:
           subject-name: ${{ env.INSTALLER }}
 
       # --------------------------------------------------------------
-      # 🚀 Create GitHub Release (pre-release for dev, full for prod) 
+      # 🚀 Create GitHub Release (pre-release for dev, full for prod)
       # --------------------------------------------------------------
       - name: 🚀 Publish GitHub Release
         if: env.IS_DEV || env.IS_PROD
@@ -153,7 +155,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
-          name: ${{ env.IS_DEV == 'true' && format('DEV build – {0}', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
+          name: ${{ env.IS_DEV == 'true' && format('{0}-beta', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
           files: |
             dist/${{ env.INSTALLER }}
             dist/latest.yml
