@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Box, Container, TextField } from '@mui/material';
 import { colors } from '../theme/colors';
 import axios from 'axios';
@@ -11,6 +11,46 @@ const StorePage = () => {
   const [libraryGames, setLibraryGames] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [runningGames, setRunningGames] = useState({});
+
+  // Load library games from localStorage on mount
+  useEffect(() => {
+    const loadLibraryGames = () => {
+      try {
+        const localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        setLibraryGames(localLibrary);
+      } catch (e) {
+        console.error('Error loading library games from localStorage:', e);
+        setLibraryGames([]);
+      }
+    };
+
+    loadLibraryGames();
+
+    // Add event listener for storage changes
+    const handleStorageChange = e => {
+      if (e.key === 'localLibrary') {
+        try {
+          const newLibrary = JSON.parse(e.newValue) || [];
+          setLibraryGames(newLibrary);
+        } catch (err) {
+          console.error('Error handling storage change:', err);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Update library games when they change
+  const handleLibraryUpdate = useCallback(newLibraryGames => {
+    if (!Array.isArray(newLibraryGames)) {
+      console.error('Invalid library games update:', newLibraryGames);
+      return;
+    }
+    setLibraryGames(newLibraryGames);
+    localStorage.setItem('localLibrary', JSON.stringify(newLibraryGames));
+  }, []);
 
   // Memoize the filtered games based on search query
   const filteredGames = useMemo(() => {
@@ -57,78 +97,31 @@ const StorePage = () => {
 
   useEffect(() => {
     const loadGames = async () => {
+      // 1. Try to load from localStorage first
+      let localGames = [];
       try {
-        // 2. Try live API first
-        try {
-          const response = await axios.get('/get-all-games');
-          const freshGames = response.data;
-          setGames(freshGames);
-
-          // Cache games locally only in desktop environment
-          if (window.electronAPI?.cacheGamesLocally) {
-            window.electronAPI.cacheGamesLocally(freshGames);
-          }
-        } catch (error) {
-          console.error('❌ Error fetching games from API:', error);
-
-          // 3. Fallback to cached games if API fails (only in desktop environment)
-          if (window.electronAPI?.getCachedGames) {
-            try {
-              const cachedGames = await window.electronAPI.getCachedGames();
-              if (cachedGames.length > 0) {
-                setGames(cachedGames);
-                window.electronAPI?.showCustomNotification(
-                  'Offline Mode',
-                  'Showing cached games. Some features may be limited.'
-                );
-              }
-            } catch (cacheErr) {
-              console.error('Error loading cached games:', cacheErr);
-            }
-          }
+        localGames = JSON.parse(localStorage.getItem('localGames')) || [];
+        if (localGames.length) {
+          setGames(localGames);
         }
+      } catch (e) {
+        console.error('Error loading games from localStorage:', e);
+      }
+
+      // 2. Fetch latest games from API and update the list
+      try {
+        const response = await axios.get('/get-all-games');
+        const freshGames = response.data;
+        setGames(freshGames);
+
+        // Store in localStorage
+        localStorage.setItem('localGames', JSON.stringify(freshGames));
       } catch (err) {
-        console.error('Error in loadGames:', err);
+        console.error('Error loading games:', err);
       }
     };
 
     loadGames();
-  }, []);
-
-  // Fetch library games
-  useEffect(() => {
-    const fetchLibraryGames = async () => {
-      try {
-        const sessionID = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('sessionID='))
-          ?.split('=')[1];
-
-        if (!sessionID) {
-          console.log('No session ID found, skipping library fetch');
-          return;
-        }
-
-        const response = await fetch('/get-library-games', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            SessionID: sessionID,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch library games');
-        }
-
-        const data = await response.json();
-        setLibraryGames(data.map(game => game.game_id));
-      } catch (error) {
-        console.error('Error fetching library games:', error);
-      }
-    };
-
-    fetchLibraryGames();
   }, []);
 
   const specialOffers = shuffledGames.slice(3, 8);
@@ -171,7 +164,7 @@ const StorePage = () => {
             games={featuredGames}
             libraryGames={libraryGames}
             runningGames={runningGames}
-            onLibraryUpdate={setLibraryGames}
+            onLibraryUpdate={handleLibraryUpdate}
           />
         )}
 
@@ -181,7 +174,7 @@ const StorePage = () => {
             games={specialOffers}
             libraryGames={libraryGames}
             runningGames={runningGames}
-            onLibraryUpdate={setLibraryGames}
+            onLibraryUpdate={handleLibraryUpdate}
           />
         )}
 
@@ -191,14 +184,14 @@ const StorePage = () => {
             games={filteredGames}
             libraryGames={libraryGames}
             runningGames={runningGames}
-            onLibraryUpdate={setLibraryGames}
+            onLibraryUpdate={handleLibraryUpdate}
           />
         ) : (
           <NewReleases
             games={newReleases}
             libraryGames={libraryGames}
             runningGames={runningGames}
-            onLibraryUpdate={setLibraryGames}
+            onLibraryUpdate={handleLibraryUpdate}
           />
         )}
       </Container>

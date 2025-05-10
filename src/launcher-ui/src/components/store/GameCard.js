@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardMedia, Typography, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -75,6 +75,22 @@ export const GameCardComponent = ({
   const [isAddingToLibrary, setIsAddingToLibrary] = useState(false);
   const isInLibrary = libraryGames.includes(game.game_id);
 
+  // Add a useEffect to sync with localStorage
+  useEffect(() => {
+    const syncWithLocalStorage = () => {
+      try {
+        const localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        if (JSON.stringify(localLibrary) !== JSON.stringify(libraryGames)) {
+          onLibraryUpdate(localLibrary);
+        }
+      } catch (e) {
+        console.error('Error syncing with localStorage:', e);
+      }
+    };
+
+    syncWithLocalStorage();
+  }, [libraryGames, onLibraryUpdate]);
+
   if (!game) return null;
 
   const handleButtonClick = async () => {
@@ -91,7 +107,74 @@ export const GameCardComponent = ({
           ?.split('=')[1];
 
         if (!sessionID) {
-          throw new Error('No session ID found. Please log in to add games to your library.');
+          // Fallback: Add to localStorage library
+          let localLibrary = [];
+          try {
+            localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+          } catch (e) {
+            localLibrary = [];
+          }
+          if (!localLibrary.includes(game.game_id)) {
+            // Store complete game details in localStorage
+            const gameDetails = {
+              game_id: game.game_id,
+              game_name: game.game_name,
+              version: game.version || '1.0.0',
+              description: game.description || '',
+              background_image_url: game.background_image_url || '',
+              banner_image_url: game.banner_image_url || '',
+              playtime: 0,
+              achievements: { completed: 0, total: 0 },
+              disk_usage: '0 MB',
+              last_played: null,
+              properties: {
+                branch: 'latest',
+                language: 'en',
+                downloadLocation: '',
+                launchOptions: '',
+                notes: '',
+              },
+            };
+
+            // Store in localLibrary array
+            localLibrary.push(game.game_id);
+            localStorage.setItem('localLibrary', JSON.stringify(localLibrary));
+
+            // Store game details separately
+            const gameDetailsKey = `game_${game.game_id}`;
+            localStorage.setItem(gameDetailsKey, JSON.stringify(gameDetails));
+
+            // Update cached games
+            if (window.electronAPI?.cacheGamesLocally) {
+              let cachedGames = [];
+              try {
+                cachedGames = await window.electronAPI.getCachedGames();
+              } catch (e) {
+                cachedGames = [];
+              }
+              if (!cachedGames.find(g => g.game_id === game.game_id)) {
+                cachedGames.push(gameDetails);
+                window.electronAPI.cacheGamesLocally(cachedGames);
+              }
+            }
+
+            if (window.electronAPI) {
+              window.electronAPI.showCustomNotification(
+                'Game Added',
+                'Game has been added to your local library!'
+              );
+            }
+            // Update the library state immediately
+            onLibraryUpdate([...localLibrary]);
+          } else {
+            if (window.electronAPI) {
+              window.electronAPI.showCustomNotification(
+                'Already in Library',
+                'This game is already in your local library.'
+              );
+            }
+          }
+          return;
         }
 
         const response = await fetch('/add-to-library', {
@@ -110,6 +193,45 @@ export const GameCardComponent = ({
           throw new Error(errorData.error || 'Failed to add game to library');
         }
 
+        // Store complete game details in localStorage even for online mode
+        const gameDetails = {
+          game_id: game.game_id,
+          game_name: game.game_name,
+          version: game.version || 'unknown',
+          description: game.description || '',
+          background_image_url: game.background_image_url || '',
+          banner_image_url: game.banner_image_url || '',
+          playtime: 0,
+          achievements: { completed: 0, total: 0 },
+          disk_usage: '0 MB',
+          last_played: null,
+          properties: {
+            branch: 'latest',
+            language: 'en',
+            downloadLocation: '',
+            launchOptions: '',
+            notes: '',
+          },
+        };
+
+        // Store game details
+        const gameDetailsKey = `game_${game.game_id}`;
+        localStorage.setItem(gameDetailsKey, JSON.stringify(gameDetails));
+
+        // Update cached games
+        if (window.electronAPI?.cacheGamesLocally) {
+          let cachedGames = [];
+          try {
+            cachedGames = await window.electronAPI.getCachedGames();
+          } catch (e) {
+            cachedGames = [];
+          }
+          if (!cachedGames.find(g => g.game_id === game.game_id)) {
+            cachedGames.push(gameDetails);
+            window.electronAPI.cacheGamesLocally(cachedGames);
+          }
+        }
+
         if (window.electronAPI) {
           window.electronAPI.showCustomNotification(
             'Game Added',
@@ -117,7 +239,11 @@ export const GameCardComponent = ({
           );
         }
 
-        onLibraryUpdate(prev => [...prev, game.game_id]);
+        // Get current library games and add the new one
+        const currentLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        const updatedLibrary = [...currentLibrary, game.game_id];
+        // Update the library state immediately
+        onLibraryUpdate(updatedLibrary);
       } catch (err) {
         console.error('Error adding game to library:', err);
         if (window.electronAPI) {

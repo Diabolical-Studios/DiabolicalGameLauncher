@@ -56,6 +56,178 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
     return () => clearInterval(progressInterval);
   }, [games.length, currentIndex, isHovering]);
 
+  const handleAddToLibrary = async game => {
+    try {
+      const sessionID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('sessionID='))
+        ?.split('=')[1];
+
+      if (!sessionID) {
+        // Fallback: Add to localStorage library
+        let localLibrary = [];
+        try {
+          localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        } catch (e) {
+          localLibrary = [];
+        }
+        if (!localLibrary.includes(game.game_id)) {
+          // Store complete game details in localStorage
+          const gameDetails = {
+            game_id: game.game_id,
+            game_name: game.game_name,
+            version: game.version || 'unknown',
+            description: game.description || '',
+            background_image_url: game.background_image_url || '',
+            banner_image_url: game.banner_image_url || '',
+            playtime: 0,
+            achievements: { completed: 0, total: 0 },
+            disk_usage: '0 MB',
+            last_played: null,
+            properties: {
+              branch: 'latest',
+              language: 'en',
+              downloadLocation: '',
+              launchOptions: '',
+              notes: '',
+            },
+          };
+
+          // Store in localLibrary array
+          localLibrary.push(game.game_id);
+          localStorage.setItem('localLibrary', JSON.stringify(localLibrary));
+
+          // Store game details separately
+          const gameDetailsKey = `game_${game.game_id}`;
+          localStorage.setItem(gameDetailsKey, JSON.stringify(gameDetails));
+
+          // Update cached games
+          if (window.electronAPI?.cacheGamesLocally) {
+            let cachedGames = [];
+            try {
+              cachedGames = await window.electronAPI.getCachedGames();
+            } catch (e) {
+              cachedGames = [];
+            }
+            if (!cachedGames.find(g => g.game_id === game.game_id)) {
+              cachedGames.push(gameDetails);
+              window.electronAPI.cacheGamesLocally(cachedGames);
+            }
+          }
+
+          if (window.electronAPI) {
+            window.electronAPI.showCustomNotification(
+              'Game Added',
+              'Game has been added to your local library!'
+            );
+          }
+          // Update the library state immediately
+          onLibraryUpdate([...localLibrary]);
+        } else {
+          if (window.electronAPI) {
+            window.electronAPI.showCustomNotification(
+              'Already in Library',
+              'This game is already in your local library.'
+            );
+          }
+        }
+        return;
+      }
+
+      const response = await fetch('/add-to-library', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          SessionID: sessionID,
+        },
+        body: JSON.stringify({
+          game_id: game.game_id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add game to library');
+      }
+
+      // Store complete game details in localStorage even for online mode
+      const gameDetails = {
+        game_id: game.game_id,
+        game_name: game.game_name,
+        version: game.version || 'unknown',
+        description: game.description || '',
+        background_image_url: game.background_image_url || '',
+        banner_image_url: game.banner_image_url || '',
+        playtime: 0,
+        achievements: { completed: 0, total: 0 },
+        disk_usage: '0 MB',
+        last_played: null,
+        properties: {
+          branch: 'latest',
+          language: 'en',
+          downloadLocation: '',
+          launchOptions: '',
+          notes: '',
+        },
+      };
+
+      // Store game details
+      const gameDetailsKey = `game_${game.game_id}`;
+      localStorage.setItem(gameDetailsKey, JSON.stringify(gameDetails));
+
+      // Update cached games
+      if (window.electronAPI?.cacheGamesLocally) {
+        let cachedGames = [];
+        try {
+          cachedGames = await window.electronAPI.getCachedGames();
+        } catch (e) {
+          cachedGames = [];
+        }
+        if (!cachedGames.find(g => g.game_id === game.game_id)) {
+          cachedGames.push(gameDetails);
+          window.electronAPI.cacheGamesLocally(cachedGames);
+        }
+      }
+
+      if (window.electronAPI) {
+        window.electronAPI.showCustomNotification(
+          'Game Added',
+          'Game has been added to your library!'
+        );
+      }
+
+      // Get current library games and add the new one
+      const currentLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+      const updatedLibrary = [...currentLibrary, game.game_id];
+      // Update the library state immediately
+      onLibraryUpdate(updatedLibrary);
+    } catch (err) {
+      console.error('Error adding game to library:', err);
+      if (window.electronAPI) {
+        window.electronAPI.showCustomNotification(
+          'Add to Library Failed',
+          err.message || 'Could not add game to library'
+        );
+      }
+    }
+  };
+
+  // Add a useEffect to sync with localStorage
+  useEffect(() => {
+    const syncWithLocalStorage = () => {
+      try {
+        const localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        if (JSON.stringify(localLibrary) !== JSON.stringify(libraryGames)) {
+          onLibraryUpdate(localLibrary);
+        }
+      } catch (e) {
+        console.error('Error syncing with localStorage:', e);
+      }
+    };
+
+    syncWithLocalStorage();
+  }, [libraryGames, onLibraryUpdate]);
+
   return (
     <Box
       sx={{ position: 'relative', mb: 3, height: '400px' }}
@@ -82,15 +254,20 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
               component="img"
               image={game.background_image_url || ''}
               alt={game.game_name}
+              sx={{
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'brightness(0.7)',
+              }}
             />
             <CardOverlay>
               <Typography
-                variant="h3"
+                variant="h4"
                 sx={{
                   color: colors.text,
-                  mb: 1,
                   textShadow: '0 4px 4px rgba(0,0,0,0.5)',
                   fontWeight: 600,
+                  mb: 2,
                 }}
               >
                 {game.game_name}
@@ -99,9 +276,9 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
                 variant="body1"
                 sx={{
                   color: colors.text,
-                  mb: 2,
+                  textShadow: '0 2px 2px rgba(0,0,0,0.5)',
+                  mb: 4,
                   maxWidth: '600px',
-                  textShadow: '0 1px 4px rgba(0,0,0,0.5)',
                 }}
               >
                 {game.description}
@@ -127,51 +304,7 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
                   } else if (libraryGames.includes(game.game_id)) {
                     navigate('/library');
                   } else {
-                    try {
-                      const sessionID = document.cookie
-                        .split('; ')
-                        .find(row => row.startsWith('sessionID='))
-                        ?.split('=')[1];
-
-                      if (!sessionID) {
-                        throw new Error(
-                          'No session ID found. Please log in to add games to your library.'
-                        );
-                      }
-
-                      const response = await fetch('/add-to-library', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          SessionID: sessionID,
-                        },
-                        body: JSON.stringify({
-                          game_id: game.game_id,
-                        }),
-                      });
-
-                      if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to add game to library');
-                      }
-
-                      if (window.electronAPI) {
-                        window.electronAPI.showCustomNotification(
-                          'Game Added',
-                          'Game has been added to your library!'
-                        );
-                      }
-
-                      onLibraryUpdate(prev => [...prev, game.game_id]);
-                    } catch (err) {
-                      console.error('Error adding game to library:', err);
-                      if (window.electronAPI) {
-                        window.electronAPI.showCustomNotification(
-                          'Add to Library Failed',
-                          err.message || 'Could not add game to library'
-                        );
-                      }
-                    }
+                    await handleAddToLibrary(game);
                   }
                 }}
                 style={{ padding: '12px 48px' }}
@@ -183,50 +316,22 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
       <Box
         sx={{
           position: 'absolute',
-          bottom: '16px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          gap: '8px',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           zIndex: 2,
         }}
-        className="featured-progress-bars"
       >
-        {games.map((_, index) => (
-          <Box
-            key={index}
-            sx={{
-              width: '40px',
-              height: '6px',
-              backgroundColor: 'rgba(255, 255, 255, 0.3)',
-              borderRadius: '2px',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-              },
-            }}
-            onClick={() => {
-              setCurrentIndex(index);
-              setProgress(0);
-            }}
-          >
-            {index === currentIndex && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  height: '100%',
-                  width: `${progress}%`,
-                  backgroundColor: colors.text,
-                  transition: 'width 0.05s linear',
-                }}
-              />
-            )}
-          </Box>
-        ))}
+        <Box
+          sx={{
+            height: '100%',
+            width: `${progress}%`,
+            backgroundColor: colors.button,
+            transition: 'width 0.05s linear',
+          }}
+        />
       </Box>
     </Box>
   );

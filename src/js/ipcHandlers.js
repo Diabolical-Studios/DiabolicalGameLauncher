@@ -144,10 +144,32 @@ function initIPCHandlers() {
     uninstallGame(gameId);
   });
 
-  ipcMain.handle('get-cached-games', () => readCachedGames());
+  ipcMain.handle('get-cached-games', async () => {
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      const games = await mainWindow.webContents.executeJavaScript(
+        'localStorage.getItem("localGames")'
+      );
+      return games ? JSON.parse(games) : [];
+    }
+    return [];
+  });
 
   ipcMain.handle('cache-games-locally', (event, games) => {
-    cacheGamesLocally(games);
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      mainWindow.webContents.executeJavaScript(
+        `localStorage.setItem('localGames', '${JSON.stringify(games)}')`
+      );
+    }
+  });
+
+  ipcMain.handle('get-local-games', async () => {
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      return await mainWindow.webContents.executeJavaScript('localStorage.getItem("localGames")');
+    }
+    return null;
   });
 
   // Launcher Actions

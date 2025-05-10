@@ -64,7 +64,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.send('show-context-menu', gameId, position);
   },
   getCachedGames: () => ipcRenderer.invoke('get-cached-games'),
-  cacheGamesLocally: games => ipcRenderer.invoke('cache-games-locally', games),
+  cacheGamesLocally: games => {
+    localStorage.setItem('localGames', JSON.stringify(games));
+  },
 
   // Library Games Cache
   cacheLibraryGamesLocally: games => {
@@ -72,6 +74,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   getCachedLibraryGames: () => {
     const data = localStorage.getItem('libraryGames');
+    return data ? JSON.parse(data) : [];
+  },
+
+  // Local Games Cache
+  getLocalGames: () => {
+    const data = localStorage.getItem('localGames');
     return data ? JSON.parse(data) : [];
   },
 

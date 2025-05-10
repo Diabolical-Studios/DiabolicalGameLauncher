@@ -140,6 +140,43 @@ const LibraryPage = () => {
         }
       }
 
+      // Fallback: If still empty, try localStorage
+      if (!cachedLibraryGames.length) {
+        let localLibrary = [];
+        try {
+          localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        } catch (e) {
+          localLibrary = [];
+        }
+        if (localLibrary.length) {
+          // Get game details from localStorage
+          const localGames = localLibrary.map(gameId => {
+            const gameDetailsKey = `game_${gameId}`;
+            const gameDetails = JSON.parse(localStorage.getItem(gameDetailsKey)) || {
+              game_id: gameId,
+              game_name: gameId,
+              version: 'unknown',
+              description: '',
+              background_image_url: '',
+              banner_image_url: '',
+              playtime: 0,
+              achievements: { completed: 0, total: 0 },
+              disk_usage: '0 MB',
+              last_played: null,
+              properties: {
+                branch: 'latest',
+                language: 'en',
+                downloadLocation: '',
+                launchOptions: '',
+                notes: '',
+              },
+            };
+            return gameDetails;
+          });
+          setCachedGames(localGames);
+        }
+      }
+
       // 2. Get installed games and update installed status
       let ids = [];
       if (window.electronAPI && window.electronAPI.getInstalledGames) {
@@ -161,9 +198,13 @@ const LibraryPage = () => {
         });
         const libraryGames = response.data;
         setCachedGames(libraryGames);
-        if (window.electronAPI && window.electronAPI.cacheLibraryGamesLocally) {
-          window.electronAPI.cacheLibraryGamesLocally(libraryGames);
-        }
+
+        // Update localStorage with latest data
+        localStorage.setItem('localLibrary', JSON.stringify(libraryGames.map(g => g.game_id)));
+        libraryGames.forEach(game => {
+          const gameDetailsKey = `game_${game.game_id}`;
+          localStorage.setItem(gameDetailsKey, JSON.stringify(game));
+        });
 
         // 4. Update info about updates for all library games
         const updates = {};
@@ -340,6 +381,56 @@ const LibraryPage = () => {
     if (!selectedGame) return;
     try {
       const sessionID = Cookies.get('sessionID');
+
+      if (!sessionID) {
+        // Offline mode: Remove from localStorage
+        let localLibrary = [];
+        try {
+          localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        } catch (e) {
+          localLibrary = [];
+        }
+
+        // Remove game from localLibrary array
+        localLibrary = localLibrary.filter(id => id !== selectedGame.game_id);
+        localStorage.setItem('localLibrary', JSON.stringify(localLibrary));
+
+        // Remove game details from localStorage
+        const gameDetailsKey = `game_${selectedGame.game_id}`;
+        localStorage.removeItem(gameDetailsKey);
+
+        // Update cached games
+        if (window.electronAPI?.cacheGamesLocally) {
+          let cachedGames = [];
+          try {
+            cachedGames = await window.electronAPI.getCachedGames();
+            cachedGames = cachedGames.filter(g => g.game_id !== selectedGame.game_id);
+            window.electronAPI.cacheGamesLocally(cachedGames);
+          } catch (e) {
+            console.error('Error updating cached games:', e);
+          }
+        }
+
+        if (window.electronAPI) {
+          window.electronAPI.showCustomNotification(
+            'Game Removed',
+            'Game has been removed from your local library.'
+          );
+        }
+
+        // Update state
+        setCachedGames(prev => prev.filter(g => g.game_id !== selectedGame.game_id));
+        setInstalledGameIds(prev => prev.filter(id => id !== selectedGame.game_id));
+        setTimeout(() => {
+          setSelectedGame(prev => {
+            const remainingGames = cachedGames.filter(g => g.game_id !== selectedGame.game_id);
+            return remainingGames[0] || null;
+          });
+        }, 0);
+        return;
+      }
+
+      // Online mode: Remove from server
       await axios.post(
         '/remove-from-library',
         { game_id: selectedGame.game_id },
@@ -349,6 +440,17 @@ const LibraryPage = () => {
           },
         }
       );
+
+      // Also update localStorage
+      let localLibrary = [];
+      try {
+        localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        localLibrary = localLibrary.filter(id => id !== selectedGame.game_id);
+        localStorage.setItem('localLibrary', JSON.stringify(localLibrary));
+      } catch (e) {
+        console.error('Error updating localStorage:', e);
+      }
+
       // Remove from cachedGames and update selection
       setCachedGames(prev => prev.filter(g => g.game_id !== selectedGame.game_id));
       setInstalledGameIds(prev => prev.filter(id => id !== selectedGame.game_id));
@@ -360,6 +462,12 @@ const LibraryPage = () => {
       }, 0);
     } catch (err) {
       console.error('Error removing game from library:', err);
+      if (window.electronAPI) {
+        window.electronAPI.showCustomNotification(
+          'Remove Failed',
+          err.message || 'Could not remove game from library'
+        );
+      }
     }
   };
 
@@ -391,6 +499,8 @@ const LibraryPage = () => {
             display: 'flex',
             flexDirection: 'column',
             borderRight: `1px solid ${colors.border}`,
+            pr: '1px',
+            boxSizing: 'border-box',
           }}
         >
           <TextField

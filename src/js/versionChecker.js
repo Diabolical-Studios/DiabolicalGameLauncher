@@ -3,7 +3,11 @@ const cacheManager = require('./cacheManager');
 async function getLatestGameVersion(gameId) {
   try {
     // Get the cached games data
-    const cachedGames = cacheManager.readCachedGames();
+    const cachedGames = await cacheManager.readCachedGames();
+    if (!Array.isArray(cachedGames)) {
+      throw new Error('Invalid cached games data');
+    }
+
     const game = cachedGames.find(g => g.game_id === gameId);
 
     if (!game || !game.version) {
