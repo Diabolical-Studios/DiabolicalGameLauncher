@@ -1,11 +1,11 @@
-const path = require("path");
-const fs = require("fs");
-const {app, ipcMain, BrowserWindow, shell} = require("electron");
-const {exec, spawn} = require("child_process");
-const AdmZip = require("adm-zip");
-const { autoUpdater } = require("electron-updater");
+const path = require('path');
+const {app, ipcMain, BrowserWindow, shell} = require('electron');
+const {exec, spawn} = require('child_process');
+const AdmZip = require('adm-zip');
+const {autoUpdater} = require('electron-updater');
 
-const {downloadGame} = require("./downloadManager");
+const updater = require('./updater');
+const {downloadGame} = require('./downloadManager');
 const {
     getInstalledGames,
     showContextMenu,
@@ -14,43 +14,31 @@ const {
     startPlaytimeTracking,
     stopPlaytimeTracking,
     getGamePlaytime
-} = require("./gameManager");
-const {getCurrentGameVersion, getLatestGameVersion} = require("./updater");
-const {loadSettings, saveSettings, diabolicalLauncherPath} = require("./settings");
-const {cacheGamesLocally, readCachedGames} = require("./cacheManager");
-const { getPreferredExecutable } = require("./launcherUtils");
+} = require('./gameManager');
+const {getCurrentGameVersion, getLatestGameVersion} = require('./updater');
+const {loadSettings, saveSettings, diabolicalLauncherPath} = require('./settings');
+const {cacheGamesLocally, readCachedGames} = require('./cacheManager');
+const {getPreferredExecutable} = require('./launcherUtils');
+const windowStore = require('./windowStore');
 
 // Track running game processes
 const runningGames = new Map();
 
 function initIPCHandlers() {
-    //Game Actions
-    ipcMain.on("download-game", downloadGame);
-    ipcMain.handle("get-installed-games", async () => {
-        return getInstalledGames();
-    });
-    ipcMain.handle("get-current-game-version", async (event, gameId) => {
-        return getCurrentGameVersion(gameId);
-    });
+    // Game Actions
+    ipcMain.on('download-game', downloadGame);
+    ipcMain.handle('get-installed-games', async () => getInstalledGames());
+    ipcMain.handle('get-current-game-version', async (event, gameId) => getCurrentGameVersion(gameId));
+    ipcMain.handle('get-latest-game-version', async (event, gameId) => getLatestGameVersion(gameId));
+    ipcMain.handle('get-game-size', async (event, gameId) => getGameSize(gameId));
+    ipcMain.handle('get-game-playtime', async (event, gameId) => getGamePlaytime(gameId));
 
-    ipcMain.handle("get-latest-game-version", async (event, gameId) => {
-        return await getLatestGameVersion(gameId);
-    });
-
-    ipcMain.handle("get-game-size", async (event, gameId) => {
-        return getGameSize(gameId);
-    });
-
-    ipcMain.handle("get-game-playtime", async (event, gameId) => {
-        return getGamePlaytime(gameId);
-    });
-
-    ipcMain.on("open-game", (event, gameId) => {
+    ipcMain.on('open-game', (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
         // Find the preferred .exe file in the game directory
-        let executablePath = getPreferredExecutable(gamePath, gameId);
+        const executablePath = getPreferredExecutable(gamePath, gameId);
         if (!executablePath) {
-            event.sender.send("game-stopped", gameId);
+            event.sender.send('game-stopped', gameId);
             throw new Error('No .exe file found in game directory');
         }
 
@@ -62,13 +50,13 @@ function initIPCHandlers() {
             cwd: gamePath,
             env: process.env,
             detached: true, // This allows the process to continue running after the launcher closes
-            stdio: 'ignore' // Ignore stdio to prevent hanging
+            stdio: 'ignore', // Ignore stdio to prevent hanging
         });
 
         // Store the process with its PID
         runningGames.set(gameId, {
             process: gameProcess,
-            pid: gameProcess.pid
+            pid: gameProcess.pid,
         });
 
         // Handle process exit
@@ -76,7 +64,7 @@ function initIPCHandlers() {
             console.log(`Game process exited with code ${code}`);
             runningGames.delete(gameId);
             stopPlaytimeTracking(gameId);
-            event.sender.send("game-stopped", gameId);
+            event.sender.send('game-stopped', gameId);
         });
 
         // Handle process error
@@ -84,23 +72,20 @@ function initIPCHandlers() {
             console.error('Failed to start game process:', err);
             runningGames.delete(gameId);
             stopPlaytimeTracking(gameId);
-            event.sender.send("game-stopped", gameId);
+            event.sender.send('game-stopped', gameId);
         });
 
-        event.sender.send("game-started", gameId);
+        event.sender.send('game-started', gameId);
     });
 
-    ipcMain.on("stop-game", (event, gameId) => {
+    ipcMain.on('stop-game', (event, gameId) => {
         const gameInfo = runningGames.get(gameId);
         if (gameInfo) {
-            let exited = false;
-
             // Listen for process exit (only once)
             const onExit = () => {
-                exited = true;
                 runningGames.delete(gameId);
                 stopPlaytimeTracking(gameId);
-                event.sender.send("game-stopped", gameId);
+                event.sender.send('game-stopped', gameId);
             };
             gameInfo.process.once('exit', onExit);
 
@@ -125,100 +110,94 @@ function initIPCHandlers() {
                         }
                         runningGames.delete(gameId);
                         stopPlaytimeTracking(gameId);
-                        event.sender.send("game-stopped", gameId);
+                        event.sender.send('game-stopped', gameId);
                     });
                     taskkill.on('error', (err) => {
                         console.error('Error executing taskkill:', err);
                         runningGames.delete(gameId);
                         stopPlaytimeTracking(gameId);
-                        event.sender.send("game-stopped", gameId);
+                        event.sender.send('game-stopped', gameId);
                     });
                 }, 1000);
             } catch (err) {
                 console.error('Error in stop-game:', err);
                 runningGames.delete(gameId);
                 stopPlaytimeTracking(gameId);
-                event.sender.send("game-stopped", gameId);
+                event.sender.send('game-stopped', gameId);
             }
         }
     });
 
-    ipcMain.handle("is-game-running", (event, gameId) => {
-        return runningGames.has(gameId);
-    });
+    ipcMain.handle('is-game-running', (event, gameId) => runningGames.has(gameId));
 
-    ipcMain.on("open-install-location", (event, gameId) => {
+    ipcMain.on('open-install-location', (event, gameId) => {
         const gamePath = path.join(diabolicalLauncherPath, gameId);
         exec(`explorer "${gamePath}"`);
     });
 
-    ipcMain.on("show-context-menu", (event, gameId, position) => {
+    ipcMain.on('show-context-menu', (event, gameId, position) => {
         showContextMenu(event, gameId, position);
     });
-    ipcMain.on("uninstall-game", (event, gameId) => {
+    ipcMain.on('uninstall-game', (event, gameId) => {
         uninstallGame(gameId);
     });
 
-    ipcMain.handle("get-cached-games", () => {
-        return readCachedGames();
-    });
+    ipcMain.handle('get-cached-games', () => readCachedGames());
 
-    ipcMain.handle("cache-games-locally", (event, games) => {
+    ipcMain.handle('cache-games-locally', (event, games) => {
         cacheGamesLocally(games);
     });
 
-    //Launcher Actions
-    ipcMain.on("close-window", () => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    // Launcher Actions
+    ipcMain.on('close-window', () => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow) {
             mainWindow.close();
         }
     });
-    ipcMain.on("reload-window", () => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    ipcMain.on('reload-window', () => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow) {
             mainWindow.reload();
         }
     });
-    ipcMain.on("minimize-window", () => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    ipcMain.on('minimize-window', () => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow) {
             mainWindow.minimize();
         }
     });
-    ipcMain.handle("get-app-version", () => {
-        return app.getVersion();
+    ipcMain.handle('get-app-version', () => app.getVersion());
+    ipcMain.on('check-for-updates', () => {
+        updater.checkForUpdates();
     });
-    ipcMain.on("check-for-updates", () => {
-        require("./updater").checkForUpdates();
+    ipcMain.on('download-update', () => {
+        updater.downloadUpdate();
     });
-    ipcMain.on("download-update", () => {
-        require("./updater").downloadUpdate();
-    });
-    ipcMain.handle("get-settings", () => {
+    ipcMain.handle('get-settings', () => {
         const settings = loadSettings();
         return {
             windowSize: `${settings.windowSize.width}x${settings.windowSize.height}`,
-            language: settings.language || "en",
+            language: settings.language || 'en',
             autoUpdate: settings.autoUpdate !== false,
             notifications: settings.notifications !== false,
             minimizeToTray: settings.minimizeToTray !== false,
             launchOnStartup: settings.launchOnStartup || false,
-            downloadPath: settings.downloadPath || "",
+            downloadPath: settings.downloadPath || '',
             maxConcurrentDownloads: settings.maxConcurrentDownloads || 3,
-            cacheSize: settings.cacheSize || "5GB",
+            cacheSize: settings.cacheSize || '5GB',
             customCursor: settings.customCursor || false,
         };
     });
-    ipcMain.handle("update-settings", (event, newSettings) => {
+    ipcMain.handle('update-settings', (event, newSettings) => {
         const currentSettings = loadSettings();
         const updatedSettings = {...currentSettings};
 
         // Handle window size separately
         if (newSettings.windowSize) {
-            const [width, height] = newSettings.windowSize.split("x").map(Number);
+            const [width, height] = newSettings.windowSize.split('x').map(Number);
             updatedSettings.windowSize = {width, height};
-            const mainWindow = require("./windowManager").getMainWindow();
+            const mainWindow = windowStore.getMainWindow();
             if (mainWindow) {
                 mainWindow.setContentSize(width, height);
                 mainWindow.center();
@@ -226,7 +205,7 @@ function initIPCHandlers() {
         }
 
         // Update other settings
-        Object.keys(newSettings).forEach(key => {
+        Object.keys(newSettings).forEach((key) => {
             if (key !== 'windowSize') {
                 updatedSettings[key] = newSettings[key];
             }
@@ -235,7 +214,7 @@ function initIPCHandlers() {
         saveSettings(updatedSettings);
 
         // Handle launch on startup
-        if (typeof updatedSettings.launchOnStartup !== "undefined") {
+        if (typeof updatedSettings.launchOnStartup !== 'undefined') {
             app.setLoginItemSettings({
                 openAtLogin: !!updatedSettings.launchOnStartup,
                 path: process.execPath,
@@ -243,81 +222,80 @@ function initIPCHandlers() {
         }
 
         // Handle auto update
-        if (typeof updatedSettings.autoUpdate !== "undefined") {
+        if (typeof updatedSettings.autoUpdate !== 'undefined') {
             if (updatedSettings.autoUpdate) {
                 autoUpdater.checkForUpdates();
             }
         }
 
         // Send settings update directly to renderer
-        const mainWindow = require("./windowManager").getMainWindow();
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send("settings-updated", updatedSettings);
+            mainWindow.webContents.send('settings-updated', updatedSettings);
         }
 
         return updatedSettings;
     });
-    ipcMain.handle("get-window-size", () => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    ipcMain.handle('get-window-size', () => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow) {
             const {width, height} = mainWindow.getContentBounds();
             return {
-                width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10,
+                width: Math.round(width / 10) * 10,
+                height: Math.round(height / 10) * 10,
             };
         }
         return {width: 1280, height: 720};
     });
-    ipcMain.on("set-window-size-and-center", (event, width, height) => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    ipcMain.on('set-window-size-and-center', (event, width, height) => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow) {
-            allowResize = true;
             mainWindow.setContentSize(Math.round(width / 10) * 10, Math.round(height / 10) * 10);
             mainWindow.center();
             const settings = loadSettings();
             settings.windowSize = {
-                width: Math.round(width / 10) * 10, height: Math.round(height / 10) * 10,
+                width: Math.round(width / 10) * 10,
+                height: Math.round(height / 10) * 10,
             };
             saveSettings(settings);
-            allowResize = false;
         } else {
-            console.log("Main window is not accessible.");
+            console.log('Main window is not accessible.');
         }
     });
-    ipcMain.on("show-notification", (event, data) => {
-        const mainWindow = BrowserWindow.getFocusedWindow() || require("./windowManager").getMainWindow();
-
+    ipcMain.on('show-notification', (event, data) => {
+        const mainWindow = BrowserWindow.getFocusedWindow() || windowStore.getMainWindow();
         if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send("show-notification", data);
+            mainWindow.webContents.send('show-notification', data);
         } else {
-            console.log("No main window found to send notification");
+            console.log('No main window found to send notification');
         }
     });
 
     // Add settings-updated event handler
-    ipcMain.on("settings-updated", (event, settings) => {
-        const mainWindow = require("./windowManager").getMainWindow();
+    ipcMain.on('settings-updated', (event, settings) => {
+        const mainWindow = windowStore.getMainWindow();
         if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send("settings-updated", settings);
+            mainWindow.webContents.send('settings-updated', settings);
         }
     });
 
-    //Github API
-    ipcMain.handle("fetch-github-workflows", async (event, repoFullName, accessToken) => {
+    // Github API
+    ipcMain.handle('fetch-github-workflows', async (event, repoFullName, accessToken) => {
         try {
             const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs`, {
-                headers: {Authorization: `Bearer ${accessToken}`}
+                headers: {Authorization: `Bearer ${accessToken}`},
             });
             const data = await response.json();
             return data.workflow_runs || [];
         } catch (error) {
-            console.error("❌ Error fetching workflows:", error);
+            console.error('❌ Error fetching workflows:', error);
             return [];
         }
     });
-    ipcMain.handle("fetch-github-logs", async (event, repoFullName, runId, accessToken) => {
+    ipcMain.handle('fetch-github-logs', async (event, repoFullName, runId, accessToken) => {
         try {
             const response = await fetch(`https://api.github.com/repos/${repoFullName}/actions/runs/${runId}/logs`, {
-                headers: {Authorization: `Bearer ${accessToken}`}
+                headers: {Authorization: `Bearer ${accessToken}`},
             });
 
             if (!response.ok) {
@@ -327,35 +305,35 @@ function initIPCHandlers() {
             const buffer = await response.arrayBuffer();
             const zip = new AdmZip(Buffer.from(buffer));
 
-            let extractedLogs = "";
+            let extractedLogs = '';
             zip.getEntries().forEach((entry) => {
-                if (!entry.isDirectory && entry.entryName.endsWith(".txt")) {
+                if (!entry.isDirectory && entry.entryName.endsWith('.txt')) {
                     extractedLogs += `\n--- ${entry.entryName} ---\n${zip.readAsText(entry)}`;
                 }
             });
 
-            return extractedLogs || "No logs found in archive.";
+            return extractedLogs || 'No logs found in archive.';
         } catch (error) {
-            console.error("❌ Error extracting logs:", error);
-            return "Failed to retrieve logs.";
+            console.error('❌ Error extracting logs:', error);
+            return 'Failed to retrieve logs.';
         }
     });
 
     // Handle opening external URLs
-    ipcMain.handle("open-external-url", async (event, url) => {
+    ipcMain.handle('open-external-url', async (event, url) => {
         try {
             // Only allow http(s) URLs
             const parsed = new URL(url);
-            if (!["http:", "https:"].includes(parsed.protocol)) {
-                throw new Error("Blocked non-http(s) protocol");
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                throw new Error('Blocked non-http(s) protocol');
             }
-            if (!["github.com", "patreon.com", "diabolical.studio", "diabolical.services"].some(domain => parsed.hostname.endsWith(domain))) {
-                 throw new Error("Blocked domain");
-             }
+            if (!['github.com', 'patreon.com', 'diabolical.studio', 'diabolical.services'].some((domain) => parsed.hostname.endsWith(domain))) {
+                throw new Error('Blocked domain');
+            }
             await shell.openExternal(url);
             return true;
         } catch (error) {
-            console.error("Error opening external URL:", error);
+            console.error('Error opening external URL:', error);
             return false;
         }
     });

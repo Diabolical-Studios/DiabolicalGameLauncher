@@ -34,10 +34,7 @@ describe('Database', () => {
             expect(axios.get).toHaveBeenCalledWith(url);
 
             // Verify success status was sent
-            expect(mockWindow.webContents.send).toHaveBeenCalledWith(
-                'db-status',
-                'rgb(72, 216, 24)'
-            );
+            expect(mockWindow.webContents.send).toHaveBeenCalledWith('db-status', 'rgb(72, 216, 24)');
         });
 
         it('should handle failed database ping', async () => {
@@ -53,10 +50,7 @@ describe('Database', () => {
             expect(axios.get).toHaveBeenCalledWith(url);
 
             // Verify error status was sent
-            expect(mockWindow.webContents.send).toHaveBeenCalledWith(
-                'db-status',
-                'red'
-            );
+            expect(mockWindow.webContents.send).toHaveBeenCalledWith('db-status', 'red');
         });
 
         it('should handle network errors', async () => {
@@ -72,10 +66,7 @@ describe('Database', () => {
             expect(axios.get).toHaveBeenCalledWith(url);
 
             // Verify error status was sent
-            expect(mockWindow.webContents.send).toHaveBeenCalledWith(
-                'db-status',
-                'red'
-            );
+            expect(mockWindow.webContents.send).toHaveBeenCalledWith('db-status', 'red');
         });
     });
-}); 
+});

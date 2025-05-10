@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback, memo, useMemo } from 'react';
-import { Box } from '@mui/material';
+import React, {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Box} from '@mui/material';
 
 const CORNER_SIZE = 8; // px
 const PADDING = 8; // px
@@ -9,19 +9,23 @@ const CURSOR_THICKNESS = 3; // px (center plus thickness)
 const CORNER_THICKNESS = 5; // px (corner stroke thickness)
 
 // Memoized corner component to prevent unnecessary re-renders
-const Corner = memo(({ index, color }) => (
-    <svg width={CORNER_SIZE} height={CORNER_SIZE} style={{display:'block'}}>
+const Corner = memo(({index, color}) => (
+    <svg width={CORNER_SIZE} height={CORNER_SIZE} style={{display: 'block'}}>
         {index === 0 && (
-            <polyline points={`0,${CORNER_SIZE} 0,0 ${CORNER_SIZE},0`} stroke={color} strokeWidth={CORNER_THICKNESS} fill="none" />
+            <polyline points={`0,${CORNER_SIZE} 0,0 ${CORNER_SIZE},0`} stroke={color} strokeWidth={CORNER_THICKNESS}
+                      fill="none"/>
         )}
         {index === 1 && (
-            <polyline points={`${CORNER_SIZE},${CORNER_SIZE} ${CORNER_SIZE},0 0,0`} stroke={color} strokeWidth={CORNER_THICKNESS} fill="none" />
+            <polyline points={`${CORNER_SIZE},${CORNER_SIZE} ${CORNER_SIZE},0 0,0`} stroke={color}
+                      strokeWidth={CORNER_THICKNESS} fill="none"/>
         )}
         {index === 2 && (
-            <polyline points={`${CORNER_SIZE},0 ${CORNER_SIZE},${CORNER_SIZE} 0,${CORNER_SIZE}`} stroke={color} strokeWidth={CORNER_THICKNESS} fill="none" />
+            <polyline points={`${CORNER_SIZE},0 ${CORNER_SIZE},${CORNER_SIZE} 0,${CORNER_SIZE}`} stroke={color}
+                      strokeWidth={CORNER_THICKNESS} fill="none"/>
         )}
         {index === 3 && (
-            <polyline points={`0,0 0,${CORNER_SIZE} ${CORNER_SIZE},${CORNER_SIZE}`} stroke={color} strokeWidth={CORNER_THICKNESS} fill="none" />
+            <polyline points={`0,0 0,${CORNER_SIZE} ${CORNER_SIZE},${CORNER_SIZE}`} stroke={color}
+                      strokeWidth={CORNER_THICKNESS} fill="none"/>
         )}
     </svg>
 ));
@@ -35,8 +39,8 @@ const CustomCursor = () => {
     const cornerRef3 = useRef(null);
     const cornerRef4 = useRef(null);
     const cornerRefs = useMemo(() => [cornerRef1, cornerRef2, cornerRef3, cornerRef4], []);
-    const mouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-    const targetMouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    const mouse = useRef({x: window.innerWidth / 2, y: window.innerHeight / 2});
+    const targetMouse = useRef({x: window.innerWidth / 2, y: window.innerHeight / 2});
     const rafRef = useRef(null);
     const containerRef = useRef(null);
     const cursorColor = '#fff';
@@ -66,17 +70,17 @@ const CustomCursor = () => {
     const handlePointerOver = useCallback((e) => {
         const target =
             e.target.tagName === 'BUTTON' ? e.target :
-            e.target.closest('button') ||
-            e.target.closest('.MuiButton-root') ||
-            e.target.closest('.image-button') ||
-            e.target.closest('.MuiListItem-root') ||
-            e.target.closest('.hover-effect') ||
-            e.target.closest('.MuiInputBase-input') ||
-            e.target.closest('.featured-progress-bars') ||
-            e.target.closest('.MuiChip-root') ||
-            e.target.closest('.view-on-github-link') ||
-            e.target.closest('.download-link') ||
-            e.target.closest('.settings-section-content');
+                e.target.closest('button') ||
+                e.target.closest('.MuiButton-root') ||
+                e.target.closest('.image-button') ||
+                e.target.closest('.MuiListItem-root') ||
+                e.target.closest('.hover-effect') ||
+                e.target.closest('.MuiInputBase-input') ||
+                e.target.closest('.featured-progress-bars') ||
+                e.target.closest('.MuiChip-root') ||
+                e.target.closest('.view-on-github-link') ||
+                e.target.closest('.download-link') ||
+                e.target.closest('.settings-section-content');
 
         if (target) {
             hoveredElement.current = target;
@@ -154,18 +158,18 @@ const CustomCursor = () => {
             let corners;
             if (hoveredRect) {
                 corners = [
-                    { x: hoveredRect.left, y: hoveredRect.top },
-                    { x: hoveredRect.right - CORNER_SIZE, y: hoveredRect.top },
-                    { x: hoveredRect.right - CORNER_SIZE, y: hoveredRect.bottom - CORNER_SIZE },
-                    { x: hoveredRect.left, y: hoveredRect.bottom - CORNER_SIZE },
+                    {x: hoveredRect.left, y: hoveredRect.top},
+                    {x: hoveredRect.right - CORNER_SIZE, y: hoveredRect.top},
+                    {x: hoveredRect.right - CORNER_SIZE, y: hoveredRect.bottom - CORNER_SIZE},
+                    {x: hoveredRect.left, y: hoveredRect.bottom - CORNER_SIZE},
                 ];
             } else {
                 const gap = MIN_CORNER_GAP;
                 corners = [
-                    { x: mouse.current.x - gap - CORNER_SIZE / 2, y: mouse.current.y - gap - CORNER_SIZE / 2 },
-                    { x: mouse.current.x + gap - CORNER_SIZE / 2, y: mouse.current.y - gap - CORNER_SIZE / 2 },
-                    { x: mouse.current.x + gap - CORNER_SIZE / 2, y: mouse.current.y + gap - CORNER_SIZE / 2 },
-                    { x: mouse.current.x - gap - CORNER_SIZE / 2, y: mouse.current.y + gap - CORNER_SIZE / 2 },
+                    {x: mouse.current.x - gap - CORNER_SIZE / 2, y: mouse.current.y - gap - CORNER_SIZE / 2},
+                    {x: mouse.current.x + gap - CORNER_SIZE / 2, y: mouse.current.y - gap - CORNER_SIZE / 2},
+                    {x: mouse.current.x + gap - CORNER_SIZE / 2, y: mouse.current.y + gap - CORNER_SIZE / 2},
+                    {x: mouse.current.x - gap - CORNER_SIZE / 2, y: mouse.current.y + gap - CORNER_SIZE / 2},
                 ];
             }
 
@@ -177,21 +181,22 @@ const CustomCursor = () => {
 
             rafRef.current = requestAnimationFrame(animate);
         }
+
         rafRef.current = requestAnimationFrame(animate);
         return () => rafRef.current && cancelAnimationFrame(rafRef.current);
     }, [hoveredRect, cornerRefs]);
 
     return (
-        <Box 
+        <Box
             ref={containerRef}
-            sx={{ 
-                position: 'fixed', 
-                left: 0, 
-                top: 0, 
-                width: '100vw', 
-                height: '100vh', 
-                pointerEvents: 'none', 
-                zIndex: 9999, 
+            sx={{
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                width: '100vw',
+                height: '100vh',
+                pointerEvents: 'none',
+                zIndex: 9999,
                 mixBlendMode: 'exclusion',
                 overflow: 'visible',
                 opacity: visible ? 1 : 0,
@@ -217,8 +222,10 @@ const CustomCursor = () => {
                 }}
             >
                 <svg width={20} height={20} viewBox="0 0 20 20" style={{display: 'block'}}>
-                    <rect x={10-CURSOR_THICKNESS/2} y={3} width={CURSOR_THICKNESS} height={14} rx={CURSOR_THICKNESS/2} fill={cursorColor} />
-                    <rect x={3} y={10-CURSOR_THICKNESS/2} width={14} height={CURSOR_THICKNESS} rx={CURSOR_THICKNESS/2} fill={cursorColor} />
+                    <rect x={10 - CURSOR_THICKNESS / 2} y={3} width={CURSOR_THICKNESS} height={14}
+                          rx={CURSOR_THICKNESS / 2} fill={cursorColor}/>
+                    <rect x={3} y={10 - CURSOR_THICKNESS / 2} width={14} height={CURSOR_THICKNESS}
+                          rx={CURSOR_THICKNESS / 2} fill={cursorColor}/>
                 </svg>
             </Box>
             {/* Four corners */}
@@ -238,7 +245,7 @@ const CustomCursor = () => {
                         transition: `transform ${ANIMATION_DURATION}ms cubic-bezier(.4,1.6,.6,1)`,
                     }}
                 >
-                    <Corner index={i} color={cursorColor} />
+                    <Corner index={i} color={cursorColor}/>
                 </Box>
             ))}
         </Box>

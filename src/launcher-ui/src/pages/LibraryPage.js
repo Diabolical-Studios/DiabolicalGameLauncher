@@ -419,7 +419,7 @@ const LibraryPage = () => {
                                         }}
                                     >
                                         <ListItemIcon sx={{minWidth: 0}}>
-                                           {/*  {game.team_icon_url ? (
+                                            {/*  {game.team_icon_url ? (
                                                 <Box
                                                     component="img"
                                                     src={game.team_icon_url}
@@ -427,7 +427,7 @@ const LibraryPage = () => {
                                                     sx={{width: 18}}
                                                 />
                                             ) : ( */}
-                                                <SportsEsportsIcon sx={{color: colors.text}}/>
+                                            <SportsEsportsIcon sx={{color: colors.text}}/>
                                             {/* )} */}
                                         </ListItemIcon>
                                         <ListItemText
@@ -536,16 +536,16 @@ const LibraryPage = () => {
                         </Box>
 
                         {/* Game Info and Actions */}
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 3}}>
                             {/* Top Row: Play Button and Stats */}
-                            <Box sx={{ 
-                                display: 'flex', 
+                            <Box sx={{
+                                display: 'flex',
                                 gap: 3,
                                 width: '100%',
                                 justifyContent: 'space-between',
                             }}>
                                 {/* Play Button */}
-                                <Box sx={{ width: '220px' }}>
+                                <Box sx={{width: '220px'}}>
                                     <ImageButton
                                         text={isDownloading ? "Downloading" :
                                             applyingUpdate[selectedGame?.game_id] ? "Patching..." :
@@ -590,7 +590,7 @@ const LibraryPage = () => {
                                 </Box>
 
                                 {/* Stats */}
-                                <Box sx={{ 
+                                <Box sx={{
                                     flex: 1,
                                     display: 'flex',
                                     justifyContent: 'space-evenly',
@@ -601,7 +601,8 @@ const LibraryPage = () => {
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <AccessTimeIcon sx={{color: colors.text, opacity: 0.7}}/>
                                         <Box>
-                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                            <Typography variant="caption"
+                                                        sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
                                                 Play Time
                                             </Typography>
                                             <Typography variant="body1" sx={{color: colors.text}}>
@@ -612,7 +613,8 @@ const LibraryPage = () => {
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <EmojiEventsIcon sx={{color: colors.text, opacity: 0.7}}/>
                                         <Box>
-                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                            <Typography variant="caption"
+                                                        sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
                                                 Achievements
                                             </Typography>
                                             <Typography variant="body1" sx={{color: colors.text}}>
@@ -623,7 +625,8 @@ const LibraryPage = () => {
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <StorageIcon sx={{color: colors.text, opacity: 0.7}}/>
                                         <Box>
-                                            <Typography variant="caption" sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
+                                            <Typography variant="caption"
+                                                        sx={{color: colors.text, opacity: 0.7, display: 'block'}}>
                                                 Size
                                             </Typography>
                                             <Typography variant="body1" sx={{color: colors.text}}>
@@ -635,9 +638,9 @@ const LibraryPage = () => {
                             </Box>
 
                             {/* Description */}
-                            <Box sx={{ 
-                                p: 3, 
-                                bgcolor: 'rgba(0, 0, 0, 0.2)', 
+                            <Box sx={{
+                                p: 3,
+                                bgcolor: 'rgba(0, 0, 0, 0.2)',
                                 borderRadius: '8px',
                             }}>
                                 <Typography variant="h6" sx={{color: colors.text, mb: 2, fontWeight: 500}}>

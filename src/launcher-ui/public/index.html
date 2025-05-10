@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <link href="%PUBLIC_URL%/favicon.ico" rel="icon"/>
+    <link href="../../icons/icon.ico" rel="icon"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta content="#000000" name="theme-color"/>
 
@@ -12,10 +12,7 @@
             content="Diabolical Launcher is a game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a more professional setting."
             name="description"
     />
-    <meta
-            content="indie game dev, game launcher, GitHub integration, quick deploy, game distribution"
-            name="keywords"
-    />
+    <meta content="indie game dev, game launcher, GitHub integration, quick deploy, game distribution" name="keywords"/>
     <meta content="Diabolical Studios" name="author"/>
 
     <!-- Open Graph / Facebook -->
@@ -47,7 +44,6 @@
     <link crossorigin href="https://api.github.com" rel="preconnect"/>
     <link crossorigin href="https://api.diabolical.studio" rel="preconnect"/>
 
-
     <!-- Manifest and other config -->
     <link href="%PUBLIC_URL%/manifest.json" rel="manifest"/>
     <link href="%PUBLIC_URL%/android-chrome-192x192.png" rel="apple-touch-icon"/>
@@ -59,27 +55,13 @@
             }
         }
     </style>
-
 </head>
 
 <body class="background">
 <noscript>You need to enable JavaScript to run this app.</noscript>
-<div
-        id="root"
-        style="
-      height: 100svh;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      display: flex;
-      gap: 24px;
-      flex-direction: row;
-    "
->
-
-</div>
+<div id="root"
+     style="height: 100svh; align-items: center; justify-content: center; position: relative; display: flex; gap: 24px; flex-direction: row"></div>
 <div class="button-root" id="button-root"></div>
 <div class="title-root" id="title-root"></div>
-
 </body>
 </html>

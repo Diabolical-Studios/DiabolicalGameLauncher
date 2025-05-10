@@ -2,7 +2,15 @@ import React, {useEffect, useState} from "react";
 import {SvgIcon} from "@mui/material";
 import {colors} from "../../theme/colors";
 
-const ImageButton = ({text, icon: IconComponent, onClick, style = {}, className = "", fontSize = "14px", iconSize = "24px"}) => {
+const ImageButton = ({
+                         text,
+                         icon: IconComponent,
+                         onClick,
+                         style = {},
+                         className = "",
+                         fontSize = "14px",
+                         iconSize = "24px"
+                     }) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -46,11 +54,11 @@ const ImageButton = ({text, icon: IconComponent, onClick, style = {}, className 
 
             {/* Render the icon */}
             {IconComponent && (
-                <SvgIcon 
-                    component={IconComponent} 
+                <SvgIcon
+                    component={IconComponent}
                     style={{
-                        width: iconSize, 
-                        height: iconSize, 
+                        width: iconSize,
+                        height: iconSize,
                         color: colors.text
                     }}
                 />

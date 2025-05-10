@@ -36,17 +36,17 @@ const IGNORED_EXE = [
 
 function getPreferredExecutable(gamePath, gameId) {
     const files = fs.readdirSync(gamePath);
-    const exeFiles = files.filter(f => f.toLowerCase().endsWith('.exe'));
+    const exeFiles = files.filter((f) => f.toLowerCase().endsWith('.exe'));
     if (exeFiles.length === 0) return null;
     // Prefer exe that matches gameId
-    let preferred = exeFiles.find(f => f.toLowerCase().includes(gameId.toLowerCase()));
+    let preferred = exeFiles.find((f) => f.toLowerCase().includes(gameId.toLowerCase()));
     if (!preferred) {
         // Fallback: skip known non-game exes
-        preferred = exeFiles.find(f => !IGNORED_EXE.includes(f.toLowerCase()));
+        preferred = exeFiles.find((f) => !IGNORED_EXE.includes(f.toLowerCase()));
     }
     // If all are ignored, just pick the first
     const exeToRun = preferred || exeFiles[0];
     return path.join(gamePath, exeToRun);
 }
 
-module.exports = { getPreferredExecutable }; 
+module.exports = {getPreferredExecutable};

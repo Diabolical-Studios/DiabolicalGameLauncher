@@ -33,12 +33,12 @@ const AppCloseRefreshButtons = () => {
             }}
         >
             <div className="flex gap-1" style={{WebkitAppRegion: "no-drag"}}>
-            <Zoom in={true} timeout={200} style={{transitionDelay: '50ms'}}>
+                <Zoom in={true} timeout={200} style={{transitionDelay: '50ms'}}>
                     <button onClick={handleReload} className="window-button reload-button">
                         <CachedIcon style={{color: colors.text}} fontSize="small"/>
                     </button>
                 </Zoom>
-            <Zoom in={true} timeout={200} style={{transitionDelay: '100ms'}}>
+                <Zoom in={true} timeout={200} style={{transitionDelay: '100ms'}}>
                     <button onClick={handleMinimize} className="window-button minimize-button">
                         <MinimizeIcon style={{color: colors.text}} fontSize="small"/>
                     </button>

@@ -1,69 +1,40 @@
-const {autoUpdater} = require("electron-updater");
-const os = require("os");
-const fs = require("fs");
-const path = require("path");
-const {getLatestGameVersion} = require("./versionChecker");
-const {getInstalledGames} = require("./gameManager");
-const {showMessage} = require("./windowManager");
+const {autoUpdater} = require('electron-updater');
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+const {getLatestGameVersion} = require('./versionChecker');
+const {getInstalledGames} = require('./gameManager');
+const {showMessage} = require('./windowStore');
+const settingsModule = require('./settings');
 
 let mainWindow = null;
 
-const versionDirectory = path.join(os.homedir(), "AppData", "Local", "Diabolical Launcher");
-
-//Launcher auto update logic
-function initUpdater() {
-    const settings = require('./settings').loadSettings(); // Load settings
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = true;
-
-    autoUpdater.on("update-available", (info) => {
-        if (settings.autoUpdate) { // Check settings before updating
-            showMessage(`Launcher update available. Download Started...`);
-            showCustomNotification(mainWindow, "Launcher Update", "Download started.", "launcher");
-            autoUpdater.downloadUpdate();
-        } else {
-            showMessage(`Diabolical Launcher`);
-            showCustomNotification(mainWindow, "Launcher Update", "Launcher update available but auto-update is disabled in settings.", "launcher");
-        }
-    });
-
-    autoUpdater.on("update-not-available", (info) => {
-        showMessage(`Diabolical Launcher`);
-        showCustomNotification(mainWindow, "Launcher Update", "No updates available.");
-    });
-
-    autoUpdater.on("update-downloaded", (info) => {
-            showMessage(`Launcher update downloaded. Restarting...`);
-            autoUpdater.quitAndInstall();
-    });
-
-    autoUpdater.on("error", (info) => {
-        showMessage(`Launcher update error: ${info}`);
-    });
-}
+const versionDirectory = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
 
 function checkForUpdates() {
     autoUpdater.checkForUpdates();
-    showMessage("Checking For Updates... ");
+    showMessage('Checking For Updates... ');
 }
 
 function downloadUpdate() {
     autoUpdater.downloadUpdate();
-    showMessage("Downloading Update... ");
+    showMessage('Downloading Update... ');
 }
 
-//Show the toaster so the user can download the update for the game
-function showCustomNotification(mainWindow, title, body, gameId, duration = 5000) {
+// Show the toaster so the user can download the update for the game
+function showCustomNotification(targetWindow, title, body, gameId, duration = 5000) {
     console.log(`Sending notification: ${title}, ${body}, GameID: ${gameId}`);
-    if (mainWindow?.webContents) {
-        mainWindow.webContents.send("show-notification", {
-            title, body, gameId, duration // 👈 send custom duration
+    if (targetWindow && targetWindow.webContents) {
+        targetWindow.webContents.send('show-notification', {
+            title,
+            body,
+            gameId,
+            duration,
         });
     }
 }
 
-
-//Checks the games current and most recent version to determine if there are updates
+// Checks the games current and most recent version to determine if there are updates
 async function checkGameUpdates(gameId, currentVersion) {
     try {
         const {latestVersion} = await getLatestGameVersion(gameId);
@@ -80,7 +51,7 @@ async function checkGameUpdates(gameId, currentVersion) {
     }
 }
 
-//Current version of the installed game
+// Current version of the installed game
 function getCurrentGameVersion(gameId) {
     const versionFile = path.join(versionDirectory, `${gameId}-version.json`);
     try {
@@ -93,7 +64,7 @@ function getCurrentGameVersion(gameId) {
     }
 }
 
-//Check for updates every minute
+// Check for updates every minute
 function periodicallyCheckGameVersions(gameIds, interval = 60000) {
     gameIds.forEach((gameId) => {
         const currentVersion = getCurrentGameVersion(gameId);
@@ -118,13 +89,51 @@ function startPeriodicChecks(window, interval = 60000) {
     const gameIds = getInstalledGames();
 
     if (!gameIds || gameIds.length === 0) {
-        console.log("No installed games found for update checks.");
+        console.log('No installed games found for update checks.');
         return;
     }
 
     periodicallyCheckGameVersions(gameIds, interval);
 }
 
+// Launcher auto update logic
+function initUpdater() {
+    const settings = settingsModule.loadSettings(); //  Load settings
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+
+    autoUpdater.on('update-available', () => {
+        if (settings.autoUpdate) {
+            //  Check settings before updating
+            showMessage('Launcher update available. Download Started...');
+            showCustomNotification(mainWindow, 'Launcher Update', 'Download started.', 'launcher');
+            autoUpdater.downloadUpdate();
+        } else {
+            showMessage('Diabolical Launcher');
+            showCustomNotification(mainWindow, 'Launcher Update', 'Launcher update available but auto-update is disabled in settings.', 'launcher');
+        }
+    });
+
+    autoUpdater.on('update-not-available', () => {
+        showMessage('Diabolical Launcher');
+        showCustomNotification(mainWindow, 'Launcher Update', 'No updates available.');
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+        showMessage('Launcher update downloaded. Restarting...');
+        autoUpdater.quitAndInstall();
+    });
+
+    autoUpdater.on('error', (info) => {
+        showMessage(`Launcher update error: ${info}`);
+    });
+}
+
 module.exports = {
-    initUpdater, startPeriodicChecks, checkForUpdates, getLatestGameVersion, getCurrentGameVersion, downloadUpdate
+    initUpdater,
+    startPeriodicChecks,
+    checkForUpdates,
+    getLatestGameVersion,
+    getCurrentGameVersion,
+    downloadUpdate,
 };
