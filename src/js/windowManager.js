@@ -140,11 +140,12 @@ async function createWindow() {
         'https://*.diabolical.studio',
         'https://diabolical.studio',
         'https://diabolical.services',
+        'https://cdn.diabolical.services',
         'https://*.github.com',
         'https://*.githubusercontent.com',
         'https://*.cloudflare.com',
         'https://*.r2.dev',
-        'https://*.r2.cloudflarestorage.com', // ← add this
+        'https://*.r2.cloudflarestorage.com',
       ].join(' ');
 
       if (isLocalDev) {
@@ -158,7 +159,7 @@ async function createWindow() {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com; " +
               "style-src 'self' 'unsafe-inline' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://fonts.googleapis.com; " +
               "font-src 'self' data: https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
-              "img-src 'self' data: https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev https://*.cloudflarest.com; " +
+              "img-src 'self' data: https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://cdn.diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev https://*.cloudflarest.com; " +
               `connect-src ${connectSrc}; ` +
               "object-src 'none'; " +
               "media-src 'self' https://*.diabolical.studio https://diabolical.studio https://diabolical.services https://*.github.com https://*.githubusercontent.com https://*.cloudflare.com https://*.r2.dev https://*.cloudflarest.com; " +

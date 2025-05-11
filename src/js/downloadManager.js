@@ -7,54 +7,57 @@ const { diabolicalLauncherPath, versionFilePath } = require('./settings');
 const { getMainWindow } = require('./windowStore');
 const { getLatestGameVersion } = require('./versionChecker');
 
-// Extract zip content after download
 async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(diabolicalLauncherPath, gameId);
-  try {
-    await extract(zipPath, { dir: extractPath });
-    fs.unlinkSync(zipPath);
-
-    event.sender.send('download-complete', gameId);
-    return extractPath;
-  } catch (error) {
-    console.error('Extraction error:', error);
-    event.sender.send('download-error', gameId, 'Extraction failed');
-    throw error;
-  }
+  await extract(zipPath, { dir: extractPath });
+  fs.unlinkSync(zipPath);
+  event.sender.send('download-complete', gameId);
+  return extractPath;
 }
 
-// Initiate game download
 async function downloadGame(event, gameId) {
   try {
-    console.log(`Starting download process for game: ${gameId}`);
+    console.log(`Starting download for: ${gameId}`);
     const { latestVersion, latestVersionUrl } = await getLatestGameVersion(gameId);
-    console.log(`Got version info - Latest: ${latestVersion}, URL: ${latestVersionUrl}`);
-
     if (!latestVersion || !latestVersionUrl) {
-      const mainWindow = getMainWindow();
-      if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('show-notification', {
-          title: 'Game Unavailable',
-          body: 'Please try again later',
-          duration: 5000,
-        });
-      }
-      throw new Error('Latest version information is missing.');
+      getMainWindow()?.webContents.send('show-notification', {
+        title: 'Game Unavailable',
+        body: 'Please try again later',
+        duration: 5000,
+      });
+      throw new Error('Missing version info');
     }
 
-    const gameUrl = latestVersionUrl;
-    console.log(`Attempting to download from URL: ${gameUrl}`);
+    // 1) fetch a presigned GET URL from our Worker
+    const sessionId = await BrowserWindow.getFocusedWindow()?.webContents
+      .executeJavaScript(`(() => {
+        const m = document.cookie.match(/sessionID=([^;]+)/);
+        return m ? m[1] : null;
+      })()`);
+    console.log('Using sessionID for presign:', sessionId);
 
-    //  Use the main window if no focused window is available
+    const presignResp = await fetch('https://cdn.diabolical.services/generateDownloadUrl', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(sessionId && { sessionID: sessionId }),
+      },
+      body: JSON.stringify({
+        key: `R2/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`,
+      }),
+    });
+    if (!presignResp.ok) {
+      const err = await presignResp.text();
+      throw new Error(`Presign failed: ${err}`);
+    }
+    const { url: downloadUrl } = await presignResp.json();
+    console.log('Got presigned URL:', downloadUrl);
+
+    // 2) download via electron-dl (no extra headers needed)
     const window = BrowserWindow.getFocusedWindow() || getMainWindow();
-    if (!window) {
-      throw new Error('No active window found');
-    }
-
-    const dl = await download(window, gameUrl, {
+    const dl = await download(window, downloadUrl, {
       directory: diabolicalLauncherPath,
       onProgress: progress => {
-        console.log(`Download progress for ${gameId}: ${progress.percent}%`);
         event.sender.send('download-progress', {
           gameId,
           percentage: progress.percent,
@@ -62,31 +65,22 @@ async function downloadGame(event, gameId) {
       },
     });
 
-    console.log(`Download completed, starting extraction for ${gameId}`);
+    console.log('Download finished, extracting...');
     await extractZip(dl.getSavePath(), gameId, event);
 
-    console.log(`Writing version file for ${gameId}: ${latestVersion}`);
-    const gameFolder = path.join(diabolicalLauncherPath, gameId);
-    if (!fs.existsSync(gameFolder)) {
-      fs.mkdirSync(gameFolder, { recursive: true });
-    }
+    // 3) write version file
+    fs.mkdirSync(path.join(diabolicalLauncherPath, gameId), { recursive: true });
     fs.writeFileSync(versionFilePath(gameId), JSON.stringify({ version: latestVersion }));
 
-    const mainWindow = getMainWindow();
-    if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send('update-available', {
-        gameId,
-        updateAvailable: false,
-      });
-    }
-  } catch (error) {
-    console.error('Download or Extraction error:', error);
-    event.sender.send('download-error', gameId, error.message);
-    throw error;
+    getMainWindow()?.webContents.send('update-available', {
+      gameId,
+      updateAvailable: false,
+    });
+  } catch (err) {
+    console.error('Download error:', err);
+    event.sender.send('download-error', gameId, err.message);
+    throw err;
   }
 }
 
-module.exports = {
-  downloadGame,
-  extractZip,
-};
+module.exports = { downloadGame, extractZip };

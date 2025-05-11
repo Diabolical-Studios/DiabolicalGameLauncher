@@ -3,7 +3,7 @@ import { CircularProgress, Stack } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import { colors } from '../../theme/colors';
 
-const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading }) => {
+const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, headers = {} }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef();
 
@@ -11,11 +11,18 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading }) =
     setUploading(true);
 
     try {
-      const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+      const sessionID =
+        headers.sessionID ||
+        (window.Cookies && window.Cookies.get && window.Cookies.get('sessionID'));
+      const fetchHeaders = {
+        'Content-Type': 'application/json',
+        ...(sessionID ? { sessionID } : {}),
+      };
+      const uploadUrl = headers.uploadUrl || 'https://cdn.diabolical.services/generateUploadUrl';
+
+      const res = await fetch(uploadUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: fetchHeaders,
         body: JSON.stringify({
           fileExt: file.name.split('.').pop(),
           contentType: file.type,
@@ -29,7 +36,7 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading }) =
         body: file,
       });
 
-      const imageUrl = `https://diabolical.services/${key}`;
+      const imageUrl = `https://cdn.diabolical.services/${key}`;
       onUpload(imageUrl);
 
       if (window.electronAPI) {

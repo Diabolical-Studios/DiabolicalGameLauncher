@@ -72,6 +72,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
       description: gameDescription.trim(),
       version: gameVersion.trim(),
       status: gameStatus,
+      team_name: game.team_name,
       is_manual_upload: false,
     };
 
@@ -87,10 +88,15 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Update failed:', errorData);
         if (window.electronAPI) {
-          window.electronAPI.showCustomNotification('Edit Game Failed', 'Please try again later');
+          window.electronAPI.showCustomNotification(
+            'Edit Game Failed',
+            errorData.error || 'Please try again later'
+          );
         }
-        throw new Error('Failed to update game.');
+        throw new Error(errorData.error || 'Failed to update game.');
       }
 
       console.log('✅ Game updated successfully:', updatedGame);
@@ -102,7 +108,10 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
         );
       }
 
-      onSave(updatedGame);
+      onSave({
+        ...game,
+        ...updatedGame,
+      });
       handleClose();
     } catch (err) {
       console.error('❌ Error updating game:', err);
@@ -131,6 +140,7 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
                 description: gameDescription,
                 version: gameVersion,
                 status: gameStatus,
+                team_name: game.team_name,
               }}
               isEditing={true}
               setGameName={setGameName}
@@ -183,6 +193,10 @@ const EditGameDialog = ({ open, handleClose, game, onSave }) => {
               currentImageUrl={gameBackgroundUrl}
               uploading={uploading}
               setUploading={setUploading}
+              headers={{
+                sessionID: Cookies.get('sessionID'),
+                uploadUrl: 'https://cdn.diabolical.services/generateUploadUrl',
+              }}
             />
 
             {/* Save Button */}
