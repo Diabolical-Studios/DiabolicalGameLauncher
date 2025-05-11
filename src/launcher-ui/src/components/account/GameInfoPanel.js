@@ -268,11 +268,13 @@ const GameInfoPanel = ({ game }) => {
     setUploadProgress(0);
 
     try {
-      // First, upload the game file
-      const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+      // Use the new CDN upload system
+      const sessionID = Cookies.get('sessionID');
+      const res = await fetch('https://cdn.diabolical.services/generateUploadUrl', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(sessionID ? { sessionID } : {}),
         },
         body: JSON.stringify({
           fileExt: gameFile.name.split('.').pop(),
@@ -301,8 +303,8 @@ const GameInfoPanel = ({ game }) => {
       });
 
       // After successful upload, update the game version in the database
-      const sessionID = Cookies.get('sessionID');
-      if (!sessionID) {
+      const sessionID2 = Cookies.get('sessionID');
+      if (!sessionID2) {
         throw new Error('No session ID found');
       }
 
@@ -312,7 +314,7 @@ const GameInfoPanel = ({ game }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          session_id: sessionID,
+          session_id: sessionID2,
           game_id: game.game_id,
           version: manualVersion,
         }),

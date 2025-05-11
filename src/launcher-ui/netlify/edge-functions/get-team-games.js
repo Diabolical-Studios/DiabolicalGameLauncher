@@ -18,6 +18,18 @@ export default async (request, context) => {
   }
 
   try {
+    // Get team name from query parameters
+    const url = new URL(request.url);
+    const teamName = url.searchParams.get('team_name');
+
+    if (!teamName) {
+      console.error('❌ Missing team_name parameter');
+      return new Response(JSON.stringify({ error: 'Missing team_name parameter' }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
     // Access environment variables using Netlify.env.get() for Deno
     const apiBaseUrl = Netlify.env.get('API_BASE_URL');
     const apiKey = Netlify.env.get('API_KEY');
@@ -30,11 +42,15 @@ export default async (request, context) => {
       });
     }
 
-    const response = await fetch(`${apiBaseUrl}/rest-api/games`, {
-      headers: {
-        'x-api-key': apiKey,
-      },
-    });
+    // Fetch games for the specific team
+    const response = await fetch(
+      `${apiBaseUrl}/rest-api/games/team/${encodeURIComponent(teamName)}`,
+      {
+        headers: {
+          'x-api-key': apiKey,
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorBody = await response.text();

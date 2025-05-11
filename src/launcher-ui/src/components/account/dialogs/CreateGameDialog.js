@@ -261,10 +261,11 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       setIsUploading(true);
       setUploadProgress(0);
       try {
-        const res = await fetch(`/.netlify/functions/generateUploadUrl`, {
+        const res = await fetch(`https://cdn.diabolical.services/generateUploadUrl`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            sessionID: Cookies.get('sessionID'),
           },
           body: JSON.stringify({
             fileExt: gameFile.name.split('.').pop(),
@@ -633,6 +634,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   currentImageUrl={gameBackgroundUrl}
                   uploading={uploading}
                   setUploading={setUploading}
+                  headers={{
+                    sessionID: Cookies.get('sessionID'),
+                    uploadUrl: 'https://cdn.diabolical.services/generateUploadUrl',
+                  }}
                 />
               </Stack>
             </Stack>

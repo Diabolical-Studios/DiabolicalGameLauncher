@@ -139,6 +139,10 @@ const CreateTeamDialog = ({ open, handleClose, onCreate }) => {
             currentImageUrl={teamIconUrl}
             uploading={uploading}
             setUploading={setUploading}
+            headers={{
+              sessionID: Cookies.get('sessionID'),
+              uploadUrl: 'https://cdn.diabolical.services/generateUploadUrl',
+            }}
           />
 
           {/* Show Error Message */}

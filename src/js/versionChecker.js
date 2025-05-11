@@ -17,8 +17,8 @@ async function getLatestGameVersion(gameId) {
     const latestVersion = game.version;
     console.log(`Using cached version for ${gameId}: ${latestVersion}`);
 
-    // Construct the R2 URL directly
-    const latestVersionUrl = `https://diabolical.services/R2/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
+    // Use the new CDN domain for download URL
+    const latestVersionUrl = `https://cdn.diabolical.services/R2/${gameId}/Versions/Build-StandaloneWindows64-${latestVersion}.zip`;
     console.log(`Constructed download URL: ${latestVersionUrl}`);
 
     return { latestVersion, latestVersionUrl };

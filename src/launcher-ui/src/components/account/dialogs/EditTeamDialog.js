@@ -246,6 +246,10 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                     currentImageUrl={teamIconUrl}
                     uploading={uploading}
                     setUploading={setUploading}
+                    headers={{
+                      sessionID: Cookies.get('sessionID'),
+                      uploadUrl: 'https://cdn.diabolical.services/generateUploadUrl',
+                    }}
                   />
                 </Stack>
               )}
