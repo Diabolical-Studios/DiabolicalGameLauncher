@@ -49,4 +49,28 @@ function getPreferredExecutable(gamePath, gameId) {
   return path.join(gamePath, exeToRun);
 }
 
-module.exports = { getPreferredExecutable };
+function getAllUnityPackages(dir, results = []) {
+  if (!fs.existsSync(dir)) return results;
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    try {
+      const stat = fs.statSync(filePath);
+      if (stat.isDirectory()) {
+        getAllUnityPackages(filePath, results);
+      } else if (filePath.endsWith('.unitypackage')) {
+        results.push({
+          name: path.basename(filePath),
+          path: filePath,
+          size: stat.size,
+          mtime: stat.mtimeMs,
+        });
+      }
+    } catch (e) {
+      // Ignore permission errors or broken symlinks
+    }
+  }
+  return results;
+}
+
+module.exports = { getPreferredExecutable, getAllUnityPackages };

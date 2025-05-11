@@ -3,6 +3,7 @@ const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const { exec, spawn } = require('child_process');
 const AdmZip = require('adm-zip');
 const { autoUpdater } = require('electron-updater');
+const fs = require('fs');
 
 const updater = require('./updater');
 const { downloadGame } = require('./downloadManager');
@@ -18,7 +19,7 @@ const {
 const { getCurrentGameVersion, getLatestGameVersion } = require('./updater');
 const { loadSettings, saveSettings, diabolicalLauncherPath } = require('./settings');
 const { cacheGamesLocally, readCachedGames } = require('./cacheManager');
-const { getPreferredExecutable } = require('./launcherUtils');
+const { getPreferredExecutable, getAllUnityPackages } = require('./launcherUtils');
 const windowStore = require('./windowStore');
 
 // Track running game processes
@@ -366,6 +367,20 @@ function initIPCHandlers() {
     } catch (error) {
       console.error('Error opening external URL:', error);
       return false;
+    }
+  });
+
+  ipcMain.handle('get-unity-packages', async () => {
+    const unityDir = path.join(process.env.APPDATA || '', 'Unity', 'Asset Store-5.x');
+    return getAllUnityPackages(unityDir);
+  });
+
+  ipcMain.handle('read-file', async (event, filePath) => {
+    try {
+      return await fs.promises.readFile(filePath);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      throw error;
     }
   });
 }

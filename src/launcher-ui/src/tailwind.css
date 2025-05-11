@@ -2058,7 +2058,6 @@ h2 {
 
 .game-list {
   width: 100%;
-  max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 12px;

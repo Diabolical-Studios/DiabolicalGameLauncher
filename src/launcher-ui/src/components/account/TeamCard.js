@@ -6,6 +6,7 @@ import InfiniteGameScroller from '../InfiniteGameScroller';
 import EditTeamDialog from './dialogs/EditTeamDialog';
 import InfiniteGameSkeleton from '../skeleton/InfiniteScrollerSkeleton';
 import { colors } from '../../theme/colors';
+import { Link } from 'react-router-dom';
 
 const TeamCard = ({ team, onUpdateTeam }) => {
   const [games, setGames] = useState([]);
@@ -92,7 +93,18 @@ const TeamCard = ({ team, onUpdateTeam }) => {
           alignItems="center"
           spacing={'12px'}
         >
-          <Stack flexDirection="row" alignItems="center" gap="12px">
+          <Link
+            to={`/account/dashboard/teams/${team.team_name}`}
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              cursor: 'pointer',
+            }}
+            className="hover-effect"
+          >
             <Avatar
               src={`${team.team_icon_url}?t=${Date.now()}`}
               alt={team.team_name}
@@ -100,7 +112,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
               sx={{ width: 32, height: 32, '& img': { objectFit: 'scale-down' } }}
             />
             <span style={{ lineHeight: 1 }}>{team.team_name}</span>
-          </Stack>
+          </Link>
           <OnlyImageButton icon={EditIcon} onClick={() => setEditOpen(true)} />
         </Stack>
 

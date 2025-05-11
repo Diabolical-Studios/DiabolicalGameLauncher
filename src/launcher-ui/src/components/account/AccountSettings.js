@@ -15,6 +15,7 @@ import LogoutButton from './LogoutButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LinearProgress from '@mui/material/LinearProgress';
 import CloseIcon from '@mui/icons-material/Close';
+import { useSessionVerification } from './useSessionVerification';
 
 // Use local SVGs for each service, with a description for the tooltip
 export const services = [
@@ -109,6 +110,7 @@ const imgHoverStyle = {
 const Divider = () => <MuiDivider sx={{ borderColor: colors.border, opacity: 1 }} />;
 
 const AccountSettings = ({ username }) => {
+  const { isVerifying } = useSessionVerification();
   const [hovered, setHovered] = React.useState(null);
   const [connectedProviders, setConnectedProviders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,38 +121,59 @@ const AccountSettings = ({ username }) => {
   const [quotaLoading, setQuotaLoading] = useState(true);
   const [quotaError, setQuotaError] = useState(null);
 
-  useEffect(() => {
-    const fetchConnectedProviders = async () => {
-      setLoading(true);
-      try {
-        const sessionID = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('sessionID='))
-          ?.split('=')[1];
-        if (!sessionID) return;
-        const res = await fetch('/connected-external-apps', {
-          headers: { SessionID: sessionID },
-        });
-        if (!res.ok) throw new Error('Failed to fetch connected accounts');
-        const data = await res.json();
-        const ids = Array.isArray(data.external_subscription_ids)
-          ? data.external_subscription_ids
-          : [];
-        const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
-        const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
+  // Fetch connected providers (refactored so it can be called from anywhere)
+  const fetchConnectedProviders = async () => {
+    setLoading(true);
+    try {
+      const sessionID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('sessionID='))
+        ?.split('=')[1];
+      if (!sessionID) return;
+      const res = await fetch('/connected-external-apps', {
+        headers: { SessionID: sessionID },
+      });
+      if (!res.ok) throw new Error('Failed to fetch connected accounts');
+      const data = await res.json();
+      if (data.subscriptions) {
+        // Get connected providers from subscriptions
+        const connected = services
+          .filter(service =>
+            data.subscriptions.some(
+              sub => sub.external_subscription_id === service.name.toLowerCase()
+            )
+          )
+          .map(service => service.name);
         setConnectedProviders(connected);
 
-        // Store usernames if available in the response
-        if (data.usernames) {
-          setConnectedUsernames(data.usernames);
-        }
-      } catch (e) {
+        // Store usernames
+        const usernames = {};
+        data.subscriptions.forEach(sub => {
+          const service = services.find(s => s.name.toLowerCase() === sub.external_subscription_id);
+          if (service) {
+            usernames[service.name] = sub.username;
+          }
+        });
+        setConnectedUsernames(usernames);
+      } else {
         setConnectedProviders([]);
-      } finally {
-        setLoading(false);
+        setConnectedUsernames({});
       }
-    };
+    } catch (e) {
+      setConnectedProviders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchConnectedProviders();
+    // Listen for custom event to refresh connected accounts
+    const handler = () => fetchConnectedProviders();
+    window.addEventListener('external-auth-success', handler);
+    return () => {
+      window.removeEventListener('external-auth-success', handler);
+    };
   }, []);
 
   // Fetch quota info
@@ -226,6 +249,14 @@ const AccountSettings = ({ username }) => {
       console.error('Error disconnecting account:', error);
     }
   };
+
+  if (isVerifying) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div>Verifying session...</div>
+      </div>
+    );
+  }
 
   return (
     <Stack className="overflow-hidden" sx={{ width: '100%', maxWidth: '100%' }}>
@@ -469,21 +500,8 @@ const AccountSettings = ({ username }) => {
                             textOverflow: 'ellipsis',
                           }}
                         >
-                          {service.name}
+                          {connectedUsernames[service.name] || ''}
                         </Typography>
-                        {connectedUsernames[service.name.toLowerCase()] && (
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: colors.textSecondary,
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            }}
-                          >
-                            {connectedUsernames[service.name.toLowerCase()]}
-                          </Typography>
-                        )}
                       </Stack>
                       <IconButton
                         className="disconnect-button"
@@ -533,12 +551,19 @@ export function useConnectedProviders() {
         });
         if (!res.ok) throw new Error('Failed to fetch connected accounts');
         const data = await res.json();
-        const ids = Array.isArray(data.external_subscription_ids)
-          ? data.external_subscription_ids
-          : [];
-        const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
-        const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
-        setConnectedProviders(connected);
+        if (data.subscriptions) {
+          // Get connected providers from subscriptions
+          const connected = services
+            .filter(service =>
+              data.subscriptions.some(
+                sub => sub.external_subscription_id === service.name.toLowerCase()
+              )
+            )
+            .map(service => service.name);
+          setConnectedProviders(connected);
+        } else {
+          setConnectedProviders([]);
+        }
       } catch (e) {
         setConnectedProviders([]);
       } finally {

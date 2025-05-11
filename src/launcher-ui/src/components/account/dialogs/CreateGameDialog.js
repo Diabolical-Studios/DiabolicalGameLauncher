@@ -13,23 +13,34 @@ import {
   Tabs,
   TextField,
   Typography,
+  Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import GameCard from '../../GameCard';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import UploadIcon from '@mui/icons-material/Upload';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Cookies from 'js-cookie';
 import { colors } from '../../../theme/colors';
 import ImageUploader from '../../common/ImageUploader';
 import { getAllInstallationPairs } from '../../../pages/AccountPage';
+import ImageButton from '../../button/ImageButton';
+import BackgroundAnimation from '../../BackgroundAnimation';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
-    maxHeight: 'none',
-    minWidth: '800px',
+    maxHeight: '800px',
+    minWidth: '1000px',
     background: 'transparent',
     boxShadow: 'none',
     margin: 0,
+  },
+}));
+
+const MuiDivider = styled(Divider)(({ theme }) => ({
+  '&.MuiDivider-root': {
+    borderColor: colors.border,
+    opacity: 1,
   },
 }));
 
@@ -473,15 +484,37 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       onClose={handleClose}
       aria-labelledby="create-game-dialog-title"
     >
-      <Stack className={'p-6 overflow-hidden'}>
+      <Stack
+        className={'p-6 overflow-hidden'}
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: colors.background,
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 0,
+          }}
+        >
+          <BackgroundAnimation style={{ opacity: 0.4 }} />
+        </div>
         <Stack
-          className={'dialog gap-6 p-4'}
+          className={'gap-6 p-4'}
           flexDirection={'column'}
           style={{
-            backgroundColor: colors.background,
             border: '1px solid' + colors.border,
             gap: '24px',
             padding: '24px',
+            position: 'relative',
+            zIndex: 2,
+            borderRadius: '4px',
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'row', gap: '24px' }}>
@@ -492,13 +525,14 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
               className={'gap-6 justify-between rounded-sm'}
               style={{
                 gap: '24px',
+                minWidth: '300px',
+                maxWidth: '300px',
               }}
             >
               <GameCard
                 style={{
                   aspectRatio: '63/88',
-                  outline: '1px solid' + colors.border,
-                  width: 'auto',
+                  border: '1px solid' + colors.border,
                 }}
                 game={{
                   game_name: gameName,
@@ -513,7 +547,14 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                 setGameBackgroundUrl={setGameBackgroundUrl}
                 setGameDescription={setGameDescription}
               />
-              <Stack className={'w-full'} style={{ margin: 0, gap: '12px' }}>
+              <Stack
+                className={'w-full'}
+                style={{
+                  margin: 0,
+                  gap: '12px',
+                  width: '100%',
+                }}
+              >
                 <TextField
                   label="Game ID"
                   variant="outlined"
@@ -525,6 +566,8 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     '& .MuiOutlinedInput-root': {
                       color: colors.text,
                       fontSize: '16px',
+                      background: 'transparent',
+                      backdropFilter: 'blur(10px)',
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
                       border: '1px solid' + colors.border + '!important',
@@ -545,13 +588,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         color: colors.text,
                         padding: '16.5px 14px !important',
                         height: '-webkit-fill-available',
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                       },
                     }}
                   >
                     <InputLabel
                       id="team-select-label"
                       style={{
-                        backgroundColor: colors.background,
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                         color: colors.border,
                         padding: '0 8px',
                       }}
@@ -581,7 +627,8 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       {teams.map(team => (
                         <MenuItem
                           style={{
-                            backgroundColor: colors.background,
+                            background: 'transparent',
+                            backdropFilter: 'blur(10px)',
                             color: colors.border,
                             padding: '0 !important',
                           }}
@@ -602,13 +649,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         color: colors.text,
                         padding: '16.5px 14px !important',
                         height: '-webkit-fill-available',
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                       },
                     }}
                   >
                     <InputLabel
                       id="status-select-label"
                       style={{
-                        backgroundColor: colors.background,
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                         color: colors.border,
                         padding: '0 8px',
                       }}
@@ -645,6 +695,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     setGameBackgroundUrl(url);
                     setHasRequiredFields(true);
                   }}
+                  style={{
+                    background: 'transparent',
+                    backdropFilter: 'blur(10px)',
+                  }}
                   currentImageUrl={gameBackgroundUrl}
                   uploading={uploading}
                   setUploading={setUploading}
@@ -676,6 +730,9 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     label="Deploy from GitHub"
                     sx={{
                       color: colors.text,
+                      background: 'transparent',
+                      backdropFilter: 'blur(10px)',
+                      padding: '0 12px 12px 12px',
                       '&.Mui-selected': {
                         color: colors.primary,
                       },
@@ -685,6 +742,9 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                     label="Manual Upload"
                     sx={{
                       color: colors.text,
+                      background: 'transparent',
+                      backdropFilter: 'blur(10px)',
+                      padding: '0 12px 12px 12px',
                       '&.Mui-selected': {
                         color: colors.primary,
                       },
@@ -698,21 +758,36 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                   <>
                     {connectedAccounts.length > 0 && (
                       <Stack
-                        direction="row"
                         spacing={2}
                         sx={{
-                          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                          background: 'transparent',
+                          backdropFilter: 'blur(10px)',
                           borderRadius: '4px',
-                          padding: '12px',
-                          border: `1px solid ${colors.border}`,
+                          boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)',
+                          padding: '16px',
+                          border: '1px solid' + colors.border + '!important',
                         }}
                       >
-                        <Stack spacing={1}>
-                          <Typography variant="subtitle2" sx={{ color: colors.text }}>
-                            Connected GitHub Accounts
-                          </Typography>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: colors.text, fontWeight: 500 }}
+                        >
+                          Connected GitHub Accounts
+                        </Typography>
+                        <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', gap: '8px' }}>
                           {connectedAccounts.map(account => (
-                            <Stack direction="row" alignItems="center" gap={1}>
+                            <Stack
+                              direction="row"
+                              alignItems="center"
+                              spacing={1}
+                              sx={{
+                                background: 'transparent',
+                                backdropFilter: 'blur(10px)',
+                                borderRadius: '4px',
+                                padding: '8px 12px',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
                               <img
                                 src={account.avatarUrl}
                                 alt={account.name}
@@ -720,30 +795,30 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                                   width: '24px',
                                   height: '24px',
                                   borderRadius: '50%',
-                                  objectFit: 'cover',
+                                  objectFit: 'contain',
                                 }}
                               />
                               <Typography
-                                key={account.id}
                                 variant="body2"
                                 sx={{
                                   color: colors.text,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1,
+                                  fontWeight: 500,
                                 }}
                               >
                                 {account.name}
-                                <Chip
-                                  label={account.type}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: 'rgba(0, 188, 212, 0.1)',
-                                    color: '#00bcd4',
-                                    height: '20px',
-                                  }}
-                                />
                               </Typography>
+                              <Chip
+                                label={account.type}
+                                size="small"
+                                sx={{
+                                  backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                                  color: '#00bcd4',
+                                  height: '20px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  borderRadius: '4px',
+                                }}
+                              />
                             </Stack>
                           ))}
                         </Stack>
@@ -758,7 +833,10 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         '& .MuiOutlinedInput-root': {
                           color: colors.text,
                           fontSize: '14px',
-                          backgroundColor: '#161616',
+                          background: 'transparent',
+                          backdropFilter: 'blur(10px)',
+                          borderRadius: '4px',
+                          height: '48px',
                           '& fieldset': {
                             borderColor: colors.border,
                           },
@@ -770,29 +848,32 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                           },
                         },
                         '& .MuiInputBase-input': {
-                          padding: '10px 14px',
+                          padding: '14px 16px',
                         },
                       }}
                     />
 
                     <Stack
                       className={'gap-2 flex-1'}
-                      style={{
-                        backgroundColor: '#161616',
+                      sx={{
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                         borderRadius: '4px',
+                        boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)',
                         overflow: 'hidden',
                         minHeight: '200px',
-                        border: `1px solid ${colors.border}`,
+                        border: '1px solid' + colors.border + '!important',
                       }}
                     >
                       <Stack
                         className={'gap-2'}
                         style={{
                           height: '250px',
-                          padding: '8px',
+                          padding: '16px',
                           overflowY: 'auto',
                           scrollbarWidth: 'thin',
                           scrollbarColor: `${colors.border} transparent`,
+                          gap: '8px',
                         }}
                       >
                         {loadingRepos ? (
@@ -802,9 +883,12 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                             style={{ height: '100%' }}
                           >
                             <CircularProgress size={20} />
-                            <p style={{ color: colors.text, fontSize: '14px', margin: '8px 0 0' }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: colors.text, mt: 1, fontSize: '14px' }}
+                            >
                               Loading Repositories...
-                            </p>
+                            </Typography>
                           </Stack>
                         ) : (
                           <>
@@ -814,55 +898,64 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                                 justifyContent="center"
                                 style={{ height: '100%' }}
                               >
-                                <p style={{ color: colors.text, fontSize: '14px' }}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: colors.text, opacity: 0.7 }}
+                                >
                                   {searchQuery
                                     ? 'No repositories found'
                                     : 'No repositories available'}
-                                </p>
+                                </Typography>
                               </Stack>
                             ) : (
                               <>
-                                {filteredRepos.map(repo => (
+                                {filteredRepos.map((repo, index) => (
                                   <Stack
                                     key={repo.id}
                                     direction="row"
-                                    className={
-                                      'justify-between items-center p-2 rounded-sm cursor-pointer'
-                                    }
-                                    style={{
-                                      transition: 'background 0.2s',
+                                    alignItems="center"
+                                    spacing={1}
+                                    className="hover-effect"
+                                    sx={{
+                                      padding: '12px 16px',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s ease',
+                                      background:
+                                        selectedRepo === repo.full_name
+                                          ? colors.primary + '15'
+                                          : 'transparent',
                                       border:
                                         selectedRepo === repo.full_name
-                                          ? '1px solid #00bcd4'
-                                          : 'transparent',
+                                          ? '1px solid ' + colors.primary
+                                          : '1px solid transparent',
+                                      '&:hover': {
+                                        background: colors.primary + '08',
+                                        border: '1px solid ' + colors.primary + '40',
+                                      },
                                     }}
                                     onClick={() => setSelectedRepo(repo.full_name)}
-                                    onMouseEnter={e => (e.currentTarget.style.background = '#222')}
-                                    onMouseLeave={e =>
-                                      (e.currentTarget.style.background = 'transparent')
-                                    }
                                   >
                                     <img
                                       src={ownerAvatars[repo.owner.login] || '/github.png'}
                                       alt={repo.owner.login}
                                       style={{
-                                        aspectRatio: '1 / 1',
-                                        width: '16px',
+                                        width: '20px',
+                                        height: '20px',
                                         borderRadius: '50%',
                                         objectFit: 'cover',
                                       }}
                                     />
-                                    <p
-                                      style={{
+                                    <Typography
+                                      variant="body2"
+                                      sx={{
                                         color: colors.text,
-                                        margin: 0,
-                                        fontSize: '14px',
                                         flex: 1,
-                                        paddingLeft: '8px',
+                                        fontWeight: 500,
                                       }}
                                     >
                                       {repo.full_name}
-                                    </p>
+                                    </Typography>
                                     <Chip
                                       label={repo.private ? 'Private' : 'Public'}
                                       size="small"
@@ -874,6 +967,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                                         height: '20px',
                                         fontSize: '12px',
                                         fontWeight: 'bold',
+                                        borderRadius: '4px',
                                       }}
                                     />
                                   </Stack>
@@ -889,18 +983,23 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                       variant="outlined"
                       onClick={handleAuthorizeMoreRepos}
                       sx={{
-                        color: '#00bcd4',
-                        borderColor: '#00bcd4',
-                        backgroundColor: 'transparent',
+                        color: colors.text,
+                        borderColor: colors.border,
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                         textTransform: 'none',
-                        padding: '10px',
+                        padding: '8px 12px',
                         borderRadius: '4px',
+                        fontSize: '14px',
+                        gap: '8px',
                         '&:hover': {
-                          backgroundColor: 'rgba(0, 188, 212, 0.1)',
-                          borderColor: '#00bcd4',
+                          background: colors.primary + '08',
+                          borderColor: colors.primary,
+                          color: colors.primary,
                         },
                       }}
                     >
+                      <InfoOutlinedIcon sx={{ fontSize: '18px' }} />
                       Can't find your repo? Authorize more repositories
                     </Button>
                   </>
@@ -921,7 +1020,8 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         '& .MuiOutlinedInput-root': {
                           color: colors.text,
                           fontSize: '14px',
-                          backgroundColor: '#161616',
+                          background: 'transparent',
+                          backdropFilter: 'blur(10px)',
                           '& fieldset': {
                             borderColor: colors.border,
                           },
@@ -959,7 +1059,8 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
                         justifyContent: 'center',
                         borderRadius: '4px',
                         border: `2px dashed ${colors.border}`,
-                        backgroundColor: colors.background,
+                        background: 'transparent',
+                        backdropFilter: 'blur(10px)',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                       }}
@@ -1007,33 +1108,29 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
               </Stack>
 
               {/* Save Button */}
-              <Button
-                sx={{
-                  color: '#fff !important',
-                  backgroundColor: colors.button,
-                  outline: '1px solid' + colors.border,
-                  borderRadius: '4px',
-                  justifyContent: 'space-between',
-                  padding: '10px 16px',
-                  width: 'fit-content',
-                  opacity: !hasRequiredFields || isSaving ? 0.5 : 1,
-                  transition: 'opacity 0.2s ease-in-out',
-                  '&:hover': {
-                    opacity: !hasRequiredFields || isSaving ? 0.5 : 0.8,
-                    backgroundColor: colors.button,
-                  },
+              <Stack
+                style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px',
+                  zIndex: 1,
                 }}
-                onClick={handleSave}
-                aria-label="save"
-                startIcon={<RocketLaunchIcon />}
-                disabled={isSaving || !hasRequiredFields}
               >
-                {isSaving ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  'Create and Deploy Game!'
-                )}
-              </Button>
+                <ImageButton
+                  text={isSaving ? 'Creating...' : 'Create and Deploy Game!'}
+                  icon={RocketLaunchIcon}
+                  onClick={handleSave}
+                  style={{
+                    color: '#fff',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    width: 'fit-content',
+                    opacity: !hasRequiredFields || isSaving ? 0.5 : 1,
+                    transition: 'opacity 0.2s ease-in-out',
+                  }}
+                  disabled={isSaving || !hasRequiredFields}
+                />
+              </Stack>
             </Stack>
           </div>
         </Stack>

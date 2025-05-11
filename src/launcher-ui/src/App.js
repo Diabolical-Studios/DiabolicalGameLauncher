@@ -18,6 +18,7 @@ import { createTheme, CssBaseline, GlobalStyles, ThemeProvider } from '@mui/mate
 import LibraryPage from './pages/LibraryPage';
 import StorePage from './pages/StorePage';
 import CustomCursor from './components/common/CustomCursor';
+import PageManager from './components/PageManager';
 
 const App = () => {
   const [muiTheme] = useState(
@@ -132,13 +133,7 @@ const App = () => {
               <AppCloseRefreshButtons></AppCloseRefreshButtons>
             </HorizontalFlex>
             <ContentPanel>
-              <Routes>
-                <Route path="/" element={<StorePage />} />
-                <Route path="/library" element={<LibraryPage />} />
-                <Route path="/account/*" element={<AccountPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/changelog" element={<ChangelogPage />} />
-              </Routes>
+              <PageManager />
             </ContentPanel>
           </StatusBarAndContentPanel>
           <Toaster />

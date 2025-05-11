@@ -8,6 +8,7 @@ module.exports = [
   '/account/dashboard',
   '/account/dashboard/settings',
   '/account/dashboard/teams',
+  '/account/dashboard/teams/:teamId',
   '/account/dashboard/games',
   '/changelog',
   '/settings',

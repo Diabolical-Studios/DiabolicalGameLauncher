@@ -124,6 +124,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadUpdate: () => ipcRenderer.send('download-update'),
   onUpdateAvailable: callback => ipcRenderer.on('update-available', callback),
   onUpdateNotAvailable: callback => ipcRenderer.on('update-not-available', callback),
+  getUnityPackages: () => ipcRenderer.invoke('get-unity-packages'),
+  readFile: filePath => ipcRenderer.invoke('read-file', filePath),
 });
 
 contextBridge.exposeInMainWorld('githubAPI', {

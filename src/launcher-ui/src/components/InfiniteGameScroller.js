@@ -25,12 +25,12 @@ const InfiniteLoopSlider = ({ children, duration, reverse = false }) => {
 
 const GameTag = ({ name }) => <div className="game-button shimmer-button w-fit">{name}</div>;
 
-const InfiniteGameScroller = ({ games }) => {
+const InfiniteGameScroller = ({ games, style }) => {
   if (!games || games.length === 0) return <p>No games found.</p>;
 
   return (
-    <Stack direction="column" alignItems="center" spacing={2}>
-      <div className="game-list">
+    <Stack direction="column" spacing={2} style={{ width: '100%', ...style }}>
+      <div className="game-list" style={{ width: '100%' }}>
         {[...new Array(ROWS)].map((_, i) => (
           <InfiniteLoopSlider key={i} duration={DURATION + i * 3000} reverse={i % 2}>
             {shuffle(games)
