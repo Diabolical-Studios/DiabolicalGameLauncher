@@ -151,21 +151,27 @@ const CustomCursor = () => {
 
       // If hovering an element, update hoveredRect every frame
       if (hoveredElement.current) {
-        const target = hoveredElement.current;
-        const rect = target.getBoundingClientRect();
-        const minSize = 2 * MIN_CORNER_GAP + CORNER_SIZE;
-        const width = Math.max(rect.width + 2 * PADDING, minSize);
-        const height = Math.max(rect.height + 2 * PADDING, minSize);
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        setHoveredRect({
-          left: centerX - width / 2,
-          top: centerY - height / 2,
-          right: centerX + width / 2,
-          bottom: centerY + height / 2,
-          width,
-          height,
-        });
+        // Check if the element is still in the DOM
+        if (!document.body.contains(hoveredElement.current)) {
+          hoveredElement.current = null;
+          setHoveredRect(null);
+        } else {
+          const target = hoveredElement.current;
+          const rect = target.getBoundingClientRect();
+          const minSize = 2 * MIN_CORNER_GAP + CORNER_SIZE;
+          const width = Math.max(rect.width + 2 * PADDING, minSize);
+          const height = Math.max(rect.height + 2 * PADDING, minSize);
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          setHoveredRect({
+            left: centerX - width / 2,
+            top: centerY - height / 2,
+            right: centerX + width / 2,
+            bottom: centerY + height / 2,
+            width,
+            height,
+          });
+        }
       }
 
       // Move SVG crosshair using transform for better performance

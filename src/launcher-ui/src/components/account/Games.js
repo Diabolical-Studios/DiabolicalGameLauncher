@@ -6,8 +6,10 @@ import GameCardsSkeleton from '../skeleton/GameCardsSkeleton';
 import { colors } from '../../theme/colors';
 import GameInfoPanel from './GameInfoPanel';
 import Cookies from 'js-cookie';
+import { useSessionVerification } from './useSessionVerification';
 
 const Games = ({ teams }) => {
+  const { isVerifying } = useSessionVerification();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,6 +79,14 @@ const Games = ({ teams }) => {
 
     fetchGames();
   }, []);
+
+  if (isVerifying) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div>Verifying session...</div>
+      </div>
+    );
+  }
 
   if (loading) return <GameCardsSkeleton />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;

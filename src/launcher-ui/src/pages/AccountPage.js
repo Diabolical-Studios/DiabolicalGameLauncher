@@ -3,7 +3,7 @@ import Layout from '../components/Layout';
 import Cookies from 'js-cookie';
 import AccountDashboard from '../components/account/AccountDashboard';
 import LoginScreen from '../components/account/LoginScreen';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 const saveInstallationPair = (installationId, accessToken) => {
   let count = 1;
@@ -46,9 +46,8 @@ export default function AccountPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get('sessionID'));
   const [checkingSession, setCheckingSession] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
-  const cookieOptions = useMemo(() => ({ expires: 7, secure: true, sameSite: 'Strict' }), []);
+  const cookieOptions = React.useMemo(() => ({ expires: 7, secure: true, sameSite: 'Strict' }), []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -63,9 +62,10 @@ export default function AccountPage() {
 
       setUsername(usernameParam);
       setIsLoggedIn(true);
-      navigate(location.pathname, { replace: true });
+      // No imperative navigation, just let the router handle it
     }
-  }, [location.search, location.pathname, navigate, cookieOptions]);
+    setCheckingSession(false);
+  }, [location.search, location.pathname, cookieOptions]);
 
   useEffect(() => {
     const sessionID = Cookies.get('sessionID');
@@ -206,17 +206,25 @@ export default function AccountPage() {
         <Route
           index
           element={
-            isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />
+            isLoggedIn ? (
+              <Navigate to="/account/dashboard" replace />
+            ) : (
+              <Navigate to="/account/login" replace />
+            )
           }
         />
         <Route
           path="login"
-          element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />}
+          element={isLoggedIn ? <Navigate to="/account/dashboard" replace /> : <LoginScreen />}
         />
         <Route
           path="dashboard/*"
           element={
-            isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />
+            isLoggedIn ? (
+              <AccountDashboard username={username} />
+            ) : (
+              <Navigate to="/account/login" replace />
+            )
           }
         />
       </Route>

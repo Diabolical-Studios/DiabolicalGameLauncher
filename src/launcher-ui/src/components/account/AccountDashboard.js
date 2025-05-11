@@ -1,6 +1,6 @@
 // AccountDashboard.js
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Avatar, Stack } from '@mui/material';
 import Teams from './Teams';
@@ -17,8 +17,10 @@ import AccountSettings, { services, useConnectedProviders } from './AccountSetti
 import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
 import TeamDashboard from './TeamDashboard';
+import { useSessionVerification } from './useSessionVerification';
 
 export default function AccountDashboard({ username }) {
+  const { isVerifying } = useSessionVerification();
   const [teams, setTeams] = useState([]);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [errorTeams, setErrorTeams] = useState(null);
@@ -64,6 +66,14 @@ export default function AccountDashboard({ username }) {
     );
   };
 
+  if (isVerifying) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div>Verifying session...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div
@@ -94,10 +104,12 @@ export default function AccountDashboard({ username }) {
               ? Array.from({ length: 3 }).map((_, idx) => (
                   <Skeleton
                     key={idx}
-                    variant="rounded"
                     width={70}
                     height="{100%}"
-                    sx={{ borderRadius: '16px', marginLeft: idx === 0 ? 0 : 1 }}
+                    sx={{
+                      borderRadius: '4px',
+                      marginLeft: idx === 0 ? 0 : 1,
+                    }}
                   />
                 ))
               : connectedServices.map(service => (
@@ -120,6 +132,7 @@ export default function AccountDashboard({ username }) {
                       alignItems: 'center',
                       gap: '4px',
                       padding: '12px',
+                      borderRadius: '4px',
                       '& .MuiChip-label': {
                         padding: 0,
                       },
@@ -145,47 +158,14 @@ export default function AccountDashboard({ username }) {
           <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
         </ul>
         <Divider vertical />
-        <div className="flex flex-col gap-3 size-full mt-0">
+        <div className="flex flex-col gap-3 size-full mt-0" style={{ overflow: 'hidden' }}>
           <Routes>
-            <Route
-              index
-              element={
-                <Grid>
-                  <Teams
-                    teams={teams}
-                    loading={loadingTeams}
-                    error={errorTeams}
-                    onUpdateTeam={handleUpdateTeam}
-                  />
-                </Grid>
-              }
-            />
+            <Route index element={<Navigate to="teams" replace />} />
             <Route
               path="settings"
               element={
                 <Grid>
                   <AccountSettings username={username} />
-                </Grid>
-              }
-            />
-            <Route
-              path="teams"
-              element={
-                <Grid>
-                  <Teams
-                    teams={teams}
-                    loading={loadingTeams}
-                    error={errorTeams}
-                    onUpdateTeam={handleUpdateTeam}
-                  />
-                </Grid>
-              }
-            />
-            <Route
-              path="teams/:teamId"
-              element={
-                <Grid>
-                  <TeamDashboard teams={teams} onUpdateTeam={handleUpdateTeam} />
                 </Grid>
               }
             />
@@ -197,6 +177,29 @@ export default function AccountDashboard({ username }) {
                 </Grid>
               }
             />
+            <Route path="teams">
+              <Route
+                index
+                element={
+                  <Grid>
+                    <Teams
+                      teams={teams}
+                      loading={loadingTeams}
+                      error={errorTeams}
+                      onUpdateTeam={handleUpdateTeam}
+                    />
+                  </Grid>
+                }
+              />
+              <Route
+                path=":teamName"
+                element={
+                  <Grid>
+                    <TeamDashboard teams={teams} onUpdateTeam={handleUpdateTeam} />
+                  </Grid>
+                }
+              />
+            </Route>
           </Routes>
         </div>
       </div>

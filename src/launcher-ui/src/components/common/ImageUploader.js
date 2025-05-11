@@ -3,7 +3,14 @@ import { CircularProgress, Stack } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import { colors } from '../../theme/colors';
 
-const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, headers = {} }) => {
+const ImageUploader = ({
+  onUpload,
+  currentImageUrl,
+  uploading,
+  setUploading,
+  headers,
+  style = {},
+}) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef();
 
@@ -94,6 +101,7 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, hea
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      className="hover-effect"
       style={{
         height: '120px',
         alignItems: 'center',
@@ -103,6 +111,7 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, hea
         backgroundColor: isDragging ? `${colors.button}20` : colors.background,
         cursor: 'pointer',
         transition: 'all 0.2s ease',
+        ...style,
       }}
       onClick={() => fileInputRef.current?.click()}
     >
