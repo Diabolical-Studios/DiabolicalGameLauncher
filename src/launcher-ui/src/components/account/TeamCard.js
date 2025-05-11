@@ -6,8 +6,10 @@ import InfiniteGameScroller from '../InfiniteGameScroller';
 import EditTeamDialog from './dialogs/EditTeamDialog';
 import InfiniteGameSkeleton from '../skeleton/InfiniteScrollerSkeleton';
 import { colors } from '../../theme/colors';
+import { useNavigate } from 'react-router-dom';
 
 const TeamCard = ({ team, onUpdateTeam }) => {
+  const navigate = useNavigate();
   const [games, setGames] = useState([]);
   const [loadingGames, setLoadingGames] = useState(true);
   const [errorGames, setErrorGames] = useState(null);
@@ -92,7 +94,18 @@ const TeamCard = ({ team, onUpdateTeam }) => {
           alignItems="center"
           spacing={'12px'}
         >
-          <Stack flexDirection="row" alignItems="center" gap="12px">
+          <Stack
+            flexDirection="row"
+            alignItems="center"
+            gap="12px"
+            sx={{
+              cursor: 'pointer',
+              '&:hover': {
+                opacity: 0.8,
+              },
+            }}
+            onClick={() => navigate(`/account/dashboard/teams/${team.team_id}`)}
+          >
             <Avatar
               src={`${team.team_icon_url}?t=${Date.now()}`}
               alt={team.team_name}

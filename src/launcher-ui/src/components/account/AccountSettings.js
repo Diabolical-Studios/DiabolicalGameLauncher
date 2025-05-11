@@ -119,53 +119,59 @@ const AccountSettings = ({ username }) => {
   const [quotaLoading, setQuotaLoading] = useState(true);
   const [quotaError, setQuotaError] = useState(null);
 
-  useEffect(() => {
-    const fetchConnectedProviders = async () => {
-      setLoading(true);
-      try {
-        const sessionID = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('sessionID='))
-          ?.split('=')[1];
-        if (!sessionID) return;
-        const res = await fetch('/connected-external-apps', {
-          headers: { SessionID: sessionID },
-        });
-        if (!res.ok) throw new Error('Failed to fetch connected accounts');
-        const data = await res.json();
-        if (data.subscriptions) {
-          // Get connected providers from subscriptions
-          const connected = services
-            .filter(service =>
-              data.subscriptions.some(
-                sub => sub.external_subscription_id === service.name.toLowerCase()
-              )
+  // Fetch connected providers (refactored so it can be called from anywhere)
+  const fetchConnectedProviders = async () => {
+    setLoading(true);
+    try {
+      const sessionID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('sessionID='))
+        ?.split('=')[1];
+      if (!sessionID) return;
+      const res = await fetch('/connected-external-apps', {
+        headers: { SessionID: sessionID },
+      });
+      if (!res.ok) throw new Error('Failed to fetch connected accounts');
+      const data = await res.json();
+      if (data.subscriptions) {
+        // Get connected providers from subscriptions
+        const connected = services
+          .filter(service =>
+            data.subscriptions.some(
+              sub => sub.external_subscription_id === service.name.toLowerCase()
             )
-            .map(service => service.name);
-          setConnectedProviders(connected);
+          )
+          .map(service => service.name);
+        setConnectedProviders(connected);
 
-          // Store usernames
-          const usernames = {};
-          data.subscriptions.forEach(sub => {
-            const service = services.find(
-              s => s.name.toLowerCase() === sub.external_subscription_id
-            );
-            if (service) {
-              usernames[service.name] = sub.username;
-            }
-          });
-          setConnectedUsernames(usernames);
-        } else {
-          setConnectedProviders([]);
-          setConnectedUsernames({});
-        }
-      } catch (e) {
+        // Store usernames
+        const usernames = {};
+        data.subscriptions.forEach(sub => {
+          const service = services.find(s => s.name.toLowerCase() === sub.external_subscription_id);
+          if (service) {
+            usernames[service.name] = sub.username;
+          }
+        });
+        setConnectedUsernames(usernames);
+      } else {
         setConnectedProviders([]);
-      } finally {
-        setLoading(false);
+        setConnectedUsernames({});
       }
-    };
+    } catch (e) {
+      setConnectedProviders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchConnectedProviders();
+    // Listen for custom event to refresh connected accounts
+    const handler = () => fetchConnectedProviders();
+    window.addEventListener('external-auth-success', handler);
+    return () => {
+      window.removeEventListener('external-auth-success', handler);
+    };
   }, []);
 
   // Fetch quota info

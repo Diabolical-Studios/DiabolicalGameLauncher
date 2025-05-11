@@ -144,20 +144,25 @@ export default function AccountPage() {
               Cookies.set('githubID', data.githubID, cookieOptions);
               setUsername(data.username);
               setIsLoggedIn(true);
+              window.dispatchEvent(new Event('external-auth-success'));
               break;
             case 'patreon':
               if (data.code) {
                 Cookies.set('patreonAuthCode', data.code, cookieOptions);
               }
+              window.dispatchEvent(new Event('external-auth-success'));
               break;
             case 'steam':
               // Handle Steam-specific logic here
+              window.dispatchEvent(new Event('external-auth-success'));
               break;
             case 'discord':
               // Handle Discord-specific logic here
+              window.dispatchEvent(new Event('external-auth-success'));
               break;
             default:
               // Handle unknown or generic OAuth
+              window.dispatchEvent(new Event('external-auth-success'));
               break;
           }
         }

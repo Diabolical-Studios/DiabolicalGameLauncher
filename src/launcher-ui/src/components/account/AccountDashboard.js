@@ -1,6 +1,6 @@
 // AccountDashboard.js
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Avatar, Stack } from '@mui/material';
 import Teams from './Teams';
@@ -16,6 +16,7 @@ import { colors } from '../../theme/colors';
 import AccountSettings, { services, useConnectedProviders } from './AccountSettings';
 import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
+import TeamDashboard from './TeamDashboard';
 
 export default function AccountDashboard({ username }) {
   const [teams, setTeams] = useState([]);
@@ -177,6 +178,14 @@ export default function AccountDashboard({ username }) {
                     error={errorTeams}
                     onUpdateTeam={handleUpdateTeam}
                   />
+                </Grid>
+              }
+            />
+            <Route
+              path="teams/:teamId"
+              element={
+                <Grid>
+                  <TeamDashboard teams={teams} onUpdateTeam={handleUpdateTeam} />
                 </Grid>
               }
             />
