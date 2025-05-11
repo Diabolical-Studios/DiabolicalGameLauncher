@@ -133,16 +133,31 @@ const AccountSettings = ({ username }) => {
         });
         if (!res.ok) throw new Error('Failed to fetch connected accounts');
         const data = await res.json();
-        const ids = Array.isArray(data.external_subscription_ids)
-          ? data.external_subscription_ids
-          : [];
-        const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
-        const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
-        setConnectedProviders(connected);
+        if (data.subscriptions) {
+          // Get connected providers from subscriptions
+          const connected = services
+            .filter(service =>
+              data.subscriptions.some(
+                sub => sub.external_subscription_id === service.name.toLowerCase()
+              )
+            )
+            .map(service => service.name);
+          setConnectedProviders(connected);
 
-        // Store usernames if available in the response
-        if (data.usernames) {
-          setConnectedUsernames(data.usernames);
+          // Store usernames
+          const usernames = {};
+          data.subscriptions.forEach(sub => {
+            const service = services.find(
+              s => s.name.toLowerCase() === sub.external_subscription_id
+            );
+            if (service) {
+              usernames[service.name] = sub.username;
+            }
+          });
+          setConnectedUsernames(usernames);
+        } else {
+          setConnectedProviders([]);
+          setConnectedUsernames({});
         }
       } catch (e) {
         setConnectedProviders([]);
@@ -469,21 +484,8 @@ const AccountSettings = ({ username }) => {
                             textOverflow: 'ellipsis',
                           }}
                         >
-                          {service.name}
+                          {connectedUsernames[service.name] || ''}
                         </Typography>
-                        {connectedUsernames[service.name.toLowerCase()] && (
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: colors.textSecondary,
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            }}
-                          >
-                            {connectedUsernames[service.name.toLowerCase()]}
-                          </Typography>
-                        )}
                       </Stack>
                       <IconButton
                         className="disconnect-button"
