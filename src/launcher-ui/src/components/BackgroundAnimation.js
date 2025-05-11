@@ -1,62 +1,104 @@
 import React, { useEffect, useRef } from 'react';
 
+// Animation Configuration
+const CONFIG = {
+  // Grid settings
+  GRID_STEP: 15, // Distance between particles in pixels
+  PARTICLE_SIZE_MULTIPLIER: 6, // Base size multiplier for particles
+
+  // Animation timing
+  ANIMATION_SPEED: 0.05, // Base animation speed
+  TARGET_FPS: 12, // Target frames per second
+  FRAME_TIME: 1000 / 12, // Target frame time in ms
+
+  // Noise settings
+  NOISE_SCALE: {
+    BASE: 900, // Base noise scale
+    HUE: 1500, // Noise scale for hue variation
+    VARIATION: 500, // Noise scale for size variation
+  },
+
+  // Color settings
+  COLOR: {
+    SATURATION: 70, // HSL saturation percentage
+    LIGHTNESS: 50, // HSL lightness percentage
+    HUE_VARIATION: 60, // Base hue variation
+    HUE_OFFSET: 80, // Additional hue offset
+  },
+
+  // Rendering settings
+  RENDER: {
+    ALPHA: false, // Whether to use alpha channel
+    OPACITY: 0.6, // Overall opacity of the animation
+    BATCH_SIZE: 300, // Number of particles to process per batch
+    CULLING: {
+      ENABLED: true, // Whether to enable particle culling
+      MARGIN: 50, // Extra margin around viewport for culling (in pixels)
+      MIN_SIZE: 0.1, // Minimum particle size to render
+    },
+  },
+};
+
 const BackgroundAnimation = () => {
   const canvasRef = useRef(null);
+  const animationTimeRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const globalHueSeedRef = useRef(Math.random() * 360);
+  const frameIdRef = useRef(null);
+  const noiseRef = useRef(null);
+  const circlePathRef = useRef(null);
+  const lastFrameTimeRef = useRef(0);
+  const visibleParticlesRef = useRef([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: CONFIG.RENDER.ALPHA });
+
+    // Pre-compute circle path
+    circlePathRef.current = new Path2D();
+    circlePathRef.current.arc(0, 0, 1, 0, Math.PI * 2);
 
     // Function to set canvas size
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
     };
 
     resizeCanvas();
-
-    // Update canvas size on window resize
     window.addEventListener('resize', resizeCanvas);
 
-    // Simplex noise module
-    const noise = (function (global) {
-      var module = {};
-
-      function Grad(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-      }
-
-      Grad.prototype.dot3 = function (x, y, z) {
-        return this.x * x + this.y * y + this.z * z;
-      };
-
-      var grad3 = [
-        new Grad(1, 1, 0),
-        new Grad(-1, 1, 0),
-        new Grad(1, -1, 0),
-        new Grad(-1, -1, 0),
-        new Grad(1, 0, 1),
-        new Grad(-1, 0, 1),
-        new Grad(1, 0, -1),
-        new Grad(-1, 0, -1),
-        new Grad(0, 1, 1),
-        new Grad(0, -1, 1),
-        new Grad(0, 1, -1),
-        new Grad(0, -1, -1),
+    // Simplex noise module with cached gradients
+    noiseRef.current = (function () {
+      const module = {};
+      const grad3 = [
+        [1, 1, 0],
+        [-1, 1, 0],
+        [1, -1, 0],
+        [-1, -1, 0],
+        [1, 0, 1],
+        [-1, 0, 1],
+        [1, 0, -1],
+        [-1, 0, -1],
+        [0, 1, 1],
+        [0, -1, 1],
+        [0, 1, -1],
+        [0, -1, -1],
       ];
 
-      var perm = new Array(512);
-      var gradP = new Array(512);
+      const perm = new Uint8Array(512);
+      const gradP = new Array(512);
 
       module.seed = function (seed) {
         if (seed > 0 && seed < 1) seed *= 65536;
         seed = Math.floor(seed);
         if (seed < 256) seed |= seed << 8;
 
-        for (var i = 0; i < 256; i++) {
-          var v;
+        for (let i = 0; i < 256; i++) {
+          let v;
           if (i & 1) {
             v = i ^ (seed & 255);
           } else {
@@ -66,25 +108,23 @@ const BackgroundAnimation = () => {
           gradP[i] = gradP[i + 256] = grad3[v % 12];
         }
       };
-      module.seed(0);
 
-      var F3 = 1 / 3;
-      var G3 = 1 / 6;
+      const F3 = 1 / 3;
+      const G3 = 1 / 6;
 
       module.simplex3 = function (xin, yin, zin) {
-        var n0, n1, n2, n3;
-        var s = (xin + yin + zin) * F3;
-        var i = Math.floor(xin + s);
-        var j = Math.floor(yin + s);
-        var k = Math.floor(zin + s);
+        const s = (xin + yin + zin) * F3;
+        const i = Math.floor(xin + s);
+        const j = Math.floor(yin + s);
+        const k = Math.floor(zin + s);
+        const t = (i + j + k) * G3;
+        const x0 = xin - i + t;
+        const y0 = yin - j + t;
+        const z0 = zin - k + t;
 
-        var t = (i + j + k) * G3;
-        var x0 = xin - i + t;
-        var y0 = yin - j + t;
-        var z0 = zin - k + t;
+        let i1, j1, k1;
+        let i2, j2, k2;
 
-        var i1, j1, k1;
-        var i2, j2, k2;
         if (x0 >= y0) {
           if (y0 >= z0) {
             i1 = 1;
@@ -133,91 +173,164 @@ const BackgroundAnimation = () => {
           }
         }
 
-        var x1 = x0 - i1 + G3;
-        var y1 = y0 - j1 + G3;
-        var z1 = z0 - k1 + G3;
-        var x2 = x0 - i2 + 2 * G3;
-        var y2 = y0 - j2 + 2 * G3;
-        var z2 = z0 - k2 + 2 * G3;
-        var x3 = x0 - 1 + 3 * G3;
-        var y3 = y0 - 1 + 3 * G3;
-        var z3 = z0 - 1 + 3 * G3;
+        const x1 = x0 - i1 + G3;
+        const y1 = y0 - j1 + G3;
+        const z1 = z0 - k1 + G3;
+        const x2 = x0 - i2 + 2 * G3;
+        const y2 = y0 - j2 + 2 * G3;
+        const z2 = z0 - k2 + 2 * G3;
+        const x3 = x0 - 1 + 3 * G3;
+        const y3 = y0 - 1 + 3 * G3;
+        const z3 = z0 - 1 + 3 * G3;
 
-        i &= 255;
-        j &= 255;
-        k &= 255;
-        var gi0 = gradP[i + perm[j + perm[k]]];
-        var gi1 = gradP[i + i1 + perm[j + j1 + perm[k + k1]]];
-        var gi2 = gradP[i + i2 + perm[j + j2 + perm[k + k2]]];
-        var gi3 = gradP[i + 1 + perm[j + 1 + perm[k + 1]]];
+        const ii = i & 255;
+        const jj = j & 255;
+        const kk = k & 255;
 
-        var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
-        if (t0 < 0) n0 = 0;
-        else {
-          t0 *= t0;
-          n0 = t0 * t0 * gi0.dot3(x0, y0, z0);
+        const gi0 = gradP[ii + perm[jj + perm[kk]]];
+        const gi1 = gradP[ii + i1 + perm[jj + j1 + perm[kk + k1]]];
+        const gi2 = gradP[ii + i2 + perm[jj + j2 + perm[kk + k2]]];
+        const gi3 = gradP[ii + 1 + perm[jj + 1 + perm[kk + 1]]];
+
+        let n0 = 0,
+          n1 = 0,
+          n2 = 0,
+          n3 = 0;
+
+        const t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+        if (t0 >= 0) {
+          const t02 = t0 * t0;
+          n0 = t02 * t02 * (gi0[0] * x0 + gi0[1] * y0 + gi0[2] * z0);
         }
 
-        var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
-        if (t1 < 0) n1 = 0;
-        else {
-          t1 *= t1;
-          n1 = t1 * t1 * gi1.dot3(x1, y1, z1);
+        const t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+        if (t1 >= 0) {
+          const t12 = t1 * t1;
+          n1 = t12 * t12 * (gi1[0] * x1 + gi1[1] * y1 + gi1[2] * z1);
         }
 
-        var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
-        if (t2 < 0) n2 = 0;
-        else {
-          t2 *= t2;
-          n2 = t2 * t2 * gi2.dot3(x2, y2, z2);
+        const t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+        if (t2 >= 0) {
+          const t22 = t2 * t2;
+          n2 = t22 * t22 * (gi2[0] * x2 + gi2[1] * y2 + gi2[2] * z2);
         }
 
-        var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
-        if (t3 < 0) n3 = 0;
-        else {
-          t3 *= t3;
-          n3 = t3 * t3 * gi3.dot3(x3, y3, z3);
+        const t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+        if (t3 >= 0) {
+          const t32 = t3 * t3;
+          n3 = t32 * t32 * (gi3[0] * x3 + gi3[1] * y3 + gi3[2] * z3);
         }
 
         return 32 * (n0 + n1 + n2 + n3);
       };
 
       return module;
-    })(window);
+    })();
 
-    noise.seed(Math.random());
+    noiseRef.current.seed(Math.random());
 
-    let animationTime = 0;
-    let globalHueSeed = Math.random() * 360;
-    let lastTime = performance.now();
+    // Pre-compute grid positions
+    const gridPositions = [];
+    for (let x = 0; x < canvas.width; x += CONFIG.GRID_STEP) {
+      for (let y = 0; y < canvas.height; y += CONFIG.GRID_STEP) {
+        gridPositions.push({
+          x,
+          y,
+          nx: x / CONFIG.NOISE_SCALE.BASE,
+          ny: y / CONFIG.NOISE_SCALE.BASE,
+          nx2: x / CONFIG.NOISE_SCALE.HUE,
+          ny2: y / CONFIG.NOISE_SCALE.HUE,
+          nx3: x / CONFIG.NOISE_SCALE.VARIATION,
+          ny3: y / CONFIG.NOISE_SCALE.VARIATION,
+        });
+      }
+    }
+
+    // Update visible particles based on viewport and culling settings
+    const updateVisibleParticles = (t, t2) => {
+      if (!CONFIG.RENDER.CULLING.ENABLED) {
+        visibleParticlesRef.current = gridPositions;
+        return;
+      }
+
+      const margin = CONFIG.RENDER.CULLING.MARGIN;
+      const minX = -margin;
+      const maxX = canvas.width + margin;
+      const minY = -margin;
+      const maxY = canvas.height + margin;
+
+      visibleParticlesRef.current = gridPositions.filter(pos => {
+        // Check if particle is within viewport bounds
+        if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY) {
+          return false;
+        }
+
+        // Check if particle is large enough to be visible
+        const point = Math.abs(noiseRef.current.simplex3(pos.nx, pos.ny, t2));
+        return point >= CONFIG.RENDER.CULLING.MIN_SIZE;
+      });
+    };
 
     function animate() {
       const now = performance.now();
-      const deltaTime = (now - lastTime) / 1000;
-      lastTime = now;
-      animationTime += deltaTime * 0.05;
+      const elapsed = now - lastFrameTimeRef.current;
+
+      // Skip frame if not enough time has passed
+      if (elapsed < CONFIG.FRAME_TIME) {
+        frameIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      lastFrameTimeRef.current = now;
+      const deltaTime = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+      lastTimeRef.current = now;
+      animationTimeRef.current += deltaTime * CONFIG.ANIMATION_SPEED;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (let x = 0; x < canvas.width; x += 15) {
-        for (let y = 0; y < canvas.height; y += 15) {
-          let point = Math.abs(noise.simplex3(x / 900, y / 900, animationTime * 2));
-          const baseHue = globalHueSeed + noise.simplex3(x / 1000, y / 1000, animationTime) * 60;
-          const hueVariation = 80 + noise.simplex3(x / 500, y / 500, animationTime) * 100;
+      const t = animationTimeRef.current;
+      const t2 = t * 2;
+      const seed = globalHueSeedRef.current;
+
+      // Update visible particles
+      updateVisibleParticles(t, t2);
+
+      // Batch process particles
+      for (let i = 0; i < visibleParticlesRef.current.length; i += CONFIG.RENDER.BATCH_SIZE) {
+        const end = Math.min(i + CONFIG.RENDER.BATCH_SIZE, visibleParticlesRef.current.length);
+
+        for (let j = i; j < end; j++) {
+          const pos = visibleParticlesRef.current[j];
+          const point = Math.abs(noiseRef.current.simplex3(pos.nx, pos.ny, t2));
+          const baseHue =
+            seed + noiseRef.current.simplex3(pos.nx2, pos.ny2, t) * CONFIG.COLOR.HUE_VARIATION;
+          const hueVariation =
+            CONFIG.COLOR.HUE_OFFSET +
+            noiseRef.current.simplex3(pos.nx3, pos.ny3, t) * CONFIG.COLOR.HUE_VARIATION;
           const hue = (baseHue + point * hueVariation) % 360;
-          ctx.fillStyle = `hsla(${hue}, 70%, 50%, ${point})`;
-          ctx.beginPath();
-          ctx.arc(x, y, point * 6, 0, Math.PI * 2);
-          ctx.fill();
+
+          ctx.fillStyle = `hsla(${hue}, ${CONFIG.COLOR.SATURATION}%, ${CONFIG.COLOR.LIGHTNESS}%, ${point})`;
+          ctx.save();
+          ctx.translate(pos.x, pos.y);
+          ctx.scale(
+            point * CONFIG.PARTICLE_SIZE_MULTIPLIER,
+            point * CONFIG.PARTICLE_SIZE_MULTIPLIER
+          );
+          ctx.fill(circlePathRef.current);
+          ctx.restore();
         }
       }
-      requestAnimationFrame(animate);
+
+      frameIdRef.current = requestAnimationFrame(animate);
     }
 
     animate();
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
     };
   }, []);
 
@@ -231,7 +344,7 @@ const BackgroundAnimation = () => {
         width: '100vw',
         height: '100vh',
         zIndex: -1,
-        opacity: 0.5,
+        opacity: CONFIG.RENDER.OPACITY,
         backgroundColor: '#000',
       }}
     />
