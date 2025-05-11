@@ -8,10 +8,13 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Box,
 } from '@mui/material';
 import { colors } from '../../theme/colors';
 import LogoutButton from './LogoutButton';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LinearProgress from '@mui/material/LinearProgress';
+import CloseIcon from '@mui/icons-material/Close';
 
 // Use local SVGs for each service, with a description for the tooltip
 export const services = [
@@ -40,6 +43,16 @@ export const services = [
 const PATREON_CLIENT_ID = '1xNwOOd3hVInyijzxYT0qrqTf1mkuhYPqcZusknZ4I6MQhk-97vzlp2ABpqgMHFH';
 const REDIRECT_URI = 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth';
 
+const formatStorageValue = bytes => {
+  if (!bytes) return '0.00 MB';
+  const gb = bytes / 1e9;
+  const mb = bytes / 1e6;
+  if (gb >= 1) {
+    return `${gb.toFixed(2)} GB`;
+  }
+  return `${mb.toFixed(2)} MB`;
+};
+
 const getPatreonOAuthUrl = () => {
   // Detect if running in Electron (customize this check as needed)
   const isElectron = window?.navigator?.userAgent?.toLowerCase().includes('electron');
@@ -54,7 +67,14 @@ const getPatreonOAuthUrl = () => {
   const stateObj = { source, sessionID };
   const state = encodeURIComponent(JSON.stringify(stateObj));
 
-  return `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=identity%20identity.memberships&state=${state}`;
+  return (
+    `https://www.patreon.com/oauth2/authorize?` +
+    `response_type=code` +
+    `&client_id=${PATREON_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+    `&scope=identity%20identity%5Bemail%5D%20identity.memberships` +
+    `&state=${state}`
+  );
 };
 
 const iconButtonStyle = {
@@ -86,18 +106,23 @@ const imgHoverStyle = {
   filter: 'invert(0%)',
 };
 
-const Divider = () => <MuiDivider sx={{ borderColor: colors.border, opacity: 0.2, my: 2 }} />;
+const Divider = () => <MuiDivider sx={{ borderColor: colors.border, opacity: 1 }} />;
 
 const AccountSettings = ({ username }) => {
   const [hovered, setHovered] = React.useState(null);
   const [connectedProviders, setConnectedProviders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [connectedUsernames, setConnectedUsernames] = useState({});
+
+  // Quota state
+  const [quota, setQuota] = useState(null);
+  const [quotaLoading, setQuotaLoading] = useState(true);
+  const [quotaError, setQuotaError] = useState(null);
 
   useEffect(() => {
     const fetchConnectedProviders = async () => {
       setLoading(true);
       try {
-        // Get sessionID from cookie
         const sessionID = document.cookie
           .split('; ')
           .find(row => row.startsWith('sessionID='))
@@ -108,14 +133,17 @@ const AccountSettings = ({ username }) => {
         });
         if (!res.ok) throw new Error('Failed to fetch connected accounts');
         const data = await res.json();
-        // Extract and map provider ids to display names
         const ids = Array.isArray(data.external_subscription_ids)
           ? data.external_subscription_ids
           : [];
-        // Map ids (e.g. 'patreon') to service display names (e.g. 'Patreon')
         const idToName = Object.fromEntries(services.map(s => [s.name.toLowerCase(), s.name]));
         const connected = ids.map(id => idToName[id.toLowerCase()]).filter(Boolean);
         setConnectedProviders(connected);
+
+        // Store usernames if available in the response
+        if (data.usernames) {
+          setConnectedUsernames(data.usernames);
+        }
       } catch (e) {
         setConnectedProviders([]);
       } finally {
@@ -123,6 +151,35 @@ const AccountSettings = ({ username }) => {
       }
     };
     fetchConnectedProviders();
+  }, []);
+
+  // Fetch quota info
+  useEffect(() => {
+    const fetchQuota = async () => {
+      setQuotaLoading(true);
+      setQuotaError(null);
+      try {
+        const sessionID = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+        if (!sessionID) throw new Error('No session ID');
+        const res = await fetch('/get-user-quota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionID }),
+        });
+        if (!res.ok) throw new Error('Failed to fetch quota');
+        const data = await res.json();
+        setQuota(data);
+      } catch (e) {
+        setQuotaError(e.message || 'Failed to fetch quota');
+        setQuota(null);
+      } finally {
+        setQuotaLoading(false);
+      }
+    };
+    fetchQuota();
   }, []);
 
   // Split services into connected and not connected
@@ -138,25 +195,59 @@ const AccountSettings = ({ username }) => {
     }
   };
 
+  const handleDisconnect = async serviceName => {
+    try {
+      const sessionID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('sessionID='))
+        ?.split('=')[1];
+      if (!sessionID) return;
+
+      const res = await fetch('/disconnect-external-app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          SessionID: sessionID,
+        },
+        body: JSON.stringify({ provider: serviceName.toLowerCase() }),
+      });
+
+      if (!res.ok) throw new Error('Failed to disconnect account');
+
+      // Update the connected providers list
+      setConnectedProviders(prev => prev.filter(p => p !== serviceName));
+      // Remove the username from the state
+      setConnectedUsernames(prev => {
+        const newState = { ...prev };
+        delete newState[serviceName.toLowerCase()];
+        return newState;
+      });
+    } catch (error) {
+      console.error('Error disconnecting account:', error);
+    }
+  };
+
   return (
-    <Stack className="overflow-hidden p-3" sx={{ width: '100%', maxWidth: '100%', margin: 0 }}>
+    <Stack className="overflow-hidden" sx={{ width: '100%', maxWidth: '100%' }}>
       <Stack
-        className="flex p-5 overflow-auto flex-col gap-5"
+        className="flex overflow-auto flex-col"
         sx={{
           background: 'rgba(255,255,255,0.01)',
           borderRadius: '4px',
           boxShadow: '0 4px 12px 0 rgba(0,0,0,0.04)',
+          padding: '24px',
+          gap: '32px',
         }}
       >
         {/* Profile Info */}
-        <Stack spacing={1.5}>
+        <Stack spacing={2}>
           <Typography
             variant="subtitle1"
             sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
           >
             Profile
           </Typography>
-          <Stack direction="row" style={{ gap: '12px' }} alignItems="center">
+          <Stack direction="row" spacing={2} alignItems="center">
             <TextField
               label="Username"
               value={username}
@@ -179,16 +270,59 @@ const AccountSettings = ({ username }) => {
                 },
               }}
             />
-            <LogoutButton style={{ height: '100%', margin: 0, borderRadius: '4px' }}>
+            <LogoutButton style={{ height: '100%', borderRadius: '4px' }}>
               <LogoutIcon sx={{ color: colors.error }} />
             </LogoutButton>
           </Stack>
         </Stack>
 
+        {/* Quota/Usage Section */}
+        <Stack spacing={2}>
+          <Typography variant="subtitle2" sx={{ color: colors.text, fontWeight: 500 }}>
+            Storage Usage
+          </Typography>
+          {quotaLoading ? (
+            <Skeleton variant="rectangular" width={240} height={32} />
+          ) : quotaError ? (
+            <Typography color="error" variant="body2">
+              {quotaError}
+            </Typography>
+          ) : quota ? (
+            <Stack spacing={1}>
+              <LinearProgress
+                variant="determinate"
+                value={
+                  quota.usage_bytes && quota.quota_bytes
+                    ? Math.min(100, (quota.usage_bytes / quota.quota_bytes) * 100)
+                    : 0
+                }
+                sx={{
+                  height: 6,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  '& .MuiLinearProgress-bar': {
+                    borderRadius: 2,
+                    background: 'linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%)',
+                    transition: 'transform 0.4s ease-in-out',
+                  },
+                }}
+              />
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: 13 }}>
+                  {formatStorageValue(quota.usage_bytes)} used
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textSecondary, fontSize: 13 }}>
+                  {formatStorageValue(quota.quota_bytes)} total
+                </Typography>
+              </Stack>
+            </Stack>
+          ) : null}
+        </Stack>
+
         <Divider />
 
         {/* Add Accounts Section */}
-        <Stack spacing={1.5}>
+        <Stack spacing={2}>
           <Typography
             variant="subtitle1"
             sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
@@ -197,12 +331,12 @@ const AccountSettings = ({ username }) => {
           </Typography>
           <Typography
             variant="body2"
-            sx={{ color: colors.text, opacity: 0.7, fontWeight: 400, fontSize: 14, mb: 1 }}
+            sx={{ color: colors.text, opacity: 0.7, fontWeight: 400, fontSize: 14 }}
           >
             Connect your accounts to unlock features and personalize your experience. Only you can
             see your connected accounts unless you choose to display them.
           </Typography>
-          <Grid container spacing={2} sx={{ mt: 0 }}>
+          <Grid container spacing={2}>
             {loading
               ? services.map((_, idx) => (
                   <Grid item key={idx}>
@@ -250,7 +384,7 @@ const AccountSettings = ({ username }) => {
         <Divider />
 
         {/* Connected Accounts Section */}
-        <Stack spacing={1.5}>
+        <Stack spacing={2}>
           <Typography
             variant="subtitle1"
             sx={{ color: colors.text, fontWeight: 600, letterSpacing: 0.2 }}
@@ -266,22 +400,111 @@ const AccountSettings = ({ username }) => {
               No accounts connected yet.
             </Typography>
           ) : (
-            <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid container spacing={2}>
               {connectedServices.map(service => (
                 <Grid item key={service.name}>
-                  <Tooltip
-                    title={
-                      <span style={{ fontSize: 13, lineHeight: 1.4 }}>{service.description}</span>
-                    }
-                    placement="top"
-                    arrow
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      cursor: 'pointer',
+                    }}
+                    className="hover-effect"
                   >
-                    <span>
-                      <IconButton sx={iconButtonStyle} disabled>
-                        <img src={service.icon} alt={service.name} style={imgStyle} />
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      sx={{
+                        background: '#000',
+                        borderRadius: '4px',
+                        border: `1px solid ${colors.border}`,
+                        transition: 'all 0.2s ease',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          '& .service-icon': {
+                            filter: 'invert(0%)',
+                          },
+                          '& .disconnect-button': {
+                            width: '32px',
+                            opacity: 1,
+                          },
+                        },
+                      }}
+                    >
+                      <IconButton
+                        sx={{
+                          ...iconButtonStyle,
+                          width: 48,
+                          height: 48,
+                          minWidth: 48,
+                          borderRadius: 0,
+                          border: 'none',
+                          cursor: 'pointer',
+                        }}
+                        disabled
+                      >
+                        <img
+                          src={service.icon}
+                          alt={service.name}
+                          style={imgStyle}
+                          className="service-icon"
+                        />
                       </IconButton>
-                    </span>
-                  </Tooltip>
+                      <Stack
+                        spacing={0.5}
+                        sx={{
+                          pr: 1,
+                          minWidth: 'fit-content',
+                          maxWidth: '200px',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: colors.text,
+                            fontWeight: 500,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {service.name}
+                        </Typography>
+                        {connectedUsernames[service.name.toLowerCase()] && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: colors.textSecondary,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {connectedUsernames[service.name.toLowerCase()]}
+                          </Typography>
+                        )}
+                      </Stack>
+                      <IconButton
+                        className="disconnect-button"
+                        onClick={() => handleDisconnect(service.name)}
+                        sx={{
+                          width: 0,
+                          opacity: 0,
+                          transition: 'all 0.2s ease',
+                          color: colors.error,
+                          padding: '4px',
+                          minWidth: 0,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            background: 'rgba(255,0,0,0.1)',
+                          },
+                        }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </Box>
                 </Grid>
               ))}
             </Grid>

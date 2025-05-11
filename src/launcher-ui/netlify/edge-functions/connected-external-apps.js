@@ -1,3 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable no-undef */
+
 // GET /external-subs
 // CORS pre-flight:  OPTIONS /external-subs
 // ───────────────────────────────────────────

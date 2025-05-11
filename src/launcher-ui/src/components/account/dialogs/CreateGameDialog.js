@@ -265,7 +265,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            sessionID: Cookies.get('sessionID'),
+            ...(sessionID ? { sessionID } : {}),
           },
           body: JSON.stringify({
             fileExt: gameFile.name.split('.').pop(),
@@ -273,8 +273,15 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
             isGameUpload: true,
             gameId: gameId.trim(),
             version: gameVersion,
+            size_bytes: gameFile.size,
           }),
         });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to generate upload URL');
+        }
+
         const { url } = await res.json();
 
         const xhr = new XMLHttpRequest();
@@ -297,9 +304,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         if (window.electronAPI) {
           window.electronAPI.showCustomNotification(
             'Upload Failed',
-            'Could not upload your game file.'
+            err.message === 'Quota check failed'
+              ? 'You have exceeded your storage quota. Please upgrade your plan or delete some files.'
+              : err.message || 'Could not upload your game file.'
           );
         }
+        // Reset the upload state
+        setGameFile(null);
+        setGameFileName('');
+        setGameVersion('0.0.1');
+        setUploadProgress(0);
         setIsSaving(false);
         setIsUploading(false);
         return;

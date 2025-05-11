@@ -1,0 +1,195 @@
+name: Build Game
+on:
+  push:
+    branches:
+      - main
+jobs:
+  buildForAllSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneWindows64
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Restore Library Cache
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectSettings.asset') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+            Library-
+      - name: Free Disk Space
+        run: |
+          echo "::group::Cleaning Docker images and unused packages"
+          sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/powershell /usr/share/swift /usr/local/.ghcup /usr/lib/jvm || true
+          echo "Directories deleted"
+          sudo apt install aptitude -y >/dev/null 2>&1
+          sudo aptitude purge aria2 ansible azure-cli shellcheck rpm xorriso zsync esl-erlang firefox gfortran-8 gfortran-9 google-chrome-stable google-cloud-sdk imagemagick libmagickcore-dev libmagickwand-dev libmagic-dev ant ant-optional kubectl mercurial apt-transport-https mono-complete libmysqlclient unixodbc-dev yarn chrpath libssl-dev libxft-dev libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev snmp pollinate libpq-dev postgresql-client powershell ruby-full sphinxsearch subversion mongodb-org azure-cli microsoft-edge-stable -y -f >/dev/null 2>&1
+          sudo aptitude purge google-cloud-sdk -f -y >/dev/null 2>&1
+          sudo aptitude purge microsoft-edge-stable -f -y >/dev/null 2>&1 || true
+          sudo apt purge microsoft-edge-stable -f -y >/dev/null 2>&1 || true
+          sudo aptitude purge '~n ^mysql' -f -y >/dev/null 2>&1
+          sudo aptitude purge '~n ^php' -f -y >/dev/null 2>&1
+          sudo aptitude purge '~n ^dotnet' -f -y >/dev/null 2>&1
+          sudo apt-get autoremove -y >/dev/null 2>&1
+          sudo apt-get autoclean -y >/dev/null 2>&1
+          echo "::endgroup::"
+
+      - name: Calculate New Version & Tag from API
+        id: calculate_new_version
+        shell: bash
+        run: |
+          echo "::group::Fetching latest version from API"
+
+          API_KEY="${{ secrets.DIABOLICAL_API_KEY }}"
+          API_URL="${{ secrets.DIABOLICAL_API_URL }}"
+          VERSION_URL="$API_URL/version"
+
+          # Fetch current version
+          CURRENT_VERSION=$(curl -s -H "x-api-key: $API_KEY" "$VERSION_URL" | jq -r .version)
+
+          echo "Current version from API: $CURRENT_VERSION"
+
+          if [[ -z "$CURRENT_VERSION" || "$CURRENT_VERSION" == "null" ]]; then
+            echo "::error ::❌ Failed to fetch current version. API might be down."
+
+            # Optional: trigger external error alert
+            curl -X POST https://api.diabolical.studio/github-app/webhook \
+              -H "Content-Type: application/json" \
+              -d '{"event": "version_fetch_failed", "message": "API unavailable or returned invalid version during build."}'
+
+            exit 1
+          fi
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          if echo "$COMMIT_MESSAGE" | grep -iq "major"; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif echo "$COMMIT_MESSAGE" | grep -iq "minor"; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "::endgroup::"
+
+      - name: Build with Unity
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.DIABOLICAL_UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.DIABOLICAL_UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.DIABOLICAL_UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+
+      - name: Create GitHub Release via App
+        id: create_release
+        run: |
+          response=$(curl -s -X POST https://api.diabolical.studio/github-app/webhook -H "Content-Type: application/json" -d '{"event": "create_release", "owner": "'"${{ github.repository_owner }}"'", "repo": "'"${{ github.event.repository.name }}"'", "tag": "'"${{ env.NEW_VERSION }}"'", "release_name": "Release ${{ env.NEW_VERSION }}"}')
+          echo "upload_url=$(echo $response | jq -r .upload_url)" >> $GITHUB_ENV
+      - name: Zip Build Artifacts
+        run: |
+          echo "::group::Zipping build files"
+          cd ./build/${{ matrix.targetPlatform }}
+          zip -r ../../Build-${{ matrix.targetPlatform }}.zip .
+          echo "::endgroup::"
+        working-directory: ${{ github.workspace }}
+      - name: Upload Release Asset via App
+        run: |
+          curl -X POST https://api.diabolical.studio/github-app/webhook -H "Content-Type: application/json" -d '{"event": "upload_asset", "upload_url": "'"${{ env.upload_url }}"'", "asset_path": "'"${{ github.workspace }}/Build-${{ matrix.targetPlatform }}.zip"'", "asset_name": "Build-${{ matrix.targetPlatform }}.zip", "content_type": "application/zip"}'
+
+      - name: Upload Build to Cloudflare R2
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.DIABOLICAL_R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.DIABOLICAL_R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: diabolicallauncher
+          R2_ENDPOINT: https://c82515457400147e7f08ee6234e25742.r2.cloudflarestorage.com
+          GAME_ID: ${{ secrets.DIABOLICAL_GAME_ID }}
+          API_KEY: ${{ secrets.DIABOLICAL_API_KEY }}
+          API_URL: ${{ secrets.DIABOLICAL_API_URL }}
+        run: |
+          echo "::group::Uploading build to Cloudflare R2"
+
+          ZIP_PATH="${{ github.workspace }}/Build-${{ matrix.targetPlatform }}.zip"
+          S3_KEY="R2/${GAME_ID}/Versions/Build-${{ matrix.targetPlatform }}-${{ env.NEW_VERSION }}.zip"
+
+          # Get file size in bytes
+          FILE_SIZE=$(stat -f%z "$ZIP_PATH" 2>/dev/null || stat -c%s "$ZIP_PATH")
+
+          # Get temporary upload URL
+          UPLOAD_RESPONSE=$(curl -s -X POST "$API_URL/users/upload_file" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $API_KEY" \
+            -d '{
+              "fileExt": "zip",
+              "contentType": "application/zip",
+              "isGameUpload": true,
+              "gameId": "'"$GAME_ID"'",
+              "version": "'"${{ env.NEW_VERSION }}"'",
+              "size_bytes": '"$FILE_SIZE"'
+            }')
+
+          # Check for errors in the upload URL response
+          if echo "$UPLOAD_RESPONSE" | jq -e '.error' > /dev/null; then
+            ERROR_MSG=$(echo "$UPLOAD_RESPONSE" | jq -r '.error')
+            if [[ "$ERROR_MSG" == *"quota"* ]]; then
+              echo "::error ::Quota exceeded: $ERROR_MSG"
+              echo "::error ::Build size: $(($FILE_SIZE/1024/1024))MB"
+              echo "::error ::Please contact support to increase your quota."
+            else
+              echo "::error ::Failed to get upload URL: $ERROR_MSG"
+            fi
+            exit 1
+          fi
+
+          # Extract upload URL from response
+          UPLOAD_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.url')
+
+          if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
+            echo "::error ::Failed to get upload URL from response"
+            exit 1
+          fi
+
+          # Upload the file using the temporary URL
+          UPLOAD_RESULT=$(curl -s -X PUT "$UPLOAD_URL" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@$ZIP_PATH")
+
+          if [[ $? -ne 0 ]]; then
+            echo "::error ::Failed to upload file to temporary URL"
+            exit 1
+          fi
+
+          echo "Upload successful"
+          echo "::endgroup::"
+
+      - name: Update Game Version in API
+        if: success()
+        run: |
+          echo "::group::Updating game version in API"
+          VERSION=${{ env.NEW_VERSION }}
+          VERSION_URL="${{ secrets.DIABOLICAL_VERSION_URL }}"
+          API_KEY="${{ secrets.DIABOLICAL_API_KEY }}"
+
+          curl -X PUT "$VERSION_URL" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $API_KEY" \
+            -d '{"version": "'"$VERSION"'"}'
+
+          echo "::endgroup::"

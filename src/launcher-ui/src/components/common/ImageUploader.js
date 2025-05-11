@@ -26,15 +26,26 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, hea
         body: JSON.stringify({
           fileExt: file.name.split('.').pop(),
           contentType: file.type,
+          size_bytes: file.size,
         }),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to generate upload URL');
+      }
+
       const { url, key } = await res.json();
 
-      await fetch(url, {
+      const uploadRes = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': file.type },
         body: file,
       });
+
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload file');
+      }
 
       const imageUrl = `https://cdn.diabolical.services/${key}`;
       onUpload(imageUrl);
@@ -45,8 +56,15 @@ const ImageUploader = ({ onUpload, currentImageUrl, uploading, setUploading, hea
     } catch (err) {
       console.error('❌ Upload failed:', err);
       if (window.electronAPI) {
-        window.electronAPI.showCustomNotification('Upload Failed', 'Could not upload your image.');
+        window.electronAPI.showCustomNotification(
+          'Upload Failed',
+          err.message === 'Quota check failed'
+            ? 'You have exceeded your storage quota. Please upgrade your plan or delete some files.'
+            : err.message || 'Could not upload your image.'
+        );
       }
+      // Reset the upload state by calling onUpload with null
+      onUpload(null);
     } finally {
       setUploading(false);
     }
