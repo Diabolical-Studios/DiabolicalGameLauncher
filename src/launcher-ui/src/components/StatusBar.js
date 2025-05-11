@@ -52,7 +52,7 @@ const StatusBar = () => {
         realPing('https://api.diabolical.studio'),
         realPing('https://launcher.diabolical.studio'),
         realPing('https://github.com/Diabolical-Studios/DiabolicalGameLauncher/'),
-        realPing('https://diabolical.services'),
+        realPing('https://cdn.diabolical.services'),
       ]);
 
       const newStatuses = {

@@ -90,3 +90,7 @@ path = "/remove-from-library"
 [[edge_functions]]
 function = "get-library-games"
 path = "/get-library-games"
+
+[[edge_functions]]
+function = "get-user-quota"
+path = "/get-user-quota"

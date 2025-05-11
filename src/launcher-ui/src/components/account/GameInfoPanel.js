@@ -282,8 +282,15 @@ const GameInfoPanel = ({ game }) => {
           isGameUpload: true,
           gameId: game.game_id.trim(),
           version: manualVersion,
+          size_bytes: gameFile.size,
         }),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to generate upload URL');
+      }
+
       const { url } = await res.json();
 
       const xhr = new XMLHttpRequest();
@@ -336,9 +343,16 @@ const GameInfoPanel = ({ game }) => {
       if (window.electronAPI) {
         window.electronAPI.showCustomNotification(
           'Upload Failed',
-          err.message || 'Could not upload your game file.'
+          err.message === 'Quota check failed'
+            ? 'You have exceeded your storage quota. Please upgrade your plan or delete some files.'
+            : err.message || 'Could not upload your game file.'
         );
       }
+      // Reset the upload state
+      setGameFile(null);
+      setGameFileName('');
+      setManualVersion('');
+      setUploadProgress(0);
     } finally {
       setIsUploading(false);
     }
