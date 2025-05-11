@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
 // Animation Configuration
 const CONFIG = {
@@ -33,13 +33,31 @@ const CONFIG = {
     BATCH_SIZE: 300, // Number of particles to process per batch
     CULLING: {
       ENABLED: true, // Whether to enable particle culling
-      MARGIN: 50, // Extra margin around viewport for culling (in pixels)
+      MARGIN: 200, // Extra margin around viewport for culling (in pixels)
       MIN_SIZE: 0.1, // Minimum particle size to render
     },
   },
 };
 
-const BackgroundAnimation = () => {
+// Object pool for particle positions
+const createParticlePool = size => {
+  const pool = new Array(size);
+  for (let i = 0; i < size; i++) {
+    pool[i] = {
+      x: 0,
+      y: 0,
+      nx: 0,
+      ny: 0,
+      nx2: 0,
+      ny2: 0,
+      nx3: 0,
+      ny3: 0,
+    };
+  }
+  return pool;
+};
+
+const BackgroundAnimation = ({ style = {} }) => {
   const canvasRef = useRef(null);
   const animationTimeRef = useRef(0);
   const lastTimeRef = useRef(0);
@@ -49,10 +67,25 @@ const BackgroundAnimation = () => {
   const circlePathRef = useRef(null);
   const lastFrameTimeRef = useRef(0);
   const visibleParticlesRef = useRef([]);
+  const particlePoolRef = useRef(null);
+  const tempVecRef = useRef({ x: 0, y: 0 });
+
+  // Pre-compute reusable objects and values
+  const reusableObjects = useMemo(
+    () => ({
+      clearRect: { x: 0, y: 0, width: 0, height: 0 },
+      transform: { x: 0, y: 0, scale: 0 },
+    }),
+    []
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d', { alpha: CONFIG.RENDER.ALPHA });
+    const ctx = canvas.getContext('2d', {
+      alpha: CONFIG.RENDER.ALPHA,
+      desynchronized: true, // Reduce latency
+      powerPreference: 'high-performance', // Prioritize performance
+    });
 
     // Pre-compute circle path
     circlePathRef.current = new Path2D();
@@ -66,10 +99,20 @@ const BackgroundAnimation = () => {
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
       ctx.scale(dpr, dpr);
+
+      // Update clear rect dimensions
+      reusableObjects.clearRect.width = canvas.width;
+      reusableObjects.clearRect.height = canvas.height;
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    // Initialize particle pool
+    const maxParticles = Math.ceil(
+      (canvas.width / CONFIG.GRID_STEP) * (canvas.height / CONFIG.GRID_STEP)
+    );
+    particlePoolRef.current = createParticlePool(maxParticles);
 
     // Simplex noise module with cached gradients
     noiseRef.current = (function () {
@@ -229,27 +272,28 @@ const BackgroundAnimation = () => {
 
     noiseRef.current.seed(Math.random());
 
-    // Pre-compute grid positions
-    const gridPositions = [];
+    // Pre-compute grid positions using object pool
+    let particleIndex = 0;
     for (let x = 0; x < canvas.width; x += CONFIG.GRID_STEP) {
       for (let y = 0; y < canvas.height; y += CONFIG.GRID_STEP) {
-        gridPositions.push({
-          x,
-          y,
-          nx: x / CONFIG.NOISE_SCALE.BASE,
-          ny: y / CONFIG.NOISE_SCALE.BASE,
-          nx2: x / CONFIG.NOISE_SCALE.HUE,
-          ny2: y / CONFIG.NOISE_SCALE.HUE,
-          nx3: x / CONFIG.NOISE_SCALE.VARIATION,
-          ny3: y / CONFIG.NOISE_SCALE.VARIATION,
-        });
+        if (particleIndex >= particlePoolRef.current.length) break;
+
+        const pos = particlePoolRef.current[particleIndex++];
+        pos.x = x;
+        pos.y = y;
+        pos.nx = x / CONFIG.NOISE_SCALE.BASE;
+        pos.ny = y / CONFIG.NOISE_SCALE.BASE;
+        pos.nx2 = x / CONFIG.NOISE_SCALE.HUE;
+        pos.ny2 = y / CONFIG.NOISE_SCALE.HUE;
+        pos.nx3 = x / CONFIG.NOISE_SCALE.VARIATION;
+        pos.ny3 = y / CONFIG.NOISE_SCALE.VARIATION;
       }
     }
 
     // Update visible particles based on viewport and culling settings
     const updateVisibleParticles = (t, t2) => {
       if (!CONFIG.RENDER.CULLING.ENABLED) {
-        visibleParticlesRef.current = gridPositions;
+        visibleParticlesRef.current = particlePoolRef.current;
         return;
       }
 
@@ -259,7 +303,7 @@ const BackgroundAnimation = () => {
       const minY = -margin;
       const maxY = canvas.height + margin;
 
-      visibleParticlesRef.current = gridPositions.filter(pos => {
+      visibleParticlesRef.current = particlePoolRef.current.filter(pos => {
         // Check if particle is within viewport bounds
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY) {
           return false;
@@ -286,7 +330,12 @@ const BackgroundAnimation = () => {
       lastTimeRef.current = now;
       animationTimeRef.current += deltaTime * CONFIG.ANIMATION_SPEED;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(
+        reusableObjects.clearRect.x,
+        reusableObjects.clearRect.y,
+        reusableObjects.clearRect.width,
+        reusableObjects.clearRect.height
+      );
 
       const t = animationTimeRef.current;
       const t2 = t * 2;
@@ -310,12 +359,16 @@ const BackgroundAnimation = () => {
           const hue = (baseHue + point * hueVariation) % 360;
 
           ctx.fillStyle = `hsla(${hue}, ${CONFIG.COLOR.SATURATION}%, ${CONFIG.COLOR.LIGHTNESS}%, ${point})`;
+
+          // Reuse transform object
+          const transform = reusableObjects.transform;
+          transform.x = pos.x;
+          transform.y = pos.y;
+          transform.scale = point * CONFIG.PARTICLE_SIZE_MULTIPLIER;
+
           ctx.save();
-          ctx.translate(pos.x, pos.y);
-          ctx.scale(
-            point * CONFIG.PARTICLE_SIZE_MULTIPLIER,
-            point * CONFIG.PARTICLE_SIZE_MULTIPLIER
-          );
+          ctx.translate(transform.x, transform.y);
+          ctx.scale(transform.scale, transform.scale);
           ctx.fill(circlePathRef.current);
           ctx.restore();
         }
@@ -344,11 +397,12 @@ const BackgroundAnimation = () => {
         width: '100vw',
         height: '100vh',
         zIndex: -1,
-        opacity: CONFIG.RENDER.OPACITY,
+        opacity: style.opacity ?? CONFIG.RENDER.OPACITY,
         backgroundColor: '#000',
+        ...style,
       }}
     />
   );
 };
 
-export default BackgroundAnimation;
+export default React.memo(BackgroundAnimation);
