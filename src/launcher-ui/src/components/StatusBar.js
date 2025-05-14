@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { colors } from '../theme/colors';
 import { Box, Stack, Tooltip, Zoom } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 const StatusBar = () => {
   const [appVersion, setAppVersion] = useState('');
   const [message, setMessage] = useState('Diabolical Launcher');
+  const location = useLocation();
 
   const [statuses, setStatuses] = useState({
     diabolicalOracleBucket: 'gray',
@@ -105,9 +107,9 @@ const StatusBar = () => {
             borderColor: colors.border,
             maxWidth: '800px',
           }}
-          title={window.location.href}
+          title={location.pathname}
           onClick={() => {
-            navigator.clipboard.writeText(window.location.href);
+            navigator.clipboard.writeText(location.pathname);
           }}
         >
           <div id="message" style={{ whiteSpace: 'nowrap', color: colors.text }}>

@@ -19,7 +19,8 @@ const handleGitHubLogin = async () => {
         window.open(authUrl, '_blank');
       }
     } else {
-      window.open(authUrl, '_blank');
+      // For web users, redirect the current window
+      window.location.href = authUrl;
     }
   } catch (error) {
     console.error('Error opening GitHub login:', error);
