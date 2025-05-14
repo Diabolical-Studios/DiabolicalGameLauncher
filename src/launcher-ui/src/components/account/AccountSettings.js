@@ -15,7 +15,6 @@ import LogoutButton from './LogoutButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LinearProgress from '@mui/material/LinearProgress';
 import CloseIcon from '@mui/icons-material/Close';
-import { useSessionVerification } from './useSessionVerification';
 
 // Use local SVGs for each service, with a description for the tooltip
 export const services = [
@@ -110,7 +109,6 @@ const imgHoverStyle = {
 const Divider = () => <MuiDivider sx={{ borderColor: colors.border, opacity: 1 }} />;
 
 const AccountSettings = ({ username }) => {
-  const { isVerifying } = useSessionVerification();
   const [hovered, setHovered] = React.useState(null);
   const [connectedProviders, setConnectedProviders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -249,14 +247,6 @@ const AccountSettings = ({ username }) => {
       console.error('Error disconnecting account:', error);
     }
   };
-
-  if (isVerifying) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div>Verifying session...</div>
-      </div>
-    );
-  }
 
   return (
     <Stack className="overflow-hidden" sx={{ width: '100%', maxWidth: '100%' }}>

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Layout from '../components/Layout';
 import Cookies from 'js-cookie';
 import AccountDashboard from '../components/account/AccountDashboard';
 import LoginScreen from '../components/account/LoginScreen';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 const saveInstallationPair = (installationId, accessToken) => {
   let count = 1;
@@ -46,44 +46,40 @@ export default function AccountPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get('sessionID'));
   const [checkingSession, setCheckingSession] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const cookieOptions = React.useMemo(() => ({ expires: 7, secure: true, sameSite: 'Strict' }), []);
+  const cookieOptions = useMemo(() => ({ expires: 7, secure: true, sameSite: 'Strict' }), []);
 
   useEffect(() => {
     const handleSession = async () => {
-      // First, check for auth callback parameters
-      const params = new URLSearchParams(location.search);
-      const sessionIDParam = params.get('sessionID');
-      const usernameParam = params.get('username');
-      const githubIdParam = params.get('githubID');
-
-      if (sessionIDParam && usernameParam && githubIdParam) {
-        // Handle auth callback
-        Cookies.set('sessionID', sessionIDParam, cookieOptions);
-        Cookies.set('username', usernameParam, cookieOptions);
-        Cookies.set('githubID', githubIdParam, cookieOptions);
-
-        setUsername(usernameParam);
-        setIsLoggedIn(true);
-        setCheckingSession(false);
-
-        // Clear the URL parameters after setting cookies
-        window.history.replaceState({}, document.title, '/account');
-        return;
-      }
-
-      // If no auth callback, verify existing session
-      const sessionID = Cookies.get('sessionID');
-      if (!sessionID) {
-        setCheckingSession(false);
-        setIsLoggedIn(false);
-        return;
-      }
-
       try {
+        // First, check for auth callback parameters
+        const params = new URLSearchParams(location.search);
+        const sessionIDParam = params.get('sessionID');
+        const usernameParam = params.get('username');
+        const githubIdParam = params.get('githubID');
+
+        if (sessionIDParam && usernameParam && githubIdParam) {
+          // Handle auth callback
+          Cookies.set('sessionID', sessionIDParam, cookieOptions);
+          Cookies.set('username', usernameParam, cookieOptions);
+          Cookies.set('githubID', githubIdParam, cookieOptions);
+
+          setUsername(usernameParam);
+          setIsLoggedIn(true);
+          navigate(location.pathname, { replace: true });
+          return;
+        }
+
+        // Check existing session
+        const sessionID = Cookies.get('sessionID');
+        if (!sessionID) {
+          setCheckingSession(false);
+          return;
+        }
+
         const res = await fetch('/verify-session', {
-          method: 'GET',
-          headers: { sessionid: sessionID },
+          headers: { sessionID },
         });
 
         if (!res.ok) {
@@ -108,7 +104,7 @@ export default function AccountPage() {
     };
 
     handleSession();
-  }, [location.search, cookieOptions]);
+  }, [location.search, location.pathname, navigate, cookieOptions]);
 
   useEffect(() => {
     if (
@@ -213,25 +209,17 @@ export default function AccountPage() {
         <Route
           index
           element={
-            isLoggedIn ? (
-              <Navigate to="/account/dashboard" replace />
-            ) : (
-              <Navigate to="/account/login" replace />
-            )
+            isLoggedIn ? <Navigate to="/account/dashboard" /> : <Navigate to="/account/login" />
           }
         />
         <Route
           path="login"
-          element={isLoggedIn ? <Navigate to="/account/dashboard" replace /> : <LoginScreen />}
+          element={isLoggedIn ? <Navigate to="/account/dashboard" /> : <LoginScreen />}
         />
         <Route
           path="dashboard/*"
           element={
-            isLoggedIn ? (
-              <AccountDashboard username={username} />
-            ) : (
-              <Navigate to="/account/login" replace />
-            )
+            isLoggedIn ? <AccountDashboard username={username} /> : <Navigate to="/account/login" />
           }
         />
       </Route>

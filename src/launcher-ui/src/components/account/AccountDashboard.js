@@ -17,10 +17,8 @@ import AccountSettings, { services, useConnectedProviders } from './AccountSetti
 import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
 import TeamDashboard from './TeamDashboard';
-import { useSessionVerification } from './useSessionVerification';
 
 export default function AccountDashboard({ username }) {
-  const { isVerifying } = useSessionVerification();
   const [teams, setTeams] = useState([]);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [errorTeams, setErrorTeams] = useState(null);
@@ -65,14 +63,6 @@ export default function AccountDashboard({ username }) {
       prev.map(team => (team.team_id === updatedTeam.team_id ? { ...team, ...updatedTeam } : team))
     );
   };
-
-  if (isVerifying) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div>Verifying session...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-full">

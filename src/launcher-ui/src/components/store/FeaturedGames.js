@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Box, Card, CardMedia, Typography, CardActionArea, CardContent } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Card, CardMedia, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { colors } from '../../theme/colors';
 import ImageButton from '../button/ImageButton';
@@ -283,32 +283,32 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
               >
                 {game.description}
               </Typography>
-              {libraryGames.includes(game.game_id) ? (
-                <Link to={`/library?game=${game.game_id}`} style={{ textDecoration: 'none' }}>
-                  <ImageButton
-                    text="View in Library"
-                    icon={require('@mui/icons-material/Visibility').default}
-                    style={{ padding: '12px 48px' }}
-                  />
-                </Link>
-              ) : (
-                <ImageButton
-                  text={runningGames[game.game_id] ? 'Stop' : 'Add to Library'}
-                  icon={
-                    runningGames[game.game_id]
-                      ? require('@mui/icons-material/Stop').default
+              <ImageButton
+                text={
+                  runningGames[game.game_id]
+                    ? 'Stop'
+                    : libraryGames.includes(game.game_id)
+                      ? 'Go to Library'
+                      : 'Add to Library'
+                }
+                icon={
+                  runningGames[game.game_id]
+                    ? require('@mui/icons-material/Stop').default
+                    : libraryGames.includes(game.game_id)
+                      ? require('@mui/icons-material/LibraryBooks').default
                       : require('@mui/icons-material/Add').default
+                }
+                onClick={async () => {
+                  if (runningGames[game.game_id]) {
+                    window.electronAPI.stopGame(game.game_id);
+                  } else if (libraryGames.includes(game.game_id)) {
+                    navigate('/library');
+                  } else {
+                    await handleAddToLibrary(game);
                   }
-                  onClick={async () => {
-                    if (runningGames[game.game_id]) {
-                      window.electronAPI.stopGame(game.game_id);
-                    } else {
-                      await handleAddToLibrary(game);
-                    }
-                  }}
-                  style={{ padding: '12px 48px' }}
-                />
-              )}
+                }}
+                style={{ padding: '12px 48px' }}
+              />
             </CardOverlay>
           </FeaturedCard>
         </Box>

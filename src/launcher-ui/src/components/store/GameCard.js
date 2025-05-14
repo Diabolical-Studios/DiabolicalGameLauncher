@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card, CardMedia, Typography, Box, CardContent, CardActionArea } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardMedia, Typography, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { colors } from '../../theme/colors';
 import ImageButton from '../button/ImageButton';
@@ -96,6 +96,8 @@ export const GameCardComponent = ({
   const handleButtonClick = async () => {
     if (isRunning) {
       window.electronAPI.stopGame(game.game_id);
+    } else if (isInLibrary) {
+      navigate('/library');
     } else {
       try {
         setIsAddingToLibrary(true);
@@ -276,40 +278,33 @@ export const GameCardComponent = ({
         >
           {game.game_name}
         </GameTitle>
-        {isInLibrary ? (
-          <Link to={`/library?game=${game.game_id}`} style={{ textDecoration: 'none' }}>
-            <ImageButton
-              className="add-library-button"
-              text="View in Library"
-              icon={require('@mui/icons-material/Visibility').default}
-              style={{
-                position: 'absolute',
-                bottom: '16px',
-                left: '16px',
-                minWidth: '140px',
-                padding: '6px 16px',
-              }}
-            />
-          </Link>
-        ) : (
-          <ImageButton
-            className="add-library-button"
-            text={isRunning ? 'Stop' : isAddingToLibrary ? 'Adding...' : 'Add to Library'}
-            icon={
-              isRunning
-                ? require('@mui/icons-material/Stop').default
+        <ImageButton
+          className="add-library-button"
+          text={
+            isRunning
+              ? 'Stop'
+              : isInLibrary
+                ? 'Go to Library'
+                : isAddingToLibrary
+                  ? 'Adding...'
+                  : 'Add to Library'
+          }
+          icon={
+            isRunning
+              ? require('@mui/icons-material/Stop').default
+              : isInLibrary
+                ? require('@mui/icons-material/LibraryBooks').default
                 : require('@mui/icons-material/Add').default
-            }
-            onClick={handleButtonClick}
-            style={{
-              position: 'absolute',
-              bottom: '16px',
-              left: '16px',
-              minWidth: '140px',
-              padding: '6px 16px',
-            }}
-          />
-        )}
+          }
+          onClick={handleButtonClick}
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            left: '16px',
+            minWidth: '140px',
+            padding: '6px 16px',
+          }}
+        />
       </CardOverlay>
     </GameCard>
   );

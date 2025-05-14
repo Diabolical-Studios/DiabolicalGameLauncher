@@ -9,11 +9,8 @@ import { GameContextMenu } from '../components/library/GameContextMenu';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import Cookies from 'js-cookie';
 import SearchIcon from '@mui/icons-material/Search';
-import { useSearchParams } from 'react-router-dom';
 
 const LibraryPage = () => {
-  const [searchParams] = useSearchParams();
-  const gameId = searchParams.get('game');
   const [installedGameIds, setInstalledGameIds] = useState([]);
   const [cachedGames, setCachedGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -138,15 +135,6 @@ const LibraryPage = () => {
         try {
           cachedLibraryGames = await window.electronAPI.getCachedLibraryGames();
           setCachedGames(cachedLibraryGames);
-
-          // If we have a gameId in the URL, select that game
-          if (gameId) {
-            const gameToSelect = cachedLibraryGames.find(g => g.game_id === gameId);
-            if (gameToSelect) {
-              setSelectedGame(gameToSelect);
-              fetchLocalVersion(gameId);
-            }
-          }
         } catch (cacheErr) {
           console.error('Error loading cached library games:', cacheErr);
         }
@@ -246,7 +234,7 @@ const LibraryPage = () => {
     const updateInterval = setInterval(loadGames, 300000);
 
     return () => clearInterval(updateInterval);
-  }, [gameId]);
+  }, []);
 
   useEffect(() => {
     if (selectedGame) {
@@ -293,21 +281,11 @@ const LibraryPage = () => {
   // Always ensure a game is selected
   useEffect(() => {
     if (!cachedGames.length) return;
-
-    // If we have a gameId in the URL, prioritize selecting that game
-    if (gameId) {
-      const gameToSelect = cachedGames.find(g => g.game_id === gameId);
-      if (gameToSelect) {
-        setSelectedGame(gameToSelect);
-        return;
-      }
-    }
-
     // If no game is selected or the selected game is not in the list, select the first available
     if (!selectedGame || !cachedGames.some(g => g.game_id === selectedGame.game_id)) {
       setSelectedGame(cachedGames[0]);
     }
-  }, [cachedGames, selectedGame, gameId]);
+  }, [cachedGames, selectedGame]);
 
   const handleContextMenu = (event, game) => {
     event.preventDefault();
