@@ -17,7 +17,7 @@ export const useSessionVerification = () => {
       try {
         const response = await fetch('/verify-session', {
           method: 'GET',
-          headers: { sessionID },
+          headers: { sessionid: sessionID },
         });
 
         if (!response.ok) {

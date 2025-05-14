@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Cookies from 'js-cookie';
 import AccountDashboard from '../components/account/AccountDashboard';
@@ -66,6 +66,9 @@ export default function AccountPage() {
         setUsername(usernameParam);
         setIsLoggedIn(true);
         setCheckingSession(false);
+
+        // Clear the URL parameters after setting cookies
+        window.history.replaceState({}, document.title, '/account');
         return;
       }
 
@@ -80,7 +83,7 @@ export default function AccountPage() {
       try {
         const res = await fetch('/verify-session', {
           method: 'GET',
-          headers: { sessionID },
+          headers: { sessionid: sessionID },
         });
 
         if (!res.ok) {
