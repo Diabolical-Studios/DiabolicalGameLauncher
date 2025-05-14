@@ -20,7 +20,6 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import ImageButton from '../button/ImageButton';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useSessionVerification } from './useSessionVerification';
 
 const TeamDashboard = ({ teams, onUpdateTeam }) => {
   const { teamName } = useParams();
@@ -40,7 +39,6 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
     const saved = localStorage.getItem(`uploadedPackages_${teamName}`);
     return saved ? JSON.parse(saved) : [];
   });
-  const { isVerifying } = useSessionVerification();
 
   // Update localStorage when uploadedPackages changes
   useEffect(() => {
@@ -200,14 +198,6 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
       alert('Download not implemented');
     }
   };
-
-  if (isVerifying) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div>Verifying session...</div>
-      </div>
-    );
-  }
 
   if (!team) return null;
 

@@ -97,13 +97,16 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
     gameStatus,
   ]);
 
-  const fetchGithubRepos = useCallback(async (installationId, accessToken) => {
+  const fetchGithubRepos = useCallback(async (installationId, accessToken, retryCount = 0) => {
     if (!installationId || !accessToken) {
       console.log('❌ Missing GitHub Installation ID or Access Token.');
       return;
     }
 
     try {
+      console.log(
+        `🔄 Fetching repositories for installation ${installationId} (attempt ${retryCount + 1})`
+      );
       const reposResponse = await fetch(`https://api.github.com/installation/repositories`, {
         method: 'GET',
         headers: {
@@ -141,8 +144,25 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       // Add repos to the list
       setGithubRepos(prev => [...prev, ...data.repositories]);
+      console.log(`✅ Successfully fetched ${data.repositories.length} repositories`);
     } catch (error) {
       console.error('❌ Error fetching repositories:', error);
+
+      // Retry logic - attempt up to 3 times with exponential backoff
+      if (retryCount < 2) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        console.log(`🔄 Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return fetchGithubRepos(installationId, accessToken, retryCount + 1);
+      } else {
+        console.error('❌ Max retries reached for fetching repositories');
+        if (window.electronAPI) {
+          window.electronAPI.showCustomNotification(
+            'Repository Loading Failed',
+            'Failed to load repositories after multiple attempts. Please try again.'
+          );
+        }
+      }
     }
   }, []);
 
@@ -155,7 +175,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         setLoadingRepos(true);
         setGithubRepos([]); // Clear existing repos
 
-        // Process all installations
+        // Process all installations sequentially
         for (const pair of pairs) {
           await fetchGithubRepos(pair.installationId, pair.accessToken);
         }
@@ -163,6 +183,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         setLoadingRepos(false);
       } else {
         console.log('❌ No GitHub installations found');
+        setLoadingRepos(false);
       }
     };
 
@@ -177,8 +198,12 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       if (action === 'github-app') {
         console.log('✅ GitHub App Authentication Successful');
+        setLoadingRepos(true); // Set loading state before fetching
+
         // Fetch repos for the new installation
-        fetchGithubRepos(data.githubInstallationId, data.githubAccessToken);
+        fetchGithubRepos(data.githubInstallationId, data.githubAccessToken).finally(() => {
+          setLoadingRepos(false);
+        });
       }
     };
 

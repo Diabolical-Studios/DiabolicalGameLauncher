@@ -25,7 +25,32 @@ const windowStore = require('./windowStore');
 // Track running game processes
 const runningGames = new Map();
 
+// Add function to check for running games on startup
+function checkRunningGames() {
+  const runningGamesList = [];
+  runningGames.forEach((gameInfo, gameId) => {
+    try {
+      process.kill(gameInfo.pid, 0); // throws if process is not running
+      runningGamesList.push(gameId);
+    } catch (e) {
+      runningGames.delete(gameId);
+    }
+  });
+  return runningGamesList;
+}
+
 function initIPCHandlers() {
+  // Check for running games on startup
+  const runningGamesList = checkRunningGames();
+  if (runningGamesList.length > 0) {
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      runningGamesList.forEach(gameId => {
+        mainWindow.webContents.send('game-started', gameId);
+      });
+    }
+  }
+
   // Game Actions
   ipcMain.on('download-game', downloadGame);
   ipcMain.handle('get-installed-games', async () => getInstalledGames());
@@ -52,8 +77,9 @@ function initIPCHandlers() {
     const gameProcess = spawn(executablePath, [], {
       cwd: gamePath,
       env: process.env,
-      detached: true, // This allows the process to continue running after the launcher closes
+      detached: false, // Change to false to keep process tied to launcher
       stdio: 'ignore', // Ignore stdio to prevent hanging
+      windowsHide: false, // Ensure process is visible
     });
 
     // Store the process with its PID
@@ -77,6 +103,22 @@ function initIPCHandlers() {
       stopPlaytimeTracking(gameId);
       event.sender.send('game-stopped', gameId);
     });
+
+    // Add process to the job object to ensure it's killed when the launcher dies
+    try {
+      const job = require('node:child_process').spawn(
+        'cmd',
+        ['/c', 'start', '/b', executablePath],
+        {
+          detached: false,
+          windowsHide: false,
+          stdio: 'ignore',
+        }
+      );
+      job.unref();
+    } catch (err) {
+      console.error('Error creating job object:', err);
+    }
 
     event.sender.send('game-started', gameId);
   });
@@ -176,10 +218,60 @@ function initIPCHandlers() {
   // Launcher Actions
   ipcMain.on('close-window', () => {
     const mainWindow = windowStore.getMainWindow();
+    if (mainWindow && runningGames.size > 0) {
+      mainWindow.webContents.send('show-notification', {
+        title: 'Cannot Close Launcher',
+        body: 'Please stop all running games before closing the launcher.',
+      });
+      return;
+    }
     if (mainWindow) {
       mainWindow.close();
     }
   });
+
+  // Add window close prevention
+  app.on('window-all-closed', e => {
+    if (runningGames.size > 0) {
+      e.preventDefault();
+      const mainWindow = windowStore.getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send('show-notification', {
+          title: 'Cannot Close Launcher',
+          body: 'Please stop all running games before closing the launcher.',
+        });
+      }
+    } else {
+      app.quit();
+    }
+  });
+
+  // Add cleanup handler for when the app is quitting
+  app.on('before-quit', () => {
+    // Force kill all running games
+    runningGames.forEach((gameInfo, gameId) => {
+      try {
+        // Try normal kill first
+        gameInfo.process.kill();
+
+        // Force kill with taskkill after a short delay
+        setTimeout(() => {
+          try {
+            process.kill(gameInfo.pid, 0); // Check if process is still running
+            const taskkill = spawn('taskkill', ['/F', '/T', '/PID', gameInfo.pid.toString()]);
+            taskkill.on('error', err => {
+              console.error(`Error force killing game ${gameId}:`, err);
+            });
+          } catch (e) {
+            // Process is already dead, no need to force kill
+          }
+        }, 1000);
+      } catch (err) {
+        console.error(`Error killing game ${gameId}:`, err);
+      }
+    });
+  });
+
   ipcMain.on('reload-window', () => {
     const mainWindow = windowStore.getMainWindow();
     if (mainWindow) {

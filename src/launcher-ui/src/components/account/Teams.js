@@ -3,12 +3,8 @@ import { Stack, Zoom } from '@mui/material';
 import Grid from '../Grid';
 import TeamCard from './TeamCard';
 import TeamsSkeleton from '../skeleton/TeamsSkeleton';
-import { useSessionVerification } from './useSessionVerification';
 
 const Teams = ({ teams, loading, error, onUpdateTeam }) => {
-  // Run verification in background
-  useSessionVerification();
-
   if (loading) return <TeamsSkeleton />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
