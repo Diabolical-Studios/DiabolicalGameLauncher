@@ -53,6 +53,26 @@ const LibraryPage = () => {
     [cachedGames]
   );
 
+  const checkForUpdates = useCallback(async (games, installedIds) => {
+    const updates = {};
+    for (const game of games) {
+      if (installedIds.includes(game.game_id) && window.electronAPI) {
+        try {
+          const current = await window.electronAPI.getCurrentGameVersion(game.game_id);
+          if (current && game.version !== current) {
+            updates[game.game_id] = {
+              current,
+              latest: game.version,
+            };
+          }
+        } catch (err) {
+          console.error(`Error checking update for ${game.game_id}:`, err);
+        }
+      }
+    }
+    return updates;
+  }, []);
+
   useEffect(() => {
     const handleDownloadProgress = progressData => {
       if (!progressData?.gameId) return;
@@ -174,6 +194,7 @@ const LibraryPage = () => {
             return gameDetails;
           });
           setCachedGames(localGames);
+          cachedLibraryGames = localGames;
         }
       }
 
@@ -188,7 +209,11 @@ const LibraryPage = () => {
       }
       setInstalledGameIds(ids);
 
-      // 3. Fetch latest library games from API and update the library list
+      // 3. Check for updates for all installed games
+      const updates = await checkForUpdates(cachedLibraryGames, ids);
+      setGameUpdates(updates);
+
+      // 4. Try to fetch latest library games from API
       try {
         const sessionID = Cookies.get('sessionID');
         const response = await axios.get('/get-library-games', {
@@ -206,25 +231,9 @@ const LibraryPage = () => {
           localStorage.setItem(gameDetailsKey, JSON.stringify(game));
         });
 
-        // 4. Update info about updates for all library games
-        const updates = {};
-        for (const game of libraryGames) {
-          let current = null;
-          if (ids.includes(game.game_id) && window.electronAPI) {
-            try {
-              current = await window.electronAPI.getCurrentGameVersion(game.game_id);
-            } catch (err) {
-              current = null;
-            }
-            if (current && game.version !== current) {
-              updates[game.game_id] = {
-                current,
-                latest: game.version,
-              };
-            }
-          }
-        }
-        setGameUpdates(updates);
+        // Check for updates with the new library data
+        const newUpdates = await checkForUpdates(libraryGames, ids);
+        setGameUpdates(newUpdates);
       } catch (err) {
         console.error('Error loading library:', err);
       }
@@ -234,7 +243,30 @@ const LibraryPage = () => {
     const updateInterval = setInterval(loadGames, 300000);
 
     return () => clearInterval(updateInterval);
-  }, []);
+  }, [checkForUpdates]);
+
+  // Add effect to check for updates when selected game changes
+  useEffect(() => {
+    if (selectedGame && window.electronAPI) {
+      const checkSelectedGameUpdate = async () => {
+        try {
+          const current = await window.electronAPI.getCurrentGameVersion(selectedGame.game_id);
+          if (current && selectedGame.version !== current) {
+            setGameUpdates(prev => ({
+              ...prev,
+              [selectedGame.game_id]: {
+                current,
+                latest: selectedGame.version,
+              },
+            }));
+          }
+        } catch (err) {
+          console.error(`Error checking update for selected game:`, err);
+        }
+      };
+      checkSelectedGameUpdate();
+    }
+  }, [selectedGame]);
 
   useEffect(() => {
     if (selectedGame) {
@@ -477,6 +509,45 @@ const LibraryPage = () => {
       game.game_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       game.game_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Add effect to handle game state changes
+  useEffect(() => {
+    const handleGameStarted = gameId => {
+      if (selectedGame?.game_id === gameId) {
+        setIsGameRunning(true);
+      }
+    };
+
+    const handleGameStopped = gameId => {
+      if (selectedGame?.game_id === gameId) {
+        setIsGameRunning(false);
+      }
+    };
+
+    if (window.electronAPI) {
+      window.electronAPI.onGameStarted(handleGameStarted);
+      window.electronAPI.onGameStopped(handleGameStopped);
+    }
+
+    return () => {
+      if (window.electronAPI) {
+        window.electronAPI.removeGameStartedListener(handleGameStarted);
+        window.electronAPI.removeGameStoppedListener(handleGameStopped);
+      }
+    };
+  }, [selectedGame]);
+
+  // Add effect to check for running games on mount
+  useEffect(() => {
+    const checkRunningGames = async () => {
+      if (selectedGame && window.electronAPI) {
+        const isRunning = await window.electronAPI.isGameRunning(selectedGame.game_id);
+        setIsGameRunning(isRunning);
+      }
+    };
+
+    checkRunningGames();
+  }, [selectedGame]);
 
   return (
     <Box

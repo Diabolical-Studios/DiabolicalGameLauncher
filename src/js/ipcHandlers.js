@@ -25,7 +25,32 @@ const windowStore = require('./windowStore');
 // Track running game processes
 const runningGames = new Map();
 
+// Add function to check for running games on startup
+function checkRunningGames() {
+  const runningGamesList = [];
+  runningGames.forEach((gameInfo, gameId) => {
+    try {
+      process.kill(gameInfo.pid, 0); // throws if process is not running
+      runningGamesList.push(gameId);
+    } catch (e) {
+      runningGames.delete(gameId);
+    }
+  });
+  return runningGamesList;
+}
+
 function initIPCHandlers() {
+  // Check for running games on startup
+  const runningGamesList = checkRunningGames();
+  if (runningGamesList.length > 0) {
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      runningGamesList.forEach(gameId => {
+        mainWindow.webContents.send('game-started', gameId);
+      });
+    }
+  }
+
   // Game Actions
   ipcMain.on('download-game', downloadGame);
   ipcMain.handle('get-installed-games', async () => getInstalledGames());
@@ -176,10 +201,34 @@ function initIPCHandlers() {
   // Launcher Actions
   ipcMain.on('close-window', () => {
     const mainWindow = windowStore.getMainWindow();
+    if (mainWindow && runningGames.size > 0) {
+      mainWindow.webContents.send('show-notification', {
+        title: 'Cannot Close Launcher',
+        body: 'Please stop all running games before closing the launcher.',
+      });
+      return;
+    }
     if (mainWindow) {
       mainWindow.close();
     }
   });
+
+  // Add window close prevention
+  app.on('window-all-closed', e => {
+    if (runningGames.size > 0) {
+      e.preventDefault();
+      const mainWindow = windowStore.getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send('show-notification', {
+          title: 'Cannot Close Launcher',
+          body: 'Please stop all running games before closing the launcher.',
+        });
+      }
+    } else {
+      app.quit();
+    }
+  });
+
   ipcMain.on('reload-window', () => {
     const mainWindow = windowStore.getMainWindow();
     if (mainWindow) {
