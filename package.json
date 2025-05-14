@@ -22,7 +22,7 @@
     "provider": "github",
     "releaseType": "release",
     "channel": "${env.PUBLISH_CHANNEL}",
-    "generateUpdatesFilesForAllChannels": true
+    "allowDowngrade": false
   },
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
@@ -63,6 +63,12 @@
       ],
       "icon": "icons",
       "artifactName": "${productName}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "release",
+      "channel": "${env.PUBLISH_CHANNEL}",
+      "allowDowngrade": false
     }
   },
   "keywords": [],
