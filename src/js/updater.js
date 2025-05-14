@@ -10,10 +10,7 @@ const settingsModule = require('./settings');
 let mainWindow = null;
 
 function checkForUpdates() {
-  // Set the channel based on the environment
-  const isDev = process.env.NODE_ENV === 'development';
-  autoUpdater.channel = isDev ? 'beta' : 'latest';
-
+  // Remove runtime channel override - let it use the build-time channel
   autoUpdater.checkForUpdates();
   showMessage('Checking For Updates... ');
 }
@@ -108,9 +105,9 @@ function initUpdater() {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
-  // Set the channel based on the environment
-  const isDev = process.env.NODE_ENV === 'development';
-  autoUpdater.channel = isDev ? 'beta' : 'latest';
+  // Configure updater to respect the build-time channel
+  autoUpdater.allowDowngrade = false;
+  autoUpdater.allowPrerelease = process.env.NODE_ENV === 'development';
 
   autoUpdater.on('update-available', () => {
     if (settings.autoUpdate) {

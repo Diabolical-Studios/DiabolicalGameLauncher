@@ -18,12 +18,6 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
-  "publish": {
-    "provider": "github",
-    "releaseType": "release",
-    "channel": "${env.PUBLISH_CHANNEL}",
-    "generateUpdatesFilesForAllChannels": true
-  },
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
     "productName": "Diabolical Launcher",
@@ -64,6 +58,12 @@
       "icon": "icons",
       "artifactName": "${productName}.${ext}"
     }
+  },
+  "publish": {
+    "provider": "github",
+    "releaseType": "release",
+    "channel": "${env.PUBLISH_CHANNEL}",
+    "allowDowngrade": false
   },
   "keywords": [],
   "author": "doruksasmaz",
