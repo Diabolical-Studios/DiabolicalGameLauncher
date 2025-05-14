@@ -50,35 +50,39 @@ export default function AccountPage() {
   const cookieOptions = React.useMemo(() => ({ expires: 7, secure: true, sameSite: 'Strict' }), []);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sessionIDParam = params.get('sessionID');
-    const usernameParam = params.get('username');
-    const githubIdParam = params.get('githubID');
+    const handleSession = async () => {
+      // First, check for auth callback parameters
+      const params = new URLSearchParams(location.search);
+      const sessionIDParam = params.get('sessionID');
+      const usernameParam = params.get('username');
+      const githubIdParam = params.get('githubID');
 
-    if (sessionIDParam && usernameParam && githubIdParam) {
-      Cookies.set('sessionID', sessionIDParam, cookieOptions);
-      Cookies.set('username', usernameParam, cookieOptions);
-      Cookies.set('githubID', githubIdParam, cookieOptions);
+      if (sessionIDParam && usernameParam && githubIdParam) {
+        // Handle auth callback
+        Cookies.set('sessionID', sessionIDParam, cookieOptions);
+        Cookies.set('username', usernameParam, cookieOptions);
+        Cookies.set('githubID', githubIdParam, cookieOptions);
 
-      setUsername(usernameParam);
-      setIsLoggedIn(true);
-      // No imperative navigation, just let the router handle it
-    }
-    setCheckingSession(false);
-  }, [location.search, location.pathname, cookieOptions]);
+        setUsername(usernameParam);
+        setIsLoggedIn(true);
+        setCheckingSession(false);
+        return;
+      }
 
-  useEffect(() => {
-    const sessionID = Cookies.get('sessionID');
-    if (!sessionID) {
-      setCheckingSession(false);
-      setIsLoggedIn(false);
-      return;
-    }
-    fetch('/verify-session', {
-      method: 'GET',
-      headers: { sessionID },
-    })
-      .then(res => {
+      // If no auth callback, verify existing session
+      const sessionID = Cookies.get('sessionID');
+      if (!sessionID) {
+        setCheckingSession(false);
+        setIsLoggedIn(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/verify-session', {
+          method: 'GET',
+          headers: { sessionID },
+        });
+
         if (!res.ok) {
           Cookies.remove('sessionID');
           Cookies.remove('username');
@@ -86,22 +90,22 @@ export default function AccountPage() {
           setUsername('');
           setIsLoggedIn(false);
         } else {
-          res.json().then(() => {
-            setIsLoggedIn(true);
-          });
+          await res.json();
+          setIsLoggedIn(true);
         }
-      })
-      .catch(() => {
+      } catch (error) {
         Cookies.remove('sessionID');
         Cookies.remove('username');
         Cookies.remove('githubID');
         setUsername('');
         setIsLoggedIn(false);
-      })
-      .finally(() => {
+      } finally {
         setCheckingSession(false);
-      });
-  }, []);
+      }
+    };
+
+    handleSession();
+  }, [location.search, cookieOptions]);
 
   useEffect(() => {
     if (
