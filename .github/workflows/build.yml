@@ -110,10 +110,10 @@ jobs:
       # --------------------------------------------------------------
       # 📄 Generate latest.yml (for auto-update)
       # --------------------------------------------------------------
-      - name: 📄 Create <channel>.yml metadata
+      - name: 📄 Create latest.yml
         shell: bash
         run: |
-          echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > ${{ env.PUBLISH_CHANNEL }}.yml
+          echo "version: ${{ steps.version.outputs.NEW_VERSION }}" > latest.yml
 
       # --------------------------------------------------------------
       # 🏷️ Rename installer & expose INSTALLER var for later steps
@@ -133,7 +133,7 @@ jobs:
           name: build-artifacts
           path: |
             dist/${{ env.INSTALLER }}
-            dist/${{ env.PUBLISH_CHANNEL }}.yml
+            dist/latest.yml
             dist/Diabolical Launcher Setup.exe.blockmap
 
       # --------------------------------------------------------------
@@ -158,5 +158,5 @@ jobs:
           name: ${{ env.IS_DEV == 'true' && format('{0}-beta', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
           files: |
             dist/${{ env.INSTALLER }}
-            dist/${{ env.PUBLISH_CHANNEL }}.yml
+            dist/latest.yml
             dist/Diabolical Launcher Setup.exe.blockmap
