@@ -21,7 +21,6 @@
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
     "productName": "Diabolical Launcher",
-    "generateUpdatesFilesForAllChannels": true,
     "directories": {
       "output": "dist"
     },
