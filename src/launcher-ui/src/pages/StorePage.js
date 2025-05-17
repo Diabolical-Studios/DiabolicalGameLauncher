@@ -116,6 +116,17 @@ const StorePage = () => {
 
         // Store in localStorage
         localStorage.setItem('localGames', JSON.stringify(freshGames));
+
+        // --- Update localStorage for library games with latest info ---
+        const localLibrary = JSON.parse(localStorage.getItem('localLibrary')) || [];
+        localLibrary.forEach(gameId => {
+          const latestGame = freshGames.find(g => g.game_id === gameId);
+          if (latestGame) {
+            const gameDetailsKey = `game_${gameId}`;
+            localStorage.setItem(gameDetailsKey, JSON.stringify(latestGame));
+          }
+        });
+        // --- End update ---
       } catch (err) {
         console.error('Error loading games:', err);
       }

@@ -9,8 +9,10 @@ import { GameContextMenu } from '../components/library/GameContextMenu';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import Cookies from 'js-cookie';
 import SearchIcon from '@mui/icons-material/Search';
+import { useLocation } from 'react-router-dom';
 
 const LibraryPage = () => {
+  const location = useLocation();
   const [installedGameIds, setInstalledGameIds] = useState([]);
   const [cachedGames, setCachedGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -310,14 +312,27 @@ const LibraryPage = () => {
     }
   }, [selectedGame, cachedGames]);
 
-  // Always ensure a game is selected
+  // Add effect to handle game selection from URL query parameter and ensure a game is selected
   useEffect(() => {
     if (!cachedGames.length) return;
+
+    const params = new URLSearchParams(location.search);
+    const gameId = params.get('game');
+
+    // Only handle URL parameter on initial load (when selectedGame is null)
+    if (gameId && !selectedGame) {
+      const game = cachedGames.find(g => g.game_id === gameId);
+      if (game) {
+        setSelectedGame(game);
+        return;
+      }
+    }
+
     // If no game is selected or the selected game is not in the list, select the first available
     if (!selectedGame || !cachedGames.some(g => g.game_id === selectedGame.game_id)) {
       setSelectedGame(cachedGames[0]);
     }
-  }, [cachedGames, selectedGame]);
+  }, [cachedGames, selectedGame, location.search]);
 
   const handleContextMenu = (event, game) => {
     event.preventDefault();

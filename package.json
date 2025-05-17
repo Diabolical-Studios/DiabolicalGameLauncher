@@ -7,8 +7,8 @@
   "scripts": {
     "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
     "start": "concurrently \"npm run dev-ui\" \"electron --trace-warnings .\"",
-    "build": "cross-env PUBLISH_CHANNEL=latest electron-builder --publish always -c.extraMetadata.env.NODE_ENV=production",
-    "build:dev": "cross-env PUBLISH_CHANNEL=beta electron-builder --publish always -c.extraMetadata.env.NODE_ENV=development",
+    "build": "cross-env PUBLISH_CHANNEL=latest electron-builder -c.extraMetadata.env.NODE_ENV=production",
+    "build:dev": "cross-env PUBLISH_CHANNEL=beta electron-builder -c.extraMetadata.env.NODE_ENV=development",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "jest",
@@ -21,7 +21,6 @@
   "build": {
     "appId": "studio.diabolical.diabolicallauncher",
     "productName": "Diabolical Launcher",
-    "generateUpdatesFilesForAllChannels": true,
     "directories": {
       "output": "dist"
     },
@@ -58,16 +57,13 @@
       ],
       "icon": "icons",
       "artifactName": "${productName}.${ext}"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "Diabolical-Studios",
-        "repo": "DiabolicalGameLauncher",
-        "releaseType": "release",
-        "channel": "${env.PUBLISH_CHANNEL}"
-      }
-    ]
+    }
+  },
+  "publish": {
+    "provider": "github",
+    "releaseType": "release",
+    "channel": "${env.PUBLISH_CHANNEL}",
+    "allowDowngrade": false
   },
   "keywords": [],
   "author": "doruksasmaz",

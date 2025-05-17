@@ -102,12 +102,10 @@ function startPeriodicChecks(window, interval = 60000) {
 // Launcher auto update logic
 function initUpdater() {
   const settings = settingsModule.loadSettings(); //  Load settings
+
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
-
-  // Configure updater to respect the build-time channel
-  autoUpdater.allowDowngrade = false;
-  autoUpdater.allowPrerelease = process.env.NODE_ENV === 'development';
+  autoUpdater.channel = process.env.PUBLISH_CHANNEL;
 
   autoUpdater.on('update-available', () => {
     if (settings.autoUpdate) {
@@ -137,6 +135,18 @@ function initUpdater() {
   });
 
   autoUpdater.on('error', info => {
+    // Suppress the error if it's about missing beta.yml or latest.yml
+    if (
+      info &&
+      info.message &&
+      (info.message.includes('Cannot find beta.yml') ||
+        info.message.includes('Cannot find latest.yml'))
+    ) {
+      // Do not show this error to the user
+      showMessage('Diabolical Launcher');
+      showCustomNotification(mainWindow, 'Launcher Update', 'No updates available.');
+      return;
+    }
     showMessage(`Launcher update error: ${info}`);
   });
 }
