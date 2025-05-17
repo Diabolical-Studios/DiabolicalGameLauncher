@@ -156,6 +156,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
           name: ${{ env.IS_DEV == 'true' && format('{0}-beta', steps.version.outputs.NEW_VERSION) || format('{0}', steps.version.outputs.NEW_VERSION) }}
+          prerelease: ${{ env.IS_DEV == 'true' }}
           files: |
             dist/${{ env.INSTALLER }}
             dist/latest.yml
