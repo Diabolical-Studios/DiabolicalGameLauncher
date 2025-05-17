@@ -13,7 +13,6 @@ import {
   Tabs,
   TextField,
   Typography,
-  Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import GameCard from '../../GameCard';
@@ -34,13 +33,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     background: 'transparent',
     boxShadow: 'none',
     margin: 0,
-  },
-}));
-
-const MuiDivider = styled(Divider)(({ theme }) => ({
-  '&.MuiDivider-root': {
-    borderColor: colors.border,
-    opacity: 1,
   },
 }));
 
@@ -292,130 +284,21 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       return;
     }
 
-    // Handle file upload if in manual upload mode
-    if (activeTab === 1 && gameFile) {
-      setIsUploading(true);
-      setUploadProgress(0);
-      try {
-        const res = await fetch(`https://cdn.diabolical.services/generateUploadUrl`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(sessionID ? { sessionID } : {}),
-          },
-          body: JSON.stringify({
-            fileExt: gameFile.name.split('.').pop(),
-            contentType: gameFile.type,
-            isGameUpload: true,
-            gameId: gameId.trim(),
-            version: gameVersion,
-            size_bytes: gameFile.size,
-          }),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to generate upload URL');
-        }
-
-        const { url } = await res.json();
-
-        const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', event => {
-          if (event.lengthComputable) {
-            const progress = (event.loaded / event.total) * 100;
-            setUploadProgress(progress);
-          }
-        });
-
-        await new Promise((resolve, reject) => {
-          xhr.onload = resolve;
-          xhr.onerror = reject;
-          xhr.open('PUT', url);
-          xhr.setRequestHeader('Content-Type', gameFile.type);
-          xhr.send(gameFile);
-        });
-      } catch (err) {
-        console.error('❌ Upload failed:', err);
-        if (window.electronAPI) {
-          window.electronAPI.showCustomNotification(
-            'Upload Failed',
-            err.message === 'Quota check failed'
-              ? 'You have exceeded your storage quota. Please upgrade your plan or delete some files.'
-              : err.message || 'Could not upload your game file.'
-          );
-        }
-        // Reset the upload state
-        setGameFile(null);
-        setGameFileName('');
-        setGameVersion('0.0.1');
-        setUploadProgress(0);
-        setIsSaving(false);
-        setIsUploading(false);
-        return;
-      } finally {
-        setIsUploading(false);
-      }
-    }
-
-    // Find the correct installation ID for this repository if in GitHub mode
-    let installationId = null;
-    if (activeTab === 0) {
-      let count = 1;
-      while (true) {
-        const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
-        const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
-
-        if (!currentInstallationId || !currentAccessToken) break;
-
-        try {
-          // Check if this installation has access to the selected repo
-          const response = await fetch(`https://api.github.com/repos/${selectedRepo}`, {
-            headers: {
-              Authorization: `Bearer ${currentAccessToken}`,
-              Accept: 'application/vnd.github+json',
-            },
-          });
-
-          if (response.ok) {
-            installationId = currentInstallationId;
-            break;
-          }
-        } catch (err) {
-          console.error(`Error checking repo access for installation ${count}:`, err);
-        }
-
-        count++;
-      }
-
-      if (!installationId) {
-        if (window.electronAPI) {
-          window.electronAPI.showCustomNotification(
-            'Game Creation Failed',
-            'No GitHub installation found with access to this repository'
-          );
-        }
-        console.error('❌ No GitHub Installation ID found with access to the selected repository.');
-        setIsSaving(false);
-        return;
-      }
-    }
-
-    const newGame = {
-      game_name: gameName.trim(),
-      game_id: gameId.trim(),
-      background_image_url: gameBackgroundUrl.trim(),
-      description: gameDescription.trim(),
-      version: gameVersion,
-      team_name: selectedTeam,
-      team_icon_url: teamIconUrl,
-      status: gameStatus,
-      ...(activeTab === 0 ? { github_repo: selectedRepo } : {}),
-    };
-
-    console.log('📤 Sending game creation request:', newGame);
-
     try {
+      // First create the game
+      const newGame = {
+        game_name: gameName.trim(),
+        game_id: gameId.trim(),
+        team_name: selectedTeam,
+        description: gameDescription.trim(),
+        background_image_url: gameBackgroundUrl.trim(),
+        version: gameVersion.trim(),
+        team_icon_url: teamIconUrl,
+        github_repo: selectedRepo,
+        status: gameStatus,
+        is_manual_upload: activeTab === 1,
+      };
+
       // Attempt to create the game via the Netlify function
       const response = await fetch('/create-game', {
         method: 'POST',
@@ -430,7 +313,7 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
         if (window.electronAPI) {
           window.electronAPI.showCustomNotification(
             'Game Creation Failed',
-            'Netlify did not respond.'
+            'You are not a Beta Tester. Please contact support if you think this is an error.'
           );
         }
         throw new Error('Failed to create game via Netlify.');
@@ -438,8 +321,113 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
 
       console.log('✅ Game created successfully:', newGame);
 
+      // Only upload file if game creation was successful and we're in manual upload mode
+      if (activeTab === 1 && gameFile) {
+        setIsUploading(true);
+        setUploadProgress(0);
+        try {
+          const res = await fetch(`https://cdn.diabolical.services/generateUploadUrl`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(sessionID ? { sessionID } : {}),
+            },
+            body: JSON.stringify({
+              fileExt: gameFile.name.split('.').pop(),
+              contentType: gameFile.type,
+              isGameUpload: true,
+              gameId: gameId.trim(),
+              version: gameVersion,
+              size_bytes: gameFile.size,
+            }),
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to generate upload URL');
+          }
+
+          const { url } = await res.json();
+
+          const xhr = new XMLHttpRequest();
+          xhr.upload.addEventListener('progress', event => {
+            if (event.lengthComputable) {
+              const progress = (event.loaded / event.total) * 100;
+              setUploadProgress(progress);
+            }
+          });
+
+          await new Promise((resolve, reject) => {
+            xhr.onload = resolve;
+            xhr.onerror = reject;
+            xhr.open('PUT', url);
+            xhr.setRequestHeader('Content-Type', gameFile.type);
+            xhr.send(gameFile);
+          });
+        } catch (err) {
+          console.error('❌ Upload failed:', err);
+          if (window.electronAPI) {
+            window.electronAPI.showCustomNotification(
+              'Upload Failed',
+              err.message === 'Quota check failed'
+                ? 'You have exceeded your storage quota. Please upgrade your plan or delete some files.'
+                : err.message || 'Could not upload your game file.'
+            );
+          }
+          // Reset the upload state
+          setGameFile(null);
+          setGameFileName('');
+          setGameVersion('0.0.1');
+          setUploadProgress(0);
+          setIsSaving(false);
+          setIsUploading(false);
+          return;
+        } finally {
+          setIsUploading(false);
+        }
+      }
+
       // Only notify GitHub if the Netlify step succeeded and we're in GitHub mode
       if (activeTab === 0) {
+        // Find the correct installation ID for this repository
+        let installationId = null;
+        let count = 1;
+        while (true) {
+          const currentInstallationId = Cookies.get(`githubInstallationId${count}`);
+          const currentAccessToken = Cookies.get(`githubAccessToken${count}`);
+
+          if (!currentInstallationId || !currentAccessToken) break;
+
+          try {
+            // Check if this installation has access to the selected repo
+            const response = await fetch(`https://api.github.com/repos/${selectedRepo}`, {
+              headers: {
+                Authorization: `Bearer ${currentAccessToken}`,
+                Accept: 'application/vnd.github+json',
+              },
+            });
+
+            if (response.ok) {
+              installationId = currentInstallationId;
+              break;
+            }
+          } catch (err) {
+            console.error(`Error checking repo access for installation ${count}:`, err);
+          }
+
+          count++;
+        }
+
+        if (!installationId) {
+          if (window.electronAPI) {
+            window.electronAPI.showCustomNotification(
+              'Game Creation Failed',
+              'No GitHub installation found with access to this repository'
+            );
+          }
+          throw new Error('No GitHub installation found with access to this repository');
+        }
+
         const githubWebhookResponse = await fetch(
           'https://api.diabolical.studio/github-app/webhook',
           {
@@ -478,8 +466,17 @@ const CreateGameDialog = ({ open, handleClose, onSave, teams }) => {
       }
 
       handleClose();
-    } catch (err) {
-      console.error('❌ Error creating game:', err);
+      if (onSave) {
+        onSave();
+      }
+    } catch (error) {
+      console.error('❌ Error creating game:', error);
+      if (window.electronAPI) {
+        window.electronAPI.showCustomNotification(
+          'Game Creation Failed',
+          error.message || 'An error occurred while creating your game.'
+        );
+      }
     } finally {
       setIsSaving(false);
     }

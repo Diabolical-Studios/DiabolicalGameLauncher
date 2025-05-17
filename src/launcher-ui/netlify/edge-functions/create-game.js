@@ -64,32 +64,7 @@ export default async (request, context) => {
   }
 
   try {
-    // 1) Verify session -> get GitHub ID
-    const githubIdRes = await fetch(`${API_BASE_URL}/rest-api/users/session/${sessionID}`, {
-      headers: {
-        'x-api-key': API_KEY,
-      },
-    });
-
-    if (!githubIdRes.ok) {
-      return new Response(
-        JSON.stringify({ error: `Failed to verify session: ${githubIdRes.status}` }),
-        {
-          status: githubIdRes.status,
-          headers: { 'content-type': 'application/json' },
-        }
-      );
-    }
-
-    const { github_id: sessionGithubId } = await githubIdRes.json();
-    if (!sessionGithubId) {
-      return new Response(JSON.stringify({ error: 'GitHub ID not found for session' }), {
-        status: 404,
-        headers: { 'content-type': 'application/json' },
-      });
-    }
-
-    // 2) Create the game record
+    // Create the game record with session ID
     const gameUploadRes = await fetch(`${API_BASE_URL}/rest-api/games`, {
       method: 'POST',
       headers: {
@@ -106,6 +81,7 @@ export default async (request, context) => {
         team_icon_url,
         github_repo,
         status,
+        session_id: sessionID,
       }),
     });
 
@@ -120,6 +96,29 @@ export default async (request, context) => {
     }
 
     const gameData = await gameUploadRes.json();
+
+    // Add the game to the user's library
+    const libraryAddRes = await fetch(`${API_BASE_URL}/rest-api/library/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+      },
+      body: JSON.stringify({
+        session_id: sessionID,
+        game_id: game_id,
+      }),
+    });
+
+    if (!libraryAddRes.ok) {
+      return new Response(
+        JSON.stringify({ error: `Failed to add game to library: ${libraryAddRes.status}` }),
+        {
+          status: libraryAddRes.status,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
+    }
 
     // Validate status if provided
     if (typeof gameData.status !== 'undefined') {
@@ -137,7 +136,7 @@ export default async (request, context) => {
       }
     }
 
-    // 3) Return success
+    // Return success
     return new Response(JSON.stringify({ message: 'Game created successfully', game: gameData }), {
       status: 201,
       headers: { 'content-type': 'application/json' },

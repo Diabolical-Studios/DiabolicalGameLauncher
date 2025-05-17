@@ -97,7 +97,7 @@ export const GameCardComponent = ({
     if (isRunning) {
       window.electronAPI.stopGame(game.game_id);
     } else if (isInLibrary) {
-      navigate('/library');
+      navigate(`/library?game=${game.game_id}`);
     } else {
       try {
         setIsAddingToLibrary(true);
