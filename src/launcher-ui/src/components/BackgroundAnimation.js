@@ -69,6 +69,7 @@ const BackgroundAnimation = ({ style = {} }) => {
   const visibleParticlesRef = useRef([]);
   const particlePoolRef = useRef(null);
   const tempVecRef = useRef({ x: 0, y: 0 });
+  const isPausedRef = useRef(false);
 
   // Pre-compute reusable objects and values
   const reusableObjects = useMemo(
@@ -86,6 +87,25 @@ const BackgroundAnimation = ({ style = {} }) => {
       desynchronized: true, // Reduce latency
       powerPreference: 'high-performance', // Prioritize performance
     });
+
+    // Handle window focus events
+    const handleFocus = () => {
+      isPausedRef.current = false;
+      if (!frameIdRef.current) {
+        animate();
+      }
+    };
+
+    const handleBlur = () => {
+      isPausedRef.current = true;
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = null;
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
 
     // Pre-compute circle path
     circlePathRef.current = new Path2D();
@@ -316,6 +336,8 @@ const BackgroundAnimation = ({ style = {} }) => {
     };
 
     function animate() {
+      if (isPausedRef.current) return;
+
       const now = performance.now();
       const elapsed = now - lastFrameTimeRef.current;
 
@@ -381,6 +403,8 @@ const BackgroundAnimation = ({ style = {} }) => {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
       if (frameIdRef.current) {
         cancelAnimationFrame(frameIdRef.current);
       }

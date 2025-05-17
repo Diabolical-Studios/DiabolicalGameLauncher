@@ -63,7 +63,8 @@
     "provider": "github",
     "releaseType": "release",
     "channel": "${env.PUBLISH_CHANNEL}",
-    "allowDowngrade": false
+    "allowDowngrade": false,
+    "allowPrerelease": "${env.PUBLISH_CHANNEL === 'beta'}"
   },
   "keywords": [],
   "author": "doruksasmaz",
