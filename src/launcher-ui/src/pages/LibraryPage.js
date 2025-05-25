@@ -37,6 +37,7 @@ const LibraryPage = () => {
   const [gameUpdates, setGameUpdates] = useState({});
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [startingUpdate, setStartingUpdate] = useState({});
 
   const fetchLocalVersion = useCallback(
     async gameId => {
@@ -78,6 +79,16 @@ const LibraryPage = () => {
   useEffect(() => {
     const handleDownloadProgress = progressData => {
       if (!progressData?.gameId) return;
+
+      // Clear startingUpdate when download progress starts
+      setStartingUpdate(prev => {
+        if (prev[progressData.gameId]) {
+          const updated = { ...prev };
+          delete updated[progressData.gameId];
+          return updated;
+        }
+        return prev;
+      });
 
       const percent = Math.round(progressData.percentage * 100);
       setActiveDownloads(prev => ({
@@ -410,8 +421,16 @@ const LibraryPage = () => {
 
   const handleUpdateGame = () => {
     if (!selectedGame) return;
-    if (activeDownloads[selectedGame.game_id] || applyingUpdate[selectedGame.game_id]) return;
-    window.electronAPI.downloadGame(selectedGame.game_id);
+    if (
+      activeDownloads[selectedGame.game_id] ||
+      applyingUpdate[selectedGame.game_id] ||
+      startingUpdate[selectedGame.game_id]
+    )
+      return;
+    setStartingUpdate(prev => ({ ...prev, [selectedGame.game_id]: true }));
+    setTimeout(() => {
+      window.electronAPI.downloadGame(selectedGame.game_id);
+    }, 0);
   };
 
   const handleOpenInstallLocation = async () => {
@@ -648,6 +667,7 @@ const LibraryPage = () => {
             diskUsage={diskUsage}
             activeDownloads={activeDownloads}
             applyingUpdate={applyingUpdate}
+            startingUpdate={startingUpdate}
             onPlay={handlePlayGame}
             onDownload={handleDownloadGame}
             onUpdate={handleUpdateGame}

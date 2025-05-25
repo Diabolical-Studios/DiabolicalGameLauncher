@@ -97,29 +97,6 @@ export default async (request, context) => {
 
     const gameData = await gameUploadRes.json();
 
-    // Add the game to the user's library
-    const libraryAddRes = await fetch(`${API_BASE_URL}/rest-api/library/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-      },
-      body: JSON.stringify({
-        session_id: sessionID,
-        game_id: game_id,
-      }),
-    });
-
-    if (!libraryAddRes.ok) {
-      return new Response(
-        JSON.stringify({ error: `Failed to add game to library: ${libraryAddRes.status}` }),
-        {
-          status: libraryAddRes.status,
-          headers: { 'content-type': 'application/json' },
-        }
-      );
-    }
-
     // Validate status if provided
     if (typeof gameData.status !== 'undefined') {
       const validStatuses = ['public', 'private', 'archived'];

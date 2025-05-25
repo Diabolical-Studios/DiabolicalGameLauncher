@@ -126,6 +126,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onUpdateNotAvailable: callback => ipcRenderer.on('update-not-available', callback),
   getUnityPackages: () => ipcRenderer.invoke('get-unity-packages'),
   readFile: filePath => ipcRenderer.invoke('read-file', filePath),
+  downloadUnityPackage: (url, defaultFilename) =>
+    ipcRenderer.invoke('download-unity-package', url, defaultFilename),
+  isUnityEditorRunning: () => ipcRenderer.invoke('is-unity-editor-running'),
+  installUnityPackage: packagePath => ipcRenderer.invoke('install-unity-package', packagePath),
+  getLastDownloadedPath: () => ipcRenderer.invoke('get-last-downloaded-path'),
+  deleteFile: filePath => ipcRenderer.invoke('delete-file', filePath),
 });
 
 contextBridge.exposeInMainWorld('githubAPI', {

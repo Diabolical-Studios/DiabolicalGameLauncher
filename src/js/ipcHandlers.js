@@ -4,6 +4,8 @@ const { exec, spawn } = require('child_process');
 const AdmZip = require('adm-zip');
 const { autoUpdater } = require('electron-updater');
 const fs = require('fs');
+const { download } = require('electron-dl');
+const { dialog } = require('electron');
 
 const updater = require('./updater');
 const { downloadGame } = require('./downloadManager');
@@ -472,6 +474,90 @@ function initIPCHandlers() {
       return await fs.promises.readFile(filePath);
     } catch (error) {
       console.error('Error reading file:', error);
+      throw error;
+    }
+  });
+
+  let lastDownloadedPath = null;
+
+  ipcMain.handle('download-unity-package', async (event, url, defaultFilename) => {
+    const window = BrowserWindow.getFocusedWindow();
+    // Create a temporary directory for downloads
+    const tempDir = path.join(app.getPath('temp'), 'diabolical-unity-packages');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    // Generate a unique filename
+    const filename = `${defaultFilename || 'UnityPackage'}-${Date.now()}.unitypackage`;
+    const filePath = path.join(tempDir, filename);
+
+    try {
+      await download(window, url, {
+        directory: tempDir,
+        filename: filename,
+        onProgress: progress => {
+          // Optionally, send progress to renderer
+          event.sender.send('unity-package-download-progress', { percent: progress.percent });
+        },
+      });
+      lastDownloadedPath = filePath;
+      return true;
+    } catch (error) {
+      console.error('Error downloading Unity package:', error);
+      return false;
+    }
+  });
+
+  // Add handler to get last downloaded path
+  ipcMain.handle('get-last-downloaded-path', () => {
+    return lastDownloadedPath;
+  });
+
+  // Add handler to check if Unity Editor is running
+  ipcMain.handle('is-unity-editor-running', async () => {
+    return new Promise(resolve => {
+      exec('tasklist /FI "IMAGENAME eq Unity.exe" /FO CSV', (error, stdout) => {
+        if (error) {
+          console.error('Error checking Unity Editor:', error);
+          resolve({ isRunning: false, pid: null });
+          return;
+        }
+
+        const lines = stdout.split('\n');
+        if (lines.length > 1 && lines[1].toLowerCase().includes('unity.exe')) {
+          // Header + at least one process
+          const processInfo = lines[1].split(',');
+          const pid = processInfo[1]?.replace(/"/g, '');
+          resolve({ isRunning: true, pid: pid || null });
+        } else {
+          resolve({ isRunning: false, pid: null });
+        }
+      });
+    });
+  });
+
+  // Add handler to install Unity package
+  ipcMain.handle('install-unity-package', async (event, packagePath) => {
+    return new Promise((resolve, reject) => {
+      exec(`"${packagePath}"`, error => {
+        if (error) {
+          console.error('Error installing Unity package:', error);
+          reject(error);
+          return;
+        }
+        resolve(true);
+      });
+    });
+  });
+
+  // Add handler to delete file
+  ipcMain.handle('delete-file', async (event, filePath) => {
+    try {
+      await fs.promises.unlink(filePath);
+      return true;
+    } catch (error) {
+      console.error('Error deleting file:', error);
       throw error;
     }
   });

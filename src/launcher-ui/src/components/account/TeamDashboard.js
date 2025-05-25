@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Stack,
   Typography,
@@ -16,29 +16,107 @@ import { colors } from '../../theme/colors';
 import InfiniteGameScroller from '../InfiniteGameScroller';
 import InfiniteGameSkeleton from '../skeleton/InfiniteScrollerSkeleton';
 import FolderIcon from '@mui/icons-material/Folder';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import ImageButton from '../button/ImageButton';
+import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const TeamDashboard = ({ teams, onUpdateTeam }) => {
   const { teamName } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [team, setTeam] = useState(null);
   const [games, setGames] = useState([]);
   const [loadingGames, setLoadingGames] = useState(true);
   const [errorGames, setErrorGames] = useState(null);
   const [githubAvatars, setGithubAvatars] = useState([]);
-  const [tab, setTab] = useState(0);
   const [unityPackages, setUnityPackages] = useState([]);
   const [scanning, setScanning] = useState(false);
-  const [unityTab, setUnityTab] = useState(0);
   const [cdnPackages, setCdnPackages] = useState([]);
   const [loadingCdn, setLoadingCdn] = useState(false);
-  const [uploadingPackage, setUploadingPackage] = useState(null);
+  const [uploadingPackages, setUploadingPackages] = useState(new Set());
   const [uploadedPackages, setUploadedPackages] = useState(() => {
     const saved = localStorage.getItem(`uploadedPackages_${teamName}`);
     return saved ? JSON.parse(saved) : [];
   });
+  const [downloadingPackages, setDownloadingPackages] = useState(new Set());
+
+  // Get current tab from URL
+  const getCurrentTab = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get('tab');
+    const unityTab = searchParams.get('unityTab');
+    return {
+      mainTab: tab === 'packages' ? 1 : 0,
+      unityTab: unityTab === 'download' ? 1 : 0,
+    };
+  };
+
+  const { mainTab, unityTab } = getCurrentTab();
+
+  // Update URL when tabs change
+  const handleTabChange = (_, newValue) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('tab', newValue === 1 ? 'packages' : 'games');
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+  };
+
+  const handleUnityTabChange = (_, newValue) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('unityTab', newValue === 1 ? 'download' : 'upload');
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+  };
+
+  // Function to fetch CDN packages
+  const fetchCdnPackages = async () => {
+    if (!team?.team_id) return;
+
+    setLoadingCdn(true);
+    const sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+
+    if (!sessionID) {
+      console.error('Missing sessionID');
+      setLoadingCdn(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/get-all-packages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          team_id: team.team_id,
+          session_id: sessionID,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Failed to fetch packages: ${errorText}`);
+      }
+
+      const data = await res.json();
+      if (data && Array.isArray(data.packages)) {
+        setCdnPackages(data.packages);
+      } else if (Array.isArray(data)) {
+        setCdnPackages(data);
+      } else {
+        console.error('Received invalid data format:', data);
+        setCdnPackages([]);
+      }
+    } catch (error) {
+      console.error('Error fetching packages:', error);
+      setCdnPackages([]);
+    } finally {
+      setLoadingCdn(false);
+    }
+  };
+
+  // Fetch CDN packages when team is loaded
+  useEffect(() => {
+    fetchCdnPackages();
+  }, [team?.team_id]);
 
   // Update localStorage when uploadedPackages changes
   useEffect(() => {
@@ -107,31 +185,38 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
 
   // Automatically scan for unity packages when Unity Packages tab is opened
   useEffect(() => {
-    if (tab === 1 && unityPackages.length === 0 && !scanning) {
+    if (mainTab === 1 && unityPackages.length === 0 && !scanning) {
       handleScanUnityPackages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
+  }, [mainTab]);
 
-  // Fetch CDN packages when Download tab is opened
-  useEffect(() => {
-    if (tab === 1 && unityTab === 1) {
-      setLoadingCdn(true);
-      fetch('/api/unitypackages')
-        .then(res => res.json())
-        .then(data => setCdnPackages(data))
-        .catch(() => setCdnPackages([]))
-        .finally(() => setLoadingCdn(false));
-    }
-  }, [tab, unityTab]);
-
-  // Upload handler (reuse your app's upload logic)
+  // Upload handler
   const handleUpload = async pkg => {
     try {
-      setUploadingPackage(pkg.path);
+      setUploadingPackages(prev => new Set([...prev, pkg.path]));
       // Get session ID from cookies
       const sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-      // Get presigned upload URL
+
+      // First try to add the package entry
+      const package_id = pkg.name.replace('.unitypackage', '');
+      const addPackageRes = await fetch('/add-package', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          package_id,
+          team_id: team.team_id,
+          session_id: sessionID,
+        }),
+      });
+
+      if (!addPackageRes.ok) {
+        throw new Error('Failed to register package');
+      }
+
+      // If package registration succeeded, proceed with upload
       const res = await fetch('https://cdn.diabolical.services/generateUploadUrl', {
         method: 'POST',
         headers: {
@@ -143,18 +228,20 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
           contentType: 'application/octet-stream',
           size_bytes: pkg.size,
           teamName: team.team_name,
-          fileName: pkg.name.replace('.unitypackage', ''),
+          fileName: package_id,
         }),
       });
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || 'Failed to generate upload URL');
       }
       const { url } = await res.json();
+
       // Read the file using the electron API
       if (window.electronAPI && window.electronAPI.readFile) {
         const fileBuffer = await window.electronAPI.readFile(pkg.path);
-        // Upload the file (no progress tracking)
+        // Upload the file
         await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.onload = resolve;
@@ -163,6 +250,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
           xhr.setRequestHeader('Content-Type', 'application/octet-stream');
           xhr.send(fileBuffer);
         });
+
         // Add to uploaded packages list
         setUploadedPackages(prev => [...prev, pkg.path]);
         if (window.electronAPI) {
@@ -171,6 +259,8 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
             'Your Unity package was uploaded successfully.'
           );
         }
+        // Refresh CDN packages list after successful upload
+        await fetchCdnPackages();
       } else {
         throw new Error('Electron API not available');
       }
@@ -185,17 +275,66 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
         );
       }
     } finally {
-      setUploadingPackage(null);
+      setUploadingPackages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(pkg.path);
+        return newSet;
+      });
     }
   };
 
-  // Download handler (replace with your download logic)
+  // Download handler
   const handleDownload = async pkg => {
-    if (window.electronAPI && window.electronAPI.downloadUnityPackage) {
-      await window.electronAPI.downloadUnityPackage(pkg.url);
-    } else {
-      // Fallback: show notification
-      alert('Download not implemented');
+    try {
+      // Check if Unity Editor is running BEFORE starting the download
+      const { isRunning: isUnityRunning } = await window.electronAPI.isUnityEditorRunning();
+      if (!isUnityRunning) {
+        if (window.electronAPI.showCustomNotification) {
+          window.electronAPI.showCustomNotification(
+            'Unity Editor Not Running',
+            'Please open a Unity project in the Unity Editor before installing the package.'
+          );
+        }
+        return; // DO NOT download
+      }
+
+      setDownloadingPackages(prev => new Set([...prev, pkg.id || pkg.package_id]));
+      const url = pkg.package_url;
+      if (!url) throw new Error('No package_url found for this package.');
+
+      // Download the package
+      const success = await window.electronAPI.downloadUnityPackage(
+        url,
+        `${pkg.package_id || 'UnityPackage'}`
+      );
+
+      if (success) {
+        const packagePath = await window.electronAPI.getLastDownloadedPath();
+        if (packagePath) {
+          await window.electronAPI.installUnityPackage(packagePath);
+          // Delete the package after installation
+          await window.electronAPI.deleteFile(packagePath);
+          if (window.electronAPI.showCustomNotification) {
+            window.electronAPI.showCustomNotification(
+              'Package Imported',
+              'The Unity package was opened. Please complete the import in your Unity Editor.'
+            );
+          }
+        }
+      }
+    } catch (err) {
+      if (window.electronAPI && window.electronAPI.showCustomNotification) {
+        window.electronAPI.showCustomNotification(
+          'Download Failed',
+          err.message || 'Could not download your Unity package.'
+        );
+      }
+    } finally {
+      setDownloadingPackages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(pkg.id || pkg.package_id);
+        return newSet;
+      });
     }
   };
 
@@ -309,8 +448,8 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
         sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3, overflow: 'hidden' }}
       >
         <Tabs
-          value={tab}
-          onChange={(_, newValue) => setTab(newValue)}
+          value={mainTab}
+          onChange={handleTabChange}
           textColor="inherit"
           indicatorColor="primary"
           variant="standard"
@@ -343,7 +482,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
           />
         </Tabs>
         <Divider sx={{ borderColor: colors.border, opacity: 0.5 }} />
-        {tab === 0 ? (
+        {mainTab === 0 ? (
           loadingGames ? (
             <InfiniteGameSkeleton />
           ) : errorGames ? (
@@ -359,7 +498,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, overflow: 'hidden' }}>
             <Tabs
               value={unityTab}
-              onChange={(_, v) => setUnityTab(v)}
+              onChange={handleUnityTabChange}
               textColor="inherit"
               indicatorColor="primary"
               variant="standard"
@@ -383,13 +522,13 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
             >
               <Tab
                 label="Upload"
-                icon={<CloudUploadIcon sx={{ fontSize: 16 }} />}
+                icon={<UploadRoundedIcon sx={{ fontSize: 16 }} />}
                 iconPosition="start"
                 sx={{ minHeight: 32, height: 32, padding: '0 12px', fontSize: 13 }}
               />
               <Tab
                 label="Download"
-                icon={<CloudDownloadIcon sx={{ fontSize: 16 }} />}
+                icon={<DownloadRoundedIcon sx={{ fontSize: 16 }} />}
                 iconPosition="start"
                 sx={{ minHeight: 32, height: 32, padding: '0 12px', fontSize: 13 }}
               />
@@ -412,8 +551,12 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
                       {[...unityPackages]
                         .sort((a, b) => (b.mtime || 0) - (a.mtime || 0))
                         .map(pkg => {
-                          const isUploading = uploadingPackage === pkg.path;
+                          const isUploading = uploadingPackages.has(pkg.path);
                           const isUploaded = uploadedPackages.includes(pkg.path);
+                          const packageId = pkg.name.replace('.unitypackage', '');
+                          const existsInCdn = cdnPackages.some(
+                            cdnPkg => cdnPkg.package_id === packageId
+                          );
                           return (
                             <Box
                               key={pkg.path}
@@ -443,7 +586,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
                                 <Typography variant="body2" sx={{ color: colors.text }}>
-                                  {pkg.name}
+                                  {packageId}
                                 </Typography>
                                 <Typography
                                   variant="caption"
@@ -467,7 +610,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
                                 }}
                               >
                                 {isUploading && <CircularProgress size={18} color="inherit" />}
-                                {isUploaded && (
+                                {(isUploaded || existsInCdn) && (
                                   <CheckCircleIcon sx={{ color: '#8bc34a', fontSize: 20 }} />
                                 )}
                               </Box>
@@ -482,21 +625,11 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
             {unityTab === 1 && (
               <>
                 {loadingCdn && (
-                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
-                    Loading CDN Packages...
-                  </Typography>
-                )}
-                {!loadingCdn && cdnPackages.length === 0 && (
-                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
-                    No CDN Unity Packages found.
-                  </Typography>
-                )}
-                {cdnPackages.length > 0 && (
-                  <Box sx={{ mt: 2, maxHeight: 320, overflowY: 'auto' }}>
+                  <Box sx={{ maxHeight: 320, overflowY: 'auto', padding: 1 }}>
                     <Stack spacing={1}>
-                      {cdnPackages.map(pkg => (
+                      {[1, 2, 3].map((_, index) => (
                         <Box
-                          key={pkg.url || pkg.name}
+                          key={index}
                           sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -505,23 +638,117 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
                             borderRadius: 2,
                             px: 2,
                             py: 1,
+                            justifyContent: 'space-between',
                           }}
                         >
-                          <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
-                          <Typography variant="body2" sx={{ color: colors.text }}>
-                            {pkg.name}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: colors.textSecondary, ml: 1 }}>
-                            {pkg.size ? `${(pkg.size / 1024 / 1024).toFixed(1)} MB` : ''}
-                          </Typography>
-                          <ImageButton
-                            icon={CloudDownloadIcon}
-                            text="Download"
-                            onClick={() => handleDownload(pkg)}
-                            style={{ marginLeft: 'auto', minWidth: 100 }}
-                          />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
+                            <Box
+                              sx={{
+                                width: 200,
+                                height: 20,
+                                background: 'rgba(255,255,255,0.1)',
+                                borderRadius: 1,
+                              }}
+                            />
+                            <Box
+                              sx={{
+                                width: 150,
+                                height: 16,
+                                background: 'rgba(255,255,255,0.1)',
+                                borderRadius: 1,
+                              }}
+                            />
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              minWidth: 28,
+                              justifyContent: 'flex-end',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 20,
+                                height: 20,
+                                background: 'rgba(255,255,255,0.1)',
+                                borderRadius: 1,
+                              }}
+                            />
+                          </Box>
                         </Box>
                       ))}
+                    </Stack>
+                  </Box>
+                )}
+                {!loadingCdn && cdnPackages.length === 0 && (
+                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
+                    No CDN Unity Packages found.
+                  </Typography>
+                )}
+                {!loadingCdn && cdnPackages.length > 0 && (
+                  <Box sx={{ maxHeight: 320, overflowY: 'auto', padding: 1 }}>
+                    <Stack spacing={1}>
+                      {cdnPackages.map(pkg => {
+                        const isDownloading = downloadingPackages.has(pkg.id || pkg.package_id);
+                        return (
+                          <Box
+                            key={pkg.id || pkg.package_id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 2,
+                              background: 'rgba(255,255,255,0.02)',
+                              borderRadius: 2,
+                              px: 2,
+                              py: 1,
+                              cursor: isDownloading ? 'default' : 'pointer',
+                              opacity: isDownloading ? 0.7 : 1,
+                              pointerEvents: isDownloading ? 'none' : 'auto',
+                              justifyContent: 'space-between',
+                              transition:
+                                'outline 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)',
+                              '&:hover': {
+                                outline: '1px solid #fff',
+                                boxShadow: '0 0 0 2px rgba(255,255,255,0.3)',
+                              },
+                            }}
+                            onClick={() => {
+                              if (!isDownloading) handleDownload(pkg);
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
+                              <Typography variant="body2" sx={{ color: colors.text }}>
+                                {pkg.package_id}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ color: colors.textSecondary, ml: 1 }}
+                              >
+                                {new Date(pkg.created_at).toLocaleString()}
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                minWidth: 28,
+                                justifyContent: 'flex-end',
+                              }}
+                            >
+                              {isDownloading ? (
+                                <CircularProgress size={18} color="inherit" />
+                              ) : (
+                                <DownloadRoundedIcon
+                                  sx={{ color: colors.textSecondary, fontSize: 20 }}
+                                />
+                              )}
+                            </Box>
+                          </Box>
+                        );
+                      })}
                     </Stack>
                   </Box>
                 )}
