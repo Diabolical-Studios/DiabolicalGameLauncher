@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Stack,
@@ -67,7 +67,7 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
   };
 
   // Function to fetch CDN packages
-  const fetchCdnPackages = async () => {
+  const fetchCdnPackages = useCallback(async () => {
     if (!team?.team_id) return;
 
     setLoadingCdn(true);
@@ -111,12 +111,12 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
     } finally {
       setLoadingCdn(false);
     }
-  };
+  }, [team?.team_id]);
 
   // Fetch CDN packages when team is loaded
   useEffect(() => {
     fetchCdnPackages();
-  }, [team?.team_id]);
+  }, [fetchCdnPackages]);
 
   // Update localStorage when uploadedPackages changes
   useEffect(() => {
