@@ -137,7 +137,7 @@ const App = () => {
         <AppLayout>
           <BackgroundAnimation />
           {!isMobile && <NavBar />}
-          <StatusBarAndContentPanel>
+          <StatusBarAndContentPanel isMobile={isMobile}>
             <HorizontalFlex>
               <StatusBar />
               <AppCloseRefreshButtons></AppCloseRefreshButtons>
