@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack, Zoom } from '@mui/material';
 import Grid from '../Grid';
 import TeamCard from './TeamCard';
 import TeamsSkeleton from '../skeleton/TeamsSkeleton';
 
 const Teams = ({ teams, loading, error, onUpdateTeam }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (loading) return <TeamsSkeleton />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
@@ -14,10 +25,14 @@ const Teams = ({ teams, loading, error, onUpdateTeam }) => {
         <p>You are not in any teams.</p>
       ) : (
         <Grid
-          className={'p-3 m-0 text-left overflow-auto '}
+          className={'p-3 m-0 text-left overflow-auto'}
           style={{
             listStyle: 'none',
-            gridTemplateColumns: 'repeat(3, minmax(250px, 1fr))',
+            gridTemplateColumns: isMobile
+              ? 'repeat(1, minmax(250px, 1fr))'
+              : 'repeat(3, minmax(250px, 1fr))',
+            maxHeight: isMobile ? '100%' : undefined,
+            overflowY: isMobile ? 'auto' : undefined,
           }}
         >
           {teams.map((team, index) => (

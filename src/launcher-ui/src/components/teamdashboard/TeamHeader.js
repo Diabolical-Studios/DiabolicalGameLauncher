@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stack, Typography, Avatar, Button, Box } from '@mui/material';
+import { Stack, Typography, Avatar, Button, Box, Tooltip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { colors } from '../../theme/colors';
+import axios from 'axios';
 
 const TeamHeader = ({ team, githubAvatars }) => {
+  const [githubUsernames, setGithubUsernames] = useState({});
+
+  useEffect(() => {
+    if (!githubAvatars || githubAvatars.length === 0) return;
+
+    // Fetch GitHub usernames from Diabolical API
+    const fetchGitHubUsernames = async () => {
+      const userPromises = githubAvatars.map(async member => {
+        try {
+          const response = await axios.get(
+            `https://api.diabolical.studio/rest-api/users/github/${member.id}`
+          );
+          return { id: member.id, username: response.data.username };
+        } catch (error) {
+          console.error(`Error fetching GitHub username for ID ${member.id}:`, error);
+          return { id: member.id, username: `Unknown-${member.id}` };
+        }
+      });
+
+      const users = await Promise.all(userPromises);
+      const usersMap = Object.fromEntries(users.map(user => [user.id, user.username]));
+      setGithubUsernames(usersMap);
+    };
+
+    fetchGitHubUsernames();
+  }, [githubAvatars]);
+
   return (
     <Stack width="100%" gap={2}>
       <Button
@@ -79,17 +107,28 @@ const TeamHeader = ({ team, githubAvatars }) => {
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center">
             {githubAvatars.map(member => (
-              <Avatar
+              <Tooltip
                 key={member.id}
-                alt={`GitHub User ${member.id}`}
-                src={member.avatar_url}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderColor: colors.border,
-                  background: colors.background,
-                }}
-              />
+                title={githubUsernames[member.id] || `GitHub User ${member.id}`}
+                arrow
+                placement="top"
+              >
+                <Avatar
+                  alt={githubUsernames[member.id] || `GitHub User ${member.id}`}
+                  src={member.avatar_url}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderColor: colors.border,
+                    background: colors.background,
+                    transition: 'transform 0.2s ease-in-out',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      zIndex: 2,
+                    },
+                  }}
+                />
+              </Tooltip>
             ))}
           </Stack>
         </Box>

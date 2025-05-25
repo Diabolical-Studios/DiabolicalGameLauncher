@@ -150,8 +150,8 @@ const SettingsPage = () => {
                 }}
               >
                 <MenuItem value="1280x720">1280x720</MenuItem>
-                <MenuItem value="1920x1080">1920x1080</MenuItem>
-                <MenuItem value="2560x1440">2560x1440</MenuItem>
+                {/*            <MenuItem value="1920x1080">1920x1080</MenuItem>
+                <MenuItem value="2560x1440">2560x1440</MenuItem> */}
               </Select>
             </FormControl>
           </Stack>

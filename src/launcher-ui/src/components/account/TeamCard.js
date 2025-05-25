@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Avatar, AvatarGroup, Stack } from '@mui/material';
+import { Avatar, AvatarGroup, Stack, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import OnlyImageButton from '../button/OnlyImageButton';
 import InfiniteGameScroller from '../InfiniteGameScroller';
@@ -7,14 +7,17 @@ import EditTeamDialog from './dialogs/EditTeamDialog';
 import InfiniteGameSkeleton from '../skeleton/InfiniteScrollerSkeleton';
 import { colors } from '../../theme/colors';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const TeamCard = ({ team, onUpdateTeam }) => {
   const [games, setGames] = useState([]);
   const [loadingGames, setLoadingGames] = useState(true);
   const [errorGames, setErrorGames] = useState(null);
   const [githubAvatars, setGithubAvatars] = useState([]);
+  const [githubUsernames, setGithubUsernames] = useState({});
   const [editOpen, setEditOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [iconVersion, setIconVersion] = useState(null);
 
   const fetchGames = useMemo(
     () => async () => {
@@ -56,9 +59,33 @@ const TeamCard = ({ team, onUpdateTeam }) => {
     }));
 
     setGithubAvatars(avatars);
+
+    // Fetch GitHub usernames from Diabolical API
+    const fetchGitHubUsernames = async () => {
+      const userPromises = team.github_ids.map(async id => {
+        try {
+          const response = await axios.get(
+            `https://api.diabolical.studio/rest-api/users/github/${id}`
+          );
+          return { id, username: response.data.username };
+        } catch (error) {
+          console.error(`Error fetching GitHub username for ID ${id}:`, error);
+          return { id, username: `Unknown-${id}` };
+        }
+      });
+
+      const users = await Promise.all(userPromises);
+      const usersMap = Object.fromEntries(users.map(user => [user.id, user.username]));
+      setGithubUsernames(usersMap);
+    };
+
+    fetchGitHubUsernames();
   }, [team.github_ids]);
 
   const handleSaveTeamChanges = updatedTeam => {
+    if (updatedTeam.team_icon_url !== team.team_icon_url) {
+      setIconVersion(Date.now());
+    }
     console.log('✅ Updating Team in UI:', updatedTeam);
 
     if (typeof onUpdateTeam === 'function') {
@@ -106,7 +133,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
             className="hover-effect"
           >
             <Avatar
-              src={`${team.team_icon_url}?t=${Date.now()}`}
+              src={team.team_icon_url + (iconVersion ? `?t=${iconVersion}` : '')}
               alt={team.team_name}
               variant="square"
               sx={{ width: 32, height: 32, '& img': { objectFit: 'scale-down' } }}
@@ -134,16 +161,31 @@ const TeamCard = ({ team, onUpdateTeam }) => {
                 width: 32,
                 height: 32,
                 borderColor: colors.border,
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  zIndex: 2,
+                },
               },
               '& .MuiAvatarGroup-avatar': {
-                backgroundColor: colors.background, // 👈 Change this to your desired color
-                color: colors.text, // Text color
+                backgroundColor: colors.background,
+                color: colors.text,
                 fontSize: '14px',
               },
             }}
           >
             {githubAvatars.map(member => (
-              <Avatar key={member.id} alt={`GitHub User ${member.id}`} src={member.avatar_url} />
+              <Tooltip
+                key={member.id}
+                title={githubUsernames[member.id] || `GitHub User ${member.id}`}
+                arrow
+                placement="top"
+              >
+                <Avatar
+                  alt={githubUsernames[member.id] || `GitHub User ${member.id}`}
+                  src={member.avatar_url}
+                />
+              </Tooltip>
             ))}
           </AvatarGroup>
         </Stack>
