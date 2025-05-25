@@ -18,7 +18,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <div
-      className={`overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'} w-full h-full p-3 gap-3 rounded-sm ${showBorder ? 'border' : ''}`}
+      className={`overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'} w-full h-full p-3 gap-3 rounded-sm${!isMobile && showBorder ? ' border' : ''}`}
       style={{
         maxHeight: isMobile ? 'none' : '720px',
         maxWidth: isMobile ? 'none' : '1280px',
@@ -26,7 +26,7 @@ const AppLayout = ({ children }) => {
         height: isMobile ? '100svh' : undefined,
         position: 'relative',
         overflowY: 'hidden',
-        borderColor: colors.border,
+        borderColor: !isMobile && showBorder ? colors.border : undefined,
       }}
     >
       {children}
