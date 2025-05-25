@@ -94,3 +94,23 @@ path = "/get-library-games"
 [[edge_functions]]
 function = "get-user-quota"
 path = "/get-user-quota"
+
+[[edge_functions]]
+function = "get-all-packages"
+path = "/get-all-packages"
+
+[[edge_functions]]
+function = "get-package-by-id"
+path = "/get-package-by-id"
+
+[[edge_functions]]
+function = "add-package"
+path = "/add-package"
+
+[[edge_functions]]
+function = "update-package"
+path = "/update-package"
+
+[[edge_functions]]
+function = "delete-package"
+path = "/delete-package"

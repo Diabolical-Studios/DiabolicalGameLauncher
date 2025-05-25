@@ -1,8 +1,29 @@
 const cacheManager = require('./cacheManager');
+const windowStore = require('./windowStore');
 
 async function getLatestGameVersion(gameId) {
   try {
-    // Get the cached games data
+    // First try to get version from localStorage key 'game_<gameid>'
+    const mainWindow = windowStore.getMainWindow();
+    if (mainWindow) {
+      const gameDetailsStr = await mainWindow.webContents.executeJavaScript(
+        `localStorage.getItem('game_${gameId}')`
+      );
+      if (gameDetailsStr) {
+        try {
+          const gameDetails = JSON.parse(gameDetailsStr);
+          if (gameDetails && gameDetails.version) {
+            console.log(`Using localStorage version for ${gameId}: ${gameDetails.version}`);
+            const latestVersionUrl = `https://cdn.diabolical.services/R2/${gameId}/Versions/Build-StandaloneWindows64-${gameDetails.version}.zip`;
+            return { latestVersion: gameDetails.version, latestVersionUrl };
+          }
+        } catch (e) {
+          console.warn(`Could not parse localStorage game details for ${gameId}`);
+        }
+      }
+    }
+
+    // Fallback to regular cached games
     const cachedGames = await cacheManager.readCachedGames();
     if (!Array.isArray(cachedGames)) {
       throw new Error('Invalid cached games data');

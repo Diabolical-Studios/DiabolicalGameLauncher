@@ -20,12 +20,14 @@ async function downloadGame(event, gameId) {
     console.log(`Starting download for: ${gameId}`);
     const { latestVersion, latestVersionUrl } = await getLatestGameVersion(gameId);
     if (!latestVersion || !latestVersionUrl) {
+      const errorMsg = 'Game version information not found. Please try again later.';
       getMainWindow()?.webContents.send('show-notification', {
         title: 'Game Unavailable',
-        body: 'Please try again later',
+        body: errorMsg,
         duration: 5000,
       });
-      throw new Error('Missing version info');
+      event.sender.send('download-error', gameId, errorMsg);
+      throw new Error(errorMsg);
     }
 
     // 1) fetch a presigned GET URL from our Worker
@@ -48,7 +50,14 @@ async function downloadGame(event, gameId) {
     });
     if (!presignResp.ok) {
       const err = await presignResp.text();
-      throw new Error(`Presign failed: ${err}`);
+      const errorMsg = `Failed to generate download URL: ${err}`;
+      getMainWindow()?.webContents.send('show-notification', {
+        title: 'Download Failed',
+        body: errorMsg,
+        duration: 5000,
+      });
+      event.sender.send('download-error', gameId, errorMsg);
+      throw new Error(errorMsg);
     }
     const { url: downloadUrl } = await presignResp.json();
     console.log('Got presigned URL:', downloadUrl);
@@ -78,6 +87,17 @@ async function downloadGame(event, gameId) {
     });
   } catch (err) {
     console.error('Download error:', err);
+    // Only show notification if it hasn't been shown already
+    if (
+      !err.message.includes('Game version information not found') &&
+      !err.message.includes('Failed to generate download URL')
+    ) {
+      getMainWindow()?.webContents.send('show-notification', {
+        title: 'Download Failed',
+        body: err.message || 'An unexpected error occurred during download',
+        duration: 5000,
+      });
+    }
     event.sender.send('download-error', gameId, err.message);
     throw err;
   }

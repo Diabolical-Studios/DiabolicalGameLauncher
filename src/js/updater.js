@@ -36,17 +36,29 @@ function showCustomNotification(targetWindow, title, body, gameId, duration = 50
 // Checks the games current and most recent version to determine if there are updates
 async function checkGameUpdates(gameId, currentVersion) {
   try {
-    const { latestVersion } = await getLatestGameVersion(gameId);
+    const result = await getLatestGameVersion(gameId);
+    if (!result || !result.latestVersion) {
+      console.warn(`No version info found for ${gameId}, skipping update check.`);
+      return;
+    }
+    const { latestVersion } = result;
 
-    if (latestVersion && latestVersion !== currentVersion) {
+    if (latestVersion !== currentVersion) {
       console.log(`New game update available for ${gameId}: Version ${latestVersion}`);
-
       showCustomNotification(mainWindow, `Update for ${gameId}`, `v${latestVersion}`, gameId);
     } else {
       console.log(`${gameId} is up-to-date. Current version: ${currentVersion}`);
     }
   } catch (error) {
-    console.error(`Error checking game updates for ${gameId}:`, error);
+    if (
+      error &&
+      typeof error.message === 'string' &&
+      error.message.includes('No version information found for game')
+    ) {
+      console.warn(`No version info found for ${gameId}, skipping update check.`);
+    } else {
+      console.error(`Error checking game updates for ${gameId}:`, error);
+    }
   }
 }
 

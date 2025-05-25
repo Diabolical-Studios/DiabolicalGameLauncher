@@ -1,3 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable no-undef */
+
 export default async (request, context) => {
   console.log('=== Netlify Edge Function Triggered ===');
 

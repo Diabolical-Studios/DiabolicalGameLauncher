@@ -21,6 +21,7 @@ export const GameDetails = ({
   diskUsage,
   activeDownloads,
   applyingUpdate,
+  startingUpdate,
   onPlay,
   onDownload,
   onUpdate,
@@ -45,6 +46,7 @@ export const GameDetails = ({
 
   const downloadProgress = activeDownloads[game.game_id];
   const isUpdating = applyingUpdate[game.game_id];
+  const isStartingUpdate = startingUpdate && startingUpdate[game.game_id];
 
   // Determine button state and text
   let buttonText = 'Play';
@@ -55,6 +57,11 @@ export const GameDetails = ({
     buttonText = 'Stop';
     buttonIcon = require('@mui/icons-material/Stop').default;
     buttonOnClick = onStop;
+  } else if (isStartingUpdate) {
+    buttonText = 'Starting update...';
+    buttonIcon = UpdateIcon;
+    buttonOnClick = () => {};
+    buttonDisabled = true;
   } else if (downloadProgress) {
     buttonText = updateStep
       ? `${updateStep} ${downloadProgress.percentageString || ''}`.trim()
@@ -151,7 +158,7 @@ export const GameDetails = ({
             text={buttonText}
             icon={buttonIcon}
             onClick={buttonOnClick}
-            style={{ width: 200, height: 48, padding: '12px 24px' }}
+            style={{ minWidth: 200, height: 48, padding: '12px 24px' }}
             disabled={buttonDisabled}
           />
         </Stack>
