@@ -284,7 +284,7 @@ export const GameCardComponent = ({
             isRunning
               ? 'Stop'
               : isInLibrary
-                ? 'Go to Library'
+                ? 'View in Library'
                 : isAddingToLibrary
                   ? 'Adding...'
                   : 'Add to Library'
@@ -293,7 +293,7 @@ export const GameCardComponent = ({
             isRunning
               ? require('@mui/icons-material/Stop').default
               : isInLibrary
-                ? require('@mui/icons-material/LibraryBooks').default
+                ? require('@mui/icons-material/LaunchRounded').default
                 : require('@mui/icons-material/Add').default
           }
           onClick={handleButtonClick}

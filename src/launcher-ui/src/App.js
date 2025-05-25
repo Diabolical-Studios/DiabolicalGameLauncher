@@ -82,6 +82,8 @@ const App = () => {
     customCursor: false,
   });
 
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     // Load initial theme from settings
     if (window.electronAPI) {
@@ -95,6 +97,15 @@ const App = () => {
         setSettings(updatedSettings);
       });
     }
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Apply cursor setting changes immediately
@@ -125,7 +136,7 @@ const App = () => {
       <Router>
         <AppLayout>
           <BackgroundAnimation />
-          <NavBar />
+          {!isMobile && <NavBar />}
           <StatusBarAndContentPanel>
             <HorizontalFlex>
               <StatusBar />
@@ -141,6 +152,7 @@ const App = () => {
               </Routes>
             </ContentPanel>
           </StatusBarAndContentPanel>
+          {isMobile && <NavBar />}
           <Toaster />
         </AppLayout>
       </Router>

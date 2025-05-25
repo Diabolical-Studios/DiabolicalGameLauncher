@@ -1,6 +1,6 @@
 import React from 'react';
 
-const VerticalFlex = ({ children }) => {
+const VerticalFlex = ({ children, style = {} }) => {
   return (
     <div
       style={{
@@ -14,6 +14,7 @@ const VerticalFlex = ({ children }) => {
         width: 'min-content',
         zIndex: 9998,
         alignItems: 'center',
+        ...style,
       }}
     >
       {children}
