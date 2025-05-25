@@ -230,7 +230,13 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
 
   return (
     <Box
-      sx={{ position: 'relative', mb: 3, height: '400px' }}
+      sx={{
+        position: 'relative',
+        mb: 3,
+        height: '400px',
+        overflow: 'hidden',
+        borderRadius: '4px',
+      }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -243,6 +249,7 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
             left: 0,
             width: '100%',
             height: '100%',
+            overflow: 'hidden',
             opacity: index === currentIndex ? 1 : 0,
             transition: 'opacity 0.5s ease-in-out',
             zIndex: index === currentIndex ? 1 : 0,

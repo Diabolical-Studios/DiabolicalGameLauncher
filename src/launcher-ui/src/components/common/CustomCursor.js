@@ -99,7 +99,8 @@ const CustomCursor = () => {
           e.target.closest('.download-link') ||
           e.target.closest('.settings-section-content') ||
           e.target.closest('.MuiButtonBase-root') ||
-          e.target.closest('.MuiMenuItem-root');
+          e.target.closest('.MuiMenuItem-root') ||
+          e.target.closest('.MuiAvatar-root');
 
     if (target) {
       hoveredElement.current = target;

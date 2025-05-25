@@ -20,8 +20,10 @@ const AppLayout = ({ children }) => {
     <div
       className={`overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'} w-full h-full p-3 gap-3 rounded-sm${!isMobile && showBorder ? ' border' : ''}`}
       style={{
-        maxHeight: isMobile ? 'none' : '720px',
-        maxWidth: isMobile ? 'none' : '1280px',
+        maxHeight:
+          !window.electronAPI && isMobile ? 'none' : !window.electronAPI ? '720px' : undefined,
+        maxWidth:
+          !window.electronAPI && isMobile ? 'none' : !window.electronAPI ? '1280px' : undefined,
         width: isMobile ? '100svw' : undefined,
         height: isMobile ? '100svh' : undefined,
         position: 'relative',

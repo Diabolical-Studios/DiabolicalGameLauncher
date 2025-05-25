@@ -13,6 +13,8 @@ import {
   Tabs,
   TextField,
   Typography,
+  Autocomplete,
+  CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
@@ -33,7 +35,9 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
   const [teamName, setTeamName] = useState(team.team_name);
-  const [newMember, setNewMember] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [githubIds, setGithubIds] = useState([...team.github_ids]);
   const [githubUsers, setGithubUsers] = useState({});
   const [uploading, setUploading] = useState(false);
@@ -51,8 +55,8 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
   }, [teamName, githubIds, team]);
 
   useEffect(() => {
-    const fetchGitHubUsernames = async () => {
-      const userPromises = githubIds.map(async id => {
+    const fetchInitialGitHubUsernames = async () => {
+      const userPromises = team.github_ids.map(async id => {
         try {
           const response = await axios.get(
             `https://api.diabolical.studio/rest-api/users/github/${id}`
@@ -69,13 +73,103 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
       setGithubUsers(usersMap);
     };
 
-    fetchGitHubUsernames();
-  }, [githubIds]);
+    fetchInitialGitHubUsernames();
+  }, [team.github_ids]);
 
-  const handleAddMember = () => {
-    if (newMember.trim() !== '' && !githubIds.includes(newMember)) {
-      setGithubIds([...githubIds, newMember]);
-      setNewMember('');
+  const searchGitHubUsers = async query => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    // Check if the input is a numeric GitHub ID
+    if (/^\d+$/.test(query)) {
+      try {
+        const response = await axios.get(`https://api.github.com/user/${query}`, {
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+          },
+        });
+
+        // Create a single result for the ID
+        setSearchResults([
+          {
+            username: response.data.login,
+            github_id: response.data.id,
+            avatar_url: response.data.avatar_url,
+            html_url: response.data.html_url,
+          },
+        ]);
+        return;
+      } catch (error) {
+        console.error('Error fetching GitHub user by ID:', error);
+        setSearchResults([]);
+        return;
+      }
+    }
+
+    // If not a numeric ID, search by username
+    setIsSearching(true);
+    try {
+      const response = await axios.get(
+        `https://api.github.com/search/users?q=${encodeURIComponent(query)}&per_page=5`,
+        {
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+          },
+        }
+      );
+
+      const users = response.data.items.map(user => ({
+        username: user.login,
+        github_id: user.id,
+        avatar_url: user.avatar_url,
+        html_url: user.html_url,
+      }));
+
+      setSearchResults(users);
+    } catch (error) {
+      console.error('Error searching GitHub users:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleAddMember = async user => {
+    // If user is a string (direct ID input), convert it to the expected format
+    if (typeof user === 'string' && /^\d+$/.test(user)) {
+      if (!githubIds.includes(user)) {
+        try {
+          const response = await axios.get(
+            `https://api.diabolical.studio/rest-api/users/github/${user}?t=${Date.now()}`
+          );
+          setGithubUsers(prev => ({ ...prev, [user]: response.data.username }));
+        } catch (error) {
+          console.error(`Error fetching GitHub username for ID ${user}:`, error);
+          setGithubUsers(prev => ({ ...prev, [user]: `Unknown-${user}` }));
+        }
+        setGithubIds([...githubIds, user]);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+      return;
+    }
+
+    // Handle object format (from search results)
+    if (user && !githubIds.includes(user.github_id.toString())) {
+      try {
+        const response = await axios.get(
+          `https://api.diabolical.studio/rest-api/users/github/${user.github_id}?t=${Date.now()}`
+        );
+        setGithubUsers(prev => ({ ...prev, [user.github_id]: response.data.username }));
+      } catch (error) {
+        console.error(`Error fetching GitHub username for ID ${user.github_id}:`, error);
+        setGithubUsers(prev => ({ ...prev, [user.github_id]: `Unknown-${user.github_id}` }));
+      }
+      setGithubIds([...githubIds, user.github_id.toString()]);
+      setSearchQuery('');
+      setSearchResults([]);
     }
   };
 
@@ -257,27 +351,100 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
               {activeTab === 1 && (
                 <Stack spacing={2}>
                   <Stack direction="row" spacing={1}>
-                    <TextField
-                      label="GitHub ID"
-                      color="secondary"
-                      focused
+                    <Autocomplete
+                      freeSolo
                       fullWidth
-                      placeholder="151235"
-                      value={newMember}
-                      onChange={e => setNewMember(e.target.value)}
+                      options={searchResults}
+                      getOptionLabel={option => {
+                        if (typeof option === 'string') return option;
+                        return option.username || '';
+                      }}
+                      loading={isSearching}
+                      value={null}
+                      inputValue={searchQuery}
+                      onInputChange={(event, newValue) => {
+                        setSearchQuery(newValue);
+                        searchGitHubUsers(newValue);
+                      }}
+                      onChange={(event, newValue) => {
+                        if (newValue) {
+                          handleAddMember(newValue);
+                        }
+                      }}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          label="Search GitHub Users"
+                          color="secondary"
+                          focused
+                          placeholder="Search by username or enter GitHub ID..."
+                          sx={{
+                            borderRadius: '8px',
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: colors.background,
+                              color: colors.text,
+                              border: 'none',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: '1px solid' + colors.border + '!important',
+                              borderRadius: '4px',
+                            },
+                            '& .MuiFormLabel-root': {
+                              color: '#444444 !important',
+                            },
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (
+                              <>
+                                {isSearching ? (
+                                  <CircularProgress color="inherit" size={20} />
+                                ) : null}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                      renderOption={(props, option) => (
+                        <Box
+                          component="li"
+                          {...props}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            padding: '8px 16px',
+                          }}
+                        >
+                          <Avatar
+                            src={option.avatar_url}
+                            alt={option.username}
+                            sx={{ width: 24, height: 24 }}
+                          />
+                          <Stack>
+                            <Typography sx={{ color: colors.text }}>{option.username}</Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: colors.textSecondary,
+                                fontSize: '0.75rem',
+                              }}
+                            >
+                              ID: {option.github_id}
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      )}
                       sx={{
-                        borderRadius: '8px',
-                        '& .MuiOutlinedInput-root': {
+                        '& .MuiAutocomplete-listbox': {
                           backgroundColor: colors.background,
-                          color: colors.text,
-                          border: 'none',
+                          border: '1px solid' + colors.border,
                         },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          border: '1px solid' + colors.border + '!important',
-                          borderRadius: '4px',
-                        },
-                        '& .MuiFormLabel-root': {
-                          color: '#444444 !important',
+                        '& .MuiAutocomplete-option': {
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          },
                         },
                       }}
                     />
@@ -288,7 +455,19 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                         outline: '1px solid' + colors.border,
                         borderRadius: '4px',
                       }}
-                      onClick={handleAddMember}
+                      onClick={() => {
+                        // Check if input is a numeric ID
+                        if (/^\d+$/.test(searchQuery)) {
+                          handleAddMember(searchQuery);
+                        } else {
+                          const selectedUser = searchResults.find(
+                            user => user.username === searchQuery
+                          );
+                          if (selectedUser) {
+                            handleAddMember(selectedUser);
+                          }
+                        }
+                      }}
                       style={{ height: 'inherit' }}
                       aria-label="add"
                       color="primary"
@@ -304,6 +483,11 @@ const EditTeamDialog = ({ open, handleClose, team, onSave }) => {
                         width: 32,
                         height: 32,
                         borderColor: colors.border,
+                        transition: 'transform 0.2s ease-in-out',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          zIndex: 2,
+                        },
                       },
                       '& .MuiAvatarGroup-avatar': {
                         backgroundColor: colors.background,
