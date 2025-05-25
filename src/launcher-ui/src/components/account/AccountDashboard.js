@@ -11,12 +11,13 @@ import Divider from '../Divider';
 import ImageButton from '../button/ImageButton';
 import DiabolicalSpeedDial from '../button/DiabolicalSpeedDial';
 import GroupsIcon from '@mui/icons-material/Groups';
-import VideogameAssetIcon from '@mui/icons-material/VideogameAsset';
+import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
 import { colors } from '../../theme/colors';
 import AccountSettings, { services, useConnectedProviders } from './AccountSettings';
 import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
 import TeamDashboard from './TeamDashboard';
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 
 export default function AccountDashboard({ username }) {
   const [teams, setTeams] = useState([]);
@@ -136,13 +137,13 @@ export default function AccountDashboard({ username }) {
         <ul className="flex flex-col gap-3 h-full w-1/5 p-3 m-0 justify-between">
           <Stack direction="column" spacing="12px">
             <Link to="/account/dashboard/settings">
-              <ImageButton style={{ width: '100%' }} text="Account" icon={GroupsIcon} />
+              <ImageButton style={{ width: '100%' }} text="Account" icon={PersonRoundedIcon} />
             </Link>
             <Link to="/account/dashboard/teams">
               <ImageButton style={{ width: '100%' }} text="Teams" icon={GroupsIcon} />
             </Link>
             <Link to="/account/dashboard/games">
-              <ImageButton style={{ width: '100%' }} text="Games" icon={VideogameAssetIcon} />
+              <ImageButton style={{ width: '100%' }} text="Games" icon={SportsEsportsRoundedIcon} />
             </Link>
           </Stack>
           <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />

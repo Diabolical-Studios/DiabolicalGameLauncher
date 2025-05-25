@@ -37,7 +37,12 @@ const LoginScreen = () => {
         color: colors.text,
       }}
     >
-      <Typography variant="h2" fontWeight={700} gutterBottom sx={{ fontSize: { xs: '32px' } }}>
+      <Typography
+        variant="h2"
+        fontWeight={700}
+        gutterBottom
+        sx={{ fontSize: { xs: '32px' }, height: 'fit-content' }}
+      >
         Power Up Your Indie Games
       </Typography>
       <Typography
