@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { AccountIcon, ChangelogIcon, HomeIcon, LibraryIcon, SettingsIcon } from './icons';
 import VerticalFlex from './layout/VerticalFlex';
 import OpenExternalLink from './link/OpenExternalLink';
 import { colors } from '../theme/colors';
 import { IconButton, styled, Zoom } from '@mui/material';
+import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 
 // Create a styled IconButton for our nav items
 const StyledNavButton = styled(IconButton, {
@@ -37,31 +41,51 @@ const StyledNavButton = styled(IconButton, {
 }));
 
 const NavBar = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   //Where we declare routes
   const menuItems = [
-    { to: '/account', icon: AccountIcon, alt: 'Account' },
-    { to: '/library', icon: LibraryIcon, alt: 'Library' },
-    { to: '/', icon: HomeIcon, alt: 'Home' },
-    { to: '/settings', icon: SettingsIcon, alt: 'Settings' },
-    { to: '/changelog', icon: ChangelogIcon, alt: 'Changelog' },
+    { to: '/account', icon: PersonRoundedIcon, alt: 'Account' },
+    { to: '/library', icon: SportsEsportsRoundedIcon, alt: 'Library' },
+    { to: '/', icon: HomeRoundedIcon, alt: 'Home' },
+    { to: '/settings', icon: SettingsRoundedIcon, alt: 'Settings' },
+    { to: '/changelog', icon: InfoRoundedIcon, alt: 'Changelog' },
   ];
 
   return (
-    <VerticalFlex>
-      <Zoom in={true} timeout={200}>
-        <div>
-          <OpenExternalLink url="https://diabolical.studio">
-            <img
-              className="w-full aspect-square cursor-pointer hover:scale-105 transition-transform"
-              src="/android-chrome-192x192.png"
-              alt="Icon"
-              draggable="false"
-            />
-          </OpenExternalLink>
-        </div>
-      </Zoom>
+    <VerticalFlex
+      className={isMobile ? 'flex-row justify-center items-center gap-2' : ''}
+      style={isMobile ? { height: 'fit-content' } : {}}
+    >
+      {!isMobile && (
+        <Zoom in={true} timeout={200}>
+          <div>
+            <OpenExternalLink url="https://diabolical.studio">
+              <img
+                className="w-full aspect-square cursor-pointer hover:scale-105 transition-transform"
+                src="/android-chrome-192x192.png"
+                alt="Icon"
+                draggable="false"
+              />
+            </OpenExternalLink>
+          </div>
+        </Zoom>
+      )}
 
-      <ul className="flex flex-col align-center m-0 p-0 gap-3 w-fit">
+      <ul
+        className={`flex ${isMobile ? 'flex-row' : 'flex-col'} align-center m-0 p-0 gap-3 w-fit `}
+      >
         {menuItems.map((item, index) => (
           <Zoom
             key={item.to}
@@ -79,7 +103,9 @@ const NavBar = () => {
               >
                 {({ isActive }) => (
                   <StyledNavButton isActive={isActive}>
-                    <item.icon fill={isActive ? '#ffffff' : '#4b4b4b'} alt={item.alt} />
+                    <item.icon
+                      sx={{ color: isActive ? '#ffffff' : '#4b4b4b', fontSize: isMobile ? 24 : 28 }}
+                    />
                   </StyledNavButton>
                 )}
               </NavLink>

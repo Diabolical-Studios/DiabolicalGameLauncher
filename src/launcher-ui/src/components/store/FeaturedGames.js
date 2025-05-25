@@ -288,14 +288,14 @@ export const FeaturedGames = ({ games, libraryGames, runningGames, onLibraryUpda
                   runningGames[game.game_id]
                     ? 'Stop'
                     : libraryGames.includes(game.game_id)
-                      ? 'Go to Library'
+                      ? 'View in Library'
                       : 'Add to Library'
                 }
                 icon={
                   runningGames[game.game_id]
                     ? require('@mui/icons-material/Stop').default
                     : libraryGames.includes(game.game_id)
-                      ? require('@mui/icons-material/LibraryBooks').default
+                      ? require('@mui/icons-material/LaunchRounded').default
                       : require('@mui/icons-material/Add').default
                 }
                 onClick={async () => {

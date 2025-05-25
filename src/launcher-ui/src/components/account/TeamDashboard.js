@@ -1,24 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import {
-  Stack,
-  Typography,
-  Avatar,
-  Button,
-  Divider,
-  Box,
-  Tabs,
-  Tab,
-  CircularProgress,
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Stack, Tabs, Tab, Divider, Box } from '@mui/material';
 import { colors } from '../../theme/colors';
-import InfiniteGameScroller from '../InfiniteGameScroller';
-import InfiniteGameSkeleton from '../skeleton/InfiniteScrollerSkeleton';
-import FolderIcon from '@mui/icons-material/Folder';
-import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
-import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import TeamHeader from '../teamdashboard/TeamHeader';
+import TeamMembers from '../teamdashboard/TeamMembers';
+import TeamGamesTab from '../teamdashboard/TeamGamesTab';
+import UnityPackagesTab from '../teamdashboard/UnityPackagesTab';
 
 const TeamDashboard = ({ teams, onUpdateTeam }) => {
   const { teamName } = useParams();
@@ -353,94 +340,13 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
       }}
     >
       {/* Header */}
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <Button
-          component={Link}
-          to="/account/dashboard/teams"
-          startIcon={<ArrowBackIcon />}
-          sx={{
-            color: colors.text,
-            background: 'rgba(24,24,27,0.7)',
-            borderRadius: 2,
-            px: 1.5,
-            fontWeight: 500,
-            fontSize: 14,
-            minHeight: 32,
-            boxShadow: 'none',
-            textTransform: 'none',
-            '&:hover': { background: 'rgba(24,24,27,0.9)' },
-          }}
-        >
-          Back
-        </Button>
-      </Stack>
-
-      {/* Team Info and Members Side by Side */}
       <Stack
         direction="row"
         alignItems="flex-start"
         justifyContent="space-between"
         sx={{ width: '100%' }}
       >
-        {/* Team Info */}
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar
-            src={team.team_icon_url}
-            alt={team.team_name}
-            variant="square"
-            sx={{
-              width: 40,
-              height: 40,
-              mr: 2,
-              border: 'none',
-              boxShadow: 1,
-              '& img': {
-                objectFit: 'contain',
-                width: '100%',
-                height: '100%',
-                display: 'block',
-              },
-            }}
-          />
-          <Stack>
-            <Typography
-              variant="subtitle1"
-              sx={{ color: colors.text, fontWeight: 600, fontSize: 18, letterSpacing: 0.2 }}
-            >
-              {team.team_name}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: colors.textSecondary, mt: 0.5, fontSize: 13 }}
-            >
-              Team ID: <span style={{ color: colors.text }}>{team.team_id}</span>
-            </Typography>
-          </Stack>
-        </Stack>
-        {/* Members Section */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'end' }}>
-          <Typography
-            variant="subtitle2"
-            sx={{ color: colors.text, fontWeight: 500, fontSize: 15 }}
-          >
-            Team Members
-          </Typography>
-          <Stack direction="row" spacing={1} alignItems="center">
-            {githubAvatars.map(member => (
-              <Avatar
-                key={member.id}
-                alt={`GitHub User ${member.id}`}
-                src={member.avatar_url}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderColor: colors.border,
-                  background: colors.background,
-                }}
-              />
-            ))}
-          </Stack>
-        </Box>
+        <TeamHeader team={team} githubAvatars={githubAvatars} />
       </Stack>
 
       {/* Tabs for Games and Unity Packages */}
@@ -483,278 +389,21 @@ const TeamDashboard = ({ teams, onUpdateTeam }) => {
         </Tabs>
         <Divider sx={{ borderColor: colors.border, opacity: 0.5 }} />
         {mainTab === 0 ? (
-          loadingGames ? (
-            <InfiniteGameSkeleton />
-          ) : errorGames ? (
-            <Typography color="error" variant="body2">
-              {errorGames}
-            </Typography>
-          ) : (
-            <Box sx={{ minHeight: 80, width: '100%' }}>
-              <InfiniteGameScroller games={games} style={{ width: '100%' }} />
-            </Box>
-          )
+          <TeamGamesTab loadingGames={loadingGames} errorGames={errorGames} games={games} />
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, overflow: 'hidden' }}>
-            <Tabs
-              value={unityTab}
-              onChange={handleUnityTabChange}
-              textColor="inherit"
-              indicatorColor="primary"
-              variant="standard"
-              sx={{
-                minHeight: 32,
-                height: 32,
-                '& .MuiTab-root': {
-                  minHeight: 32,
-                  height: 32,
-                  padding: '0 12px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  lineHeight: 1.2,
-                  gap: 0.5,
-                },
-                '& .MuiTab-iconWrapper': {
-                  fontSize: 16,
-                  marginRight: 4,
-                },
-              }}
-            >
-              <Tab
-                label="Upload"
-                icon={<UploadRoundedIcon sx={{ fontSize: 16 }} />}
-                iconPosition="start"
-                sx={{ minHeight: 32, height: 32, padding: '0 12px', fontSize: 13 }}
-              />
-              <Tab
-                label="Download"
-                icon={<DownloadRoundedIcon sx={{ fontSize: 16 }} />}
-                iconPosition="start"
-                sx={{ minHeight: 32, height: 32, padding: '0 12px', fontSize: 13 }}
-              />
-            </Tabs>
-            {unityTab === 0 && (
-              <>
-                {unityPackages.length === 0 && !scanning && (
-                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
-                    No Unity Packages found.
-                  </Typography>
-                )}
-                {scanning && (
-                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
-                    Scanning for Unity Packages...
-                  </Typography>
-                )}
-                {unityPackages.length > 0 && (
-                  <Box sx={{ maxHeight: 320, overflowY: 'auto', padding: 1 }}>
-                    <Stack spacing={1}>
-                      {[...unityPackages]
-                        .sort((a, b) => (b.mtime || 0) - (a.mtime || 0))
-                        .map(pkg => {
-                          const isUploading = uploadingPackages.has(pkg.path);
-                          const isUploaded = uploadedPackages.includes(pkg.path);
-                          const packageId = pkg.name.replace('.unitypackage', '');
-                          const existsInCdn = cdnPackages.some(
-                            cdnPkg => cdnPkg.package_id === packageId
-                          );
-                          return (
-                            <Box
-                              key={pkg.path}
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 2,
-                                background: 'rgba(255,255,255,0.02)',
-                                borderRadius: 2,
-                                px: 2,
-                                py: 1,
-                                cursor: isUploading || isUploaded ? 'default' : 'pointer',
-                                opacity: isUploading ? 0.7 : 1,
-                                pointerEvents: isUploading || isUploaded ? 'none' : 'auto',
-                                justifyContent: 'space-between',
-                                transition:
-                                  'outline 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)',
-                                '&:hover': {
-                                  outline: '1px solid #fff',
-                                  boxShadow: '0 0 0 2px rgba(255,255,255,0.3)',
-                                },
-                              }}
-                              onClick={() => {
-                                if (!isUploading && !isUploaded) handleUpload(pkg);
-                              }}
-                            >
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
-                                <Typography variant="body2" sx={{ color: colors.text }}>
-                                  {packageId}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{ color: colors.textSecondary, ml: 1 }}
-                                >
-                                  {pkg.size ? `${(pkg.size / 1024 / 1024).toFixed(1)} MB` : ''}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{ color: colors.textSecondary, ml: 1 }}
-                                >
-                                  {pkg.mtime ? new Date(pkg.mtime).toLocaleString() : ''}
-                                </Typography>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  minWidth: 28,
-                                  justifyContent: 'flex-end',
-                                }}
-                              >
-                                {isUploading && <CircularProgress size={18} color="inherit" />}
-                                {(isUploaded || existsInCdn) && (
-                                  <CheckCircleIcon sx={{ color: '#8bc34a', fontSize: 20 }} />
-                                )}
-                              </Box>
-                            </Box>
-                          );
-                        })}
-                    </Stack>
-                  </Box>
-                )}
-              </>
-            )}
-            {unityTab === 1 && (
-              <>
-                {loadingCdn && (
-                  <Box sx={{ maxHeight: 320, overflowY: 'auto', padding: 1 }}>
-                    <Stack spacing={1}>
-                      {[1, 2, 3].map((_, index) => (
-                        <Box
-                          key={index}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 2,
-                            background: 'rgba(255,255,255,0.02)',
-                            borderRadius: 2,
-                            px: 2,
-                            py: 1,
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
-                            <Box
-                              sx={{
-                                width: 200,
-                                height: 20,
-                                background: 'rgba(255,255,255,0.1)',
-                                borderRadius: 1,
-                              }}
-                            />
-                            <Box
-                              sx={{
-                                width: 150,
-                                height: 16,
-                                background: 'rgba(255,255,255,0.1)',
-                                borderRadius: 1,
-                              }}
-                            />
-                          </Box>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              minWidth: 28,
-                              justifyContent: 'flex-end',
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 20,
-                                height: 20,
-                                background: 'rgba(255,255,255,0.1)',
-                                borderRadius: 1,
-                              }}
-                            />
-                          </Box>
-                        </Box>
-                      ))}
-                    </Stack>
-                  </Box>
-                )}
-                {!loadingCdn && cdnPackages.length === 0 && (
-                  <Typography variant="body2" sx={{ color: colors.textSecondary, opacity: 0.7 }}>
-                    No CDN Unity Packages found.
-                  </Typography>
-                )}
-                {!loadingCdn && cdnPackages.length > 0 && (
-                  <Box sx={{ maxHeight: 320, overflowY: 'auto', padding: 1 }}>
-                    <Stack spacing={1}>
-                      {cdnPackages.map(pkg => {
-                        const isDownloading = downloadingPackages.has(pkg.id || pkg.package_id);
-                        return (
-                          <Box
-                            key={pkg.id || pkg.package_id}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 2,
-                              background: 'rgba(255,255,255,0.02)',
-                              borderRadius: 2,
-                              px: 2,
-                              py: 1,
-                              cursor: isDownloading ? 'default' : 'pointer',
-                              opacity: isDownloading ? 0.7 : 1,
-                              pointerEvents: isDownloading ? 'none' : 'auto',
-                              justifyContent: 'space-between',
-                              transition:
-                                'outline 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)',
-                              '&:hover': {
-                                outline: '1px solid #fff',
-                                boxShadow: '0 0 0 2px rgba(255,255,255,0.3)',
-                              },
-                            }}
-                            onClick={() => {
-                              if (!isDownloading) handleDownload(pkg);
-                            }}
-                          >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <FolderIcon sx={{ color: colors.textSecondary, mr: 1 }} />
-                              <Typography variant="body2" sx={{ color: colors.text }}>
-                                {pkg.package_id}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{ color: colors.textSecondary, ml: 1 }}
-                              >
-                                {new Date(pkg.created_at).toLocaleString()}
-                              </Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                minWidth: 28,
-                                justifyContent: 'flex-end',
-                              }}
-                            >
-                              {isDownloading ? (
-                                <CircularProgress size={18} color="inherit" />
-                              ) : (
-                                <DownloadRoundedIcon
-                                  sx={{ color: colors.textSecondary, fontSize: 20 }}
-                                />
-                              )}
-                            </Box>
-                          </Box>
-                        );
-                      })}
-                    </Stack>
-                  </Box>
-                )}
-              </>
-            )}
-          </Box>
+          <UnityPackagesTab
+            unityTab={unityTab}
+            onUnityTabChange={handleUnityTabChange}
+            unityPackages={unityPackages}
+            scanning={scanning}
+            uploadingPackages={uploadingPackages}
+            uploadedPackages={uploadedPackages}
+            cdnPackages={cdnPackages}
+            loadingCdn={loadingCdn}
+            downloadingPackages={downloadingPackages}
+            onUpload={handleUpload}
+            onDownload={handleDownload}
+          />
         )}
       </Box>
     </Stack>
