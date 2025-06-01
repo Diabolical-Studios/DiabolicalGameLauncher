@@ -1,3 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable no-undef */
+
 import { importPKCS8, SignJWT } from 'https://deno.land/x/jose@v4.14.4/index.ts';
 
 export default async (request, context) => {
@@ -63,7 +66,7 @@ export default async (request, context) => {
     console.log('✅ Successfully retrieved Installation Access Token');
 
     // Decide the redirect URL (here, always the electron scheme)
-    const redirectUrl = `diabolicallauncher://github-app?githubInstallationId=${installation_id}&githubAccessToken=${installationAccessToken}`;
+    const redirectUrl = `buildsmith://github-app?githubInstallationId=${installation_id}&githubAccessToken=${installationAccessToken}`;
 
     return new Response('', {
       status: 302,

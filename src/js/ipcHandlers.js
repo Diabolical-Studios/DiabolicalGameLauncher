@@ -19,7 +19,7 @@ const {
   getGamePlaytime,
 } = require('./gameManager');
 const { getCurrentGameVersion, getLatestGameVersion } = require('./updater');
-const { loadSettings, saveSettings, diabolicalLauncherPath } = require('./settings');
+const { loadSettings, saveSettings, buildsmithPath } = require('./settings');
 const { cacheGamesLocally, readCachedGames } = require('./cacheManager');
 const { getPreferredExecutable, getAllUnityPackages } = require('./launcherUtils');
 const windowStore = require('./windowStore');
@@ -64,7 +64,7 @@ function initIPCHandlers() {
   ipcMain.handle('get-game-playtime', async (event, gameId) => getGamePlaytime(gameId));
 
   ipcMain.on('open-game', (event, gameId) => {
-    const gamePath = path.join(diabolicalLauncherPath, gameId);
+    const gamePath = path.join(buildsmithPath, gameId);
     // Find the preferred .exe file in the game directory
     const executablePath = getPreferredExecutable(gamePath, gameId);
     if (!executablePath) {
@@ -178,7 +178,7 @@ function initIPCHandlers() {
   ipcMain.handle('is-game-running', (event, gameId) => runningGames.has(gameId));
 
   ipcMain.on('open-install-location', (event, gameId) => {
-    const gamePath = path.join(diabolicalLauncherPath, gameId);
+    const gamePath = path.join(buildsmithPath, gameId);
     exec(`explorer "${gamePath}"`);
   });
 
@@ -450,7 +450,7 @@ function initIPCHandlers() {
         throw new Error('Blocked non-http(s) protocol');
       }
       if (
-        !['github.com', 'patreon.com', 'diabolical.studio', 'diabolical.services'].some(domain =>
+        !['github.com', 'patreon.com', 'buildsmith.app', 'diabolical.services'].some(domain =>
           parsed.hostname.endsWith(domain)
         )
       ) {
@@ -483,7 +483,7 @@ function initIPCHandlers() {
   ipcMain.handle('download-unity-package', async (event, url, defaultFilename) => {
     const window = BrowserWindow.getFocusedWindow();
     // Create a temporary directory for downloads
-    const tempDir = path.join(app.getPath('temp'), 'diabolical-unity-packages');
+    const tempDir = path.join(app.getPath('temp'), 'buildsmith-unity-packages');
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }

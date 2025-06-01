@@ -2,8 +2,8 @@
    ---------------------------------------------------------------
    Chooses the correct site for:
    • npm start            → http://localhost:8888
-   • packaged dev build   → https://dev.launcher.diabolical.studio
-   • packaged prod build  → https://launcher.diabolical.studio
+   • packaged dev build   → https://dev.buildsmith.app
+   • packaged prod build  → https://buildsmith.app
 ----------------------------------------------------------------*/
 const { BrowserWindow, Tray, Menu, app } = require('electron');
 const path = require('path');
@@ -71,16 +71,13 @@ async function createWindow() {
     startURL = 'http://localhost:8888';
     await waitForReact();
   } else {
-    startURL =
-      buildEnv === 'development'
-        ? 'https://dev.launcher.diabolical.studio'
-        : 'https://launcher.diabolical.studio';
+    startURL = buildEnv === 'development' ? 'https://dev.buildsmith.app' : 'https://buildsmith.app';
   }
 
   log(`npm_package_env_NODE_ENV: ${buildEnv}`);
   log(`isLocalDev:               ${isLocalDev}`);
   log(`startURL:                 ${startURL}`);
-  log(`iconPath: ${path.join(__dirname, '../../icons/icon.ico')}`);
+  log(`iconPath: ${path.join(__dirname, '../../icons/favicon.ico')}`);
 
   try {
     /* ───────────────────────────────
@@ -103,7 +100,7 @@ async function createWindow() {
       width: settings.windowSize.width,
       height: settings.windowSize.height,
       frame: false,
-      icon: path.join(__dirname, '../../icons/icon.ico'),
+      icon: path.join(__dirname, '../../icons/favicon.ico'),
       backgroundColor: '#000000',
       webPreferences: {
         contextIsolation: true,
@@ -146,6 +143,8 @@ async function createWindow() {
         'https://*.cloudflare.com',
         'https://*.r2.dev',
         'https://*.r2.cloudflarestorage.com',
+        'https://*.buildsmith.app',
+        'https://buildsmith.app',
       ].join(' ');
 
       if (isLocalDev) {
@@ -175,6 +174,7 @@ async function createWindow() {
       const allowedDomains = [
         'diabolical.studio', // Allow root domain
         'diabolical.services', // Allow root domain
+        'buildsmith.app',
         'github.com',
         'githubusercontent.com',
         'cloudflare.com',
@@ -210,6 +210,7 @@ async function createWindow() {
       const allowedDomains = [
         'diabolical.studio', // Allow root domain
         'diabolical.services', // Allow root domain
+        'buildsmith.app',
         'github.com',
         'githubusercontent.com',
         'cloudflare.com',
@@ -267,7 +268,7 @@ async function createWindow() {
         e.preventDefault();
         mainWindow.hide();
         if (!tray) {
-          tray = new Tray(path.join(__dirname, '../../icons/icon.ico'));
+          tray = new Tray(path.join(__dirname, '../../icons/favicon.ico'));
           const ctx = Menu.buildFromTemplate([
             { label: 'Show Launcher', click: () => mainWindow.show() },
             {
@@ -281,7 +282,7 @@ async function createWindow() {
               },
             },
           ]);
-          tray.setToolTip('Diabolical Launcher');
+          tray.setToolTip('Buildsmith');
           tray.setContextMenu(ctx);
           tray.on('double-click', () => mainWindow.show());
         }

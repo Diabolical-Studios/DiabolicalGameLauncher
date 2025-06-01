@@ -60,7 +60,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
 
     setGithubAvatars(avatars);
 
-    // Fetch GitHub usernames from Diabolical API
+    // Fetch GitHub usernames from Buildsmith API
     const fetchGitHubUsernames = async () => {
       const userPromises = team.github_ids.map(async id => {
         try {

@@ -5,15 +5,15 @@ import { useLocation } from 'react-router-dom';
 
 const StatusBar = () => {
   const [appVersion, setAppVersion] = useState('');
-  const [message, setMessage] = useState('Diabolical Launcher');
+  const [message, setMessage] = useState('Buildsmith');
   const location = useLocation();
 
   const [statuses, setStatuses] = useState({
-    diabolicalOracleBucket: 'gray',
-    diabolicalApi: 'gray',
-    diabolicalLauncher: 'gray',
-    diabolicalGithub: 'gray',
-    diabolicalCloudflareBucket: 'gray',
+    buildsmithOracleBucket: 'gray',
+    buildsmithApi: 'gray',
+    buildsmithLauncher: 'gray',
+    buildsmithGithub: 'gray',
+    buildsmithCloudflareBucket: 'gray',
   });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const StatusBar = () => {
         //   localhost:8888           ← npm start (live-reload dev)
         //   dev.launcher…            ← packaged "dev" build
         //   launcher…                ← packaged production build
-        const host = window.location.hostname; // "localhost" | "dev.launcher.diabolical.studio" | "launcher.diabolical.studio"
+        const host = window.location.hostname; // "localhost" | "dev.buildsmith.app" | "buildsmith.app"
         const isDev = host === 'localhost' || host.startsWith('dev.');
         setAppVersion(`${isDev ? 'beta' : 'v'}${version}`); // "dev0.3.1"  or  "v0.3.1"
       });
@@ -44,25 +44,25 @@ const StatusBar = () => {
       };
 
       const [
-        diabolicalOracleBucket,
-        diabolicalApi,
-        diabolicalLauncher,
-        diabolicalGithub,
-        diabolicalCloudflareBucket,
+        buildsmithOracleBucket,
+        buildsmithApi,
+        buildsmithLauncher,
+        buildsmithGithub,
+        buildsmithCloudflareBucket,
       ] = await Promise.all([
         realPing('https://objectstorage.eu-frankfurt-1.oraclecloud.com/...'),
         realPing('https://api.diabolical.studio'),
-        realPing('https://launcher.diabolical.studio'),
-        realPing('https://github.com/Diabolical-Studios/DiabolicalGameLauncher/'),
+        realPing('https://buildsmith.app'),
+        realPing('https://github.com/blazittx/Buildsmith/'),
         realPing('https://cdn.diabolical.services'),
       ]);
 
       const newStatuses = {
-        diabolicalOracleBucket: diabolicalOracleBucket ? 'green' : 'red',
-        diabolicalApi: diabolicalApi ? 'green' : 'red',
-        diabolicalLauncher: diabolicalLauncher ? 'green' : 'red',
-        diabolicalGithub: diabolicalGithub ? 'green' : 'red',
-        diabolicalCloudflareBucket: diabolicalCloudflareBucket ? 'green' : 'red',
+        buildsmithOracleBucket: buildsmithOracleBucket ? 'green' : 'red',
+        buildsmithApi: buildsmithApi ? 'green' : 'red',
+        buildsmithLauncher: buildsmithLauncher ? 'green' : 'red',
+        buildsmithGithub: buildsmithGithub ? 'green' : 'red',
+        buildsmithCloudflareBucket: buildsmithCloudflareBucket ? 'green' : 'red',
       };
 
       setStatuses(newStatuses);
@@ -124,38 +124,38 @@ const StatusBar = () => {
                     width={10}
                     height={10}
                     borderRadius="50%"
-                    bgcolor={statuses.diabolicalOracleBucket}
+                    bgcolor={statuses.buildsmithOracleBucket}
                   />
                   <span>Oracle Bucket</span>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.diabolicalApi} />
-                  <span>Diabolical Api</span>
+                  <Box width={10} height={10} borderRadius="50%" bgcolor={statuses.buildsmithApi} />
+                  <span>Buildsmith Api</span>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Box
                     width={10}
                     height={10}
                     borderRadius="50%"
-                    bgcolor={statuses.diabolicalLauncher}
+                    bgcolor={statuses.buildsmithLauncher}
                   />
-                  <span>Diabolical Launcher</span>
+                  <span>Buildsmith App</span>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Box
                     width={10}
                     height={10}
                     borderRadius="50%"
-                    bgcolor={statuses.diabolicalGithub}
+                    bgcolor={statuses.buildsmithGithub}
                   />
-                  <span>Diabolical Github</span>
+                  <span>Buildsmith Github</span>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Box
                     width={10}
                     height={10}
                     borderRadius="50%"
-                    bgcolor={statuses.diabolicalCloudflareBucket}
+                    bgcolor={statuses.buildsmithCloudflareBucket}
                   />
                   <span>Cloudflare Bucket</span>
                 </Box>

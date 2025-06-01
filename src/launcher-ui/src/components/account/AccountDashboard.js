@@ -9,7 +9,7 @@ import AccountName from './AccountName';
 import Grid from '../Grid';
 import Divider from '../Divider';
 import ImageButton from '../button/ImageButton';
-import DiabolicalSpeedDial from '../button/DiabolicalSpeedDial';
+import BuildsmithSpeedDial from '../button/BuildsmithSpeedDial';
 import GroupsIcon from '@mui/icons-material/Groups';
 import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
 import { colors } from '../../theme/colors';
@@ -146,7 +146,7 @@ export default function AccountDashboard({ username }) {
               <ImageButton style={{ width: '100%' }} text="Games" icon={SportsEsportsRoundedIcon} />
             </Link>
           </Stack>
-          <DiabolicalSpeedDial onCreateTeam={fetchTeams} teams={teams} />
+          <BuildsmithSpeedDial onCreateTeam={fetchTeams} teams={teams} />
         </ul>
         <Divider vertical />
         <div className="flex flex-col gap-3 size-full mt-0" style={{ overflow: 'hidden' }}>

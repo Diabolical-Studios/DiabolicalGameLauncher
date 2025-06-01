@@ -52,7 +52,7 @@ export default async function (request, context) {
       });
     }
 
-    // Forward the request to the Diabolical API
+    // Forward the request to the Buildsmith API
     const response = await fetch(`${apiBaseUrl}/rest-api/library/${sessionID}`, {
       method: 'GET',
       headers: {

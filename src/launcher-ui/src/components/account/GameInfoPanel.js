@@ -467,8 +467,8 @@ const GameInfoPanel = ({ game }) => {
   };
 
   const githubAppDetails = {
-    'App Name': 'Diabolical Launcher Integration',
-    Team: 'Diabolical Studios',
+    'App Name': 'Buildsmith Integration',
+    Team: 'Buildsmith',
     REINITIALIZE: game.github_repo ? (
       <Box
         sx={{

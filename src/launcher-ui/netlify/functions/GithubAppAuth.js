@@ -48,7 +48,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 302,
       headers: {
-        Location: `diabolicallauncher://github-app?githubInstallationId=${installation_id}&githubAccessToken=${installationAccessToken}`,
+        Location: `buildsmith://github-app?githubInstallationId=${installation_id}&githubAccessToken=${installationAccessToken}`,
       },
     };
   } catch (error) {

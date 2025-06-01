@@ -41,7 +41,7 @@ export const services = [
 ];
 
 const PATREON_CLIENT_ID = '1xNwOOd3hVInyijzxYT0qrqTf1mkuhYPqcZusknZ4I6MQhk-97vzlp2ABpqgMHFH';
-const REDIRECT_URI = 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth';
+const REDIRECT_URI = 'https://buildsmith.app/.netlify/functions/patreonAuth';
 
 const formatStorageValue = bytes => {
   if (!bytes) return '0.00 MB';

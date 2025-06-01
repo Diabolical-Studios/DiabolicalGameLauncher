@@ -41,10 +41,7 @@ if (!window.api) {
         text={'Download Launcher'}
         icon={DownloadIcon}
         onClick={() =>
-          window.open(
-            'https://github.com/Diabolical-Studios/DiabolicalGameLauncher/releases/latest',
-            '_blank'
-          )
+          window.open('https://github.com/blazittx/Buildsmith/releases/latest', '_blank')
         }
         style={{
           padding: '12px',
@@ -68,7 +65,7 @@ if (!window.api) {
         color: colors.text,
       }}
     >
-      Diabolical Launcher <br />
+      Buildsmith <br />
       by{' '}
       <a
         href="https://github.com/blazittx"
@@ -95,10 +92,10 @@ if (typeof window !== 'undefined') {
             protoParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
           }
         }
-        const protoUrl = `diabolicallauncher://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
+        const protoUrl = `buildsmith://auth${protoParams.length ? '?' + protoParams.join('&') : ''}`;
         window.location.href = protoUrl;
         /* setTimeout(() => {
-                  window.location.href = "https://launcher.diabolical.studio";
+                  window.location.href = "https://buildsmith.app";
                 }, 500); */
       }
     } catch (e) {

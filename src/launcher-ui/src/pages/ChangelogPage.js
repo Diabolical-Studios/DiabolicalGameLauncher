@@ -54,9 +54,7 @@ const ChangelogPage = () => {
   useEffect(() => {
     const fetchReleases = async () => {
       try {
-        const response = await fetch(
-          'https://api.github.com/repos/Diabolical-Studios/DiabolicalGameLauncher/releases'
-        );
+        const response = await fetch('https://api.github.com/repos/blazittx/Buildsmith/releases');
         if (!response.ok) {
           throw new Error(`GitHub API Error: ${response.status}`);
         }

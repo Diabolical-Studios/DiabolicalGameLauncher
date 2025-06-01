@@ -67,7 +67,7 @@ function getCurrentGameVersion(gameId) {
   let versionFile = settingsModule.versionFilePath(gameId);
   if (!fs.existsSync(versionFile)) {
     // Fallback to old location for backward compatibility
-    versionFile = path.join(settingsModule.diabolicalLauncherPath, `${gameId}-version.json`);
+    versionFile = path.join(settingsModule.buildsmithPath, `${gameId}-version.json`);
   }
   try {
     const versionData = fs.readFileSync(versionFile);
@@ -126,7 +126,7 @@ function initUpdater() {
       showCustomNotification(mainWindow, 'Launcher Update', 'Download started.', 'launcher');
       autoUpdater.downloadUpdate();
     } else {
-      showMessage('Diabolical Launcher');
+      showMessage('Buildsmith');
       showCustomNotification(
         mainWindow,
         'Launcher Update',
@@ -137,7 +137,7 @@ function initUpdater() {
   });
 
   autoUpdater.on('update-not-available', () => {
-    showMessage('Diabolical Launcher');
+    showMessage('Buildsmith');
     showCustomNotification(mainWindow, 'Launcher Update', 'No updates available.');
   });
 
@@ -155,7 +155,7 @@ function initUpdater() {
         info.message.includes('Cannot find latest.yml'))
     ) {
       // Do not show this error to the user
-      showMessage('Diabolical Launcher');
+      showMessage('Buildsmith');
       showCustomNotification(mainWindow, 'Launcher Update', 'No updates available.');
       return;
     }

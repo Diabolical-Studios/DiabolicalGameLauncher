@@ -1,67 +1,80 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <link href="../../icons/icon.ico" rel="icon"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <meta content="#000000" name="theme-color"/>
+  <head>
+    <meta charset="utf-8" />
+    <link href="../../icons/favicon.ico" rel="icon" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="#000000" name="theme-color" />
 
     <!-- Primary SEO Meta Tags -->
-    <title>Diabolical Launcher</title>
+    <title>Buildsmith</title>
     <meta
-            content="Diabolical Launcher is a game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a more professional setting."
-            name="description"
+      content="Buildsmith is a game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a more professional setting."
+      name="description"
     />
-    <meta content="indie game dev, game launcher, GitHub integration, quick deploy, game distribution" name="keywords"/>
-    <meta content="Diabolical Studios" name="author"/>
+    <meta
+      content="indie game dev, game launcher, GitHub integration, quick deploy, game distribution"
+      name="keywords"
+    />
+    <meta content="Buildsmith" name="author" />
 
     <!-- Open Graph / Facebook -->
-    <meta content="website" property="og:type"/>
-    <meta content="https://diabolical.studio/" property="og:url"/>
-    <meta content="Diabolical Launcher" property="og:title"/>
+    <meta content="website" property="og:type" />
+    <meta content="https://buildsmith.app/" property="og:url" />
+    <meta content="Buildsmith" property="og:title" />
     <meta
-            content="A game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a professional setting."
-            property="og:description"
+      content="A game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a professional setting."
+      property="og:description"
     />
     <!-- Replace with your actual share image: -->
-    <meta content="%PUBLIC_URL%/share-image.jpg" property="og:image"/>
+    <meta content="%PUBLIC_URL%/share-image.jpg" property="og:image" />
 
     <!-- Twitter -->
-    <meta content="summary_large_image" property="twitter:card"/>
-    <meta content="https://diabolical.studio/" property="twitter:url"/>
-    <meta content="Diabolical Launcher" property="twitter:title"/>
+    <meta content="summary_large_image" property="twitter:card" />
+    <meta content="https://buildsmith.app/" property="twitter:url" />
+    <meta content="Buildsmith" property="twitter:title" />
     <meta
-            content="A game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a professional setting."
-            property="twitter:description"
+      content="A game launcher for indie game developers. Deploy your game from GitHub in 5 minutes, connect with your players, and let them download and play your games in a professional setting."
+      property="twitter:description"
     />
     <!-- Replace with your actual share image: -->
-    <meta content="%PUBLIC_URL%/share-image.jpg" property="twitter:image"/>
+    <meta content="%PUBLIC_URL%/share-image.jpg" property="twitter:image" />
 
     <!-- Preconnect to external origins -->
-    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link crossorigin href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin href="https://diabolical.studio" rel="preconnect"/>
-    <link crossorigin href="https://api.github.com" rel="preconnect"/>
-    <link crossorigin href="https://api.diabolical.studio" rel="preconnect"/>
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+    <link crossorigin href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin href="https://buildsmith.app" rel="preconnect" />
+    <link crossorigin href="https://api.github.com" rel="preconnect" />
+    <link crossorigin href="https://api.diabolical.studio" rel="preconnect" />
 
     <!-- Manifest and other config -->
-    <link href="%PUBLIC_URL%/manifest.json" rel="manifest"/>
-    <link href="%PUBLIC_URL%/android-chrome-192x192.png" rel="apple-touch-icon"/>
+    <link href="%PUBLIC_URL%/manifest.json" rel="manifest" />
+    <link href="%PUBLIC_URL%/android-chrome-192x192.png" rel="apple-touch-icon" />
     <style>
-        @media screen and (max-width: 768px) {
-            html body .button-root,
-            html body .title-root {
-                display: none !important;
-            }
+      @media screen and (max-width: 768px) {
+        html body .button-root,
+        html body .title-root {
+          display: none !important;
         }
+      }
     </style>
-</head>
+  </head>
 
-<body class="background">
-<noscript>You need to enable JavaScript to run this app.</noscript>
-<div id="root"
-     style="height: 100svh; align-items: center; justify-content: center; position: relative; display: flex; gap: 24px; flex-direction: row"></div>
-<div class="button-root" id="button-root"></div>
-<div class="title-root" id="title-root"></div>
-</body>
+  <body class="background">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div
+      id="root"
+      style="
+        height: 100svh;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        display: flex;
+        gap: 24px;
+        flex-direction: row;
+      "
+    ></div>
+    <div class="button-root" id="button-root"></div>
+    <div class="title-root" id="title-root"></div>
+  </body>
 </html>

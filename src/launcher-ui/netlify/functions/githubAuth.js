@@ -57,7 +57,7 @@ exports.handler = async function (event) {
       return {
         statusCode: 302,
         headers: {
-          Location: `diabolicallauncher://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
+          Location: `buildsmith://auth?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
         },
       };
     } else {
@@ -65,7 +65,7 @@ exports.handler = async function (event) {
       return {
         statusCode: 302,
         headers: {
-          Location: `https://launcher.diabolical.studio/account/login?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
+          Location: `https://buildsmith.app/account/login?sessionID=${sessionID}&username=${encodeURIComponent(username)}`,
         },
       };
     }
