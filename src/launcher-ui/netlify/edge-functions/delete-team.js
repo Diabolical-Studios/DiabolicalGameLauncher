@@ -34,7 +34,7 @@ export default async (request, context) => {
       });
     }
 
-    // Forward the request to the Diabolical API
+    // Forward the request to the Buildsmith API
     const response = await fetch(`${apiBaseUrl}/rest-api/teams/${teamId}`, {
       method: 'DELETE',
       headers: {
@@ -49,7 +49,7 @@ export default async (request, context) => {
     // Get the response data
     const data = await response.json();
 
-    // Return the response from the Diabolical API
+    // Return the response from the Buildsmith API
     return new Response(JSON.stringify(data), {
       status: response.status,
       headers: {

@@ -1,8 +1,8 @@
 {
-  "name": "diabolicallauncher",
-  "productName": "Diabolical Launcher",
-  "version": "0.0.10",
-  "description": "Launcher for the Diabolical Studios games",
+  "name": "buildsmith",
+  "productName": "BuildSmith",
+  "version": "0.0.1",
+  "description": "BuildSmith",
   "main": "src/index.js",
   "scripts": {
     "dev-ui": "cd src/launcher-ui && cross-env BROWSER=none netlify dev",
@@ -17,10 +17,10 @@
     "generate": "prisma generate",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
-  "repository": "https://github.com/Diabolical-Studios/DiabolicalGameLauncher",
+  "repository": "https://github.com/blazittx/Buildsmith",
   "build": {
-    "appId": "studio.diabolical.diabolicallauncher",
-    "productName": "Diabolical Launcher",
+    "appId": "buildsmith",
+    "productName": "Buildsmith",
     "directories": {
       "output": "dist"
     },
@@ -34,15 +34,15 @@
     ],
     "protocols": [
       {
-        "name": "Diabolical Launcher Protocol",
+        "name": "Buildsmith Protocol",
         "schemes": [
-          "diabolicallauncher"
+          "buildsmith"
         ]
       }
     ],
     "win": {
       "target": "nsis",
-      "icon": "icons/icon.ico",
+      "icon": "icons/favicon.ico",
       "artifactName": "${productName} Setup.${ext}"
     },
     "mac": {

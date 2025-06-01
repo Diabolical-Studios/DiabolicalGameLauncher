@@ -121,8 +121,8 @@ jobs:
       - name: 🏷️ Rename installer
         shell: bash
         run: |
-          mv "dist/Diabolical Launcher Setup.exe" "dist/Diabolical-Launcher-Setup.exe"
-          echo "INSTALLER=Diabolical-Launcher-Setup.exe" >>"$GITHUB_ENV"
+          mv "dist/Buildsmith Setup.exe" "dist/Buildsmith-Setup.exe"
+          echo "INSTALLER=Buildsmith-Setup.exe" >>"$GITHUB_ENV"
 
       # --------------------------------------------------------------
       # 📤 Upload artifacts
@@ -134,7 +134,7 @@ jobs:
           path: |
             dist/${{ env.INSTALLER }}
             dist/latest.yml
-            dist/Diabolical Launcher Setup.exe.blockmap
+            dist/Buildsmith Setup.exe.blockmap
 
       # --------------------------------------------------------------
       # 🔒 Supply-chain attestation
@@ -159,4 +159,4 @@ jobs:
           files: |
             dist/${{ env.INSTALLER }}
             dist/latest.yml
-            dist/Diabolical Launcher Setup.exe.blockmap
+            dist/Buildsmith Setup.exe.blockmap

@@ -1,3 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable no-undef */
+
 export default async (request, context) => {
   console.log('=== Netlify Edge Function Triggered ===');
 
@@ -95,8 +98,8 @@ export default async (request, context) => {
     const query = `${providerParam}&${sessionParams}`;
     const redirectUrl =
       source === 'electron'
-        ? `diabolicallauncher://auth?${query}`
-        : `https://launcher.diabolical.studio/account?${query}`;
+        ? `buildsmith://auth?${query}`
+        : `https://buildsmith.app/account?${query}`;
 
     return new Response('', {
       status: 302,

@@ -71,7 +71,7 @@ const NavBar = () => {
       {!isMobile && (
         <Zoom in={true} timeout={200}>
           <div>
-            <OpenExternalLink url="https://diabolical.studio">
+            <OpenExternalLink url="https://buildsmith.app">
               <img
                 className="w-full aspect-square cursor-pointer hover:scale-105 transition-transform"
                 src="/android-chrome-192x192.png"

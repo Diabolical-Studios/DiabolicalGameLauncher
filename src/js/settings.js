@@ -3,10 +3,9 @@ const path = require('path');
 const os = require('os');
 
 // Absolute paths of the launcher
-const diabolicalLauncherPath = path.join(os.homedir(), 'AppData', 'Local', 'Diabolical Launcher');
-const settingsFilePath = path.join(diabolicalLauncherPath, 'settings.json');
-const versionFilePath = gameId =>
-  path.join(diabolicalLauncherPath, gameId, `${gameId}-version.json`);
+const buildsmithPath = path.join(os.homedir(), 'AppData', 'Local', 'Buildsmith');
+const settingsFilePath = path.join(buildsmithPath, 'settings.json');
+const versionFilePath = gameId => path.join(buildsmithPath, gameId, `${gameId}-version.json`);
 // This will be made into a better logic
 const defaultSettings = {
   windowSize: { width: 1280, height: 720 },
@@ -47,8 +46,8 @@ function saveSettings(settings) {
 
 // Create or use the save file logic
 function initSettings() {
-  if (!fs.existsSync(diabolicalLauncherPath)) {
-    fs.mkdirSync(diabolicalLauncherPath, { recursive: true });
+  if (!fs.existsSync(buildsmithPath)) {
+    fs.mkdirSync(buildsmithPath, { recursive: true });
   }
 
   if (!fs.existsSync(settingsFilePath)) {
@@ -61,6 +60,6 @@ module.exports = {
   loadSettings,
   saveSettings,
   versionFilePath,
-  diabolicalLauncherPath,
+  buildsmithPath,
   settingsFilePath,
 };

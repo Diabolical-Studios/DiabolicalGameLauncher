@@ -3,12 +3,12 @@ const path = require('path');
 const { BrowserWindow } = require('electron');
 const { download } = require('electron-dl');
 const extract = require('extract-zip');
-const { diabolicalLauncherPath, versionFilePath } = require('./settings');
+const { buildsmithPath, versionFilePath } = require('./settings');
 const { getMainWindow } = require('./windowStore');
 const { getLatestGameVersion } = require('./versionChecker');
 
 async function extractZip(zipPath, gameId, event) {
-  const extractPath = path.join(diabolicalLauncherPath, gameId);
+  const extractPath = path.join(buildsmithPath, gameId);
   await extract(zipPath, { dir: extractPath });
   fs.unlinkSync(zipPath);
   event.sender.send('download-complete', gameId);
@@ -65,7 +65,7 @@ async function downloadGame(event, gameId) {
     // 2) download via electron-dl (no extra headers needed)
     const window = BrowserWindow.getFocusedWindow() || getMainWindow();
     const dl = await download(window, downloadUrl, {
-      directory: diabolicalLauncherPath,
+      directory: buildsmithPath,
       onProgress: progress => {
         event.sender.send('download-progress', {
           gameId,
@@ -78,7 +78,7 @@ async function downloadGame(event, gameId) {
     await extractZip(dl.getSavePath(), gameId, event);
 
     // 3) write version file
-    fs.mkdirSync(path.join(diabolicalLauncherPath, gameId), { recursive: true });
+    fs.mkdirSync(path.join(buildsmithPath, gameId), { recursive: true });
     fs.writeFileSync(versionFilePath(gameId), JSON.stringify({ version: latestVersion }));
 
     getMainWindow()?.webContents.send('update-available', {

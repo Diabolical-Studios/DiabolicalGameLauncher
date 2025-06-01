@@ -41,7 +41,7 @@ const StyledSpeedDialAction = styled(SpeedDialAction)(({ theme }) => ({
   margin: 0,
 }));
 
-const DiabolicalSpeedDial = ({ onCreateTeam, onCreateGame, teams }) => {
+const BuildsmithSpeedDial = ({ onCreateTeam, onCreateGame, teams }) => {
   const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false);
   const [openCreateGameDialog, setOpenCreateGameDialog] = useState(false);
 
@@ -92,4 +92,4 @@ const DiabolicalSpeedDial = ({ onCreateTeam, onCreateGame, teams }) => {
   );
 };
 
-export default DiabolicalSpeedDial;
+export default BuildsmithSpeedDial;

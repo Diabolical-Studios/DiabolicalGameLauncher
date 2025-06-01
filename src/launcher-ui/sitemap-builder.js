@@ -4,7 +4,7 @@ const path = require('path');
 const routes = require('./sitemap-routes');
 
 // Base URL for your site
-const BASE_URL = 'https://launcher.diabolical.studio';
+const BASE_URL = 'https://buildsmith.app';
 
 // Function to build the sitemap XML string
 const buildSitemap = paths => {

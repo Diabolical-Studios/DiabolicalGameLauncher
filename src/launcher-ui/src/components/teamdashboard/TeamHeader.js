@@ -11,7 +11,7 @@ const TeamHeader = ({ team, githubAvatars }) => {
   useEffect(() => {
     if (!githubAvatars || githubAvatars.length === 0) return;
 
-    // Fetch GitHub usernames from Diabolical API
+    // Fetch GitHub usernames from Buildsmith API
     const fetchGitHubUsernames = async () => {
       const userPromises = githubAvatars.map(async member => {
         try {

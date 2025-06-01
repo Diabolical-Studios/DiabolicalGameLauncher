@@ -4,7 +4,7 @@ import { colors } from '../../theme/colors';
 
 const handleGitHubLogin = async () => {
   const CLIENT_ID = 'Ov23ligdn0N1TMqWtNTV';
-  const redirectUri = encodeURIComponent('https://launcher.diabolical.studio/github-auth');
+  const redirectUri = encodeURIComponent('https://buildsmith.app/github-auth');
 
   // Add ?source=electron if we detect the app, else ?source=web
   const source = window.api ? 'electron' : 'web';

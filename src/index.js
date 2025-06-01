@@ -13,8 +13,8 @@ const launcherExecutablePath = path.join(
   'AppData',
   'Local',
   'Programs',
-  'diabolicallauncher',
-  'Diabolical Launcher.exe'
+  'buildsmith',
+  'Buildsmith.exe'
 );
 
 app.on('ready', () => {
@@ -27,7 +27,7 @@ app.on('ready', () => {
       ? process.execPath
       : launcherExecutablePath;
 
-  app.setAsDefaultProtocolClient('diabolicallauncher', executablePath);
+  app.setAsDefaultProtocolClient('buildsmith', executablePath);
 });
 
 app.on('window-all-closed', () => {
@@ -43,7 +43,7 @@ app.on('activate', () => {
 });
 
 app.on('second-instance', (event, argv) => {
-  const url = argv.find(arg => arg.startsWith('diabolicallauncher://'));
+  const url = argv.find(arg => arg.startsWith('buildsmith://'));
 
   if (url) {
     console.log('Received Protocol URL:', url);
@@ -69,7 +69,7 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on('second-instance', (event, argv) => {
-    const url = argv.find(arg => arg.startsWith('diabolicallauncher://'));
+    const url = argv.find(arg => arg.startsWith('buildsmith://'));
     if (url) {
       const mainWindow = getMainWindow();
       if (mainWindow) {

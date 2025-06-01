@@ -15,7 +15,7 @@ exports.handler = async function (event) {
   if (!code) {
     const CLIENT_ID = process.env.PATREON_CLIENT_ID;
     const REDIRECT_URI = encodeURIComponent(
-      'https://launcher.diabolical.studio/.netlify/functions/patreonAuth'
+      'https://buildsmith.app/.netlify/functions/patreonAuth'
     );
     const STATE = encodeURIComponent(
       JSON.stringify({
@@ -80,7 +80,7 @@ exports.handler = async function (event) {
         grant_type: 'authorization_code',
         client_id: process.env.PATREON_CLIENT_ID,
         client_secret: process.env.PATREON_CLIENT_SECRET,
-        redirect_uri: 'https://launcher.diabolical.studio/.netlify/functions/patreonAuth',
+        redirect_uri: 'https://buildsmith.app/.netlify/functions/patreonAuth',
       }),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
@@ -97,7 +97,7 @@ exports.handler = async function (event) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: 'application/json',
-      'User-Agent': 'DiabolicalLauncher/1.0 (+https://diabolical.studio)',
+      'User-Agent': 'Buildsmith/1.0 (+https://buildsmith.app)',
     },
   });
 
@@ -169,8 +169,8 @@ exports.handler = async function (event) {
   // 8. Redirect back to your launcher or web dashboard
   const redirectUrl =
     source === 'electron'
-      ? `diabolicallauncher://auth?provider=patreon&code=${encodeURIComponent(code)}`
-      : `https://launcher.diabolical.studio/account?provider=patreon&code=${encodeURIComponent(code)}`;
+      ? `buildsmith://auth?provider=patreon&code=${encodeURIComponent(code)}`
+      : `https://buildsmith.app/account?provider=patreon&code=${encodeURIComponent(code)}`;
 
   return {
     statusCode: 302,

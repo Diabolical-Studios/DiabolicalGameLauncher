@@ -58,7 +58,7 @@ export default async (request, context) => {
       });
     }
 
-    // Forward the request to the Diabolical API
+    // Forward the request to the Buildsmith API
     const response = await fetch(`${apiBaseUrl}/rest-api/library/add`, {
       method: 'POST',
       headers: {

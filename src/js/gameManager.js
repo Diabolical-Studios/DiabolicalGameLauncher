@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { Menu, shell, BrowserWindow } = require('electron');
 const { downloadGame } = require('./downloadManager');
-const { diabolicalLauncherPath } = require('./settings');
+const { buildsmithPath } = require('./settings');
 
 //  Store active game sessions
 const activeSessions = new Map();
@@ -27,7 +27,7 @@ function getDirectorySize(dirPath) {
 // Get the size of a game installation in bytes
 function getGameSize(gameId) {
   try {
-    const gamePath = path.join(diabolicalLauncherPath, gameId);
+    const gamePath = path.join(buildsmithPath, gameId);
     if (!fs.existsSync(gamePath)) {
       return 0;
     }
@@ -40,7 +40,7 @@ function getGameSize(gameId) {
 
 //  Get the path to the playtime data file
 function getPlaytimeFilePath() {
-  return path.join(diabolicalLauncherPath, 'playtime.json');
+  return path.join(buildsmithPath, 'playtime.json');
 }
 
 //  Load playtime data from file
@@ -107,12 +107,12 @@ function getGamePlaytime(gameId) {
 // Get a list of game_ids which are currently installed
 function getInstalledGames() {
   try {
-    if (!fs.existsSync(diabolicalLauncherPath)) {
-      fs.mkdirSync(diabolicalLauncherPath, { recursive: true });
+    if (!fs.existsSync(buildsmithPath)) {
+      fs.mkdirSync(buildsmithPath, { recursive: true });
       return [];
     }
 
-    const files = fs.readdirSync(diabolicalLauncherPath, {
+    const files = fs.readdirSync(buildsmithPath, {
       withFileTypes: true,
     });
     return files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
@@ -124,7 +124,7 @@ function getInstalledGames() {
 
 // Handles uninstalling game files
 function uninstallGame(gameId) {
-  const gamePath = path.join(diabolicalLauncherPath, gameId);
+  const gamePath = path.join(buildsmithPath, gameId);
   if (fs.existsSync(gamePath)) {
     fs.rmSync(gamePath, { recursive: true });
     console.log(`Uninstalled game with ID: ${gameId}`);
@@ -135,7 +135,7 @@ function uninstallGame(gameId) {
 
 // Display a menu where the user can manage the game.
 function showContextMenu(event, gameId, position) {
-  const gamePath = path.join(diabolicalLauncherPath, gameId);
+  const gamePath = path.join(buildsmithPath, gameId);
   const isGameInstalled = fs.existsSync(gamePath);
 
   const template = [];

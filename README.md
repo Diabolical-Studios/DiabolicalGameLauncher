@@ -1,9 +1,10 @@
+# Buildsmith
 [![Netlify Status](https://api.netlify.com/api/v1/badges/3fb89cbf-7c8b-4bfd-b317-57c092ef108b/deploy-status)](https://app.netlify.com/projects/diabolicallauncher/deploys)
-# Diabolical Launcher
 
-![Diabolical Launcher Landing Page](https://github.com/user-attachments/assets/7937eec6-a1cd-4ee3-b225-43ca83035f3e)
 
-**Diabolical Launcher** is a highly customizable game launcher made for indie developers. Built with **Electron**, it offers **auto-updates**, **CI/CD pipeline creation**, and **cloud storage integration** for game deployment. Games can be uploaded directly from **GitHub repositories** and downloaded and played from the launcher once uploaded.
+![Buildsmith Landing Page](https://github.com/user-attachments/assets/7937eec6-a1cd-4ee3-b225-43ca83035f3e)
+
+**Buildsmith** is a highly customizable game launcher made for indie developers. Built with **Electron**, it offers **auto-updates**, **CI/CD pipeline creation**, and **cloud storage integration** for game deployment. Games can be uploaded directly from **GitHub repositories** and downloaded and played from the launcher once uploaded.
 
 ## Features
 
@@ -57,12 +58,13 @@
 
 ## Installation
 
-To get started with **Diabolical Launcher**, follow the instructions below.
+To get started with **Buildsmith**, follow the instructions below.
 
-[Download the Latest Release Here](https://github.com/Diabolical-Studios/DiabolicalGameLauncher/releases/latest)
+[Download the Latest Release Here](https://github.com/blazittx/Buildsmith/releases/latest)
 
 ### Clone the Repo
 
 ```bash
 # Example command to clone the repo
-git clone https://github.com/Diabolical-Studios/DiabolicalGameLauncher.git
+git clone https://github.com/blazittx/Buildsmith.git
+```
