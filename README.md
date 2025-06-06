@@ -1,6 +1,5 @@
 # Buildsmith
-[![Netlify Status](https://api.netlify.com/api/v1/badges/3fb89cbf-7c8b-4bfd-b317-57c092ef108b/deploy-status)](https://app.netlify.com/projects/diabolicallauncher/deploys)
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3fb89cbf-7c8b-4bfd-b317-57c092ef108b/deploy-status)](https://app.netlify.com/projects/buildsmith/deploys)
 
 ![Buildsmith Landing Page](https://github.com/user-attachments/assets/7937eec6-a1cd-4ee3-b225-43ca83035f3e)
 

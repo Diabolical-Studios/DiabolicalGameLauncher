@@ -36,6 +36,7 @@ const LibraryPage = () => {
   });
   const [gameUpdates, setGameUpdates] = useState({});
   const [isGameRunning, setIsGameRunning] = useState(false);
+  const [runningGames, setRunningGames] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [startingUpdate, setStartingUpdate] = useState({});
 
@@ -547,12 +548,18 @@ const LibraryPage = () => {
   // Add effect to handle game state changes
   useEffect(() => {
     const handleGameStarted = gameId => {
+      setRunningGames(prev => new Set([...prev, gameId]));
       if (selectedGame?.game_id === gameId) {
         setIsGameRunning(true);
       }
     };
 
     const handleGameStopped = gameId => {
+      setRunningGames(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(gameId);
+        return newSet;
+      });
       if (selectedGame?.game_id === gameId) {
         setIsGameRunning(false);
       }
@@ -571,17 +578,34 @@ const LibraryPage = () => {
     };
   }, [selectedGame]);
 
-  // Add effect to check for running games on mount
+  // Add effect to check for running games on mount and when selected game changes
   useEffect(() => {
     const checkRunningGames = async () => {
-      if (selectedGame && window.electronAPI) {
-        const isRunning = await window.electronAPI.isGameRunning(selectedGame.game_id);
-        setIsGameRunning(isRunning);
+      if (window.electronAPI) {
+        // Check all installed games
+        for (const gameId of installedGameIds) {
+          const isRunning = await window.electronAPI.isGameRunning(gameId);
+          if (isRunning) {
+            setRunningGames(prev => new Set([...prev, gameId]));
+          }
+        }
+        // Update isGameRunning for selected game
+        if (selectedGame) {
+          const isRunning = await window.electronAPI.isGameRunning(selectedGame.game_id);
+          setIsGameRunning(isRunning);
+        }
       }
     };
 
     checkRunningGames();
-  }, [selectedGame]);
+  }, [selectedGame, installedGameIds]);
+
+  // Update isGameRunning when selected game changes
+  useEffect(() => {
+    if (selectedGame) {
+      setIsGameRunning(runningGames.has(selectedGame.game_id));
+    }
+  }, [selectedGame, runningGames]);
 
   return (
     <Box
@@ -646,7 +670,7 @@ const LibraryPage = () => {
             installedGameIds={installedGameIds}
             gameUpdates={gameUpdates}
             onContextMenu={handleContextMenu}
-            runningGames={isGameRunning ? [selectedGame?.game_id] : []}
+            runningGames={Array.from(runningGames)}
           />
         </Grid>
         <Grid
