@@ -57,6 +57,38 @@ const createParticlePool = size => {
   return pool;
 };
 
+// Add color interpolation helper
+const interpolateColors = (colors1, colors2, factor) => {
+  if (!colors1 || !colors2) return colors1 || colors2;
+
+  return colors1.map((color1, i) => {
+    const color2 = colors2[i] || color1;
+    // Extract HSL values
+    const hsl1 = color1.match(/hsla?\((\d+),\s*(\d+)%,\s*(\d+)%,\s*([\d.]+)\)/);
+    const hsl2 = color2.match(/hsla?\((\d+),\s*(\d+)%,\s*(\d+)%,\s*([\d.]+)\)/);
+
+    if (!hsl1 || !hsl2) return color1;
+
+    const h1 = parseInt(hsl1[1]);
+    const s1 = parseInt(hsl1[2]);
+    const l1 = parseInt(hsl1[3]);
+    const a1 = parseFloat(hsl1[4]);
+
+    const h2 = parseInt(hsl2[1]);
+    const s2 = parseInt(hsl2[2]);
+    const l2 = parseInt(hsl2[3]);
+    const a2 = parseFloat(hsl2[4]);
+
+    // Interpolate each component
+    const h = Math.round(h1 + (h2 - h1) * factor);
+    const s = Math.round(s1 + (s2 - s1) * factor);
+    const l = Math.round(l1 + (l2 - l1) * factor);
+    const a = a1 + (a2 - a1) * factor;
+
+    return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+  });
+};
+
 const BackgroundAnimation = ({ style = {} }) => {
   const canvasRef = useRef(null);
   const animationTimeRef = useRef(0);
@@ -366,6 +398,9 @@ const BackgroundAnimation = ({ style = {} }) => {
       // Update visible particles
       updateVisibleParticles(t, t2);
 
+      // Collect colors for gradient with more variation
+      const gradientColors = new Map(); // Using Map to store colors with their intensities
+
       // Batch process particles
       for (let i = 0; i < visibleParticlesRef.current.length; i += CONFIG.RENDER.BATCH_SIZE) {
         const end = Math.min(i + CONFIG.RENDER.BATCH_SIZE, visibleParticlesRef.current.length);
@@ -380,7 +415,17 @@ const BackgroundAnimation = ({ style = {} }) => {
             noiseRef.current.simplex3(pos.nx3, pos.ny3, t) * CONFIG.COLOR.HUE_VARIATION;
           const hue = (baseHue + point * hueVariation) % 360;
 
-          ctx.fillStyle = `hsla(${hue}, ${CONFIG.COLOR.SATURATION}%, ${CONFIG.COLOR.LIGHTNESS}%, ${point})`;
+          const color = `hsla(${hue}, ${CONFIG.COLOR.SATURATION}%, ${CONFIG.COLOR.LIGHTNESS}%, ${point})`;
+          ctx.fillStyle = color;
+
+          // Add color to gradient map if it's significant enough
+          if (point > 0.2) {
+            const roundedHue = Math.round(hue / 15) * 15; // Increased rounding for more stability
+            const key = `${roundedHue}`;
+            if (!gradientColors.has(key) || gradientColors.get(key).intensity < point) {
+              gradientColors.set(key, { color, intensity: point });
+            }
+          }
 
           // Reuse transform object
           const transform = reusableObjects.transform;
@@ -393,6 +438,25 @@ const BackgroundAnimation = ({ style = {} }) => {
           ctx.scale(transform.scale, transform.scale);
           ctx.fill(circlePathRef.current);
           ctx.restore();
+        }
+      }
+
+      // Emit color update event with more colors
+      if (gradientColors.size > 0) {
+        // Sort colors by intensity and take top 6
+        const newColors = Array.from(gradientColors.values())
+          .sort((a, b) => b.intensity - a.intensity)
+          .slice(0, 6)
+          .map(c => c.color);
+
+        // Only emit update every 500ms for smoother transitions
+        if (!window.lastColorUpdate || now - window.lastColorUpdate > 500) {
+          window.lastColorUpdate = now;
+          window.dispatchEvent(
+            new CustomEvent('backgroundAnimationColorUpdate', {
+              detail: { colors: newColors },
+            })
+          );
         }
       }
 

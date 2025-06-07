@@ -106,22 +106,6 @@ function initIPCHandlers() {
       event.sender.send('game-stopped', gameId);
     });
 
-    // Add process to the job object to ensure it's killed when the launcher dies
-    try {
-      const job = require('node:child_process').spawn(
-        'cmd',
-        ['/c', 'start', '/b', executablePath],
-        {
-          detached: false,
-          windowsHide: false,
-          stdio: 'ignore',
-        }
-      );
-      job.unref();
-    } catch (err) {
-      console.error('Error creating job object:', err);
-    }
-
     event.sender.send('game-started', gameId);
   });
 

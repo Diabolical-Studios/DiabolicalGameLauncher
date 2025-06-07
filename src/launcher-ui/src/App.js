@@ -18,6 +18,8 @@ import { createTheme, CssBaseline, GlobalStyles, ThemeProvider } from '@mui/mate
 import LibraryPage from './pages/LibraryPage';
 import StorePage from './pages/StorePage';
 import CustomCursor from './components/common/CustomCursor';
+import TermsOfService from './components/account/TermsOfService';
+import PrivacyPolicy from './components/account/PrivacyPolicy';
 
 const App = () => {
   const [muiTheme] = useState(
@@ -149,6 +151,8 @@ const App = () => {
                 <Route path="/account/*" element={<AccountPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
               </Routes>
             </ContentPanel>
           </StatusBarAndContentPanel>

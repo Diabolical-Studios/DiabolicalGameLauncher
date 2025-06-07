@@ -80,7 +80,7 @@ export const GameList = ({
               }}
             >
               <ListItemIcon sx={{ minWidth: 0 }}>
-                <SportsEsportsIcon sx={{ color: colors.text }} />
+                <SportsEsportsIcon sx={{ color: isRunning ? colors.primary : colors.text }} />
               </ListItemIcon>
               <ListItemText
                 primary={
