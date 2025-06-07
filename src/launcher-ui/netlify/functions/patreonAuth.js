@@ -14,13 +14,16 @@ exports.handler = async function (event) {
   // 2. If no code, kick off the OAuth flow
   if (!code) {
     const CLIENT_ID = process.env.PATREON_CLIENT_ID;
-    const REDIRECT_URI = encodeURIComponent(
-      'https://buildsmith.app/.netlify/functions/patreonAuth'
-    );
+    // Get the origin domain from the request headers
+    const origin = event.headers.origin || event.headers.referer;
+    const isDev = origin && origin.includes('dev.buildsmith.app');
+    const baseUrl = isDev ? 'https://dev.buildsmith.app' : 'https://buildsmith.app';
+    const REDIRECT_URI = encodeURIComponent(`${baseUrl}/.netlify/functions/patreonAuth`);
     const STATE = encodeURIComponent(
       JSON.stringify({
         source: params.source || 'web',
         sessionID: params.sessionID || '',
+        origin: baseUrl, // Store the origin in state
       })
     );
     const SCOPE = encodeURIComponent('identity identity[email] identity.memberships');
@@ -73,6 +76,10 @@ exports.handler = async function (event) {
   // 5. Exchange code for access token
   let accessToken;
   try {
+    // Get the origin from state
+    const stateData = JSON.parse(decodeURIComponent(rawState));
+    const origin = stateData.origin || 'https://buildsmith.app';
+
     const tokenRes = await axios.post(
       'https://www.patreon.com/api/oauth2/token',
       qs.stringify({
@@ -80,7 +87,7 @@ exports.handler = async function (event) {
         grant_type: 'authorization_code',
         client_id: process.env.PATREON_CLIENT_ID,
         client_secret: process.env.PATREON_CLIENT_SECRET,
-        redirect_uri: 'https://buildsmith.app/.netlify/functions/patreonAuth',
+        redirect_uri: `${origin}/.netlify/functions/patreonAuth`,
       }),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
@@ -167,10 +174,12 @@ exports.handler = async function (event) {
   }
 
   // 8. Redirect back to your launcher or web dashboard
+  const stateData = JSON.parse(decodeURIComponent(rawState));
+  const origin = stateData.origin || 'https://buildsmith.app';
   const redirectUrl =
     source === 'electron'
       ? `buildsmith://auth?provider=patreon&code=${encodeURIComponent(code)}`
-      : `https://buildsmith.app/account?provider=patreon&code=${encodeURIComponent(code)}`;
+      : `${origin}/account?provider=patreon&code=${encodeURIComponent(code)}`;
 
   return {
     statusCode: 302,
