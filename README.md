@@ -3,9 +3,18 @@
 
 ![Buildsmith Landing Page](https://github.com/user-attachments/assets/7937eec6-a1cd-4ee3-b225-43ca83035f3e)
 
-**Buildsmith** is a highly customizable game launcher made for indie developers. Built with **Electron**, it offers **auto-updates**, **CI/CD pipeline creation**, and **cloud storage integration** for game deployment. Games can be uploaded directly from **GitHub repositories** and downloaded and played from the launcher once uploaded.
+**Buildsmith** is your free one-click deployment tool for indie games. Connect your GitHub repository and Buildsmith packages your latest build, uploads it to the cloud, and notifies your team automatically—no more emailing zip files. Built with **Electron**, it handles updates, CI/CD pipelines, and cloud storage so you can focus on development.
 
 ## Features
+
+### 📦 One-Click GitHub Deployments
+
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    Deploy your game straight from your GitHub repository with a single click. Buildsmith packages your latest build and uploads it for free, so your testers always have the most recent version.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="One-Click Deploy" style="max-width: 45%;">
+</div>
 
 ### 🚀 Auto Updates
 
@@ -55,6 +64,15 @@
   <img src="https://via.placeholder.com/500" alt="Customizable UI" style="max-width: 45%;">
 </div>
 
+
+### 📊 Playtime Tracking
+
+<div style="display: flex; align-items: center;">
+  <div style="flex: 1; padding-right: 20px;">
+    Buildsmith records how long each game is played, giving you insight into tester engagement and helping prioritize updates.
+  </div>
+  <img src="https://via.placeholder.com/500" alt="Playtime Tracking" style="max-width: 45%;">
+</div>
 ## Installation
 
 To get started with **Buildsmith**, follow the instructions below.
@@ -67,3 +85,10 @@ To get started with **Buildsmith**, follow the instructions below.
 # Example command to clone the repo
 git clone https://github.com/blazittx/Buildsmith.git
 ```
+
+## License
+
+Buildsmith is distributed under the **Doruk Sasmaz Non-Commercial License (DSNC 1.0)**.
+This means you are free to use, modify, and merge the software for personal or
+academic projects but **commercial use and distribution are not allowed**.
+See [Licence.txt](./Licence.txt) for the full license text and details.

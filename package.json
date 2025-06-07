@@ -67,7 +67,7 @@
   },
   "keywords": [],
   "author": "doruksasmaz",
-  "license": "MIT",
+  "license": "SEE Licence.txt",
   "dependencies": {
     "adm-zip": "^0.5.16",
     "axios": "^1.8.2",
