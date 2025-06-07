@@ -9,10 +9,16 @@ const { getLatestGameVersion } = require('./versionChecker');
 
 async function extractZip(zipPath, gameId, event) {
   const extractPath = path.join(buildsmithPath, gameId);
-  await extract(zipPath, { dir: extractPath });
-  fs.unlinkSync(zipPath);
-  event.sender.send('download-complete', gameId);
-  return extractPath;
+  try {
+    await extract(zipPath, { dir: extractPath });
+    fs.unlinkSync(zipPath);
+    event.sender.send('download-complete', gameId);
+    return extractPath;
+  } catch (err) {
+    console.error('Extraction error:', err);
+    event.sender.send('download-error', gameId, err.message);
+    throw err;
+  }
 }
 
 async function downloadGame(event, gameId) {
