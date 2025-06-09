@@ -60,14 +60,47 @@ const GameCard = ({
     fetchLocalVersion(); // Fetch version when component mounts
   }, [game.game_id]);
 
-  const handleButtonClick = () => {
-    if (window.api) {
-      if (gameInstalled) {
-        window.electronAPI.openGame(game.game_id);
-      } else {
-        window.electronAPI.downloadGame(game.game_id);
+  const handleDownload = async () => {
+    if (window.electronAPI) {
+      // Desktop environment - use electron download
+      window.electronAPI.downloadGame(game.game_id);
+    } else {
+      // Web environment - download as zip
+      try {
+        const sessionId = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+
+        // Get presigned URL
+        const presignResp = await fetch('https://cdn.diabolical.services/generateDownloadUrl', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(sessionId && { sessionID: sessionId }),
+          },
+          body: JSON.stringify({
+            key: `R2/${game.game_id}/Versions/Build-StandaloneWindows64-${game.version}.zip`,
+          }),
+        });
+
+        if (!presignResp.ok) {
+          throw new Error('Failed to generate download URL');
+        }
+
+        const { url: downloadUrl } = await presignResp.json();
+
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `${game.game_name}-${game.version}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Download error:', error);
       }
-    } else console.log('window.api is not available (running in the browser)');
+    }
   };
 
   return (
@@ -150,7 +183,7 @@ const GameCard = ({
           gameInstalled={gameInstalled}
           downloadProgress={downloadProgress}
           gameVersion={localVersion || 'Not Installed'}
-          onClick={handleButtonClick}
+          onClick={handleDownload}
           gameId={game.game_id}
         />
       </Stack>

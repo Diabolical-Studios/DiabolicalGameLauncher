@@ -414,10 +414,51 @@ const LibraryPage = () => {
     }
   };
 
-  const handleDownloadGame = () => {
+  const handleDownloadGame = async () => {
     if (!selectedGame) return;
     if (activeDownloads[selectedGame.game_id] || applyingUpdate[selectedGame.game_id]) return;
-    window.electronAPI.downloadGame(selectedGame.game_id);
+
+    if (window.electronAPI) {
+      // Desktop environment - use electron download
+      window.electronAPI.downloadGame(selectedGame.game_id);
+    } else {
+      // Web environment - download as zip
+      try {
+        const sessionId = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('sessionID='))
+          ?.split('=')[1];
+
+        // Get presigned URL
+        const presignResp = await fetch('https://cdn.diabolical.services/generateDownloadUrl', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(sessionId && { sessionID: sessionId }),
+          },
+          body: JSON.stringify({
+            key: `R2/${selectedGame.game_id}/Versions/Build-StandaloneWindows64-${selectedGame.version}.zip`,
+          }),
+        });
+
+        if (!presignResp.ok) {
+          throw new Error('Failed to generate download URL');
+        }
+
+        const { url: downloadUrl } = await presignResp.json();
+
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `${selectedGame.game_name}-${selectedGame.version}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Download error:', error);
+        // You might want to show an error notification here
+      }
+    }
   };
 
   const handleUpdateGame = () => {

@@ -96,10 +96,17 @@ export default async (request, context) => {
     const providerParam = `provider=${provider}`;
     const sessionParams = `sessionID=${encodeURIComponent(sessionID)}&username=${encodeURIComponent(username)}&githubID=${encodeURIComponent(github_id)}`;
     const query = `${providerParam}&${sessionParams}`;
-    const redirectUrl =
-      source === 'electron'
-        ? `buildsmith://auth?${query}`
-        : `https://buildsmith.app/account?${query}`;
+
+    let redirectUrl;
+    if (source === 'electron') {
+      redirectUrl = `buildsmith://auth?${query}`;
+    } else {
+      // Get the origin domain from the request
+      const origin = request.headers.get('origin') || request.headers.get('referer');
+      const isDev = origin && origin.includes('dev.buildsmith.app');
+      const baseUrl = isDev ? 'https://dev.buildsmith.app' : 'https://buildsmith.app';
+      redirectUrl = `${baseUrl}/account?${query}`;
+    }
 
     return new Response('', {
       status: 302,
